@@ -1,0 +1,828 @@
+/*
+ * MangoWrite · PrimeVue component refinements
+ * PrimeVue runs in STYLED mode. The Mango identity (colour, warm-neutral
+ * surfaces, radii, focus ring) is carried by `MangoPreset` in `app/main.ts`,
+ * because PrimeVue injects its preset tokens at runtime AFTER this stylesheet —
+ * so the preset, not `:root` overrides, is authoritative for any `--p-*` token
+ * Aura emits.
+ *
+ * This file is only for the handful of touches the token system can't express
+ * (extra drop-shadows, pill geometry). Downstream code just uses stock PrimeVue
+ * components straight from the docs and inherits the look — no wrapper layer.
+  * */
+
+/*
+ * Unified control metrics
+ * PrimeVue has NO height token for Input/Button/Select — height is derived from
+ * `padding + font-size + line-height`. Aura ships line-height 1.5 and a 16px md
+ * font, so fields render ~35–38px AND drift apart (Input 35 vs Select 38, whose
+ * label kept 16px). We pin ONE line-height and ONE md font across the whole
+ * single-line family so Button = Input = Select = MultiSelect = DatePicker all
+ * resolve to the same ~32px. Padding still flows from the formField token ramp
+ * in `main.ts`, so the sm/md/lg ramp stays intact.
+  * */
+
+/* (1) Deterministic line-height — all sizes, every single-line field, button,
+   and overlay option. (Textarea is intentionally excluded: multiline wants the
+   roomier body line-height.) */
+.p-inputtext,
+.p-button,
+.p-select-label,
+.p-multiselect-label,
+.p-autocomplete-input,
+.p-treeselect-label,
+.p-datepicker-input,
+.p-select-option,
+.p-multiselect-option,
+.p-autocomplete-option,
+.p-listbox-option,
+.p-togglebutton,
+.p-inlinemessage,
+.p-message-text,
+.p-inputgroupaddon,
+/* DataTable 的 body 单元格在 DOM 上不带类名（只有 th 有 .p-datatable-header-cell），
+   只能按结构选中；否则 size="small" 仍吃 Aura 的 1.5 行高，比一族列表高 ~5px。 */
+.p-datatable-header-cell,
+.p-datatable-tbody > tr > td,
+.p-datatable-tfoot > tr > td {
+  line-height: 1.25;
+}
+
+/* (2) md (default) font → 14px. Aura hardcodes 16px in component CSS — the one
+   size piece the token ramp can't reach. sm/lg carry their own font-size
+   tokens, so they're excluded; textarea is folded in for a consistent base. */
+.p-inputtext:not(.p-inputtext-sm):not(.p-inputtext-lg),
+.p-button:not(.p-button-sm):not(.p-button-lg),
+.p-select:not(.p-inputfield-sm):not(.p-inputfield-lg) .p-select-label,
+.p-multiselect:not(.p-inputfield-sm):not(.p-inputfield-lg) .p-multiselect-label,
+.p-treeselect:not(.p-inputfield-sm):not(.p-inputfield-lg) .p-treeselect-label,
+.p-togglebutton:not(.p-togglebutton-sm):not(.p-togglebutton-lg),
+.p-textarea.p-textarea,
+.p-inputgroupaddon {
+  font-size: 0.875rem;
+}
+
+/* (2b) DatePicker 面板字号。日历数字 16px 不是继承来的——@primeuix/styles 在
+   `.p-datepicker-day-view` 上写死了 `font-size: 1rem`，且没有对应 token。类名双写
+   是常规那一套：运行时注入排在本表之后，单写被它盖回 16px。面板自己则按整屏
+   14px 收档（月/年视图、头部标签都跟着走）。 */
+.p-datepicker-panel.p-datepicker-panel,
+.p-datepicker-day-view.p-datepicker-day-view {
+  font-size: 0.875rem;
+}
+
+/* (3) Dropdown-trigger chevrons — a deliberate exception to the global
+   `iconSize: 1em` rule (which keeps content icons matched to text). A trigger
+   chevron is a small affordance, not text, so 14px reads heavy; pin to 12px. */
+.p-select-dropdown svg,
+.p-multiselect-dropdown svg,
+.p-treeselect-dropdown svg,
+.p-datepicker-dropdown svg,
+.p-cascadeselect-dropdown svg,
+.p-autocomplete-dropdown svg {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+/* (4) Clear icons（show-clear 的 ✕）——PrimeVue 把它渲染成一个**裸 svg**，直接
+   躺在 label 与箭头列之间：零外边距（紧贴着值文字，读成标点）、零点击域
+   （13px 的图形本身就是热区，指哪打哪）、无 hover 反馈（不像可点）。
+
+   这里把它当按钮做：圆形热区 18px（padding 撑开、glyph 收到 10px），左侧
+   6px 与值分开、右侧 2px 贴住箭头列（✕ 与 ▾ 是一组末端控件，不该等距散开），
+   默认三级灰、hover 才升到品牌色 + 淡底。改在这里而不是某个档里：裸 svg 是
+   组件默认长相的缺陷，表单里的 Select 一样受害。
+
+   类名**双写**：PrimeVue 的 `.p-icon { width: 1rem }` 与单类同权重、且是运行时
+   注入（排在本表之后），单写会被它把尺寸吃掉，热区悄悄退回 13px。 */
+.p-select-clear-icon.p-select-clear-icon,
+.p-multiselect-clear-icon.p-multiselect-clear-icon,
+.p-treeselect-clear-icon.p-treeselect-clear-icon,
+.p-cascadeselect-clear-icon.p-cascadeselect-clear-icon,
+.p-autocomplete-clear-icon.p-autocomplete-clear-icon,
+.p-datepicker-clear-icon.p-datepicker-clear-icon {
+  box-sizing: border-box;
+  width: 18px;
+  height: 18px;
+  padding: 4px;
+  margin-inline: 6px 2px;
+  border-radius: var(--radius-pill);
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  transition:
+    color var(--motion-duration-fast) var(--motion-ease-standard),
+    background-color var(--motion-duration-fast) var(--motion-ease-standard);
+}
+
+.p-select-clear-icon.p-select-clear-icon:hover,
+.p-multiselect-clear-icon.p-multiselect-clear-icon:hover,
+.p-treeselect-clear-icon.p-treeselect-clear-icon:hover,
+.p-cascadeselect-clear-icon.p-cascadeselect-clear-icon:hover,
+.p-autocomplete-clear-icon.p-autocomplete-clear-icon:hover,
+.p-datepicker-clear-icon.p-datepicker-clear-icon:hover {
+  color: var(--color-brand-600);
+  background-color: rgb(var(--color-brand-500-rgb) / 0.14);
+}
+
+/* Button — medium weight + brand drop-shadow on solid (non-secondary) buttons. */
+.p-button {
+  font-weight: 500;
+}
+
+/* SVG icons (Lucide) inside buttons: pin to --p-icon-size (= 1em) so they scale
+   with the button's font-size, and prevent flex-shrink from collapsing them. */
+.p-button svg {
+  width: var(--p-icon-size);
+  height: var(--p-icon-size);
+  flex-shrink: 0;
+}
+
+.p-button:not(.p-button-outlined):not(.p-button-text):not(.p-button-link):not(
+    .p-button-secondary
+  ):not(.p-disabled) {
+  box-shadow:
+    inset 0 -1px 0 rgb(0 0 0 / 0.08),
+    inset 0 1px 0 rgb(255 255 255 / 0.18),
+    var(--shadow-brand-md);
+}
+
+/* Button badge — render as a top-right corner indicator, not an inline flex item
+   that inflates the button. The badge sits partially outside the button, so
+   overflow is allowed on buttons that carry a badge. */
+.p-button.p-button:has(> .p-badge) {
+  overflow: visible;
+}
+
+.p-button.p-button > .p-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translate(40%, -40%);
+  z-index: 1;
+}
+
+/* PrimeVue stops treating an icon-only button as icon-only once a badge is
+   present, so it reverts to auto width with normal padding. Force it back to
+   the square icon-only footprint while keeping the badge as an overlay. */
+.p-button.p-button:has(> .p-badge):not(:has(.p-button-label)) {
+  width: var(--p-button-icon-only-width, 2rem);
+  padding-inline-start: 0;
+  padding-inline-end: 0;
+  gap: 0;
+}
+
+.p-button.p-button-sm.p-button:has(> .p-badge):not(:has(.p-button-label)) {
+  width: var(--p-button-sm-icon-only-width, 1.5rem);
+}
+
+.p-button.p-button-lg.p-button:has(> .p-badge):not(:has(.p-button-label)) {
+  width: var(--p-button-lg-icon-only-width, 3rem);
+}
+
+/* Replicate the hidden ::after flex item that PrimeVue uses for true
+   icon-only buttons, so the badge-bearing icon button keeps the same height. */
+.p-button.p-button:has(> .p-badge):not(:has(.p-button-label))::after {
+  content: "\00a0";
+  visibility: hidden;
+  width: 0;
+}
+
+/* Same strut, generalized: PrimeVue's height model is the text line-box, and a
+   bare <svg> child (lucide via #icon slot or default slot) carries no line-box,
+   so such buttons render shorter than every text-bearing sibling. True icon-only
+   buttons nominally have their own ::after strut, but PrimeVue uses a plain
+   space there — collapsible whitespace produces no line-box, so it collapses
+   too. Cover every label-less button with a direct SVG child (nbsp is not
+   collapsible and does generate the line-box). */
+.p-button:has(> svg):not(:has(.p-button-label))::after {
+  content: "\00a0";
+  visibility: hidden;
+  width: 0;
+}
+
+/* …and the square footprint too: a label-less button whose only child is an
+   SVG is an icon button in every sense, so give it the same fixed width /
+   zero inline padding / zero gap that declared icon-only buttons get — no
+   matter which slot form the icon came from. Buttons mixing an SVG with other
+   content keep their auto width. */
+.p-button:not(.p-button-icon-only):has(> svg:only-child):not(:has(.p-button-label)) {
+  width: var(--p-button-icon-only-width, 2rem);
+  padding-inline: 0;
+  gap: 0;
+}
+
+.p-button.p-button-sm:not(.p-button-icon-only):has(> svg:only-child):not(:has(.p-button-label)) {
+  width: var(--p-button-sm-icon-only-width, 1.5rem);
+}
+
+.p-button.p-button-lg:not(.p-button-icon-only):has(> svg:only-child):not(:has(.p-button-label)) {
+  width: var(--p-button-lg-icon-only-width, 3rem);
+}
+
+/* The hidden pseudo item participates in the flex gap; cancel the extra
+   trailing gap it would add. Only auto-width SVG buttons run a non-zero gap —
+   the square ones above (and declared icon-only) run gap: 0, where a negative
+   margin would push the centered icon off-center. */
+.p-button:not(.p-button-icon-only):has(> svg):not(:has(> svg:only-child)):not(:has(.p-button-label))::after {
+  margin-inline-start: calc(-1 * var(--p-button-gap, 0.5rem));
+}
+
+/* Tag / Chip — pill geometry (design 3.3 / 2.13). Doubled-class specificity so
+   we win against PrimeVue's own `.p-tag` rule, which is injected after us.
+   Pin line-height so a wrapper's `tw:leading-none` (or any non-default) can't
+   inherit into the Tag and shrink it -- PrimeVue ships no line-height on
+   `.p-tag`, so without this the text line-box tracks whatever the parent sets. */
+.p-tag.p-tag {
+  border-radius: var(--radius-pill);
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.p-chip.p-chip {
+  border-radius: var(--radius-pill);
+}
+
+/* InputNumber (stacked stepper) — a number stepper must be compact, never a
+   long bar. Two distinct defects, both fixed here:
+   1. The inner `<input>` has the browser default `size=20` intrinsic width
+      (~208px), which `flex: 1 1 auto` makes the root adopt — so even bare
+      `<InputNumber show-buttons>` renders as a wide field with the +/- column
+      stranded at the far end (recurring bug in plan cards, dialogs, tables).
+      We pin the input to a value-sized width (~6rem) so the field hugs the
+      number and the buttons sit right beside it.
+   2. `.p-inputnumber` is `inline-flex`, but ANY flex-column parent
+      (`align-items: stretch`) stretches it to the column width, turning it
+      into a full-bleed bar. `width: fit-content` restores the compact width.
+   Both rules are unlayered and more specific than `.p-inputnumber-fluid`, so
+   they also win over `fluid` and `tw:w-full` — a genuinely full-width number
+   field should be a plain InputNumber without buttons, not a stretched
+   stepper. */
+.p-inputnumber.p-inputnumber-stacked {
+  width: fit-content;
+}
+
+.p-inputnumber.p-inputnumber-stacked .p-inputnumber-input {
+  width: 6rem;
+  min-width: 0;
+}
+
+/* The stacked +/- column overlays the field's right edge. PrimeVue insets it
+   only 1px, which fractional-DPR rendering bleeds over the border and focus
+   ring — hovering the down button visibly "eats" the bottom-right chrome.
+   Push the group 2px in on every side so the field chrome always stays
+   visible around the buttons. (Higher specificity than PrimeVue's
+   `.p-inputnumber-stacked .p-inputnumber-button-group`, injected at runtime.) */
+.p-inputnumber.p-inputnumber-stacked .p-inputnumber-button-group {
+  inset-block-start: 2px;
+  inset-inline-end: 2px;
+  height: calc(100% - 4px);
+}
+
+/* ...but the gutter alone is not enough: the buttons carry `flex: 1 1 auto`
+   with the default `min-height: auto`, which pins each button to its icon's
+   content height (12px at sm). Two 12px buttons in a 20px group (24px sm
+   field − 2×2px gutter) can't shrink, so the pair overflows the group 4px
+   downward — the down button spills over the bottom border and its hover
+   fill eats the field chrome. `min-height: 0` lets the buttons split the
+   group height evenly at every field size; the icon overflows its box by a
+   hair at sm but stays centered (the button has no overflow clip). */
+.p-inputnumber.p-inputnumber-stacked .p-inputnumber-button {
+  min-height: 0;
+}
+
+/* MultiSelect tokens — the ✕ on each selected chip. Aura renders it at text
+   colour + full size, which reads as a heavy black glyph. Mute it to a grey
+   affordance with a clear hover (token size is trimmed in `main.ts`). */
+.p-multiselect-chip .p-chip-remove-icon {
+  width: 0.75rem;
+  height: 0.75rem;
+  color: var(--color-text-tertiary);
+  border-radius: var(--radius-pill);
+  transition:
+    color 0.15s,
+    background 0.15s;
+}
+
+.p-multiselect-chip .p-chip-remove-icon:hover {
+  color: var(--color-text-primary);
+  background: var(--color-surface-muted);
+}
+
+/* DataTable — muted header band + warm row hover (design §4.6). */
+.p-datatable-header-cell.p-datatable-header-cell {
+  background: var(--color-surface-muted);
+}
+
+.p-datatable-tbody > tr:not(.p-datatable-row-selected):hover > td {
+  background: var(--color-bg-soft);
+}
+
+/* Overlays — 真玻璃（issue #110 · 决定 7 的「浮层」那一档）。
+   浮层是玻璃最该待的地方：它按定义就悬在真实内容之上，底下每次都不一样。
+   在此之前这一整类是 95% 白的实心面 + 阴影，零 backdrop-filter——
+   等于把玻璃唯一稳赚的场景空着。选择器加倍以压过 MangoPreset 运行时注入的
+   面板底色（--p-overlay-*）。 */
+.p-menu.p-menu,
+.p-tieredmenu.p-tieredmenu,
+.p-contextmenu.p-contextmenu,
+.p-popover.p-popover,
+.p-select-overlay.p-select-overlay,
+.p-multiselect-overlay.p-multiselect-overlay,
+.p-autocomplete-overlay.p-autocomplete-overlay,
+/* DatePicker 面板是这一族最后一块不透明面。inline 变体不跟着升：它贴在页面上、
+   底下没有内容可透，玻璃只会白叠白。 */
+.p-datepicker-panel.p-datepicker-panel:not(.p-datepicker-panel-inline),
+.p-toast-message.p-toast-message {
+  background-color: var(--material-scrim);
+  background-image: var(--material-specular);
+  -webkit-backdrop-filter: var(--material-blur);
+  backdrop-filter: var(--material-blur);
+  box-shadow: var(--material-lens), var(--material-glass-shadow);
+  border-color: var(--material-hairline);
+}
+
+/* 玻璃浮层不画箭头：Popover 的 ::before/::after 是 border 描的实心三角
+   （popover.background / border.color），压在半透明玻璃上是一块不接材质的
+   实心补丁——这正是 AtUser 信息卡上那个出戏的三角。间隙由 popover.gutter
+   的 margin 承担，隐藏箭头后面板仍然浮在锚点外。 */
+.p-popover.p-popover::before,
+.p-popover.p-popover::after {
+  display: none;
+}
+
+/* 玻璃面上的行 hover / 选中：不能用不透明底色（实心块把材质打断）。一律走
+   半透明——hover 是中性的一层纱，选中才带品牌色。
+   纱这一层只能走 --material-hover，**不是 --material-inlay**：inlay 在浅色下是
+   42% 白叠层，而玻璃面板本身就是 55% 白铺在近白页底上（实测 hover 前后 RGB 只差
+   0.4/255），结果是只有带淡底的危险行有反馈、其余行点了没反应。inlay 的职责是
+   「内嵌块」那层底，不是行态。
+   `p-disabled` 挂在 li 上；不排掉就会盖过 Aura 对禁用行「不给 hover 反应」的处理。 */
+.p-menu.p-menu .p-menu-item:not(.p-disabled) .p-menu-item-content:hover,
+.p-tieredmenu.p-tieredmenu .p-tieredmenu-item:not(.p-disabled) .p-tieredmenu-item-content:hover,
+.p-contextmenu.p-contextmenu .p-contextmenu-item:not(.p-disabled) .p-contextmenu-item-content:hover,
+.p-select-overlay.p-select-overlay .p-select-option:not(.p-select-option-selected):not(.p-disabled):hover,
+.p-multiselect-overlay.p-multiselect-overlay .p-multiselect-option:not(.p-multiselect-option-selected):not(.p-disabled):hover,
+.p-autocomplete-overlay.p-autocomplete-overlay .p-autocomplete-option:not(.p-autocomplete-option-selected):not(.p-disabled):hover {
+  background: var(--material-hover);
+}
+
+.p-select-overlay.p-select-overlay .p-select-option.p-select-option-selected,
+.p-multiselect-overlay.p-multiselect-overlay .p-multiselect-option.p-multiselect-option-selected {
+  background: rgb(var(--color-brand-500-rgb) / 0.16);
+}
+
+/* DatePicker 头部那三枚按钮（‹ › 与「今天」）是 preset 渲染的 text 档 secondary
+   按钮，hover 底走 `--p-button-text-secondary-hover-background` = 不透明 bg-soft，
+   压在玻璃上是一块实心 chip。日历格与月/年标签的 hover 已在 token 里改成
+   --material-hover，这里补齐按钮那一档。 */
+.p-datepicker-panel.p-datepicker-panel .p-datepicker-prev-button:not(:disabled):hover,
+.p-datepicker-panel.p-datepicker-panel .p-datepicker-next-button:not(:disabled):hover,
+.p-datepicker-panel.p-datepicker-panel .p-datepicker-today-button:not(:disabled):hover {
+  background: var(--material-hover);
+}
+
+/* 「今天」画描边不画底：实心底在玻璃上打断材质，半透明白纱在 inline 的白底上
+   又读不出来（today.background 已在 preset 里清空）。内描边不占布局，格子尺寸不动。
+   边框色最重那档（border-strong L .86）实测只有 1.5:1，标记等于没画——走文字三级灰。 */
+.p-datepicker-panel.p-datepicker-panel .p-datepicker-today .p-datepicker-day {
+  box-shadow: inset 0 0 0 1px var(--color-text-tertiary);
+}
+
+/* 浮层里的分隔线：玻璃上用发丝线，实线会显得压在材质表面。 */
+.p-menu.p-menu .p-menu-separator,
+.p-tieredmenu.p-tieredmenu .p-tieredmenu-separator,
+.p-contextmenu.p-contextmenu .p-contextmenu-separator {
+  border-color: var(--material-inlay-border);
+}
+
+/* Dialog / Drawer 盖住半屏，要压住底下所有细节 → 更厚的一档。 */
+.p-dialog.p-dialog,
+.p-drawer.p-drawer {
+  box-shadow: var(--material-lens), var(--material-glass-shadow);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .p-menu.p-menu,
+  .p-tieredmenu.p-tieredmenu,
+  .p-contextmenu.p-contextmenu,
+  .p-popover.p-popover,
+  .p-select-overlay.p-select-overlay,
+  .p-multiselect-overlay.p-multiselect-overlay,
+  .p-autocomplete-overlay.p-autocomplete-overlay,
+  .p-datepicker-panel.p-datepicker-panel:not(.p-datepicker-panel-inline),
+  .p-toast-message.p-toast-message,
+  .p-dialog.p-dialog:not(.p-dialog-maximized),
+  .p-drawer.p-drawer {
+    background-color: var(--color-surface-overlay);
+    background-image: none;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .p-menu.p-menu,
+  .p-tieredmenu.p-tieredmenu,
+  .p-contextmenu.p-contextmenu,
+  .p-popover.p-popover,
+  .p-select-overlay.p-select-overlay,
+  .p-multiselect-overlay.p-multiselect-overlay,
+  .p-autocomplete-overlay.p-autocomplete-overlay,
+  .p-datepicker-panel.p-datepicker-panel:not(.p-datepicker-panel-inline),
+  .p-toast-message.p-toast-message,
+  .p-dialog.p-dialog:not(.p-dialog-maximized),
+  .p-drawer.p-drawer {
+    background-color: var(--color-surface-overlay);
+    background-image: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .p-dialog-mask.p-dialog-mask,
+  .p-drawer-mask.p-drawer-mask {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+/* ConfirmDialog 宽度地板：面板按内容定宽，短文案（删除会话等）会收成一窄条；
+   22rem 与文库删除对话框（LibrarySidebar Dialog width:22rem）同档，vw 上限兜小屏。 */
+.p-confirmdialog.p-confirmdialog {
+  min-width: min(22rem, 92vw);
+}
+
+/* ConfirmDialog — semantic icon tints. The default icon color is muted in the
+   MangoPreset token; these rules color specific PrimeIcons by their meaning. */
+.p-confirmdialog-icon.pi-trash {
+  color: var(--color-danger-500);
+}
+
+.p-confirmdialog-icon.pi-exclamation-triangle {
+  color: var(--color-warning-500);
+}
+
+/* info feedback (Message / InlineMessage / ConfirmDialog): neutral gray body,
+   brand-orange icon as the single accent — info blue stays reserved for links.
+   Selectors are doubled to beat PrimeVue's runtime-injected rules (same trick
+   as .p-tag.p-tag above): InlineMessage ships its own severity icon colour. */
+.p-confirmdialog-icon.pi-info-circle,
+.p-message-info.p-message-info .p-message-icon,
+.p-inlinemessage-info.p-inlinemessage-info .p-inlinemessage-icon,
+.p-toast-message-info.p-toast-message-info .p-toast-message-icon {
+  color: var(--color-brand-600);
+}
+
+/* content 是 flex-start（detail 换行时图标要钉在首行），16px 图标贴着 21px 的
+   summary 行盒（14px × 1.5 继承自 body）顶边，中心比字形光学中心高 2.5px。 */
+.p-toast-message .p-toast-message-icon {
+  margin-top: 2.5px;
+}
+
+/* Toast 的 severity 只染图标：预设里文字已统一走 text-primary，玻璃面上
+   14px 的 warn-600 只有 3.48:1（Message 那套色文字是垫在色底上的）。 */
+.p-toast-message-success.p-toast-message-success .p-toast-message-icon {
+  color: var(--color-success-600);
+}
+
+.p-toast-message-warn.p-toast-message-warn .p-toast-message-icon {
+  color: var(--color-warning-600);
+}
+
+.p-toast-message-error.p-toast-message-error .p-toast-message-icon {
+  color: var(--color-danger-700);
+}
+
+/* secondary 无语义可强调，图标走三级灰（预设里 secondary accent 同一档）；
+   PrimeVue 的 severity→icon 映射没有 secondary，span 是空壳——码点即 .pi-bookmark。 */
+.p-toast-message-secondary.p-toast-message-secondary .p-toast-message-icon {
+  color: var(--color-text-tertiary);
+}
+
+.p-toast-message-secondary .p-toast-message-icon::before {
+  content: "\e94e";
+  font-family: "primeicons";
+  font-style: normal;
+  font-weight: normal;
+  line-height: 1;
+  display: block;
+}
+
+/* Timeline (horizontal) — PrimeVue gives the last event `flex: 0`, so with no
+   trailing connector its cell collapses to the marker width and multi-char (CJK)
+   content wraps one glyph per line. Give it equal flex like the others; the
+   marker stays at the start of its cell, on the connector line. Also drop the
+   5rem min-height that left the row oddly tall. */
+/* A horizontal timeline should fill its container, not shrink to content —
+   otherwise a `align-items: flex-start` parent cramps it and labels wrap. */
+.p-timeline.p-timeline-horizontal {
+  width: 100%;
+}
+
+.p-timeline.p-timeline-horizontal .p-timeline-event {
+  min-height: 0;
+}
+
+.p-timeline.p-timeline-horizontal .p-timeline-event:last-child {
+  flex: 1;
+}
+
+/* Tabs — brand active underline + label. */
+.p-tab.p-tab-active {
+  color: var(--color-brand-700);
+}
+
+.p-tablist-active-bar {
+  background: var(--color-brand-500);
+}
+
+/*
+ * macOS material & motion (issue #110 · P2)
+ * 仿玻璃控件面 + 按下回弹 + 勾选弹入 + Dialog sheet 呈现。配方一律引用
+ * var.css 的 --material-* / --motion-* token，不在此自调数值。
+  * */
+
+/* ① Faux-glass field faces — InputText / Textarea / Select family.
+   The face gradient MUST go through background-image: it layers OVER the
+   background-color; folding it into a `background` shorthand would wipe the
+   colour layer and turn dark-mode fields transparent. Focus rings still win
+   (PrimeVue's :focus rules carry higher specificity and runtime injection).
+   不叠 --shadow-xs：投影紧贴 1px 边框下缘，白底上读起来是「第二条边线」。 */
+.p-inputtext.p-inputtext,
+.p-textarea.p-textarea,
+.p-select.p-select,
+.p-multiselect.p-multiselect,
+.p-treeselect.p-treeselect,
+.p-fileupload-advanced.p-fileupload-advanced {
+  background-color: var(--color-surface-base);
+  background-image: var(--material-control-face);
+  box-shadow: var(--material-control-inset);
+}
+
+/* ① Faux-glass button faces — secondary (filled-muted) and outlined variants.
+   Solid severity buttons are deliberately excluded: a white sheen over a
+   saturated fill reads dirty (same rationale as the brand button, P2 §①).
+   Selectors stay above PrimeVue's state rules (:not(:disabled):hover …) so
+   the face survives hover/active; the colour under it keeps flowing from the
+   preset's state tokens. */
+.p-button.p-button-secondary.p-button:not(.p-button-outlined):not(.p-button-text),
+.p-button.p-button-outlined.p-button:not(.p-button-text) {
+  background-image: var(--material-control-face);
+  box-shadow: var(--material-control-inset);
+}
+
+/* ① Faux-glass Tag — neutral face only (secondary). Severity tags are solid
+   fills; the inset hairline alone gives them the lit edge without washing
+   the colour out. */
+.p-tag.p-tag {
+  box-shadow: var(--material-control-inset);
+}
+
+.p-tag.p-tag-secondary.p-tag {
+  background-color: var(--color-surface-muted);
+  background-image: var(--material-control-face);
+}
+
+/* ① Checkbox box — face 只挂未勾选态。勾选态是实心品牌填充（PrimeVue 的
+   `.p-checkbox-checked` background 简写恰好盖掉我们的背景层），但它不动
+   box-shadow——玻璃 inset 的顶棱是 0.95 白，叠在饱和填充上会让填充看起来像
+   与外框错位（同实心按钮不上白高光的理由，P2 §①）。 */
+.p-checkbox:not(.p-checkbox-checked) .p-checkbox-box {
+  background-color: var(--color-surface-base);
+  background-image: var(--material-control-face);
+  box-shadow: var(--material-control-inset);
+}
+
+/* ③ Checkbox check pop — the tick springs in from its lower-left elbow
+   (transform-origin sits on the CheckIcon path's corner). Re-triggering on
+   every check is free: the animation property only applies while the root
+   carries .p-checkbox-checked. Chosen over stroke-dashoffset so the stock
+   CheckIcon survives untouched. */
+.p-checkbox.p-checkbox-checked .p-checkbox-icon {
+  transform-origin: 37% 68%;
+  animation: mw-checkbox-pop var(--motion-duration-fast) var(--motion-spring-pop);
+}
+
+@keyframes mw-checkbox-pop {
+  from {
+    transform: scale(0.55);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .p-checkbox.p-checkbox-checked .p-checkbox-icon {
+    animation: none;
+  }
+}
+
+/* ② Button press bounce — transform joins the preset's transition list with
+   the snap spring (release-side overshoot). `:active` writes ONLY the scale:
+   if a hover lift ever joins via --motion-lift-hover (same transform channel),
+   the press intentionally replaces it — a pressed control sinks, it doesn't
+   float. Small/icon-only controls shrink harder (3% is invisible at 24px). */
+.p-button.p-button {
+  transition:
+    background var(--motion-duration-base),
+    color var(--motion-duration-base),
+    border-color var(--motion-duration-base),
+    outline-color var(--motion-duration-base),
+    box-shadow var(--motion-duration-base),
+    transform var(--motion-duration-fast) var(--motion-spring-snap);
+}
+
+.p-button.p-button:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.p-button.p-button.p-button-sm:active:not(:disabled),
+.p-button.p-button.p-button-icon-only:active:not(:disabled) {
+  transform: scale(0.94);
+}
+
+/* ④ Dialog / Drawer — true-glass panel (strong tier) + sheet-style entrance.
+   大浮层盖住半屏、底下是成片正文，必须压住细节 → scrim-strong + blur-strong。
+   normal 档 + 无 blur 的旧组合让浅色 Dialog 只剩 55% 白：底页文字以色块透进
+   面板，白底字段压上去像贴纸。Maximized dialogs opt out: a full-screen sheet
+   is a page, not a floating surface. */
+.p-dialog.p-dialog:not(.p-dialog-maximized),
+.p-drawer.p-drawer {
+  background-color: var(--material-scrim-strong);
+  background-image: var(--material-specular);
+  border-color: var(--material-hairline);
+  /* 静态声明，永远不进 transition / @keyframes 的属性列表（ui:check 强制）。 */
+  -webkit-backdrop-filter: var(--material-blur-strong);
+  backdrop-filter: var(--material-blur-strong);
+}
+
+/* 浮层内部的「面」：header / content / footer 一律透明继承玻璃面。PrimeVue 默认
+   给这三段各自刷一遍不透明底色，那会把玻璃从内部整个盖掉——旧 Dialog 看着
+   「灰扑扑不像玻璃」的一半原因在这里，另一半是宿主自己写的实心内容块。 */
+.p-dialog.p-dialog:not(.p-dialog-maximized) .p-dialog-header,
+.p-dialog.p-dialog:not(.p-dialog-maximized) .p-dialog-content,
+.p-dialog.p-dialog:not(.p-dialog-maximized) .p-dialog-footer,
+.p-drawer.p-drawer .p-drawer-header,
+.p-drawer.p-drawer .p-drawer-content,
+.p-drawer.p-drawer .p-drawer-footer {
+  background: transparent;
+}
+
+/* 玻璃面上的内嵌块（宿主 Dialog 里的列表框 / 分组框 / 说明块）。规则一句话：
+   **浮层里不许出现不透明底色的块**。这里把最常见的两个 Tailwind 语义底
+   （bg-page-soft / bg-surface-0）在 Dialog 作用域内换成半透明内嵌面——宿主
+   不必逐个改，新写的也自动落进规则。 */
+.p-dialog.p-dialog:not(.p-dialog-maximized) :is(.tw\:bg-page-soft, .tw\:bg-surface-0, .tw\:bg-page) {
+  background-color: var(--material-inlay);
+}
+
+/* preset 注入的组件面板底色（Accordion 头/内容 = surface-muted / surface-base）
+   同样不许在玻璃里铺实心：Dialog 作用域内一律透明继承，行 hover 走中性纱。
+   宿主自己要分块时用 .mw-inlay / --material-inlay。 */
+.p-dialog.p-dialog:not(.p-dialog-maximized) .p-accordionheader,
+.p-dialog.p-dialog:not(.p-dialog-maximized) .p-accordioncontent,
+.p-dialog.p-dialog:not(.p-dialog-maximized) .p-accordioncontent-content {
+  background: transparent;
+}
+
+.p-dialog.p-dialog:not(.p-dialog-maximized) .p-accordionheader:hover {
+  background: var(--material-hover);
+}
+
+/* ④ Sheet entrance — scale(0.96) + 8px rise, emphasized glide; exit takes the
+   exit curve at ~0.65× the enter duration (asymmetric timing). PrimeVue ships
+   keyframe animations (not transition classes), so we re-point the animation
+   at our own keyframes with a doubled-class selector. */
+.p-dialog.p-dialog-enter-active {
+  animation: mw-dialog-enter var(--motion-duration-spatial) var(--motion-ease-emphasized);
+}
+
+.p-dialog.p-dialog-leave-active {
+  animation: mw-dialog-leave calc(var(--motion-duration-spatial) * 0.65) var(--motion-ease-exit);
+}
+
+@keyframes mw-dialog-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+}
+
+@keyframes mw-dialog-leave {
+  to {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+}
+
+/* ④ Mask — **压暗**背景，不是把整页糊成一片白雾。
+   原来遮罩用的是和玻璃面同一条 blur(20px)：一页浅色内容被 20px 模糊 + 提亮的
+   saturate 之后变成一片乳白，观感是「页面渲染坏了」，而且玻璃面板压在同样惨白
+   的底上，玻璃感被自己吃掉一半。真正让面板浮起来的是**亮度差**，不是模糊量——
+   遮罩只轻模糊（7px，够打散文字可读性）、主要靠 brightness 压暗。
+   backdrop-filter is declared statically: it never appears in a transition or
+   @keyframes property list (ui:check enforces this). */
+.p-dialog-mask.p-dialog-mask,
+.p-drawer-mask.p-drawer-mask {
+  background: var(--material-mask);
+  -webkit-backdrop-filter: var(--material-mask-blur);
+  backdrop-filter: var(--material-mask-blur);
+}
+
+.p-dialog-mask.p-overlay-mask-enter-active {
+  animation-duration: var(--motion-duration-spatial);
+  animation-timing-function: var(--motion-ease-standard);
+}
+
+.p-dialog-mask.p-overlay-mask-leave-active {
+  animation-duration: calc(var(--motion-duration-spatial) * 0.65);
+}
+
+/* ④ Background recede — while a MODAL dialog is open the app shell eases back
+   a hair. Pure CSS via :has() (no listeners/observers); `.p-overlay-mask` is
+   only present on modal masks, so non-modal dialogs don't trigger it.
+   `#app` already runs `isolation: isolate`, so the transform adds no stacking
+   surprises. */
+#app {
+  transition: transform var(--motion-duration-slow) var(--motion-ease-standard);
+}
+
+body:has(.p-dialog-mask.p-overlay-mask) #app {
+  transform: scale(0.995);
+}
+
+/*
+ * 组件第二批动效（issue #110 · P7）
+ * Tabs 墨条滑动 / ToggleSwitch knob 超调回弹 / SelectButton 状态过渡 /
+ * ProgressBar 过渡收敛。全部走 motion token，不引入新数值。
+  * */
+
+/* Tabs 选中墨条：PrimeVue 用 JS 量出 inline left/width，本身就在滑动——把它的
+   250ms 硬编码缓动换成 token：位移走 spring-snap（1.5% 超调 = 落定感），宽度
+   走 standard。left/width 是 PrimeVue 的既有契约（组件只输出这两个），属
+   「只动 transform/opacity」的既有例外，同 ModuleShell 折叠。 */
+.p-tablist-active-bar.p-tablist-active-bar {
+  transition:
+    left var(--motion-duration-base) var(--motion-spring-snap),
+    width var(--motion-duration-base) var(--motion-ease-standard),
+    background var(--motion-duration-base) var(--motion-ease-standard);
+}
+
+/* ToggleSwitch knob 超调回弹：位移属性（inset-inline-start）挂 spring-pop
+   （8.3% 超调，P1 token 的指定用途就是 switch knob），其余状态色走 base。 */
+.p-toggleswitch-knob.p-toggleswitch-knob {
+  transition:
+    inset-inline-start var(--motion-duration-base) var(--motion-spring-pop),
+    background var(--motion-duration-base) var(--motion-ease-standard),
+    color var(--motion-duration-base) var(--motion-ease-standard),
+    box-shadow var(--motion-duration-base) var(--motion-ease-standard),
+    outline-color var(--motion-duration-base) var(--motion-ease-standard);
+}
+
+/* SelectButton / ToggleButton：选中态颜色平滑过渡（整组滑块需要组件输出
+   transform 契约，PrimeVue 只给每段自己的背景——按段过渡 + 全局按下回弹，
+   不自造包装组件）。 */
+.p-togglebutton.p-togglebutton {
+  transition:
+    background var(--motion-duration-base) var(--motion-ease-standard),
+    color var(--motion-duration-base) var(--motion-ease-standard),
+    border-color var(--motion-duration-base) var(--motion-ease-standard),
+    outline-color var(--motion-duration-base) var(--motion-ease-standard),
+    box-shadow var(--motion-duration-base) var(--motion-ease-standard),
+    transform var(--motion-duration-fast) var(--motion-spring-snap);
+}
+
+/* ProgressBar：值是 PrimeVue 的 inline width（组件契约，无 transform 输出），
+   scaleX 方案需要上游支持——过渡先收敛到 token 时长/缓动（原本 1s 硬编码），
+   在上游提供 transform 契约前保持 width 过渡，不换 scale。 */
+.p-progressbar-determinate .p-progressbar-value {
+  transition: width var(--motion-duration-slow) var(--motion-ease-standard);
+}
+
+/* FileUpload — 空态拖拽区本体。旧版 content 全透明且没有 min-height，拖拽框
+   根本看不见；这里给空态（无文件清单）画虚线发丝框、最小高度并居中，提示文字
+   由消费方经 #empty 槽给（PrimeVue 自身不带）。0,3,0 压过 base 的
+   .p-fileupload-content（0,1,0），因此拖入高亮必须在下一条重新声明。 */
+.p-fileupload-advanced .p-fileupload-content:not(:has(.p-fileupload-file-list)) {
+  min-height: 6rem;
+  align-items: center;
+  justify-content: center;
+  border-color: var(--color-border-strong);
+  border-style: dashed;
+  border-radius: var(--radius-sm);
+}
+
+.p-fileupload-advanced .p-fileupload-content.p-fileupload-highlight {
+  border-color: var(--color-brand-500);
+  background: var(--color-brand-50);
+}
+
+/* Paginator refinements */.p-paginator {
+  background: transparent;
+  border: none;
+  font-size: 0.875rem;
+}
+
+.p-paginator-current {
+  font-size: 0.875rem;
+}
+
+.p-paginator .p-inputtext {
+  text-align: center;
+}
+

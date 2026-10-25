@@ -1,0 +1,705 @@
+/* 设计 token、PrimeVue 扩展、Tailwind 语义层与通用样式。
+   应用中的 Tailwind 配置参见 README。 */
+@import "./var.css";
+@import "primeicons/primeicons.css";
+@import "./primevue-theme.css";
+
+/*
+ * Tailwind semantic theme (Tailwind v4 `@theme`, prefix `tw:`)
+ * Maps a small, intentional set of SEMANTIC utility names onto the canonical
+ * tokens in `./var.css` — values reference the tokens (DRY:
+ * one source of truth). With prefix(tw), use them as `tw:bg-surface`,
+ * `tw:text-muted`, `tw:border-line`, `tw:bg-primary`, `tw:text-primary-700`,
+ * `tw:ring-primary/20`, `tw:font-serif`, etc.
+ *
+ * This is the sanctioned alternative to reaching into `var(--color-*)` ad hoc
+ * in markup/scoped CSS. Canonical utility names:
+ *   text/bg : default · muted · subtle · faint   (foreground ramp)
+ *   bg      : surface · surface-muted · canvas · page · page-soft
+ *   border  : line · line-strong
+ *   brand   : primary · primary-50/100/400/500/600/700 · on-brand（filled 面前景）
+ *   status  : success · info · warning · danger
+ *   fonts   : font-sans · font-serif · font-mono
+ * Prefer these over inventing new colours; new tokens belong in var.css first.
+  * */
+@theme {
+  /* Brand ramp → bg-primary, text-primary-700, ring-primary/20, … */
+  --color-primary: var(--color-brand-500);
+  --color-primary-50: var(--color-brand-50);
+  --color-primary-100: var(--color-brand-100);
+  --color-primary-200: var(--color-brand-200);
+  --color-primary-300: var(--color-brand-300);
+  --color-primary-400: var(--color-brand-400);
+  --color-primary-500: var(--color-brand-500);
+  --color-primary-600: var(--color-brand-600);
+  --color-primary-700: var(--color-brand-700);
+  --color-on-brand: var(--color-text-on-brand);
+
+  /* Foreground ramp → text-default / text-muted / text-subtle / text-faint */
+  --color-default: var(--color-text-primary);
+  --color-muted: var(--color-text-secondary);
+  --color-subtle: var(--color-text-tertiary);
+  --color-faint: var(--color-text-quaternary);
+
+  /* Surfaces & page → bg-surface / bg-surface-muted / bg-canvas / bg-page … */
+  --color-surface: var(--color-surface-base);
+  --color-surface-muted: var(--color-surface-muted);
+  --color-canvas: var(--color-surface-canvas);
+  --color-page: var(--color-bg);
+  --color-page-soft: var(--color-bg-soft);
+  --color-page-hover: var(--color-bg-hover);
+
+  /* 数字 surface 阶（bg-surface-0 / text-surface-400 / border-surface-200 …）：
+     上面 @plugin "tailwindcss-primeui" 默认把它们指向 PrimeVue 的 --p-surface-N
+     ramp——那条 ramp 深浅两套的**遍历方向相反**（Aura dark：0=最亮的文字色），
+     直接消费会在深色下渲染成近白（P6 后遗留的 94 处历史用法就是这么白的）。
+     这里按「浅色向」语义整体重指向 var.css token，历史用法即刻恢复正确；
+     **新代码不要再用数字阶**，用上面的语义名（tw:bg-surface / tw:bg-page-soft /
+     tw:text-subtle / tw:border-line …）。 */
+  --color-surface-0: var(--color-surface-base);
+  --color-surface-50: var(--color-bg-soft);
+  --color-surface-100: var(--color-surface-muted);
+  --color-surface-200: var(--color-border-subtle);
+  --color-surface-300: var(--color-border-strong);
+  --color-surface-400: var(--color-text-tertiary);
+  --color-surface-500: var(--color-text-tertiary);
+  --color-surface-600: var(--color-text-secondary);
+
+  /* Borders → border-line / border-line-strong */
+  --color-line: var(--color-border-subtle);
+  --color-line-strong: var(--color-border-strong);
+
+  /* Status → bg-danger / text-success / border-info … */
+  --color-success: var(--color-success-500);
+  --color-info: var(--color-info-500);
+  --color-warning: var(--color-warning-500);
+  --color-danger: var(--color-danger-500);
+
+  /* Type families → font-sans / font-serif / font-mono */
+  --font-sans: var(--font-family-sans);
+  --font-serif: var(--font-family-serif);
+  --font-mono: var(--font-family-mono);
+}
+
+:root {
+  color-scheme: light;
+  font-family: var(--font-family-sans);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--color-bg);
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+  font-family: var(--font-family-sans);
+  /* 字号与行高归各 app 入口：Write 工作台是 14px/1.5 密度口径，
+     rewrite/auth 营销站是 16px/1.6（对齐 rewrite.mangowrite.com）。 */
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "cv02", "cv11", "ss01";
+  overflow-x: hidden;
+}
+
+@layer base {
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+}
+
+::selection {
+  background: rgb(var(--color-brand-500-rgb) / 0.18);
+  color: var(--color-brand-700);
+}
+
+/* PrimeVue component theming lives in ./primevue-theme.css */
+
+.pm-link {
+  color: var(--color-brand-600);
+  font-weight: 600;
+}
+
+.pm-link:hover {
+  color: var(--color-brand-700);
+  text-decoration: underline;
+}
+
+/* === 真玻璃：唯一配方 ===============================================
+   四件套一起用才成立（见 var.css 的 Material 节）：scrim 底色 · backdrop blur ·
+   specular 镜面高光 · lens 边缘透镜。**消费方只加类，不自调数值**——散落的配方
+   在浅深两套 × N 处上必然漂移，这正是 P2 之后又漂回去的那条老路。
+
+   贴哪儿（决定 7，A2 之后仍然成立）：底下**真的有内容**的大面积
+   背板——顶栏、浮层（Menu / Popover / Select / Dialog / CommandPalette）、
+   正文上的浮动控件。左右栏仍然不贴：它们底下是画布纯色渐变，透了也没内容，
+   纯付一个合成层；那两栏的层次靠色阶 + 圆角浮起。
+
+   同屏 ≤ 3 层：顶栏 1 + 浮层 1（Menu 与 Dialog 互斥）+ 浮动控件 1。 */
+.mw-glass {
+  background-color: var(--material-scrim);
+  background-image: var(--material-specular);
+  /* 静态声明，永远不进 transition / @keyframes 的属性列表（ui:check 的
+     animated-filter 规则强制）。 */
+  -webkit-backdrop-filter: var(--material-blur);
+  backdrop-filter: var(--material-blur);
+  box-shadow: var(--material-lens), var(--material-glass-shadow);
+  border-color: var(--material-hairline);
+}
+
+/* 更厚的一档：给「盖住半屏、要压住底下所有细节」的浮层（Dialog / 命令面板）。 */
+.mw-glass--strong {
+  background-color: var(--material-scrim-strong);
+  -webkit-backdrop-filter: var(--material-blur-strong);
+  backdrop-filter: var(--material-blur-strong);
+}
+
+/* 玻璃面上的内嵌块（浮层里的列表框 / 分组框 / 字段面）。实心底色压在玻璃上会
+   把材质整个打断——旧 Dialog 里那块灰白实底的分类列表就是最出戏的一处。 */
+.mw-inlay {
+  background-color: var(--material-inlay);
+  border: 1px solid var(--material-inlay-border);
+  border-radius: var(--radius);
+}
+
+/* 两条降级路径。backdrop-filter 不可用时玻璃退成不透明面（半透明 + 无模糊 =
+   字压在花背景上，不可读）；用户明确要求减少透明度时同样退成不透明。 */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .mw-glass,
+  .mw-glass--strong {
+    background-color: var(--color-surface-overlay);
+    background-image: none;
+  }
+  .mw-inlay {
+    background-color: var(--color-bg-soft);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .mw-glass,
+  .mw-glass--strong {
+    background-color: var(--color-surface-overlay);
+    background-image: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .mw-inlay {
+    background-color: var(--color-bg-soft);
+  }
+}
+
+/* === HoverCard / v-tooltip 浮层 ============================================
+   HoverCard 组件与 v-tooltip 指令（shared/components/tooltip.ts，HoverCard
+   底座）共用同一枚面板。面板 fixed 挂在 body；指令创建的 DOM 没有组件的
+   scoped 属性，所以面板样式必须在全局，不能留在 HoverCard.vue 的 scoped 里。
+   玻璃四件套与 PrimeVue 浮层（primevue-theme.css 的玻璃选择器块）同配方，
+   不带箭头。 */
+.mw-hovercard__panel {
+  position: fixed;
+  width: fit-content;
+  max-width: 320px;
+  padding: 8px 10px;
+  border: 1px solid var(--material-hairline);
+  border-radius: var(--radius);
+  background-color: var(--material-scrim);
+  background-image: var(--material-specular);
+  /* 静态声明，不进 transition / @keyframes（ui:check 的 animated-filter 规则）。 */
+  -webkit-backdrop-filter: var(--material-blur);
+  backdrop-filter: var(--material-blur);
+  box-shadow: var(--material-lens), var(--material-glass-shadow);
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.mw-hovercard__panel--static {
+  pointer-events: none;
+}
+
+/* 降级路径与 .mw-glass 同口径。 */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .mw-hovercard__panel {
+    background-color: var(--color-surface-overlay);
+    background-image: none;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .mw-hovercard__panel {
+    background-color: var(--color-surface-overlay);
+    background-image: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+.mw-hovercard-enter-active,
+.mw-hovercard-leave-active {
+  transition: opacity 0.12s ease;
+}
+
+.mw-hovercard-enter-from,
+.mw-hovercard-leave-to {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mw-hovercard-enter-active,
+  .mw-hovercard-leave-active {
+    transition: none;
+  }
+}
+
+
+/* Unified scroll area */
+/* Apply `mw-scroll` to an independently scrolling region, or `mw-scroll-scope`
+   to a shell whose descendant scroll regions share this treatment. */
+.mw-scroll {
+  overflow: auto;
+}
+.mw-scroll,
+.mw-scroll-scope,
+.mw-scroll-scope * {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-strong) transparent;
+}
+.mw-scroll::-webkit-scrollbar,
+.mw-scroll-scope::-webkit-scrollbar,
+.mw-scroll-scope *::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.mw-scroll::-webkit-scrollbar-track,
+.mw-scroll-scope::-webkit-scrollbar-track,
+.mw-scroll-scope *::-webkit-scrollbar-track {
+  background: transparent;
+}
+.mw-scroll::-webkit-scrollbar-thumb,
+.mw-scroll-scope::-webkit-scrollbar-thumb,
+.mw-scroll-scope *::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+.mw-scroll::-webkit-scrollbar-thumb:hover,
+.mw-scroll-scope::-webkit-scrollbar-thumb:hover,
+.mw-scroll-scope *::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-quaternary);
+  background-clip: padding-box;
+}
+.mw-scroll::-webkit-scrollbar-corner,
+.mw-scroll-scope::-webkit-scrollbar-corner,
+.mw-scroll-scope *::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* === Generic primitives shared across feature pages ===
+   Button / input / chip / icon-button are now native PrimeVue components
+   (themed via MangoPreset + primevue-theme.css). Only non-component utilities
+   that PrimeVue doesn't provide live here: field label, muted/dim text helpers,
+   vertical divider, placeholder image. */
+
+.mw-field-label {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  margin-bottom: 6px;
+}
+
+.mw-muted {
+  color: var(--color-text-tertiary);
+}
+
+.mw-dim {
+  color: var(--color-text-quaternary);
+}
+
+.mw-vdivider {
+  width: 1px;
+  height: 22px;
+  background: var(--color-border-subtle);
+  flex-shrink: 0;
+}
+
+/* === 工具条档（mw-toolbar）====================================================
+   **行级档位类**：挂在工具条那一行上，行内的字段家族（Select / InputText /
+   SearchableMultiSelect）与 icon-only 按钮**自动进档**——新工具条只写这一个类，
+   不必给每个控件包一层。与顶栏 hero/tinted/plain 同构：类挂外层，PrimeVue 组件
+   本身一行不改。
+
+   **不要去改 Select/InputText 组件或 MangoPreset**：表单里的字段档（白底 + 仿玻璃
+   面 + shadow，见 primevue-theme.css §①）是对的。变的不是组件的默认长相，是同一个
+   组件在工具条里的**角色**——所以它只能由场所（行）决定，不能是组件的配置。
+
+   为什么要这一档：字段档放进工具条时，一个**没生效**的筛选视觉重量等于一个输入框；
+   而且白底 (255,255,255) 压在纸岛 (254,252,250) 上只差 2/255，分界全靠那条 border
+   ——读成「框」不是「控件」。工具条控件应当让岛面透上来（这里的 transparent 正是
+   把 §① 那层仿玻璃面脱掉）。
+
+   **本档管外观，不管布局**：高度 / 圆角 / 面 / 字号 / 箭头列由这里统一；「撑满还是
+   按内容收」归消费方（搜索框 tw:flex-1、筛选格 tw:flex-shrink-0）。本档**不能碰
+   flex**——styles.css 注入在 Tailwind 之后，一条 `.mw-toolbar > *` 会同权重压掉行内
+   的 tw: 布局类。
+
+   生效态：控件根或其任一祖先挂 `.is-active`（由消费方判定——组件不知道「默认值算不算
+   生效」）。落点：Library 筛选行、沉淀中心工具条。活样例在 /dev/ui。 */
+.mw-toolbar .p-select.p-select,
+.mw-toolbar .p-inputtext.p-inputtext,
+.mw-toolbar .mw-ms.mw-ms {
+  min-height: 32px;
+  height: 32px;
+  /* **不用 pill。** 同一个维度控件在行内是 chip、收进「更多」面板时是字段档，
+     两处**形状必须一致**，差异只体现在轻重（ghost ⇄ filled）——一个胶囊一个方框
+     会让人以为是两个不同的控件。 */
+  border-radius: var(--radius);
+  background-color: transparent;
+  background-image: none;
+  border: 1px solid var(--color-border-subtle);
+  box-shadow: none;
+  font-size: 12.5px;
+}
+
+/* 下拉族按内容收（搜索框反过来由消费方 flex-1 撑满）。 */
+.mw-toolbar .p-select.p-select,
+.mw-toolbar .mw-ms.mw-ms {
+  max-width: 13rem;
+  color: var(--color-text-secondary);
+}
+
+.mw-toolbar .p-select.p-select:not(.p-disabled):hover,
+.mw-toolbar .p-inputtext.p-inputtext:not(:disabled):hover,
+.mw-toolbar .mw-ms.mw-ms:not(.mw-ms-disabled):hover {
+  background-color: var(--color-surface-muted);
+  border-color: var(--color-border-strong);
+}
+
+/* 搜索框聚焦时补回实底：ghost 态是「未使用」的表达，一旦在打字就该是个正经输入框。 */
+.mw-toolbar .p-inputtext.p-inputtext:focus {
+  background-color: var(--color-surface-base);
+}
+
+/* 生效态：与顶栏 tinted 档同强度（底 .10 / 描边 .35 / 字 brand-700）。两组选择器
+   分别对应「.is-active 挂在控件根上」（Notes：直接挂 <Select>）与「挂在外层格子上」
+   （Library：格子还要承担宽度实测，本来就存在）。 */
+.mw-toolbar .is-active.p-select.p-select,
+.mw-toolbar .is-active .p-select.p-select,
+.mw-toolbar .is-active.mw-ms.mw-ms,
+.mw-toolbar .is-active .mw-ms.mw-ms {
+  background-color: rgb(var(--color-brand-500-rgb) / 0.1);
+  border-color: rgb(var(--color-brand-500-rgb) / 0.35);
+  color: var(--color-brand-700);
+}
+
+.mw-toolbar .is-active.p-select.p-select:not(.p-disabled):hover,
+.mw-toolbar .is-active .p-select.p-select:not(.p-disabled):hover,
+.mw-toolbar .is-active.mw-ms.mw-ms:not(.mw-ms-disabled):hover,
+.mw-toolbar .is-active .mw-ms.mw-ms:not(.mw-ms-disabled):hover {
+  background-color: rgb(var(--color-brand-500-rgb) / 0.16);
+  border-color: rgb(var(--color-brand-500-rgb) / 0.5);
+}
+
+/* 标签行与箭头列都按 chip 收窄：字段档的 40px 箭头列在一个 88px 的 chip 里占掉一半。
+   **.mw-ms 一族要写双类名**：它的基座在 SearchableMultiSelect 的 scoped 块里，带
+   [data-v-*] 的特性与「一个类 + 一个后代类」持平且注入在后，单类名压不过它。 */
+/* `.p-select.p-select` 的双写是**必需**的：primevue-theme.css 用
+   `.p-select:not(.p-inputfield-sm):not(.p-inputfield-lg) .p-select-label` 把 md
+   档字号钉在 14px（0,3,0），单类前缀的 `.mw-toolbar .p-select-label` 压不过它，
+   字号会静默退回 14。 */
+.mw-toolbar .p-select.p-select .p-select-label,
+.mw-toolbar .mw-ms-label.mw-ms-label {
+  padding-block: 0;
+  padding-inline: 10px 0;
+  font-size: 12.5px;
+  line-height: 30px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: inherit;
+}
+
+.mw-toolbar .p-select-dropdown,
+.mw-toolbar .mw-ms-dropdown.mw-ms-dropdown {
+  width: 26px;
+  color: inherit;
+}
+
+/* 清除 ✕（几何见 primevue-theme.css §4）在 chip 里跟着 chip 的字色走，而不是
+   全局那档中性灰——tinted 态下一个灰 ✕ 会像是别人贴上去的。降透明度保持它比
+   值文字轻一级，hover 交还给全局规则（品牌色 + 淡底）。 */
+.mw-toolbar .p-select-clear-icon.p-select-clear-icon {
+  color: inherit;
+  opacity: 0.5;
+}
+
+.mw-toolbar .p-select-clear-icon.p-select-clear-icon:hover {
+  opacity: 1;
+}
+
+/* SearchableMultiSelect 的 label 行 / 输入框是按「定宽字段」写的（flex:1 + width:1%），
+   这里显式收回按内容走，否则一个空的「分区」chip 会一路撑到 max-width（192px）。 */
+.mw-toolbar .mw-ms.mw-ms {
+  width: auto;
+}
+
+.mw-toolbar .mw-ms-label.mw-ms-label {
+  width: auto;
+  flex: 0 1 auto;
+  max-width: 9rem;
+}
+
+.mw-toolbar .mw-ms-input.mw-ms-input {
+  width: 4.5rem;
+  min-width: 0;
+  flex: 0 1 auto;
+  font-size: 12.5px;
+  line-height: 30px;
+  color: inherit;
+}
+
+.mw-toolbar .mw-ms-chip {
+  background: rgb(var(--color-brand-500-rgb) / 0.14);
+  color: var(--color-brand-700);
+}
+
+/* icon-only 按钮（更多 / 清除 / 存视图 / 排序）与分段控件：同为 32 档，同排不混高。
+   PrimeVue 的 size="small" 是 24——同排混档正是这一行原来发乱的另一半。带文字的
+   普通按钮不在此列（它们本来就该按自己的档走）。 */
+.mw-toolbar .p-button.p-button-icon-only {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: var(--radius);
+}
+
+/* 分段控件（SelectButton → .p-togglebutton）**不进 ghost 档**：它是自带轨道的
+   一族，轨道就是它的语义。只把字号拉到同排水平，免得一行里两个字号。 */
+.mw-toolbar .p-togglebutton.p-togglebutton {
+  font-size: 12.5px;
+}
+
+/* 批次筛选 chip（?batch=…）：只读的生效条件，点 ✕ 清除。 */
+.mw-filter-batch {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding-inline: 10px;
+  border-radius: var(--radius);
+  font-size: 12.5px;
+  background-color: rgb(var(--color-brand-500-rgb) / 0.1);
+  border: 1px solid rgb(var(--color-brand-500-rgb) / 0.35);
+  color: var(--color-brand-700);
+  white-space: nowrap;
+}
+
+/* 列表计数的浮动玻璃标记：常驻列表区右上角，内容从它底下滚过去——**这是全站
+   少数几处名副其实的玻璃**（底下真的有内容在动，见 var.css 的 Material 节）。
+   列表顶部因此留出一条空道（scroll 容器的 padding-top），滚到顶时它不压住首行。 */
+.mw-list-count {
+  position: absolute;
+  /* right 必须等于列表滚动区的左右内边距（SourceList 的 tw:px-4）——标记的右缘
+     与分组卡的右缘对齐。两处一起改。 */
+  top: 4px;
+  right: 16px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding-inline: 10px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--material-hairline);
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.mw-placeholder-img {
+  background:
+    repeating-linear-gradient(135deg,
+      rgb(var(--color-brand-500-rgb) / 0.06) 0 8px,
+      rgb(var(--color-brand-500-rgb) / 0) 8px 16px),
+    var(--color-bg-soft);
+  border: 1px dashed rgb(var(--color-brand-600-rgb) / 0.35);
+  color: var(--color-brand-700);
+  font-family: var(--font-family-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius);
+  text-align: center;
+}
+
+
+/* === 分组卡（issue #110 · 决定 1）：同构列表一组 N 行共用一张卡 ==================
+   圆角 --radius-lg · elevation-2；行间分隔线在 SourceListItem 的 ::before 内缩。
+   卡片只用于异构入口块与图片网格，且不套娃。可视样例见 /dev/ui「数据展示 · 分组卡列表」。 */
+.mw-group-card {
+  border-radius: var(--radius-lg);
+  background: var(--elevation-2-surface);
+  box-shadow: var(--elevation-2-shadow);
+  overflow: hidden;
+}
+
+/* 深链聚焦的行高亮已并入 SourceListItem 的 contextHighlight（ctx 同款左沿
+   竖条，apps/web 的 styles.css），不再有独立的 ring 样式。 */
+
+/* 不支持 View Transitions 的降级：同一动效语言的最小集（推入淡入）。 */
+@keyframes mw-vt-crossfade {
+  from {
+    opacity: 0;
+    transform: translateX(4%);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+html.vt-crossfade .mw-wshell__center {
+  animation: mw-vt-crossfade var(--motion-duration-spatial) var(--motion-ease-emphasized);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.vt-crossfade .mw-wshell__center,
+  .mw-source-card,
+  html.vt-workbench::view-transition-group(*),
+  html.vt-workbench::view-transition-old(*),
+  html.vt-workbench::view-transition-new(*) {
+    animation: none;
+  }
+}
+
+/* ── 低配降级档（html.mw-lowfx，shared/lib/device-tier.ts）────────────────────
+   判定：deviceMemory ≤ 4GB 或逻辑核 ≤ 4（保守，误判有 ?mwfx=full 逃生口）。
+   本档只砍「付了钱才好看」的成本，不动布局与信息结构：
+   - 浮层退掉 backdrop-filter（换 surface-overlay 实底，同
+     prefers-reduced-transparency 的回退）。大面积 blur 在弱 GPU 上是第一合成
+     成本。岛面本就没有 blur，不在此列。
+   - 卡片入场动画直切——20 张一批的 stagger 在半速 CPU 上与追加渲染抢帧。
+   View Transition 的直切不走 CSS（编排器在 view-transition.ts 里按档位放行）。
+   快设备没有此类，零变化。 */
+html.mw-lowfx .mw-glass,
+html.mw-lowfx .mw-glass--strong,
+html.mw-lowfx .p-dialog:not(.p-dialog-maximized),
+html.mw-lowfx .p-drawer,
+html.mw-lowfx .mw-reader__view-fab {
+  background-image: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+html.mw-lowfx .mw-glass,
+html.mw-lowfx .mw-glass--strong,
+html.mw-lowfx .p-dialog:not(.p-dialog-maximized),
+html.mw-lowfx .p-drawer {
+  /* 浮层去 blur 后必须有实底（半透明无模糊 = 字压花背景不可读），同
+     prefers-reduced-transparency 的回退。 */
+  background-color: var(--color-surface-overlay);
+}
+html.mw-lowfx .mw-source-card {
+  animation: none;
+}
+
+/* ── 站点/营销原语（write landing、rewrite 营销站、auth 登录共用）──────────────
+   营销面允许比工作台张扬（大按钮、大尺度），但颜色/圆角/字体全部回流 var.css
+   token——「张扬」是体系里的一档，不是页面里的野样式。壳组件（SiteHeader /
+   SiteFooter）在 components/site/。 */
+:root {
+  --site-container: 1120px;
+  --site-chrome: 1240px;
+  --site-section-y: 100px;
+}
+
+/* hero 档按钮：48px、上浮 hover，配 --primary / --secondary / --white 三变体。 */
+.mw-btn-hero {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 48px;
+  padding: 0 28px;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 15px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.mw-btn-hero--primary {
+  background: var(--color-brand-500);
+  color: var(--color-text-on-brand);
+  box-shadow: var(--shadow-brand-md);
+}
+
+.mw-btn-hero--primary:hover {
+  background: var(--color-brand-600);
+  color: var(--color-text-on-brand);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px -8px rgb(var(--color-brand-500-rgb) / 0.5);
+}
+
+.mw-btn-hero--secondary {
+  background: var(--color-surface-base);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-subtle);
+  box-shadow: var(--shadow-xs);
+}
+
+.mw-btn-hero--secondary:hover {
+  background: var(--color-bg-soft);
+  border-color: var(--color-border-strong);
+  transform: translateY(-1px);
+}
+
+/* 压在品牌渐变底上的反色档（CTA 区）：浅底+品牌字，深浅色都成立。 */
+.mw-btn-hero--white {
+  background: var(--color-surface-base);
+  color: var(--color-brand-700);
+  box-shadow: var(--shadow-md);
+}
+
+.mw-btn-hero--white:hover {
+  background: var(--color-brand-50);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* 顶栏档 CTA（SiteHeader actions 位）：36px 渐变胶囊。 */
+.mw-btn-site {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 18px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--brand-grad-from), var(--brand-grad-to));
+  color: var(--color-text-on-brand);
+  font-size: 0.86rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 10px 22px rgb(var(--color-brand-500-rgb) / 0.28);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  white-space: nowrap;
+}
+
+.mw-btn-site:hover {
+  color: var(--color-text-on-brand);
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgb(var(--color-brand-500-rgb) / 0.34);
+}

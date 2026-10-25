@@ -1,0 +1,106 @@
+{
+  "name": "@mango-write/ui",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "license": "Apache-2.0",
+  "packageManager": "pnpm@10.20.0",
+  "files": [
+    "dist",
+    "src",
+    "README.md",
+    "LICENSE",
+    "NOTICE"
+  ],
+  "exports": {
+    ".": {
+      "mango-source": {
+        "types": "./src/index.ts",
+        "default": "./src/index.ts"
+      },
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./theme.css": {
+      "mango-source": "./src/theme.css",
+      "default": "./dist/theme.css"
+    },
+    "./primevue-theme.css": {
+      "mango-source": "./src/primevue-theme.css",
+      "default": "./dist/primevue-theme.css"
+    },
+    "./tokens.css": {
+      "mango-source": "./src/var.css",
+      "default": "./dist/var.css"
+    },
+    "./components.css": {
+      "default": "./dist/components.css"
+    }
+  },
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js"
+      },
+      "./theme.css": {
+        "sideEffects": true,
+        "default": "./dist/theme.css"
+      },
+      "./primevue-theme.css": {
+        "sideEffects": true,
+        "default": "./dist/primevue-theme.css"
+      },
+      "./tokens.css": {
+        "sideEffects": true,
+        "default": "./dist/var.css"
+      },
+      "./components.css": {
+        "sideEffects": true,
+        "default": "./dist/components.css"
+      }
+    }
+  },
+  "scripts": {
+    "build": "vite build && vue-tsc --declaration --emitDeclarationOnly -p tsconfig.build.json && node -e \"const{cpSync}=require('node:fs');for(const f of['theme.css','primevue-theme.css','var.css'])cpSync('src/'+f,'dist/'+f)\"",
+    "prepare": "pnpm build",
+    "typecheck": "vue-tsc --noEmit -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "primeicons": "^7.0.0"
+  },
+  "peerDependencies": {
+    "@primeuix/themes": "^1.0.0",
+    "lucide-vue-next": "^1.0.0",
+    "vue": "^3.5.34",
+    "vue-i18n": "^11.4.7",
+    "primevue": "^4.4.0"
+  },
+  "devDependencies": {
+    "@primeuix/themes": "^1.0.0",
+    "@types/node": "^24.13.3",
+    "@vitejs/plugin-vue": "^6.0.8",
+    "@vue/test-utils": "^2.4.11",
+    "happy-dom": "^20.11.1",
+    "lucide-vue-next": "^1.0.0",
+    "primevue": "^4.4.0",
+    "typescript": "npm:@typescript/typescript6@^6.0.2",
+    "vite": "^8.3.5",
+    "vitest": "^4.1.12",
+    "vue": "^3.5.34",
+    "vue-i18n": "^11.4.7",
+    "vue-tsc": "^3.3.11"
+  },
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mango-write/mango-write-ui.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mango-write/mango-write-ui/issues"
+  },
+  "homepage": "https://github.com/mango-write/mango-write-ui#readme"
+}

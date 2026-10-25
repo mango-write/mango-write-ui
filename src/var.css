@@ -1,0 +1,813 @@
+:root {
+  color-scheme: light;
+
+  /* Brand */
+  --color-brand-50: #fff7ed;
+  --color-brand-100: #ffedd5;
+  --color-brand-200: #fed7aa;
+  --color-brand-300: #fdba74;
+  --color-brand-400: #fb923c;
+  --color-brand-500: #f97316;
+  --color-brand-600: #ea580c;
+  --color-brand-700: #c2410c;
+  /* 装饰性品牌渐变（首页营销卡 / 提示框）：浅色 400→500 提亮，深色 500→600 收沉。
+     品牌阶号深色下非单调，渐变尾必须显式指定，不能裸 from/to 同一语义阶。 */
+  --brand-grad-from: var(--color-brand-400);
+  --brand-grad-to: var(--color-brand-500);
+  /* 800–950 只服务 PrimeVue 的 --p-primary-* 调色阶；本仓 CSS 不直接用。
+     它们原本以字面 hex 写在 theme.ts 里，深色下不会跟着换——收进这里统一。 */
+  --color-brand-800: #9a3412;
+  --color-brand-900: #7c2d12;
+  --color-brand-950: #431407;
+  --color-brand-400-rgb: 251 146 60;
+  --color-brand-500-rgb: 249 115 22;
+  --color-brand-600-rgb: 234 88 12;
+  --color-brand-700-rgb: 194 65 12;
+  /* 营销站深色舞台：刻意不随深浅主题切换（深色区块在两种主题下都是深色）。 */
+  --site-ink: oklch(0.17 0.014 55);
+  --site-ink-raised: oklch(0.215 0.018 55);
+  --site-ink-line: oklch(0.3 0.02 55);
+  --site-on-ink: oklch(0.97 0.008 75);
+  --site-on-ink-muted: oklch(0.76 0.02 65);
+  --site-radius-panel: 40px;
+  --site-radius-card: 28px;
+  --site-radius-icon: 24px;
+
+  /* Surface — warm-tinted neutrals */
+  --color-bg: oklch(0.992 0.004 70);
+  --color-bg-soft: oklch(0.975 0.005 70);
+  /* hover 档，比 bg-soft 强一档：bg-soft 压在 surface-base 上只差 ~2% 读不出
+     hover（深色下 bg-soft 甚至比面更暗），压不住的地方 hover 用这一档。 */
+  --color-bg-hover: oklch(0.958 0.006 70);
+  --color-surface-base: #ffffff;
+  --color-surface-muted: oklch(0.985 0.004 70);
+  --color-surface-canvas: oklch(0.96 0.005 70);
+  --color-surface-elevated: rgba(255, 255, 255, 0.92);
+  --color-surface-glass: rgba(255, 255, 255, 0.78);
+  --color-surface-overlay: rgba(255, 255, 255, 0.95);
+  /* === Canvas — 壳的唯一定义背景 ===
+     .mw-shell 上这张画布是全 app 唯一的「桌面」，四座岛浮在它上面；**工作台
+     页面根不铺底色**，否则沟缝被盖住、只剩顶栏下一条缝，那条缝就读成断层。
+     画布必须**明显低于岛面**：浅色曾用 0.970，与岛面 (254,254,254) 只差
+     1.078 的对比——沟缝看不见，四座岛糊成一整片白，「没有玻璃感」的根因。
+     光斑贴顶（圆心压在顶边之上向下淡出），只有 radial 柔光、不叠顶部天光带；
+     全部静态 background-image，不动画、不新增合成层。加光斑前先想它压在谁
+     身上：圆心曾落在视口顶边，顶栏采到全画布最饱和的一块，被烧成橘带子。 */
+  --canvas-base: oklch(0.938 0.012 74);
+  --canvas-backdrop:
+    radial-gradient(1600px 850px at 78% -18%, rgb(var(--color-brand-400-rgb) / 0.20), transparent 62%),
+    radial-gradient(1250px 850px at -8% 106%, rgb(var(--color-brand-600-rgb) / 0.11), transparent 58%),
+    var(--canvas-base);
+  --canvas-gutter: 6px;
+  --canvas-island-radius: 14px;
+
+  /* === Island — 浮岛的面 ===
+     四座岛（顶栏 + 左栏 + 中栏 + 右栏）**共用同一套面**，轨道内容（tab 行 /
+     面板身 / 脚行 / Copilot）一律 transparent 继承岛面——铺实心底色等于把
+     材质从内部打断，且岛的 specular / lens 全被盖在下面。
+     **没有 backdrop-filter。** 岛底下是静态画布（平滑渐变），blur 一张平滑
+     渐变的输出与输入逐像素相同——实测关掉截图不变，四座岛白付四个合成层。
+     真玻璃只在浮层上（--material-*，底下每次都不一样）。浅色的透光感因此
+     不靠 blur，靠 scrim 放低到能吃进画布的暖调（见下）。
+     分界靠三件，缺一件浅色下就消失：
+       ① 外沿接触环 + 落地投影（--island-shadow，**要很轻**，理由见那里）
+       ② 顶棱一线内高光（--island-lens 第一段）
+       ③ **一圈暗发丝**（--island-lens 第二段）——岛面比画布亮，白高光叠上去
+          几乎无落差（scrim 0.92 时代那一圈白的实际贡献是 +0.2/255）；
+          浅面上只有暗线才画得出边。深色反过来，那一圈是白的。
+     不靠 border：border 在圆角处跟着糊。 */
+  /* scrim 0.74（曾是 0.92）：**浅色的玻璃感全靠这一档**。0.92 时岛面是死白
+     (254,254,254)，画布的暖光斑透不过来，四座岛在整片视野里是同一个色值——
+     再怎么调高光都救不回来（白叠白）。0.74 让岛面吃进画布的暖调，且**沿岛的
+     长边有渐变**（右上采到光斑、左下没有），那道横跨顶栏的微妙冷暖差就是
+     「这是一块透光的板」的读感来源。再往下（0.5 / 0.12 试过）内容会读成
+     「没有底色」，别越线。 */
+  --island-scrim: rgba(255, 255, 255, 0.74);
+  /* 两段：左上角的角部聚光（真玻璃的光在圆角处汇聚）+ 斜切镜面。面不再是纯白
+     之后这两段才有落差可言。 */
+  --island-specular:
+    radial-gradient(120% 180% at 0% 0%, rgba(255, 255, 255, 0.55) 0%,
+      rgba(255, 255, 255, 0) 42%),
+    linear-gradient(158deg, rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0.14) 30%,
+      rgba(255, 255, 255, 0) 62%);
+  /* 四段 = 一块有厚度的材料：顶棱进光 · 一圈暗发丝（边）· 顶部内侧亮晕 ·
+     底缘回暗。四段都落在**大面**上（只有四座岛用它），不适用「一条边只画一条
+     线」那条针对小浮层的告诫；小浮层走的是 --material-lens。 */
+  --island-lens:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    inset 0 0 0 1px rgba(20, 14, 8, 0.045),
+    inset 0 10px 12px -12px rgba(255, 255, 255, 0.9),
+    inset 0 -10px 14px -12px rgba(20, 14, 8, 0.045);
+  /* 中栏纸面。**不要用纯白**：卡片 / 分组卡在它上面还要再升一档到 elevation-2
+     （= #fff），纸面同为纯白等于把卡片抹平。 */
+  --island-paper: var(--color-bg);
+  --island-paper-lens:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 0 0 1px rgba(20, 14, 8, 0.045);
+  /* **浅色的投影要很轻**：沟缝只有 6px，相邻两座岛的接触环 + 落地投影在缝里
+     叠加，稍重一点整条缝就读成「深色勾缝」而不是「露出来的画布」。分离主要
+     交给 lens 的暗发丝和岛/画布的色差，投影只负责「浮起来」那一点点。 */
+  --island-shadow:
+    0 0 0 0.5px rgba(20, 14, 8, 0.05),
+    0 1px 2px rgba(20, 14, 8, 0.035),
+    0 8px 20px -14px rgba(20, 14, 8, 0.14);
+
+  /* Text */
+  --color-text-primary: oklch(0.22 0.01 70);
+  --color-text-secondary: oklch(0.42 0.012 70);
+  --color-text-tertiary: oklch(0.6 0.012 70);
+  --color-text-quaternary: oklch(0.72 0.01 70);
+  /* filled 品牌/状态面上的前景。浅=白压 brand-500 实测 2.80:1，不达正文 AA——
+     试过整套换深墨（浅 6.83 / 深 6.71，全族一起过），观感上拍板要白字，所以这里
+     记成已知例外：这一族只放图标与短标签时按非文字 3:1 算。深色翻成深墨，
+     见下面深色块第 3 条。 */
+  --color-text-on-brand: #ffffff;
+  /* 底色芯片上的墨字（writer 底色按钮的「A」）。高亮调色板是封闭的浅色粉彩
+     （serialization color-palette.ts），两套主题下都不变浅，所以字色恒为深墨、
+     不进 dark 覆盖块——进去了反而会跟着翻成白字。 */
+  --color-text-on-highlight: #170d08;
+
+  /* Border */
+  --color-border-subtle: oklch(0.92 0.006 70);
+  --color-border-strong: oklch(0.86 0.008 70);
+  --color-border-soft: oklch(0.94 0.006 70 / 0.72);
+  --color-border-inverse-soft: rgba(255, 255, 255, 0.65);
+
+  /* === Status ===
+     阶形不对称是故意的：success/warning 到 600（文字档），danger 到 700（文字档）
+     ——没有 50/100/300/600，别按 Tailwind 习惯补写；淡底用 *-surface，描边用 *-border。 */
+  --color-success-500: oklch(0.65 0.13 150);
+  --color-success-600: oklch(0.55 0.14 150);
+  --color-success-500-rgb: 34 197 94;
+  --color-info-500: oklch(0.58 0.11 245);
+  --color-info-500-rgb: 58 128 183;
+  --color-warning-500: oklch(0.74 0.16 60);
+  --color-warning-500-rgb: 242 143 41;
+  --color-warning-600: oklch(0.64 0.15 60);
+  --color-danger-500: oklch(0.62 0.18 25);
+  --color-danger-700: oklch(0.45 0.16 25);
+  --color-danger-500-rgb: 220 38 38;
+  --color-success-surface: rgb(var(--color-success-500-rgb) / 0.1);
+  --color-info-surface: rgb(var(--color-info-500-rgb) / 0.08);
+  --color-warning-surface: rgb(var(--color-warning-500-rgb) / 0.1);
+  --color-danger-surface: rgb(var(--color-danger-500-rgb) / 0.1);
+  --color-success-border: rgb(var(--color-success-500-rgb) / 0.2);
+  --color-info-border: rgb(var(--color-info-500-rgb) / 0.16);
+  --color-warning-border: rgb(var(--color-warning-500-rgb) / 0.2);
+  --color-danger-border: rgb(var(--color-danger-500-rgb) / 0.22);
+
+  /* === Annotation（批注/审阅映射高亮） ===
+     主题色（brand）：批注是「人对内容的标记」，语义色归主题。与 AI 未定稿新文
+     的绿（success）、旧文的红（danger）三者区分。surface=划词底、border=下缘线/竖线。
+     Reader 批注（mw-reader-highlight）与 Writer 评论/审阅映射共用这一组。 */
+  --color-annotation-500: var(--color-brand-400);
+  --color-annotation-500-rgb: var(--color-brand-400-rgb);
+  --color-annotation-surface: rgb(var(--color-annotation-500-rgb) / 0.18);
+  --color-annotation-border: rgb(var(--color-annotation-500-rgb) / 0.55);
+
+  /* === 划线 Mark（阅读荧光笔/下划线）：个人阅读标记，与批注橙（人对内容的意见）、
+     原文作者高亮（原文自带内容）三分。surface/border 由 -rgb 墨色派生，深色只翻 -rgb。 */
+  --color-mark-yellow-rgb: 250 202 21;
+  --color-mark-yellow-surface: rgb(var(--color-mark-yellow-rgb) / 0.4);
+  --color-mark-yellow-border: rgb(var(--color-mark-yellow-rgb) / 0.85);
+  --color-mark-green-rgb: 74 222 128;
+  --color-mark-green-surface: rgb(var(--color-mark-green-rgb) / 0.4);
+  --color-mark-green-border: rgb(var(--color-mark-green-rgb) / 0.85);
+  --color-mark-blue-rgb: 96 165 250;
+  --color-mark-blue-surface: rgb(var(--color-mark-blue-rgb) / 0.4);
+  --color-mark-blue-border: rgb(var(--color-mark-blue-rgb) / 0.85);
+  --color-mark-pink-rgb: 244 114 182;
+  --color-mark-pink-surface: rgb(var(--color-mark-pink-rgb) / 0.4);
+  --color-mark-pink-border: rgb(var(--color-mark-pink-rgb) / 0.85);
+  --color-mark-purple-rgb: 167 139 250;
+  --color-mark-purple-surface: rgb(var(--color-mark-purple-rgb) / 0.4);
+  --color-mark-purple-border: rgb(var(--color-mark-purple-rgb) / 0.85);
+
+  /* === 原文作者高亮（mark[data-mw-highlight]，parser/写作器调色板默认黄） ===
+     与批注橙是两个语义：这是「原文自带的内容」，不参与批注配色。 */
+  --color-source-highlight: #fff3a3;
+
+  /* === Typography ===
+     真话：Inter / Noto Sans SC / Source Serif 4 / JetBrains Mono **都没有自托管**
+     （index.html 零 @font-face、零 Google Fonts，是「在大陆运营、避开网络依赖」的
+     既有决定）。栈里保留这些名字只意味着「本机装了就用」，实际渲染以系统字体为准：
+       macOS   → SF Pro + PingFang SC + Songti SC + SF Mono
+       Windows → Segoe UI + 微软雅黑/等线 + 宋体 + Consolas
+     **跨平台字形不一致是已知代价**，不是 bug。要消除它得建自托管字体流水线，
+     那是独立决定（issue #110 已评估并明确本次不做）。改这段前先读那条结论。 */
+  --font-family-sans:
+    "Inter", "Noto Sans SC", -apple-system, BlinkMacSystemFont,
+    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "DengXian",
+    "WenQuanYi Micro Hei", sans-serif;
+  --font-family-serif:
+    "Source Serif 4", "Noto Serif SC", "Songti SC", "STSong",
+    Georgia, "Times New Roman", serif;
+  --font-family-mono:
+    "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo,
+    Consolas, "Liberation Mono", monospace;
+  --font-size-caption: 0.78rem;
+  --font-size-body-sm: 0.86rem;
+  --font-size-body: 0.95rem;
+  --font-size-title-sm: 1.02rem;
+  --font-size-title-md: 1.25rem;
+  --font-size-display: clamp(1.8rem, 2.6vw, 2.8rem);
+  --line-height-tight: 1.2;
+  --line-height-body: 1.5;
+  --line-height-relaxed: 1.65;
+  --line-height-display: 1.1;
+
+  /* Radius */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius: 8px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-pill: 999px;
+  /* macOS 控件半径（issue #110 · §3.2）：28px 高的 plain 控件取高度 1/4（7px），
+     图标组背板大一档（9px）。segmented 外 8 / 内 6 复用 --radius / --radius-sm。 */
+  --radius-control: 7px;
+  --radius-control-group: 9px;
+
+  /* Shadow — workbench-grade (subtle) */
+  --shadow-xs: 0 1px 2px rgba(20, 14, 8, 0.04);
+  --shadow: 0 2px 8px rgba(20, 14, 8, 0.06), 0 1px 2px rgba(20, 14, 8, 0.04);
+  --shadow-md: 0 8px 20px -6px rgba(40, 20, 4, 0.1), 0 2px 6px rgba(20, 14, 8, 0.05);
+  --shadow-lg: 0 18px 40px -12px rgba(40, 20, 4, 0.18), 0 4px 12px rgba(20, 14, 8, 0.06);
+  --shadow-brand-md: 0 6px 16px -6px rgb(var(--color-brand-500-rgb) / 0.45);
+  --shadow-brand-lg: 0 14px 30px -10px rgb(var(--color-brand-500-rgb) / 0.45);
+
+  /* Motion */
+  /* 时长分两族：微交互走 fast/base/slow；空间转场（主角 morph、容器级
+     位移）走 spatial——它比 slow 慢是有意的，长出来的尾程是「沉降感」
+     本身（见 frontend-design-guide §9 动效语言）。 */
+  --motion-duration-fast: 120ms;
+  --motion-duration-base: 180ms;
+  --motion-duration-slow: 280ms;
+  --motion-duration-spatial: 420ms;
+  /* standard：进场与状态切换（快启动、长沉降）；emphasized：空间滑翔
+     （iOS sheet 同族曲线，慢启动长滑行，配 spatial 时长）；exit：出场
+     加速离场（配合「出场时长 ≈ 进场 60%」的非对称规则）。 */
+  --motion-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --motion-ease-emphasized: cubic-bezier(0.32, 0.72, 0, 1);
+  --motion-ease-exit: cubic-bezier(0.55, 0, 1, 1);
+  --motion-lift-hover: translateY(-1px);
+  --opacity-disabled: 0.6;
+  --opacity-disabled-strong: 0.45;
+
+  /* Layout */
+  --layout-topbar-height: 56px;
+  /* 桌面 app 模式的窗口顶条高：与壳侧同源
+     （apps/write-desktop/src/main/window.ts 的 DESKTOP_STRIP_HEIGHT），
+     改一边必须同步另一边。 */
+  --layout-desktop-strip-height: 48px;
+  --layout-max-width-content: 1120px;
+  --layout-max-width-page: 1440px;
+  --layout-sidebar-width: 280px;
+  --layout-rail-width: 64px;
+  --layout-aside-width: 360px;
+  --layout-card-padding: 20px;
+  --layout-card-padding-compact: 16px;
+  --layout-card-padding-lg: 24px;
+  --layout-section-spacing: 64px;
+  --layout-section-spacing-compact: 48px;
+  --layout-footer-height: 120px;
+
+  /* === Layer（只给 Teleport 到 body 的层用）===
+     模块内部一律 `isolation: isolate` + 局部小数字，不需要 token。
+     PrimeVue 的浮层是自增计数器（overlay/menu 起 1000、modal/tooltip 起 1100，
+     每叠一层继续爬），固定数字赢不了它——要盖住 PrimeVue 浮层只能交给 PrimeVue 渲染。
+     所以这里的值一律低于 1000，明确接受「下拉/弹窗会盖住它」。详见
+     docs/frontend-design-guide.md §10.3。 */
+  --z-floating: 900; /* 自绘的悬浮小层：tooltip、跟随气泡 */
+  --z-scrim: 950; /* 自绘的全屏遮罩层：图片灯箱 */
+
+  /* Effect */
+  --effect-focus-ring: 0 0 0 3px rgb(var(--color-brand-500-rgb) / 0.18);
+  --effect-glow-brand-soft: 0 0 0 4px rgb(var(--color-brand-500-rgb) / 0.15);
+  --effect-blur-overlay: 12px;
+  --effect-blur-panel: 14px;
+  --effect-blur-hero: 64px;
+
+  /* Gradient */
+  --gradient-page-background:
+    radial-gradient(900px 540px at 80% -10%, var(--color-brand-50), transparent 60%),
+    radial-gradient(680px 440px at -10% 110%, oklch(0.96 0.04 50), transparent 55%),
+    var(--color-bg);
+  --gradient-brand-accent:
+    linear-gradient(135deg, var(--color-brand-400) 0%, var(--color-brand-600) 100%);
+  --gradient-surface-accent:
+    radial-gradient(circle at top right, rgb(var(--color-brand-500-rgb) / 0.08), transparent 56%),
+    var(--color-surface-base);
+  --gradient-panel-accent:
+    linear-gradient(180deg, rgb(var(--color-brand-500-rgb) / 0.06), transparent 64%),
+    var(--color-surface-muted);
+
+  /* === Elevation — 语义化的「第几层」（issue #110）===
+     **写「第几层」，不要写「什么阴影」。** 这一族存在的唯一理由是深浅两套的抬升
+     手法根本不同：浅色靠阴影，深色靠亮度（深色下阴影几乎不可见，硬套只会脏）。
+     把这条规则收进 token 之后，消费方两套主题下写法完全一样：
+         background: var(--elevation-2-surface);
+         box-shadow: var(--elevation-2-shadow);
+     四层的语义是固定的，不许按「想要多重的阴影」挑层：
+       0 页面底（.mw-main 外层）· 1 常驻面（表头、分组底；左右栏不在此列，
+       它们 transparent 继承岛面，见 Island 节）
+       2 内容面（卡片、分组卡、中栏）· 3 浮层（Dialog / Menu / Popover / Toast）
+     深色下 2/3 层的 shadow 换成极细高光描边——**阴影在深色里只负责「分离」，
+     不负责「抬升」**，抬升交给 surface 的亮度递增。 */
+  --elevation-0-surface: var(--color-bg);
+  --elevation-0-shadow: none;
+  --elevation-1-surface: var(--color-bg-soft);
+  --elevation-1-shadow: none;
+  --elevation-2-surface: var(--color-surface-base);
+  --elevation-2-shadow: var(--shadow-xs);
+  --elevation-3-surface: var(--color-surface-overlay);
+  --elevation-3-shadow: var(--shadow-lg);
+
+  /* === Material — 玻璃与仿玻璃（issue #110）===
+     两件不同的东西，别混：
+     - **真玻璃**（--material-glass-* 一套）只贴「底下真有内容会滚过去」的大面积
+       背板：**浮层、正文上的浮动控件**。工作台自 A2 起是「画布 + 浮岛」，
+       左右栏的岛面走 --island-*（见下），顶栏自 A3 起不画面，也不贴玻璃。
+     - **仿玻璃**（--material-control-*）给小控件用：底下是纯色，透不出东西，而且
+       数量多，每个一个合成层会直接撞破「单页玻璃层 ≤ 3」。用绘制的方式做质感。
+     红线：filter / backdrop-filter **不得出现在 transition 或 @keyframes 的属性
+     列表里**（转场快照上逐帧重算 = 掉帧源）；静态声明允许。
+
+     真玻璃四件套，缺一件就退回 2013 年的毛玻璃（**四件必须一起用**，
+     统一封装在 styles.css 的 .mw-glass，消费方加类即可，不许各处自调数值）：
+       ① scrim   底色，控制「透多少」——高于 0.6 就等于不透
+       ② blur    backdrop-filter；浅色 brightness 略提亮，**深色必须压暗**
+                 （深色玻璃提亮 = 一层灰纱，这是仿品最常错的一处）
+       ③ specular 镜面高光：左上进光的斜切亮面 + 顶边一线更亮的弧。走
+                 background-image，零滤镜成本，「liquid」感里最便宜的那一层
+       ④ lens    边缘透镜：顶边一线进光 + 底边一线回暗，模拟光穿过玻璃厚度
+                 = 「一块有体积的材料」而非一层膜。
+                 **一条边只画一条线。** 曾经这里同时有「侧边线 + 通圈 + 内侧一圈
+                 22px 的白晕」，叠在浮层自己的 1px border 外沿内侧，小尺寸下场景
+                 （下拉、Select）看上去就是「一个框里又套了一个框」，像渲染坏了。
+                 边的层次交给 border + 投影，lens 只负责上下两棱。 */
+  --material-blur: blur(24px) saturate(190%) brightness(1.05);
+  --material-blur-strong: blur(38px) saturate(210%) brightness(1.07);
+  --material-scrim: rgba(255, 255, 255, 0.55);
+  /* strong 档 = Dialog / 命令面板这类「盖住半屏、底下压着成片正文」的大浮层。
+     0.66 时代浅色下面板吃背景色太深：白底字段（input 面是 0.55–0.9 白的
+     仿玻璃）压上去像贴纸。0.84 让面落在 ~0.93 白——玻璃感交给 blur + specular
+     + lens，底色只负责「内容读起来有底」。 */
+  --material-scrim-strong: rgba(255, 255, 255, 0.84);
+  /* 浅色下 hairline 用暖深不用白：白描边在白底上隐形，只在面板底缘的投影
+     暗区里反出一条亮线——和 lens 底棱叠起来就是「底边两层」。描边的职责是
+     定义边缘（进光的高光棱归 lens 顶线），白描边在浅色下不履行这个职责。 */
+  --material-hairline: rgba(20, 14, 8, 0.1);
+  --material-specular:
+    linear-gradient(148deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.13) 26%,
+      rgba(255, 255, 255, 0) 54%),
+    linear-gradient(0deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0) 32%);
+  --material-lens:
+    inset 0 1px 0 rgba(255, 255, 255, 0.75),
+    inset 0 -1px 0 rgba(20, 14, 8, 0.05);
+  /* 玻璃的落地投影：比同层实心面更散更浅——透光的东西不该压出硬影。 */
+  --material-glass-shadow:
+    0 18px 44px -18px rgba(20, 14, 8, 0.3), 0 2px 8px -4px rgba(20, 14, 8, 0.12);
+  /* 悬浮板「底下真有内容滑过」时的投影档（顶栏 --scrolled）：只压深，不加边框
+     ——圆角悬浮板上的一条下边框没有物理意义。 */
+  /* Dialog / Drawer 遮罩：**压暗**背景，不是把它糊成一片白雾。重模糊会让整页
+     看起来像渲染坏了；真正让面板浮起来的是亮度差，不是模糊量。 */
+  --material-mask: rgba(28, 20, 12, 0.34);
+  --material-mask-blur: blur(7px) saturate(104%) brightness(0.95);
+  --material-control-face:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.55));
+  --material-control-inset:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95), inset 0 -1px 0 rgba(20, 14, 8, 0.04);
+  /* 玻璃面上的「内嵌块」（浮层里的列表框、分组框、字段面）：不许用不透明底色
+     ——实心块压在玻璃上会把材质打断（那正是旧 Dialog 里最出戏的一处）。 */
+  --material-inlay: rgba(255, 255, 255, 0.42);
+  --material-inlay-border: rgba(20, 14, 8, 0.07);
+  /* 岛面轨道内容（侧栏 tab 行等）上的 hover 填充。**不能复用 --material-inlay**：
+     浅色下它是白叠层，压在近白的岛面上 hover 读不出来；这里浅色翻成暖深叠层、
+     深色保持白叠层，随 mode 翻转。 */
+  --material-hover: rgba(20, 14, 8, 0.07);
+
+  /* === Spring — 弹簧缓动（issue #110）===
+     阻尼谐振子采样成 linear()。**适用边界写死，越界即滥用**：
+       只用于「小物体归位」——位移 < 24px 或 scale 变化，时长 ≤ --motion-duration-base。
+       转场、抽屉、面板位移一律用 --motion-ease-emphasized，**禁止 spring**
+       （弹簧在大位移上显得廉价、像玩具）。
+     snap 超调 1.5%（按钮松手、勾选）· pop 超调 8.3%（switch knob、菜单展开）。 */
+  --motion-spring-snap:
+    linear(0, 0.032, 0.11, 0.213, 0.327, 0.441, 0.547, 0.643, 0.727, 0.797,
+      0.855, 0.901, 0.936, 0.963, 0.983, 0.996, 1.006, 1.011, 1.014, 1.015,
+      1.015, 1.014, 1);
+  --motion-spring-pop:
+    linear(0, 0.04, 0.138, 0.271, 0.416, 0.56, 0.692, 0.806, 0.899, 0.971,
+      1.022, 1.056, 1.075, 1.083, 1.082, 1.075, 1.065, 1.053, 1.041, 1.029,
+      1.019, 1.011, 1);
+
+  /* Compatibility aliases (do not introduce new code that depends on these) */
+  --bg: var(--color-bg);
+  --bg-soft: var(--color-bg-soft);
+  --surface: var(--color-surface-base);
+  --surface-2: var(--color-surface-muted);
+  --border: var(--color-border-subtle);
+  --border-strong: var(--color-border-strong);
+  --text-1: var(--color-text-primary);
+  --text-2: var(--color-text-secondary);
+  --text-3: var(--color-text-tertiary);
+  --text-4: var(--color-text-quaternary);
+  --font-sans: var(--font-family-sans);
+  --font-serif: var(--font-family-serif);
+  --font-mono: var(--font-family-mono);
+  --mango-color-primary: var(--color-brand-500);
+  --mango-color-primary-active: var(--color-brand-600);
+  --mango-color-primary-active-rgb: var(--color-brand-600-rgb);
+  --mango-color-primary-deep: var(--color-brand-700);
+  --mango-color-primary-deep-rgb: var(--color-brand-700-rgb);
+  --mango-color-primary-hover: var(--color-brand-400);
+  --mango-color-primary-hover-rgb: var(--color-brand-400-rgb);
+  --mango-color-primary-rgb: var(--color-brand-500-rgb);
+  --mango-color-primary-soft: var(--color-brand-100);
+  --mango-color-primary-subtle: var(--color-brand-50);
+  --accent: var(--color-brand-600);
+  --background: var(--color-surface-canvas);
+  --brand: var(--color-brand-500);
+  --brand-deep: var(--color-brand-700);
+  --card: var(--color-surface-base);
+  --foreground: var(--color-text-primary);
+  --font-body: var(--font-family-sans);
+  --font-display: var(--font-family-serif);
+  --muted: var(--color-text-secondary);
+  --site-footer-height: var(--layout-footer-height);
+
+  /* === 代码语法配色（hljs token 着色用）===
+     亮色取 GitHub Light、深色取 GitHub Dark 的代码色板，收敛成 6 个语义组。 */
+  --code-comment: #6e7781;
+  --code-keyword: #cf222e;
+  --code-string: #116329;
+  --code-constant: #0550ae;
+  --code-entity: #8250df;
+  --code-variable: #953800;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   深色主题 · C「冷炭暖光」（issue #110 · P0 定稿）
+   ═══════════════════════════════════════════════════════════════════════════
+   底色收到近中性（oklch hue 265、chroma .004–.006），把所有暖度留给品牌与强调色。
+   对比度实测：text-1/bg 16.89 · text-2/bg 8.81 · text-3/bg 5.16 · text-3/surface 4.56
+   · brand-700/surface 9.01 —— 全部过 WCAG AA。
+
+   三条必须知道否则会改错的事：
+
+   1. **浅色 :root 是完备集，这里只做覆盖。** 任何颜色 token 都不许「只在这个块里
+      第一次出现」——漏一个就是深色下拿到浅色值，且极难排查。加新颜色 token 时先
+      在 :root 定义，再决定要不要在这里覆盖。
+
+   2. **深色下 brand-600 与 brand-700 的方向是相反的。** 600 是「按下态」，要比 500
+      更暗（实心按钮按下去应该变沉）；700 是「品牌深色文本/强强调」，在深底上「更强」
+      必须是**更亮**。所以 600 比 500 暗、700 比 500 亮，不是笔误。
+
+   3. **深色下 filled 品牌按钮用深色文字。** 白字压在 brand-500 上只有 2.85:1（连 UI
+      组件要求的 3.0 都不到），深字 #170d08 是 6.71:1。--color-text-on-brand 因此在
+      深色下不是白色。浅色那侧同一族是 2.80：整套换过深墨（浅 6.83 / 深 6.71，全族一起
+      过 AA），观感上拍板回白字，记成已知例外——别顺手把这里也改成白，那是在把一个
+      已经算过的取舍改回没算过的样子。
+
+   本块只挂 [data-theme="dark"]，**故意不挂 @media (prefers-color-scheme: dark)**：
+   深色在 P6 才铺满壳与工作台三页，现在跟随系统会把半成品直接推给系统深色的用户。
+   P6 落地时再补 media 块（写法见 issue #110 §4.2），并同时接入偏好开关。
+   开发期手动验：在 devtools 给 <html> 加 data-theme="dark"。
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* === Brand — 暖橙在冷炭底上提亮 ===
+     **--color-brand-{400,500,600,700} 是语义角色，不是单调调色阶**（本仓一直这么用：
+     400=hover、500=基准、600=按下态兼重点文本、700=强强调文本）。所以深色下 400 比
+     500 亮、600 比 500 暗、700 又比 500 亮——**不单调是对的**，别"顺手排序修好它"。
+     50–300 与 800–950 才是给 PrimeVue --p-primary-* 用的调色阶，那两段在深色下单调。
+     深色实测：500 作文字 6.05:1 · 600 作文字 5.06:1 · 700 作文字 9.01:1。 */
+  --color-brand-50: #442415;
+  --color-brand-100: #5d2f19;
+  --color-brand-200: #7a3f1d;
+  --color-brand-300: #b85c22;
+  --color-brand-400: #ff9850;
+  --color-brand-500: #f6722b;
+  /* 600 定在 oklch(.655 .185 43)：既要比 500 深（按下态该变沉），又要能当正文用
+     —— 它在 web 侧被引用 122 次，多数是「重点文本」。#e25500 只有 4.55:1，余量太薄。 */
+  --color-brand-600: #e96018;
+  --color-brand-700: #ffa763;
+  --color-brand-800: #ffbe84;
+  --color-brand-900: #ffd5ad;
+  --color-brand-950: #ffead6;
+  --color-brand-400-rgb: 255 152 80;
+  --color-brand-500-rgb: 246 114 43;
+  --color-brand-600-rgb: 233 96 24;
+  --color-brand-700-rgb: 255 167 99;
+  --brand-grad-from: var(--color-brand-500);
+  --brand-grad-to: var(--color-brand-600);
+
+  /* Surface — 近中性冷炭，亮度递增即层级递增 */
+  --color-bg: #0b0c0e;
+  --color-bg-soft: #131416;
+  /* hover 档：深色按「亮度递增即层级递增」提亮，落 base 与 overlay 之间 */
+  --color-bg-hover: #232528;
+  --color-surface-base: #191b1d;
+  --color-surface-muted: #161719;
+  --color-surface-canvas: #101012;
+  --color-surface-elevated: rgba(37, 38, 41, 0.92);
+  --color-surface-glass: rgba(25, 27, 29, 0.72);
+  --color-surface-overlay: #252629;
+
+  /* Text */
+  --color-text-primary: #eeeef0;
+  --color-text-secondary: #adaeb0;
+  --color-text-tertiary: #828386;
+  --color-text-quaternary: #656669;
+  --color-text-on-brand: #170d08; /* 深字压在品牌橙上，见上面第 3 条 */
+
+  /* Border */
+  --color-border-subtle: #2b2d30;
+  --color-border-strong: #3f4145;
+  --color-border-soft: rgba(255, 255, 255, 0.08);
+  --color-border-inverse-soft: rgba(255, 255, 255, 0.14);
+
+  /* Status — 深底上一律提亮；-surface/-border 由 -rgb 派生，自动跟随 */
+  --color-success-500: #4dbf74;
+  --color-success-600: #78d694;
+  --color-success-500-rgb: 77 191 116;
+  --color-info-500: #62a4df;
+  --color-info-500-rgb: 98 164 223;
+  --color-warning-500: #fe9d41;
+  --color-warning-600: #ffb972;
+  --color-warning-500-rgb: 254 157 65;
+  --color-danger-500: #f3625f;
+  --color-danger-700: #ff918b;
+  --color-danger-500-rgb: 243 98 95;
+  /* 深底上纯 alpha 混色偏灰，底色权重要比浅色高一档 */
+  --color-success-surface: rgb(var(--color-success-500-rgb) / 0.14);
+  --color-info-surface: rgb(var(--color-info-500-rgb) / 0.13);
+  --color-warning-surface: rgb(var(--color-warning-500-rgb) / 0.14);
+  --color-danger-surface: rgb(var(--color-danger-500-rgb) / 0.15);
+  --color-success-border: rgb(var(--color-success-500-rgb) / 0.32);
+  --color-info-border: rgb(var(--color-info-500-rgb) / 0.28);
+  --color-warning-border: rgb(var(--color-warning-500-rgb) / 0.32);
+  --color-danger-border: rgb(var(--color-danger-500-rgb) / 0.34);
+
+  /* 批注的 -500/-rgb 经 --color-brand-400-* 自动换深，这里只按上面 status
+     同一口径（深底纯 alpha 混色偏灰，权重比浅色高一档）重定派生权重。 */
+  --color-annotation-surface: rgb(var(--color-annotation-500-rgb) / 0.22);
+  --color-annotation-border: rgb(var(--color-annotation-500-rgb) / 0.65);
+
+  /* 作者高亮：深底上实心 #fff3a3 会糊成一片刺眼亮斑，改半透明版压进纸面。 */
+  --color-source-highlight: rgb(255 243 163 / 0.28);
+
+  /* 划线墨色提亮：surface(0.4) 在深底自动压成暗调不刺眼，border(0.85) 保持鲜亮。 */
+  --color-mark-yellow-rgb: 253 224 71;
+  --color-mark-green-rgb: 134 239 172;
+  --color-mark-blue-rgb: 147 197 253;
+  --color-mark-pink-rgb: 249 168 212;
+  --color-mark-purple-rgb: 196 181 253;
+
+  /* Shadow — 深色下阴影更深更散，但**不承担抬升**（见 elevation） */
+  --shadow-xs: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow: 0 2px 8px rgb(0 0 0 / 0.45);
+  --shadow-md: 0 10px 24px -8px rgb(0 0 0 / 0.55), 0 2px 6px rgb(0 0 0 / 0.4);
+  --shadow-lg: 0 20px 44px -14px rgb(0 0 0 / 0.66), 0 4px 12px rgb(0 0 0 / 0.4);
+  --shadow-brand-md: 0 6px 16px -6px rgb(var(--color-brand-500-rgb) / 0.5);
+  --shadow-brand-lg: 0 14px 30px -10px rgb(var(--color-brand-500-rgb) / 0.5);
+
+  /* === Elevation — surface 半跟着上面的亮度阶自动走；shadow 半在这里换手法 ===
+     浅色 2/3 层靠阴影抬升；深色改用极细高光描边只做「分离」，抬升交给亮度。 */
+  --elevation-2-shadow: 0 0 0 1px rgb(255 255 255 / 0.05);
+  --elevation-3-shadow:
+    0 20px 44px -14px rgb(0 0 0 / 0.66), 0 0 0 1px rgb(255 255 255 / 0.07);
+
+  /* Material */
+  --material-blur: blur(24px) saturate(160%) brightness(0.68) contrast(1.05);
+  --material-blur-strong: blur(38px) saturate(175%) brightness(0.62) contrast(1.06);
+  --material-scrim: rgba(28, 30, 34, 0.56);
+  --material-scrim-strong: rgba(28, 30, 34, 0.68);
+  --material-hairline: rgba(255, 255, 255, 0.12);
+  --material-specular:
+    linear-gradient(148deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.03) 26%,
+      rgba(255, 255, 255, 0) 54%),
+    linear-gradient(0deg, rgba(255, 255, 255, 0.045) 0%, rgba(255, 255, 255, 0) 32%);
+  --material-lens:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.35);
+  --material-glass-shadow:
+    0 22px 50px -20px rgba(0, 0, 0, 0.72), 0 2px 10px -4px rgba(0, 0, 0, 0.5);
+  --material-mask: rgba(0, 0, 0, 0.55);
+  --material-mask-blur: blur(7px) saturate(100%) brightness(0.62);
+  --material-control-face:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02));
+  --material-control-inset:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08), inset 0 -1px 0 rgba(0, 0, 0, 0.25);
+  --material-inlay: rgba(255, 255, 255, 0.055);
+  --material-inlay-border: rgba(255, 255, 255, 0.08);
+  --material-hover: rgba(255, 255, 255, 0.055);
+
+  --canvas-base: #15171c;
+  --canvas-backdrop:
+    radial-gradient(1600px 850px at 78% -18%, rgb(var(--color-brand-500-rgb) / 0.085), transparent 62%),
+    radial-gradient(1250px 850px at -8% 106%, rgb(var(--color-brand-600-rgb) / 0.05), transparent 58%),
+    var(--canvas-base);
+
+  --island-scrim: rgba(30, 32, 36, 0.88);
+  --island-specular:
+    linear-gradient(158deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.025) 24%,
+      rgba(255, 255, 255, 0) 52%);
+  --island-lens:
+    inset 0 1px 0 rgba(255, 255, 255, 0.13),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  --island-paper-lens: inset 0 0 0 1px rgba(255, 255, 255, 0.055);
+  --island-shadow:
+    0 0 0 0.5px rgba(255, 255, 255, 0.06),
+    0 1px 3px rgba(0, 0, 0, 0.45),
+    0 12px 28px -14px rgba(0, 0, 0, 0.65);
+
+  /* Effect */
+  --effect-focus-ring: 0 0 0 3px rgb(var(--color-brand-500-rgb) / 0.32);
+  --effect-glow-brand-soft: 0 0 0 4px rgb(var(--color-brand-500-rgb) / 0.26);
+
+  /* Gradient */
+  --gradient-page-background:
+    radial-gradient(900px 540px at 80% -10%, rgb(var(--color-brand-500-rgb) / 0.1), transparent 60%),
+    radial-gradient(680px 440px at -10% 110%, rgb(var(--color-brand-600-rgb) / 0.07), transparent 55%),
+    var(--color-bg);
+  --gradient-surface-accent:
+    radial-gradient(circle at top right, rgb(var(--color-brand-500-rgb) / 0.12), transparent 56%),
+    var(--color-surface-base);
+    --gradient-panel-accent:
+      linear-gradient(180deg, rgb(var(--color-brand-500-rgb) / 0.1), transparent 64%),
+      var(--color-surface-muted);
+
+  --code-comment: #8b949e;
+  --code-keyword: #ff7b72;
+  --code-string: #7ee787;
+  --code-constant: #79c0ff;
+  --code-entity: #d2a8ff;
+  --code-variable: #ffa657;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   深色 · 跟随系统兜底（issue #110 · P6）
+   ═══════════════════════════════════════════════════════════════════════════
+   内容与上面 :root[data-theme="dark"] 块完全同源：首帧（JS 还没把偏好落成
+   data-theme 属性之前）由系统媒体查询直接给出深色 token，深色用户不闪白。
+   选择器 :not([data-theme="light"]) 让「手动固定浅色」压过系统深色。
+   **改任何一处深色值，另一处必须同步改**——两块的声明一致性由
+   apps/web/src/app/var-css-dark-parity.test.ts 逐条比对锁死，手抄漂移会红。 */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    --color-brand-50: #442415;
+    --color-brand-100: #5d2f19;
+    --color-brand-200: #7a3f1d;
+    --color-brand-300: #b85c22;
+    --color-brand-400: #ff9850;
+    --color-brand-500: #f6722b;
+    --color-brand-600: #e96018;
+    --color-brand-700: #ffa763;
+    --color-brand-800: #ffbe84;
+    --color-brand-900: #ffd5ad;
+    --color-brand-950: #ffead6;
+    --color-brand-400-rgb: 255 152 80;
+    --color-brand-500-rgb: 246 114 43;
+    --color-brand-600-rgb: 233 96 24;
+    --color-brand-700-rgb: 255 167 99;
+  --brand-grad-from: var(--color-brand-500);
+  --brand-grad-to: var(--color-brand-600);
+
+    --color-bg: #0b0c0e;
+    --color-bg-soft: #131416;
+    /* hover 档：深色按「亮度递增即层级递增」提亮，落 base 与 overlay 之间 */
+    --color-bg-hover: #232528;
+    --color-surface-base: #191b1d;
+    --color-surface-muted: #161719;
+    --color-surface-canvas: #101012;
+    --color-surface-elevated: rgba(37, 38, 41, 0.92);
+    --color-surface-glass: rgba(25, 27, 29, 0.72);
+    --color-surface-overlay: #252629;
+  
+    --color-text-primary: #eeeef0;
+    --color-text-secondary: #adaeb0;
+    --color-text-tertiary: #828386;
+    --color-text-quaternary: #656669;
+    --color-text-on-brand: #170d08;
+
+    --color-border-subtle: #2b2d30;
+    --color-border-strong: #3f4145;
+    --color-border-soft: rgba(255, 255, 255, 0.08);
+    --color-border-inverse-soft: rgba(255, 255, 255, 0.14);
+
+    --color-success-500: #4dbf74;
+    --color-success-600: #78d694;
+    --color-success-500-rgb: 77 191 116;
+    --color-info-500: #62a4df;
+    --color-info-500-rgb: 98 164 223;
+    --color-warning-500: #fe9d41;
+    --color-warning-600: #ffb972;
+    --color-warning-500-rgb: 254 157 65;
+    --color-danger-500: #f3625f;
+    --color-danger-700: #ff918b;
+    --color-danger-500-rgb: 243 98 95;
+    --color-success-surface: rgb(var(--color-success-500-rgb) / 0.14);
+    --color-info-surface: rgb(var(--color-info-500-rgb) / 0.13);
+    --color-warning-surface: rgb(var(--color-warning-500-rgb) / 0.14);
+    --color-danger-surface: rgb(var(--color-danger-500-rgb) / 0.15);
+    --color-success-border: rgb(var(--color-success-500-rgb) / 0.32);
+    --color-info-border: rgb(var(--color-info-500-rgb) / 0.28);
+    --color-warning-border: rgb(var(--color-warning-500-rgb) / 0.32);
+    --color-danger-border: rgb(var(--color-danger-500-rgb) / 0.34);
+
+    --color-annotation-surface: rgb(var(--color-annotation-500-rgb) / 0.22);
+    --color-annotation-border: rgb(var(--color-annotation-500-rgb) / 0.65);
+
+    /* 作者高亮：深底上实心 #fff3a3 会糊成一片刺眼亮斑，改半透明版压进纸面。 */
+    --color-source-highlight: rgb(255 243 163 / 0.28);
+
+    /* 划线墨色提亮：surface(0.4) 在深底自动压成暗调不刺眼，border(0.85) 保持鲜亮。 */
+    --color-mark-yellow-rgb: 253 224 71;
+    --color-mark-green-rgb: 134 239 172;
+    --color-mark-blue-rgb: 147 197 253;
+    --color-mark-pink-rgb: 249 168 212;
+    --color-mark-purple-rgb: 196 181 253;
+
+    --shadow-xs: 0 1px 2px rgb(0 0 0 / 0.4);
+    --shadow: 0 2px 8px rgb(0 0 0 / 0.45);
+    --shadow-md: 0 10px 24px -8px rgb(0 0 0 / 0.55), 0 2px 6px rgb(0 0 0 / 0.4);
+    --shadow-lg: 0 20px 44px -14px rgb(0 0 0 / 0.66), 0 4px 12px rgb(0 0 0 / 0.4);
+    --shadow-brand-md: 0 6px 16px -6px rgb(var(--color-brand-500-rgb) / 0.5);
+    --shadow-brand-lg: 0 14px 30px -10px rgb(var(--color-brand-500-rgb) / 0.5);
+
+    --elevation-2-shadow: 0 0 0 1px rgb(255 255 255 / 0.05);
+    --elevation-3-shadow:
+      0 20px 44px -14px rgb(0 0 0 / 0.66), 0 0 0 1px rgb(255 255 255 / 0.07);
+
+    --material-blur: blur(24px) saturate(160%) brightness(0.68) contrast(1.05);
+    --material-blur-strong: blur(38px) saturate(175%) brightness(0.62) contrast(1.06);
+    --material-scrim: rgba(28, 30, 34, 0.56);
+    --material-scrim-strong: rgba(28, 30, 34, 0.68);
+    --material-hairline: rgba(255, 255, 255, 0.12);
+    --material-specular:
+      linear-gradient(148deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.03) 26%,
+        rgba(255, 255, 255, 0) 54%),
+      linear-gradient(0deg, rgba(255, 255, 255, 0.045) 0%, rgba(255, 255, 255, 0) 32%);
+    --material-lens:
+      inset 0 1px 0 rgba(255, 255, 255, 0.14),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.35);
+    --material-glass-shadow:
+      0 22px 50px -20px rgba(0, 0, 0, 0.72), 0 2px 10px -4px rgba(0, 0, 0, 0.5);
+    --material-mask: rgba(0, 0, 0, 0.55);
+    --material-mask-blur: blur(7px) saturate(100%) brightness(0.62);
+    --material-control-face:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02));
+    --material-control-inset:
+      inset 0 1px 0 rgba(255, 255, 255, 0.08), inset 0 -1px 0 rgba(0, 0, 0, 0.25);
+    --material-inlay: rgba(255, 255, 255, 0.055);
+    --material-inlay-border: rgba(255, 255, 255, 0.08);
+    --material-hover: rgba(255, 255, 255, 0.055);
+
+    --canvas-base: #15171c;
+    --canvas-backdrop:
+      radial-gradient(1600px 850px at 78% -18%, rgb(var(--color-brand-500-rgb) / 0.085), transparent 62%),
+      radial-gradient(1250px 850px at -8% 106%, rgb(var(--color-brand-600-rgb) / 0.05), transparent 58%),
+      var(--canvas-base);
+
+    --island-scrim: rgba(30, 32, 36, 0.88);
+    --island-specular:
+      linear-gradient(158deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.025) 24%,
+        rgba(255, 255, 255, 0) 52%);
+    --island-lens:
+      inset 0 1px 0 rgba(255, 255, 255, 0.13),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+    --island-paper-lens: inset 0 0 0 1px rgba(255, 255, 255, 0.055);
+    --island-shadow:
+      0 0 0 0.5px rgba(255, 255, 255, 0.06),
+      0 1px 3px rgba(0, 0, 0, 0.45),
+      0 12px 28px -14px rgba(0, 0, 0, 0.65);
+
+    --effect-focus-ring: 0 0 0 3px rgb(var(--color-brand-500-rgb) / 0.32);
+    --effect-glow-brand-soft: 0 0 0 4px rgb(var(--color-brand-500-rgb) / 0.26);
+
+    --gradient-page-background:
+      radial-gradient(900px 540px at 80% -10%, rgb(var(--color-brand-500-rgb) / 0.1), transparent 60%),
+      radial-gradient(680px 440px at -10% 110%, rgb(var(--color-brand-600-rgb) / 0.07), transparent 55%),
+      var(--color-bg);
+    --gradient-surface-accent:
+      radial-gradient(circle at top right, rgb(var(--color-brand-500-rgb) / 0.12), transparent 56%),
+      var(--color-surface-base);
+    --gradient-panel-accent:
+      linear-gradient(180deg, rgb(var(--color-brand-500-rgb) / 0.1), transparent 64%),
+      var(--color-surface-muted);
+
+    --code-comment: #8b949e;
+    --code-keyword: #ff7b72;
+    --code-string: #7ee787;
+    --code-constant: #79c0ff;
+    --code-entity: #d2a8ff;
+    --code-variable: #ffa657;
+  }
+}
