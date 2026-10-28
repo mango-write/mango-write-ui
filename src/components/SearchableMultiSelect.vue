@@ -12,7 +12,7 @@
 //    放不下的收进 "+N"，而不是固定只显示 1 个、后面留大片空白。
 // 3）面板用自管的 Teleport 浮层（见 useComboPanel），避免 PrimeVue Popover 在
 //    「聚焦即输入过滤」场景下中途自我关闭。
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, useId, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useComboPanel } from "../lib/useComboPanel";
 
@@ -26,16 +26,28 @@ const props = withDefaults(
     optionValue?: string;
     // 自定义过滤谓词（收到的是小写查询串）；缺省保持按 optionLabel 子串匹配。
     optionFilter?: (option: Record<string, unknown>, query: string) => boolean;
+    inputId?: string;
+    ariaLabel?: string;
+    ariaLabelledby?: string;
+    ariaDescribedby?: string;
     placeholder?: string;
     disabled?: boolean;
+    invalid?: boolean;
+    required?: boolean;
     size?: "small" | "large";
     emptyMessage?: string;
   }>(),
   {
     optionValue: undefined,
     optionFilter: undefined,
+    inputId: undefined,
+    ariaLabel: undefined,
+    ariaLabelledby: undefined,
+    ariaDescribedby: undefined,
     placeholder: undefined,
     disabled: false,
+    invalid: false,
+    required: false,
     size: undefined,
     emptyMessage: undefined,
   },
@@ -64,8 +76,14 @@ const inputRef = ref<HTMLInputElement | null>(null);
 const panelRef = ref<HTMLElement | null>(null);
 const { open, panelStyle, openPanel, closePanel, reposition } = useComboPanel(rootRef, panelRef);
 
+const generatedId = useId();
+const fieldId = computed(() => props.inputId ?? `mw-ms-${generatedId}`);
+const listboxId = computed(() => `${fieldId.value}-listbox`);
+const optionId = (index: number) => `${listboxId.value}-option-${index}`;
+
 const query = ref("");
-const visibleCount = ref(0);
+const activeIndex = ref(-1);
+const visibleCount = ref(props.modelValue.length);
 
 const sizeClass = computed(() =>
   props.size === "small" ? "mw-ms-sm" : props.size === "large" ? "mw-ms-lg" : "mw-ms-md",
@@ -138,16 +156,26 @@ onMounted(() => {
 onBeforeUnmount(() => ro?.disconnect());
 watch(selectedLabels, () => nextTick(recalc), { flush: "post" });
 
+function scrollActiveIntoView() {
+  nextTick(() => {
+    const option = panelRef.value?.querySelectorAll<HTMLElement>('[role="option"]')[activeIndex.value];
+    option?.scrollIntoView?.({ block: "nearest" });
+  });
+}
+watch(activeIndex, scrollActiveIntoView);
+
 // ── open / close ──
 function reveal() {
   if (props.disabled || open.value) return;
   emit("show");
+  activeIndex.value = filteredOptions.value.length ? 0 : -1;
   openPanel();
   nextTick(() => inputRef.value?.focus());
 }
 function dismiss() {
   closePanel();
   query.value = "";
+  activeIndex.value = -1;
 }
 // 宽度受限时，选满后继续输入会让标签行横向滚动把 chip 顶出视野；失焦时清空查询
 // 并把滚动位置复原，让 chip 从头显示。
@@ -155,6 +183,10 @@ function onBlur() {
   query.value = "";
   if (labelRef.value) labelRef.value.scrollLeft = 0;
   nextTick(recalc);
+}
+function onInput() {
+  if (!open.value) reveal();
+  activeIndex.value = filteredOptions.value.length ? 0 : -1;
 }
 function onFieldMousedown(event: MouseEvent) {
   const t = event.target as HTMLElement;
@@ -166,6 +198,7 @@ function onFieldMousedown(event: MouseEvent) {
 }
 
 function toggleOption(option: Record<string, unknown>) {
+  if (props.disabled) return;
   const v = valueOf(option);
   const next = props.modelValue.includes(v)
     ? props.modelValue.filter((x) => x !== v)
@@ -178,12 +211,40 @@ function toggleOption(option: Record<string, unknown>) {
   });
 }
 function removeAt(index: number) {
-  const v = valueOf(selectedOptions.value[index]);
+  if (props.disabled) return;
+  const option = selectedOptions.value[index];
+  if (!option) return;
+  const v = valueOf(option);
   emit("update:modelValue", props.modelValue.filter((x) => x !== v));
 }
 function onBackspace() {
-  if (query.value.length > 0 || props.modelValue.length === 0) return;
+  if (props.disabled || query.value.length > 0 || props.modelValue.length === 0) return;
   emit("update:modelValue", props.modelValue.slice(0, -1));
+}
+function onKeydown(event: KeyboardEvent) {
+  if (event.key === "ArrowDown") {
+    event.preventDefault();
+    if (!open.value) return reveal();
+    if (filteredOptions.value.length) activeIndex.value = Math.min(activeIndex.value + 1, filteredOptions.value.length - 1);
+  } else if (event.key === "ArrowUp") {
+    event.preventDefault();
+    if (!open.value) return reveal();
+    if (filteredOptions.value.length) activeIndex.value = Math.max(activeIndex.value - 1, 0);
+  } else if (event.key === "Home" && open.value) {
+    event.preventDefault();
+    activeIndex.value = filteredOptions.value.length ? 0 : -1;
+  } else if (event.key === "End" && open.value) {
+    event.preventDefault();
+    activeIndex.value = filteredOptions.value.length - 1;
+  } else if (event.key === "Enter") {
+    event.preventDefault();
+    if (!open.value) return reveal();
+    const option = filteredOptions.value[activeIndex.value] ?? filteredOptions.value[0];
+    if (option) toggleOption(option);
+  } else if (event.key === "Escape" && open.value) {
+    event.stopPropagation();
+    dismiss();
+  }
 }
 </script>
 
@@ -191,16 +252,14 @@ function onBackspace() {
   <div
     ref="rootRef"
     class="mw-ms"
-    :class="[sizeClass, { 'mw-ms-focus': open, 'mw-ms-disabled': disabled }]"
+    :class="[sizeClass, { 'mw-ms-focus': open, 'mw-ms-disabled': disabled, 'mw-ms-invalid': invalid }]"
     @mousedown="onFieldMousedown"
     @click="!open && inputRef?.focus()"
   >
     <div ref="labelRef" class="mw-ms-label">
-      <!-- chip 可选插槽：不传时渲染 fallback，与插槽化之前逐字节一致；
-           传了插槽时 key 改用 option 的值（同名 label 不再撞 key）。 -->
       <slot
         v-for="(o, i) in visibleOptions"
-        :key="$slots.chip ? String(valueOf(o)) : labelOf(o)"
+        :key="`${String(valueOf(o))}-${i}`"
         name="chip"
         :option="o"
         :label="labelOf(o)"
@@ -209,33 +268,53 @@ function onBackspace() {
       >
         <span class="mw-ms-chip">
           <span class="mw-ms-chip-label">{{ labelOf(o) }}</span>
-          <i class="pi pi-times mw-ms-chip-remove" @mousedown.stop.prevent="removeAt(i)" />
+          <button
+            v-if="!disabled"
+            type="button"
+            class="mw-ms-chip-remove"
+            :aria-label="t('common.select.remove', { label: labelOf(o) })"
+            @mousedown.stop.prevent
+            @click.stop="removeAt(i)"
+          >
+            <i class="pi pi-times" aria-hidden="true" />
+          </button>
         </span>
       </slot>
       <span v-if="overflowCount > 0" class="mw-ms-chip mw-ms-chip-more">+{{ overflowCount }}</span>
       <input
+        :id="fieldId"
         ref="inputRef"
         v-model="query"
         class="mw-ms-input"
         :placeholder="hasSelection ? '' : placeholder"
         :disabled="disabled"
+        :aria-label="ariaLabel"
+        :aria-labelledby="ariaLabelledby"
+        :aria-describedby="ariaDescribedby"
+        :aria-invalid="invalid || undefined"
+        :aria-required="required || undefined"
+        aria-autocomplete="list"
+        aria-haspopup="listbox"
+        :aria-expanded="open"
+        :aria-controls="listboxId"
+        :aria-activedescendant="open && activeIndex >= 0 ? optionId(activeIndex) : undefined"
+        role="combobox"
         type="text"
         autocomplete="off"
         spellcheck="false"
         @focus="reveal"
         @blur="onBlur"
+        @input="onInput"
         @keydown.backspace="onBackspace"
-        @keydown.esc="dismiss"
+        @keydown="onKeydown"
       />
     </div>
 
     <!-- 隐藏量算行：始终渲染全部 chip 供 recalc 测宽（不参与可见布局） -->
     <div ref="measureRef" class="mw-ms-measure" aria-hidden="true">
-      <!-- 量算行走同一个插槽才能保证测得的宽度与可见行一致；
-           本行 visibility:hidden + pointer-events:none，remove 给个空实现。 -->
       <slot
         v-for="(o, i) in selectedOptions"
-        :key="$slots.chip ? String(valueOf(o)) : labelOf(o)"
+        :key="`${String(valueOf(o))}-${i}`"
         name="chip"
         :option="o"
         :label="labelOf(o)"
@@ -244,23 +323,39 @@ function onBackspace() {
       >
         <span class="mw-ms-chip">
           <span class="mw-ms-chip-label">{{ labelOf(o) }}</span>
-          <i class="pi pi-times mw-ms-chip-remove" />
+          <i class="pi pi-times mw-ms-chip-remove" aria-hidden="true" />
         </span>
       </slot>
     </div>
 
-    <span class="mw-ms-dropdown"><i class="pi pi-chevron-down" /></span>
+    <span class="mw-ms-dropdown" aria-hidden="true"><i class="pi pi-chevron-down" /></span>
 
     <Teleport to="body">
-      <ul v-if="open" ref="panelRef" class="mw-ms-overlay" :style="panelStyle">
+      <ul
+        v-if="open"
+        :id="listboxId"
+        ref="panelRef"
+        class="mw-ms-overlay"
+        :style="panelStyle"
+        :aria-label="ariaLabel"
+        :aria-labelledby="ariaLabelledby"
+        aria-multiselectable="true"
+        role="listbox"
+      >
         <li
-          v-for="option in filteredOptions"
-          :key="$slots.option ? String(valueOf(option)) : labelOf(option)"
+          v-for="(option, i) in filteredOptions"
+          :id="optionId(i)"
+          :key="`${String(valueOf(option))}-${i}`"
           class="mw-ms-option"
-          :class="{ 'mw-ms-option-selected': isSelected(option) }"
+          :class="{
+            'mw-ms-option-selected': isSelected(option),
+            'mw-ms-option-active': i === activeIndex,
+          }"
+          :aria-selected="isSelected(option)"
+          role="option"
           @mousedown.prevent="toggleOption(option)"
+          @mousemove="activeIndex = i"
         >
-          <!-- option 可选插槽：fallback 是纯文本 label，与插槽化之前逐字节一致 -->
           <slot name="option" :option="option" :label="labelOf(option)" :selected="isSelected(option)">{{ labelOf(option) }}</slot>
         </li>
         <li v-if="!filteredOptions.length" class="mw-ms-empty">{{ emptyMessageText }}</li>
@@ -300,6 +395,9 @@ function onBackspace() {
 .mw-ms-focus {
   border-color: var(--color-brand-500);
   outline-color: rgb(var(--color-brand-500-rgb) / 0.18);
+}
+.mw-ms-invalid {
+  border-color: var(--color-danger-500);
 }
 .mw-ms-disabled {
   opacity: var(--p-disabled-opacity, 0.6);
@@ -342,10 +440,17 @@ function onBackspace() {
 }
 .mw-ms-chip-remove {
   flex-shrink: 0;
-  font-size: 0.75rem;
-  color: var(--color-text-tertiary);
-  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
   border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-text-tertiary);
+  font: inherit;
+  font-size: 0.75rem;
+  cursor: pointer;
   transition:
     color 0.15s,
     background 0.15s;
@@ -353,6 +458,10 @@ function onBackspace() {
 .mw-ms-chip-remove:hover {
   color: var(--color-text-primary);
   background: var(--color-surface-muted);
+}
+.mw-ms-chip-remove:focus-visible {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: 1px;
 }
 .mw-ms-chip-more {
   color: var(--color-text-secondary);
@@ -451,7 +560,8 @@ function onBackspace() {
 }
 /* 玻璃面上的行态一律半透明——实心底色会把材质打断。inlay 是白叠层，浅色下压在
    近白的玻璃面板上读不出来，行态走随 mode 翻转的 --material-hover。 */
-.mw-ms-overlay .mw-ms-option:not(.mw-ms-option-selected):hover {
+.mw-ms-overlay .mw-ms-option:not(.mw-ms-option-selected):hover,
+.mw-ms-overlay .mw-ms-option-active:not(.mw-ms-option-selected) {
   background: var(--material-hover);
 }
 .mw-ms-overlay .mw-ms-option-selected {

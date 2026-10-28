@@ -58,10 +58,24 @@ const $ = (selector: string) => document.body.querySelector(selector);
 const AREA_MS = 180;
 
 describe("AsyncSlot 四态收敛", () => {
-  it("初始挂载不过渡：骨架分支立即渲染", () => {
+  it("初始挂载不过渡：骨架分支立即渲染并提供读屏状态", () => {
     mountSlot();
     expect($(".mw-async--loading")).not.toBeNull();
+    expect($(".mw-async-host")?.getAttribute("aria-busy")).toBe("true");
+    expect($('[role="status"]')?.textContent).toBe("正在加载");
     expect($(".mw-async-enter-active")).toBeNull();
+  });
+
+  it("loading slot 可替换骨架，skeleton=none 仍保留读屏反馈", () => {
+    mountUiComponent(AsyncSlot, {
+      attachTo: document.body,
+      props: { status: "loading", skeleton: "none" },
+      slots: { loading: () => h("div", { class: "custom-skeleton" }, "CUSTOM") },
+      global: { stubs: { transition: false } },
+    });
+    expect($(".custom-skeleton")?.textContent).toBe("CUSTOM");
+    expect($(".mw-async-skeleton")).toBeNull();
+    expect($('[role="status"]')?.textContent).toBe("正在加载");
   });
 
   it("loading→ready：内容分支即刻入流（默认模式，无 out-in 门控），骨架脱流离场", async () => {

@@ -20,7 +20,7 @@
  * 展示逻辑：hover 进出各带延迟（showDelay 防扫过乱弹，hideDelay 是从锚点
  * 移进面板的指针桥）；`interactive: false` 时面板不吃指针，退化为纯提示。
  */
-import { nextTick, onBeforeUnmount, ref, watch } from "vue";
+import { nextTick, onBeforeUnmount, ref, useId, watch } from "vue";
 
 import {
   computeHoverCardPosition,
@@ -38,6 +38,8 @@ const props = withDefaults(
     hideDelay?: number;
     /** 允许指针移进面板停留/点击；false = 纯提示（pointer-events:none）。 */
     interactive?: boolean;
+    /** 交互弹层的可访问名称，由宿主按当前语言注入。 */
+    label?: string;
     disabled?: boolean;
     /**
      * wrapper 用块级盒（默认 inline-flex）。包住侧栏/列表里整行 div 时用，
@@ -55,6 +57,7 @@ const props = withDefaults(
     showDelay: 150,
     hideDelay: 150,
     interactive: true,
+    label: "Details",
     disabled: false,
     block: false,
     focusable: true,
@@ -74,7 +77,7 @@ const side = ref<HoverCardPlacement>(props.placement);
 const panelStyle = ref<Record<string, string>>({});
 
 // 挂件 id 只求 body 内唯一（同页多实例不串 aria-describedby）。
-const panelId = `mw-hovercard-${Math.random().toString(36).slice(2, 9)}`;
+const panelId = `mw-hovercard-${useId()}`;
 let showTimer: ReturnType<typeof setTimeout> | null = null;
 let hideTimer: ReturnType<typeof setTimeout> | null = null;
 /** 本轮 hover 的进入时刻；timer 被 Chromium 节流钳制时由 mousemove 按它兜底。 */
@@ -109,7 +112,7 @@ function reposition() {
     position: "fixed",
     left: `${Math.round(pos.left)}px`,
     top: `${Math.round(pos.top)}px`,
-    zIndex: "2000",
+    zIndex: "var(--z-floating)",
   };
 }
 
@@ -164,8 +167,13 @@ function onScrollOrResize() {
   reposition();
 }
 
+function hideAndRefocus() {
+  hideNow();
+  anchorRef.value?.focus();
+}
+
 function onDocKeydown(e: KeyboardEvent) {
-  if (e.key === "Escape") hideNow();
+  if (e.key === "Escape") hideAndRefocus();
 }
 
 function bind() {
@@ -219,6 +227,34 @@ function onPanelFocusOut(e: FocusEvent) {
   scheduleHide();
 }
 
+function panelFocusables(): HTMLElement[] {
+  return Array.from(
+    panelRef.value?.querySelectorAll<HTMLElement>(
+      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+    ) ?? [],
+  );
+}
+
+function onAnchorKeydown(event: KeyboardEvent) {
+  if (event.key !== "Tab" || event.shiftKey || !open.value || !props.interactive) return;
+  const first = panelFocusables()[0];
+  if (!first) return;
+  event.preventDefault();
+  first.focus();
+}
+
+function onPanelKeydown(event: KeyboardEvent) {
+  if (event.key !== "Tab" || !props.interactive) return;
+  const focusables = panelFocusables();
+  const first = focusables[0];
+  const last = focusables.at(-1);
+  if (!first || !last) return;
+  if ((event.shiftKey && document.activeElement === first) || (!event.shiftKey && document.activeElement === last)) {
+    event.preventDefault();
+    hideAndRefocus();
+  }
+}
+
 function cancelHide() {
   clearTimers();
 }
@@ -231,13 +267,16 @@ function cancelHide() {
     class="mw-hovercard"
     :class="{ 'mw-hovercard--block': block }"
     :tabindex="focusable && !disabled ? 0 : undefined"
-    :aria-describedby="open ? panelId : undefined"
+    :aria-describedby="open && !interactive ? panelId : undefined"
+    :aria-expanded="interactive ? open : undefined"
+    :aria-controls="interactive && open ? panelId : undefined"
+    :aria-haspopup="interactive ? 'dialog' : undefined"
     @mouseenter="scheduleShow"
     @mousemove="onMousemove"
     @mouseleave="scheduleHide"
     @focusin="scheduleShow"
     @focusout="onAnchorFocusOut"
-    @keydown.esc="hideNow"
+    @keydown="onAnchorKeydown"
     @click="hideNow"
   >
     <slot />
@@ -249,7 +288,8 @@ function cancelHide() {
         v-if="open"
         :id="panelId"
         ref="panelRef"
-        role="tooltip"
+        :role="interactive ? 'dialog' : 'tooltip'"
+        :aria-label="interactive ? label : undefined"
         class="mw-hovercard__panel"
         :class="[`mw-hovercard__panel--${side}`, { 'mw-hovercard__panel--static': !interactive }]"
         :style="panelStyle"
@@ -257,6 +297,7 @@ function cancelHide() {
         @mouseleave="scheduleHide"
         @focusin="cancelHide"
         @focusout="onPanelFocusOut"
+        @keydown="onPanelKeydown"
       >
         <slot name="content" />
       </div>

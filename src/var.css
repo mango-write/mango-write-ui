@@ -117,11 +117,9 @@
   --color-text-secondary: oklch(0.42 0.012 70);
   --color-text-tertiary: oklch(0.6 0.012 70);
   --color-text-quaternary: oklch(0.72 0.01 70);
-  /* filled 品牌/状态面上的前景。浅=白压 brand-500 实测 2.80:1，不达正文 AA——
-     试过整套换深墨（浅 6.83 / 深 6.71，全族一起过），观感上拍板要白字，所以这里
-     记成已知例外：这一族只放图标与短标签时按非文字 3:1 算。深色翻成深墨，
-     见下面深色块第 3 条。 */
-  --color-text-on-brand: #ffffff;
+  /* filled 品牌/状态面上的前景统一用深墨：短标签仍按正文 AA 验收，
+     不按非文本图形豁免。 */
+  --color-text-on-brand: #170d08;
   /* 底色芯片上的墨字（writer 底色按钮的「A」）。高亮调色板是封闭的浅色粉彩
      （serialization color-palette.ts），两套主题下都不变浅，所以字色恒为深墨、
      不进 dark 覆盖块——进去了反而会跟着翻成白字。 */
@@ -215,6 +213,29 @@
   --line-height-body: 1.5;
   --line-height-relaxed: 1.65;
   --line-height-display: 1.1;
+
+  /* Spacing & control geometry */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --control-height-compact: 32px;
+  --control-height-default: 40px;
+  --control-height-large: 48px;
+  --control-target-min: 44px;
+
+  /* Fixed dark scenes：不随页面主题翻转的媒体查看环境。 */
+  --lightbox-scrim: rgb(15 15 15 / 0.82);
+  --lightbox-toolbar: rgb(38 38 38 / 0.9);
+  --lightbox-text: rgb(229 229 229);
+  --lightbox-text-muted: rgb(212 212 212);
+  --lightbox-hover: rgb(255 255 255 / 0.14);
+  --lightbox-divider: rgb(255 255 255 / 0.18);
 
   /* Radius */
   --radius-xs: 4px;
@@ -466,16 +487,10 @@
       更暗（实心按钮按下去应该变沉）；700 是「品牌深色文本/强强调」，在深底上「更强」
       必须是**更亮**。所以 600 比 500 暗、700 比 500 亮，不是笔误。
 
-   3. **深色下 filled 品牌按钮用深色文字。** 白字压在 brand-500 上只有 2.85:1（连 UI
-      组件要求的 3.0 都不到），深字 #170d08 是 6.71:1。--color-text-on-brand 因此在
-      深色下不是白色。浅色那侧同一族是 2.80：整套换过深墨（浅 6.83 / 深 6.71，全族一起
-      过 AA），观感上拍板回白字，记成已知例外——别顺手把这里也改成白，那是在把一个
-      已经算过的取舍改回没算过的样子。
+   3. **filled 品牌按钮在深浅两套下都用深色文字。** 白字压品牌橙不满足正文 AA；
+      短标签也不能按非文本图形豁免。
 
-   本块只挂 [data-theme="dark"]，**故意不挂 @media (prefers-color-scheme: dark)**：
-   深色在 P6 才铺满壳与工作台三页，现在跟随系统会把半成品直接推给系统深色的用户。
-   P6 落地时再补 media 块（写法见 issue #110 §4.2），并同时接入偏好开关。
-   开发期手动验：在 devtools 给 <html> 加 data-theme="dark"。
+   深色有属性入口与系统偏好首帧入口，两块逐值一致由 var-css-dark-parity.test.ts 锁死。
    ═══════════════════════════════════════════════════════════════════════════ */
 :root[data-theme="dark"] {
   color-scheme: dark;

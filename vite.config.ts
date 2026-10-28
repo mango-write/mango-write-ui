@@ -2,11 +2,18 @@
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
+import tailwindcss from "@tailwindcss/vite";
 
 const peers = ["vue", "vue-i18n", "primevue", "@primeuix/themes", "lucide-vue-next"];
 
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [vue(), tailwindcss()],
+  resolve: {
+    dedupe: ["vue", "vue-router", "vue-i18n", "primevue"],
+  },
+  server: {
+    port: 5174,
+  },
   build: {
     lib: {
       entry: fileURLToPath(new URL("./src/index.ts", import.meta.url)),

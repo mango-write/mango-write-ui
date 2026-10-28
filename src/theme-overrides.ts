@@ -241,8 +241,8 @@ export const mangoOverrides = mirrorLightToDark({
           950: "var(--color-text-primary)"
         },
         // filled 面上的前景（checkbox 勾、radiobutton 点、primary badge、
-        // progressbar 读数、日历选中日）统一走 --color-text-on-brand：浅=白、
-        // 深=深墨。Aura 原本浅硬编码 #ffffff、深 {surface.900}，两套主题两个来源。
+        // progressbar 读数、日历选中日）统一走 --color-text-on-brand，
+        // 深浅两套都使用满足正文 AA 的深墨。
         primary: {
           contrastColor: "var(--color-text-on-brand)"
         },

@@ -4,7 +4,7 @@
 // available to any other surface (e.g. the Writer figure node view) that wants
 // "click to enlarge" without re-implementing the overlay. Intentionally
 // self-contained (no PrimeVue Dialog) — it's a media viewer, not a form dialog.
-import { computed, onBeforeUnmount, ref, watch } from "vue";
+import { computed, nextTick, onBeforeUnmount, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { RotateCw, RotateCcw, X, ZoomIn, ZoomOut, Maximize } from "lucide-vue-next";
 
@@ -79,26 +79,66 @@ function onPointerUp() {
   dragStart = null;
 }
 
+const dialogRef = ref<HTMLElement | null>(null);
+const closeButtonRef = ref<HTMLButtonElement | null>(null);
+let previousActive: HTMLElement | null = null;
+let previousOverflow = "";
+let scrollLocked = false;
+
+function toolbarButtons(): HTMLButtonElement[] {
+  return Array.from(dialogRef.value?.querySelectorAll<HTMLButtonElement>("button:not([disabled])") ?? []);
+}
+
 function onKey(event: KeyboardEvent) {
+  if (event.key === "Tab") {
+    const buttons = toolbarButtons();
+    const first = buttons[0];
+    const last = buttons.at(-1);
+    if (!first || !last) return;
+    if (event.shiftKey && (document.activeElement === first || document.activeElement === dialogRef.value)) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && (document.activeElement === last || document.activeElement === dialogRef.value)) {
+      event.preventDefault();
+      first.focus();
+    }
+    return;
+  }
   if (event.key === "Escape") close();
   else if (event.key === "+" || event.key === "=") zoomBy(1.2);
   else if (event.key === "-") zoomBy(1 / 1.2);
 }
 
-// Reset transforms each time the viewer opens; bind/unbind the global Esc key.
+function openViewer() {
+  reset();
+  previousActive = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  previousOverflow = document.body.style.overflow;
+  document.body.style.overflow = "hidden";
+  scrollLocked = true;
+  window.addEventListener("keydown", onKey);
+  nextTick(() => closeButtonRef.value?.focus());
+}
+
+function closeViewer() {
+  window.removeEventListener("keydown", onKey);
+  if (scrollLocked) {
+    document.body.style.overflow = previousOverflow;
+    scrollLocked = false;
+    previousActive?.focus();
+    previousActive = null;
+  }
+}
+
 watch(
   () => props.visible,
   (open) => {
-    if (open) {
-      reset();
-      window.addEventListener("keydown", onKey);
-    } else {
-      window.removeEventListener("keydown", onKey);
-    }
+    if (open) openViewer();
+    else closeViewer();
   },
+  { immediate: true },
 );
 
-onBeforeUnmount(() => window.removeEventListener("keydown", onKey));
+onBeforeUnmount(closeViewer);
 </script>
 
 <template>
@@ -106,9 +146,12 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKey));
     <Transition name="mw-lightbox">
       <div
         v-if="visible"
+        ref="dialogRef"
         class="mw-lightbox"
         role="dialog"
         aria-modal="true"
+        :aria-label="caption ?? alt ?? t('common.lightbox.imageAlt')"
+        tabindex="-1"
         @click.self="close"
       >
         <div class="mw-lightbox__toolbar" @click.stop>
@@ -127,8 +170,8 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKey));
           <button type="button" @click="reset" :aria-label="t('common.lightbox.reset')">
             <Maximize :size="18" />
           </button>
-          <span class="mw-lightbox__divider" />
-          <button type="button" @click="close" :aria-label="t('common.action.close')">
+          <span class="mw-lightbox__divider" aria-hidden="true" />
+          <button ref="closeButtonRef" type="button" @click="close" :aria-label="t('common.action.close')">
             <X :size="18" />
           </button>
         </div>
@@ -164,7 +207,7 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKey));
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: rgb(15 15 15 / 0.82);
+  background: var(--lightbox-scrim);
   backdrop-filter: blur(4px);
 }
 
@@ -175,10 +218,10 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKey));
   transform: translateX(-50%);
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--space-1);
   padding: 6px;
   border-radius: var(--radius-pill, 999px);
-  background: rgb(38 38 38 / 0.9);
+  background: var(--lightbox-toolbar);
   box-shadow: var(--shadow-lg);
 }
 
@@ -191,21 +234,25 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKey));
   border: 0;
   border-radius: 50%;
   background: transparent;
-  color: rgb(229 229 229);
+  color: var(--lightbox-text);
   cursor: pointer;
-  transition: background 0.12s ease;
+  transition: background var(--motion-duration-fast) var(--motion-ease-standard);
 }
 
 .mw-lightbox__toolbar button:hover {
-  background: rgb(255 255 255 / 0.14);
-  color: #fff;
+  background: var(--lightbox-hover);
+}
+
+.mw-lightbox__toolbar button:focus-visible {
+  outline: 2px solid var(--lightbox-text);
+  outline-offset: 2px;
 }
 
 .mw-lightbox__divider {
   width: 1px;
   height: 20px;
-  margin: 0 4px;
-  background: rgb(255 255 255 / 0.18);
+  margin: 0 var(--space-1);
+  background: var(--lightbox-divider);
 }
 
 .mw-lightbox__stage {
@@ -222,7 +269,7 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKey));
   max-height: 82vh;
   object-fit: contain;
   cursor: grab;
-  transition: transform 0.08s ease-out;
+  transition: transform var(--motion-duration-fast) var(--motion-ease-standard);
   user-select: none;
   -webkit-user-drag: none;
 }
@@ -233,21 +280,29 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKey));
 
 .mw-lightbox__caption {
   max-width: min(92vw, 720px);
-  margin: 0 0 24px;
-  padding: 8px 16px;
-  color: rgb(212 212 212);
+  margin: 0 0 var(--space-6);
+  padding: var(--space-2) var(--space-4);
+  color: var(--lightbox-text-muted);
   font-family: var(--font-family-sans);
-  font-size: 13px;
-  line-height: 1.5;
+  font-size: var(--font-size-body-sm);
+  line-height: var(--line-height-body);
   text-align: center;
 }
 
 .mw-lightbox-enter-active,
 .mw-lightbox-leave-active {
-  transition: opacity 0.16s ease;
+  transition: opacity var(--motion-duration-base) var(--motion-ease-standard);
 }
 .mw-lightbox-enter-from,
 .mw-lightbox-leave-to {
   opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mw-lightbox__img,
+  .mw-lightbox-enter-active,
+  .mw-lightbox-leave-active {
+    transition: none;
+  }
 }
 </style>

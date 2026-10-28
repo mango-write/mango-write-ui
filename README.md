@@ -5,8 +5,8 @@
 ## 功能
 
 - **主题与样式**：MangoPreset、轻量主题、语义颜色、排版、间距和动效 token。
-- **表单交互**：可搜索单选、多选与组合面板。
-- **内容展示**：HoverCard、图片灯箱、异步加载与重试组件。
+- **表单交互**：FormField 的标签/说明/错误关联，可搜索单选、多选与组合面板。
+- **内容与反馈**：AsyncSlot 四态、自定义骨架、HoverCard 与带焦点管理的图片灯箱。
 - **网站组件**：页头、页脚、导航、品牌与社交账号配置。
 - **主题偏好**：浅色、深色、跟随系统，以及可配置的存储键和主题根节点。
 
@@ -72,7 +72,7 @@ createApp(App)
 ```vue
 <script setup lang="ts">
 import { ref } from "vue";
-import { SearchableSelect } from "@mango-write/ui";
+import { FormField, SearchableSelect } from "@mango-write/ui";
 
 const selected = ref<unknown>(null);
 const options = [
@@ -82,15 +82,31 @@ const options = [
 </script>
 
 <template>
-  <SearchableSelect
-    v-model="selected"
-    :options="options"
-    option-label="label"
-    option-value="value"
-    placeholder="选择研究领域"
-  />
+  <FormField
+    input-id="research-field"
+    label="研究领域"
+    hint="选择最接近当前论文的方向"
+    required
+    v-slot="{ inputId, describedBy, invalid, required }"
+  >
+    <SearchableSelect
+      :input-id="inputId"
+      v-model="selected"
+      :options="options"
+      option-label="label"
+      option-value="value"
+      :aria-describedby="describedBy"
+      :invalid="invalid"
+      :required="required"
+      placeholder="选择研究领域"
+    />
+  </FormField>
 </template>
 ```
+
+`FormField` 的 `error` 会同时生成关联错误和 `invalid` 状态；不要用 placeholder 代替标签。
+`AsyncSlot` 统一 `loading / empty / error / ready`，`#loading` 可替换为与真实内容同形的骨架，
+`#empty-action` 提供下一步，`@retry` 处理重试。
 
 ## 定制
 
@@ -113,12 +129,15 @@ const options = [
 git clone https://github.com/mango-write/mango-write-ui.git
 cd mango-write-ui
 pnpm install --frozen-lockfile
+pnpm dev
 pnpm build
 pnpm typecheck
 pnpm test
 ```
 
-构建输出位于 `dist/`，包含 ESM、类型声明和 CSS。参与开发请阅读[贡献指南](CONTRIBUTING.md)。
+`pnpm dev` 启动独立展示应用：组件库位于 `http://localhost:5174/dev/ui`，图标库位于 `http://localhost:5174/dev/icon`。两个页面及其路由只归本仓维护，宿主应用不注册这些路由。
+
+构建输出位于 `dist/`，包含 ESM、类型声明和 CSS；`dev/` 不进入发布产物。参与开发请阅读[贡献指南](CONTRIBUTING.md)。
 
 ## 许可
 

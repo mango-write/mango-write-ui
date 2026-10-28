@@ -9,7 +9,7 @@
 //
 // 输入框宽度按内容用一个隐藏镜像 span 量算（inputWidth），所以选中后字段直接缩到
 // 文字宽度、不预留多余的输入空当；打字时随查询串增长。
-import { computed, nextTick, onMounted, ref, watch } from "vue";
+import { computed, nextTick, onMounted, ref, useId, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useComboPanel } from "../lib/useComboPanel";
 
@@ -21,17 +21,29 @@ const props = withDefaults(
     options: readonly Record<string, unknown>[];
     optionLabel: string;
     optionValue?: string;
+    inputId?: string;
+    ariaLabel?: string;
+    ariaLabelledby?: string;
+    ariaDescribedby?: string;
     placeholder?: string;
     showClear?: boolean;
     disabled?: boolean;
+    invalid?: boolean;
+    required?: boolean;
     size?: "small" | "large";
     emptyMessage?: string;
   }>(),
   {
     optionValue: undefined,
+    inputId: undefined,
+    ariaLabel: undefined,
+    ariaLabelledby: undefined,
+    ariaDescribedby: undefined,
     placeholder: undefined,
     showClear: false,
     disabled: false,
+    invalid: false,
+    required: false,
     size: undefined,
     emptyMessage: undefined,
   },
@@ -52,6 +64,11 @@ const inputRef = ref<HTMLInputElement | null>(null);
 const mirrorRef = ref<HTMLElement | null>(null);
 const panelRef = ref<HTMLElement | null>(null);
 const { open, panelStyle, openPanel, closePanel } = useComboPanel(rootRef, panelRef);
+
+const generatedId = useId();
+const fieldId = computed(() => props.inputId ?? `mw-ss-${generatedId}`);
+const listboxId = computed(() => `${fieldId.value}-listbox`);
+const optionId = (index: number) => `${listboxId.value}-option-${index}`;
 
 const typing = ref(false);
 const query = ref("");
@@ -85,16 +102,26 @@ function measure() {
 onMounted(measure);
 watch(mirrorText, () => nextTick(measure));
 
+function scrollActiveIntoView() {
+  nextTick(() => {
+    const option = panelRef.value?.querySelectorAll<HTMLElement>('[role="option"]')[activeIndex.value];
+    option?.scrollIntoView?.({ block: "nearest" });
+  });
+}
+watch(activeIndex, scrollActiveIntoView);
+
 function reveal() {
   if (props.disabled || open.value) return;
   emit("show");
   activeIndex.value = filtered.value.findIndex((o) => valueOf(o) === props.modelValue);
   openPanel();
+  scrollActiveIntoView();
 }
 function dismiss() {
   closePanel();
   typing.value = false;
   query.value = "";
+  activeIndex.value = -1;
 }
 
 function onFocus() {
@@ -131,19 +158,25 @@ function onKeydown(event: KeyboardEvent) {
   if (event.key === "ArrowDown") {
     event.preventDefault();
     if (!open.value) return reveal();
-    activeIndex.value = Math.min(activeIndex.value + 1, filtered.value.length - 1);
+    if (filtered.value.length) activeIndex.value = Math.min(activeIndex.value + 1, filtered.value.length - 1);
   } else if (event.key === "ArrowUp") {
     event.preventDefault();
-    activeIndex.value = Math.max(activeIndex.value - 1, 0);
+    if (!open.value) return reveal();
+    if (filtered.value.length) activeIndex.value = Math.max(activeIndex.value - 1, 0);
+  } else if (event.key === "Home" && open.value) {
+    event.preventDefault();
+    activeIndex.value = filtered.value.length ? 0 : -1;
+  } else if (event.key === "End" && open.value) {
+    event.preventDefault();
+    activeIndex.value = filtered.value.length - 1;
   } else if (event.key === "Enter") {
     event.preventDefault();
+    if (!open.value) return reveal();
     const option = filtered.value[activeIndex.value] ?? filtered.value[0];
     if (option) selectOption(option);
-  } else if (event.key === "Escape") {
-    if (open.value) {
-      event.stopPropagation();
-      dismiss();
-    }
+  } else if (event.key === "Escape" && open.value) {
+    event.stopPropagation();
+    dismiss();
   }
 }
 </script>
@@ -152,12 +185,13 @@ function onKeydown(event: KeyboardEvent) {
   <div
     ref="rootRef"
     class="mw-ss"
-    :class="[sizeClass, { 'mw-ss-focus': open, 'mw-ss-disabled': disabled }]"
+    :class="[sizeClass, { 'mw-ss-focus': open, 'mw-ss-disabled': disabled, 'mw-ss-invalid': invalid }]"
     @mousedown="onFieldMousedown"
     @click="!open && inputRef?.focus()"
   >
     <div class="mw-ss-field">
       <input
+        :id="fieldId"
         ref="inputRef"
         class="mw-ss-input"
         :class="{ 'mw-ss-placeholder': !filled && !typing }"
@@ -165,6 +199,17 @@ function onKeydown(event: KeyboardEvent) {
         :value="inputValue"
         :placeholder="placeholder"
         :disabled="disabled"
+        :required="required"
+        :aria-label="ariaLabel"
+        :aria-labelledby="ariaLabelledby"
+        :aria-describedby="ariaDescribedby"
+        :aria-invalid="invalid || undefined"
+        aria-autocomplete="list"
+        aria-haspopup="listbox"
+        :aria-expanded="open"
+        :aria-controls="listboxId"
+        :aria-activedescendant="open && activeIndex >= 0 ? optionId(activeIndex) : undefined"
+        role="combobox"
         type="text"
         autocomplete="off"
         spellcheck="false"
@@ -174,26 +219,40 @@ function onKeydown(event: KeyboardEvent) {
       />
       <span ref="mirrorRef" class="mw-ss-mirror" aria-hidden="true">{{ mirrorText }}</span>
     </div>
-    <span
+    <button
       v-if="showClear && filled && !disabled"
+      type="button"
       class="mw-ss-clear"
+      :aria-label="t('common.select.clear')"
       @mousedown.stop.prevent
       @click="clear"
     >
-      <i class="pi pi-times" />
-    </span>
-    <span class="mw-ss-dropdown"><i class="pi pi-chevron-down" /></span>
+      <i class="pi pi-times" aria-hidden="true" />
+    </button>
+    <span class="mw-ss-dropdown" aria-hidden="true"><i class="pi pi-chevron-down" /></span>
 
     <Teleport to="body">
-      <ul v-if="open" ref="panelRef" class="mw-ss-overlay" :style="panelStyle">
+      <ul
+        v-if="open"
+        :id="listboxId"
+        ref="panelRef"
+        class="mw-ss-overlay"
+        :style="panelStyle"
+        :aria-label="ariaLabel"
+        :aria-labelledby="ariaLabelledby"
+        role="listbox"
+      >
         <li
           v-for="(option, i) in filtered"
-          :key="labelOf(option)"
+          :id="optionId(i)"
+          :key="`${String(valueOf(option))}-${i}`"
           class="mw-ss-option"
           :class="{
             'mw-ss-option-selected': valueOf(option) === modelValue,
             'mw-ss-option-active': i === activeIndex,
           }"
+          :aria-selected="valueOf(option) === modelValue"
+          role="option"
           @mousedown.prevent="selectOption(option)"
           @mousemove="activeIndex = i"
         >
@@ -239,6 +298,9 @@ function onKeydown(event: KeyboardEvent) {
 .mw-ss-focus {
   border-color: var(--color-brand-500);
   outline-color: rgb(var(--color-brand-500-rgb) / 0.18);
+}
+.mw-ss-invalid {
+  border-color: var(--color-danger-500);
 }
 .mw-ss-disabled {
   opacity: var(--p-disabled-opacity, 0.6);
@@ -312,8 +374,12 @@ function onKeydown(event: KeyboardEvent) {
   justify-content: center;
   width: 1.25rem;
   height: 1.25rem;
+  padding: 0;
+  border: 0;
   border-radius: var(--radius-pill, 999px);
+  background: transparent;
   color: var(--color-text-tertiary);
+  font: inherit;
   cursor: pointer;
   transition:
     background 0.15s,
@@ -322,6 +388,10 @@ function onKeydown(event: KeyboardEvent) {
 .mw-ss-clear:hover {
   background: var(--color-surface-muted);
   color: var(--color-text-primary);
+}
+.mw-ss-clear:focus-visible {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: 1px;
 }
 .mw-ss-clear .pi {
   font-size: 0.6875rem;

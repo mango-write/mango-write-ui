@@ -63,3 +63,30 @@ describe("var.css 深色双入口一致性（issue #110 · P6）", () => {
     expect(mismatches).toEqual([]);
   });
 });
+
+function luminance(hex: string): number {
+  const channels = hex.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i)?.slice(1);
+  if (!channels) throw new Error(`expected six-digit hex color: ${hex}`);
+  const [r, g, b] = channels.map((channel) => {
+    const value = Number.parseInt(channel, 16) / 255;
+    return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+function contrast(foreground: string, background: string): number {
+  const light = Math.max(luminance(foreground), luminance(background));
+  const dark = Math.min(luminance(foreground), luminance(background));
+  return (light + 0.05) / (dark + 0.05);
+}
+
+describe("filled 品牌面正文对比度", () => {
+  it.each([
+    ["浅色", extractBlock(":root {")],
+    ["深色", extractBlock(':root[data-theme="dark"]')],
+  ])("%s达到 WCAG AA", (_name, block) => {
+    const foreground = block.get("--color-text-on-brand")!;
+    const background = block.get("--color-brand-500")!;
+    expect(contrast(foreground, background)).toBeGreaterThanOrEqual(4.5);
+  });
+});

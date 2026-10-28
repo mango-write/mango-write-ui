@@ -12,8 +12,9 @@ interface I18nWithMerge {
 // 覆盖后需重挂。
 export interface UiMessages {
   common: {
-    select: { noMatch: string };
-    async: { errorTitle: string; retry: string };
+    select: { noMatch: string; clear: string; remove: string };
+    async: { loading: string; errorTitle: string; retry: string };
+    action: { close: string };
     lightbox: {
       zoomIn: string;
       zoomOut: string;
@@ -30,8 +31,9 @@ export type UiLocaleSource = "zh-CN" | "en-US";
 export const uiMessages: Record<UiLocaleSource, UiMessages> = {
   "zh-CN": {
     common: {
-      select: { noMatch: "无匹配项" },
-      async: { errorTitle: "加载失败", retry: "重试" },
+      select: { noMatch: "无匹配项", clear: "清除选择", remove: "移除 {label}" },
+      async: { loading: "正在加载", errorTitle: "加载失败", retry: "重试" },
+      action: { close: "关闭" },
       lightbox: {
         zoomIn: "放大",
         zoomOut: "缩小",
@@ -44,8 +46,9 @@ export const uiMessages: Record<UiLocaleSource, UiMessages> = {
   },
   "en-US": {
     common: {
-      select: { noMatch: "No matches" },
-      async: { errorTitle: "Failed to load", retry: "Retry" },
+      select: { noMatch: "No matches", clear: "Clear selection", remove: "Remove {label}" },
+      async: { loading: "Loading", errorTitle: "Failed to load", retry: "Retry" },
+      action: { close: "Close" },
       lightbox: {
         zoomIn: "Zoom in",
         zoomOut: "Zoom out",

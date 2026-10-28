@@ -19,9 +19,10 @@ import { areaDurationMs } from "../lib/area-transition.js";
 
 const props = defineProps<{
   status: "loading" | "empty" | "error" | "ready";
-  /** 骨架占位形状；与真实内容尺寸一致是硬要求。none = 不占位（调用方自理）。 */
+  /** 骨架占位形状；与真实内容尺寸一致是硬要求。none = 仅占位读屏反馈。 */
   skeleton?: "list" | "card" | "text" | "none";
-  /** 空态与错误态的文案，走 i18n key（不传裸中文），组件内 t()。 */
+  /** 状态文案走 i18n key（不传裸中文），组件内 t()。 */
+  loadingLabel?: string;
   emptyTitle?: string;
   emptyHint?: string;
   errorTitle?: string;
@@ -49,21 +50,23 @@ const skeletonRows = props.skeleton === "text" ? 3 : 5;
   <!-- 状态换装交叉淡入 + 独立 mw-async 命名空间（不与外层区域级 mw-area 共类名）。
        默认模式（非 out-in）：新区即刻入流，离场分支由 .mw-async-host 提供定位
        上下文脱流淡出。完成信号走显式 :duration，不接管 Vue 原生完成协调。 -->
-  <div class="mw-async-host">
+  <div class="mw-async-host" :aria-busy="status === 'loading'">
     <Transition name="mw-async" :duration="areaDurationMs()">
-    <!-- 加载态：骨架占位，形状与真实内容一致（skeleton=none 时零占位）。 -->
-    <div v-if="status === 'loading' && skeleton !== 'none'" key="loading" class="mw-async mw-async--loading" aria-busy="true">
-      <template v-if="skeleton === 'card'">
-        <div class="mw-async-skeleton mw-async-skeleton--card" />
-      </template>
-      <template v-else>
-        <div
-          v-for="i in skeletonRows"
-          :key="i"
-          class="mw-async-skeleton mw-async-skeleton--row"
-          :style="{ width: i === skeletonRows ? '62%' : undefined }"
-        />
-      </template>
+    <div v-if="status === 'loading'" key="loading" class="mw-async mw-async--loading">
+      <span class="mw-async-sr-only" role="status">{{ loadingLabel ? t(loadingLabel) : t("common.async.loading") }}</span>
+      <slot name="loading">
+        <template v-if="skeleton === 'card'">
+          <div class="mw-async-skeleton mw-async-skeleton--card" />
+        </template>
+        <template v-else-if="skeleton !== 'none'">
+          <div
+            v-for="i in skeletonRows"
+            :key="i"
+            class="mw-async-skeleton mw-async-skeleton--row"
+            :style="{ width: i === skeletonRows ? '62%' : undefined }"
+          />
+        </template>
+      </slot>
     </div>
 
     <!-- 空态：整块 #empty 覆盖优先（复杂空态），否则 title/hint + #empty-action。 -->
@@ -91,7 +94,6 @@ const skeletonRows = props.skeleton === "text" ? 3 : 5;
               icon="pi pi-refresh"
               severity="secondary"
               variant="outlined"
-              size="small"
               @click="emit('retry')"
             />
           </slot>
@@ -146,6 +148,17 @@ const skeletonRows = props.skeleton === "text" ? 3 : 5;
 
 .mw-async {
   width: 100%;
+}
+.mw-async-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 .mw-async--loading {
   display: flex;

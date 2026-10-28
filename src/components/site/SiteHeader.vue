@@ -25,6 +25,8 @@ withDefaults(
     showLang?: boolean;
     langLabel?: string;
     langTitle?: string;
+    navigationLabel?: string;
+    menuLabel?: string;
     /** 品牌链接的无障碍名。两个产品站品牌名不同，别写死。 */
     brandLabel?: string;
   }>(),
@@ -36,6 +38,8 @@ withDefaults(
     showLang: false,
     langLabel: "",
     langTitle: "Toggle language",
+    navigationLabel: "Primary navigation",
+    menuLabel: "Menu",
     brandLabel: "MangoWrite",
   },
 );
@@ -55,6 +59,9 @@ function toggleTheme() {
 const scrolled = ref(false);
 const menuOpen = ref(false);
 const headerEl = ref<HTMLElement | null>(null);
+const burgerRef = ref<HTMLButtonElement | null>(null);
+const drawerRef = ref<HTMLElement | null>(null);
+let previousOverflow = "";
 
 // 抽屉挂在 fixed 头部下面，视口剩余高度得量了顶栏才知道；打开时量一次并写成
 // CSS 变量（顶栏高度在 980/560 两档断点会变）。
@@ -65,17 +72,33 @@ function remeasureDrawerMax() {
   }
 }
 
+function drawerFocusables(): HTMLElement[] {
+  return Array.from(
+    drawerRef.value?.querySelectorAll<HTMLElement>(
+      'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+    ) ?? [],
+  );
+}
+
 function toggleDrawer() {
-  if (!menuOpen.value) {
-    menuOpen.value = true;
-    nextTick(remeasureDrawerMax);
-  } else {
-    menuOpen.value = false;
+  if (menuOpen.value) {
+    closeDrawer();
+    return;
   }
+  previousOverflow = document.body.style.overflow;
+  document.body.style.overflow = "hidden";
+  menuOpen.value = true;
+  nextTick(() => {
+    remeasureDrawerMax();
+    (drawerFocusables()[0] ?? drawerRef.value)?.focus();
+  });
 }
 
 function closeDrawer() {
+  if (!menuOpen.value) return;
   menuOpen.value = false;
+  document.body.style.overflow = previousOverflow;
+  nextTick(() => burgerRef.value?.focus());
 }
 
 // landing 页是自滚动容器（#app 是 fixed shell），window 不滚——捕获阶段监听
@@ -88,7 +111,23 @@ function onScroll(e: Event) {
 }
 
 function onKeyDown(e: KeyboardEvent) {
-  if (e.key === "Escape") menuOpen.value = false;
+  if (!menuOpen.value) return;
+  if (e.key === "Escape") {
+    closeDrawer();
+    return;
+  }
+  if (e.key !== "Tab") return;
+  const focusables = drawerFocusables();
+  const first = focusables[0];
+  const last = focusables.at(-1);
+  if (!first || !last) return;
+  if (e.shiftKey && (document.activeElement === first || document.activeElement === drawerRef.value)) {
+    e.preventDefault();
+    last.focus();
+  } else if (!e.shiftKey && (document.activeElement === last || document.activeElement === drawerRef.value)) {
+    e.preventDefault();
+    first.focus();
+  }
 }
 
 onMounted(() => {
@@ -100,6 +139,7 @@ onUnmounted(() => {
   document.removeEventListener("scroll", onScroll, true);
   document.removeEventListener("keydown", onKeyDown);
   window.removeEventListener("resize", remeasureDrawerMax);
+  if (menuOpen.value) document.body.style.overflow = previousOverflow;
 });
 </script>
 
@@ -111,7 +151,7 @@ onUnmounted(() => {
       </a>
 
       <div class="mw-site-header__desktop">
-        <nav v-if="items.length" class="mw-site-header__nav" aria-label="Primary navigation">
+        <nav v-if="items.length" class="mw-site-header__nav" :aria-label="navigationLabel">
           <a
             v-for="item in items"
             :key="item.href"
@@ -148,11 +188,12 @@ onUnmounted(() => {
       </div>
 
       <button
+        ref="burgerRef"
         type="button"
         class="mw-site-header__burger"
         :aria-expanded="menuOpen"
         aria-controls="mw-site-header-drawer"
-        aria-label="Menu"
+        :aria-label="menuLabel"
         @click="toggleDrawer"
       >
         <svg v-if="!menuOpen" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
@@ -160,8 +201,17 @@ onUnmounted(() => {
       </button>
     </div>
 
-    <div v-if="menuOpen" id="mw-site-header-drawer" class="mw-site-header__drawer">
-      <nav v-if="items.length" class="mw-site-header__drawer-nav" aria-label="Primary navigation">
+    <div
+      v-if="menuOpen"
+      id="mw-site-header-drawer"
+      ref="drawerRef"
+      class="mw-site-header__drawer"
+      role="dialog"
+      aria-modal="true"
+      :aria-label="menuLabel"
+      tabindex="-1"
+    >
+      <nav v-if="items.length" class="mw-site-header__drawer-nav" :aria-label="navigationLabel">
         <a
           v-for="item in items"
           :key="item.href"
@@ -423,6 +473,20 @@ onUnmounted(() => {
 
   .mw-site-header__drawer-row {
     padding: 8px 16px 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mw-site-header,
+  .mw-site-header__link,
+  .mw-site-header__icon-btn,
+  .mw-site-header__drawer-link {
+    transition: none;
+  }
+
+  .mw-site-header__scrim,
+  .mw-site-header__drawer {
+    animation: none;
   }
 }
 </style>

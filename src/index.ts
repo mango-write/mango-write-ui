@@ -2,6 +2,7 @@
 export { MangoPreset } from "./theme";
 export { MangoPresetLite } from "./theme-lite";
 export { default as AppLogo } from "./components/AppLogo.vue";
+export { default as FormField } from "./components/FormField.vue";
 export { default as HoverCard } from "./components/HoverCard.vue";
 export { default as ImageLightbox } from "./components/ImageLightbox.vue";
 export { default as SearchableMultiSelect } from "./components/SearchableMultiSelect.vue";

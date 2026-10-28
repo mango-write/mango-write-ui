@@ -127,7 +127,10 @@ describe("HoverCard 组件（遮挡节流兜底）", () => {
     // timer 全程挂起不推进（被节流的世界），只让 performance.now() 前走
     vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "setInterval", "clearInterval"] });
     const now = vi.spyOn(performance, "now").mockReturnValue(0);
-    const wrapper = mount(HoverCard, { slots: { content: "文献卡内容" } });
+    const wrapper = mount(HoverCard, {
+      props: { interactive: false },
+      slots: { content: "文献卡内容" },
+    });
     const anchor = wrapper.find(".mw-hovercard");
 
     await anchor.trigger("mouseenter");

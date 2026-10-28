@@ -1,0 +1,99 @@
+@import "tailwindcss" prefix(tw);
+@plugin "tailwindcss-primeui";
+@import "../src/theme.css";
+@source "../src";
+@source "./";
+
+html,
+body,
+#app {
+  width: 100%;
+  min-height: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+  font-family: var(--font-family-sans);
+  font-size: 14px;
+  line-height: var(--line-height-body);
+}
+
+.dev-app {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: clip;
+}
+
+.dev-chrome {
+  flex: none;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 8px 20px;
+  border-bottom: 1px solid var(--color-border-subtle);
+  background: var(--color-surface-base);
+  z-index: 30;
+}
+
+.dev-chrome__brand {
+  display: inline-flex;
+  text-decoration: none;
+}
+
+.dev-chrome__nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+
+.dev-chrome__nav a {
+  padding: 6px 10px;
+  border-radius: var(--radius);
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.dev-chrome__nav a:hover {
+  background: var(--color-bg-soft);
+  color: var(--color-text-primary);
+}
+
+.dev-chrome__nav a.router-link-active {
+  background: var(--color-brand-50);
+  color: var(--color-brand-700);
+}
+
+.dev-main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+@media (max-width: 640px) {
+  .dev-chrome {
+    gap: 10px;
+    padding: 8px 12px;
+  }
+
+  .dev-chrome__brand .mw-logo {
+    width: 34px;
+    overflow: hidden;
+  }
+
+  .dev-chrome {
+    flex-wrap: wrap;
+  }
+
+  .dev-chrome__nav {
+    order: 3;
+    flex-basis: 100%;
+    justify-content: center;
+  }
+}
