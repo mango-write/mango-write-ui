@@ -306,7 +306,7 @@ function cancelHide() {
 </template>
 
 <style scoped>
-/* 锚点 wrapper：inline-flex 不打断文本流（同 AtUser 根节点的处理），
+/* 锚点 wrapper：inline-flex 不打断文本流（同 UserChip 根节点的处理），
    且给定位一个稳定的盒子。 */
 .mw-hovercard {
   display: inline-flex;

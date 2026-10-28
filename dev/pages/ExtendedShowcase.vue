@@ -50,7 +50,17 @@ import { useConfirm } from "primevue/useconfirm";
 import { useDialog } from "primevue/usedialog";
 import { useToast } from "primevue/usetoast";
 import { defineComponent, h, onBeforeUnmount, onMounted, ref } from "vue";
-import { ImageLightbox, SiteFooter, SiteHeader } from "../../src";
+import {
+  ActionMenu,
+  FileDropZone,
+  ImageLightbox,
+  PageHeader,
+  SiteFooter,
+  SiteHeader,
+  UserCard,
+  UserChip,
+  UserSelect,
+} from "../../src";
 
 const confirm = useConfirm();
 const dialog = useDialog();
@@ -183,6 +193,25 @@ const siteNavItems = [
   { label: "组件", href: "#chapter-ui-package", active: true },
   { label: "设计基建", href: "#chapter-foundations" },
 ];
+
+const actionMenu = ref<InstanceType<typeof ActionMenu> | null>(null);
+const standardMenuItems = [
+  { label: "打开文献", icon: "pi pi-book", shortcut: "⌘O", command: () => notify("打开文献") },
+  { label: "仅管理员可用", icon: "pi pi-lock", disabled: true, tooltip: "需要管理员权限" },
+  { separator: true },
+  { label: "删除", icon: "pi pi-trash", danger: true, command: () => notify("已删除") },
+];
+const demoFiles = ref("尚未选择文件");
+const demoUsers = [
+  { id: "u-zhang", name: "张三", email: "zhang.san@mango.write", avatar: null, badge: "Pro", role: "共同作者" },
+  { id: "u-li", name: "李四", email: "li.si@mango.write", avatar: null },
+  { id: "u-wang", name: "王五", email: "wang.wu@mango.write", avatar: null },
+];
+const selectedUserIds = ref(["u-zhang"]);
+
+function onDemoFiles(files: File[]) {
+  demoFiles.value = files.map((file) => file.name).join("、");
+}
 
 const DynamicContent = defineComponent({
   setup() {
@@ -416,6 +445,51 @@ function confirmInline(event: MouseEvent) {
   <section id="chapter-ui-package" class="uc-chapter">
     <div class="uc-kicker">10 · MangoWrite UI</div>
     <h2 class="uc-h2">UI 包公开组件</h2>
+
+    <div class="uc-block">
+      <div id="package-primitives" class="uc-title">PageHeader / FileDropZone · 页面结构与文件输入</div>
+      <div class="uc-stage uc-stage--col">
+        <PageHeader title="标准组件" class="tw:w-full">
+          <template #icon><i class="pi pi-book" /></template>
+          <template #actions><Button label="新建" icon="pi pi-plus" @click="notify('新建')" /></template>
+        </PageHeader>
+        <div class="uc-form-row">
+          <FileDropZone accept=".pdf,.docx" multiple class="tw:p-6" aria-label="选择或拖入文献" @files="onDemoFiles">
+            <i class="pi pi-cloud-upload tw:text-2xl tw:text-muted" />
+            <span>拖入或点击选择文件</span>
+            <small class="tw:text-muted">{{ demoFiles }}</small>
+          </FileDropZone>
+          <FileDropZone disabled class="tw:p-6" aria-label="存储已满，暂不可上传">
+            <i class="pi pi-lock tw:text-2xl tw:text-muted" />
+            <span>存储已满，暂不可上传</span>
+          </FileDropZone>
+        </div>
+      </div>
+    </div>
+
+    <div class="uc-block">
+      <div id="package-action-menu" class="uc-title">ActionMenu · 快捷键、危险项与禁用原因</div>
+      <div class="uc-stage">
+        <Button label="打开 ActionMenu" icon="pi pi-bars" severity="secondary" @click="actionMenu?.show($event)" />
+        <ActionMenu ref="actionMenu" :items="standardMenuItems" />
+      </div>
+    </div>
+
+    <div class="uc-block">
+      <div id="package-users" class="uc-title">UserChip / UserCard / UserSelect · 通用用户展示与选择</div>
+      <div class="uc-stage uc-stage--col">
+        <div class="uc-inline">
+          <UserChip :user="demoUsers[0]" />
+          <UserChip :user="demoUsers[0]" variant="person" />
+          <UserChip :user="demoUsers[0]" variant="tag" />
+          <UserChip :user="demoUsers[0]" variant="avatar" />
+          <UserChip :user="demoUsers[0]" variant="person" href="#package-users" />
+        </div>
+        <UserCard :user="demoUsers[0]" />
+        <UserSelect v-model="selectedUserIds" :users="demoUsers" />
+        <UserSelect v-model="selectedUserIds" :users="demoUsers" disabled />
+      </div>
+    </div>
 
     <div class="uc-block">
       <div id="package-lightbox" class="uc-title">ImageLightbox · 缩放、旋转、拖动与焦点管理</div>

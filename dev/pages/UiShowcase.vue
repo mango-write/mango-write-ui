@@ -279,6 +279,9 @@ const showcaseToc = [
     label: "UI 包组件",
     href: "#chapter-ui-package",
     items: [
+      { label: "FileDropZone / PageHeader", href: "#package-primitives" },
+      { label: "ActionMenu", href: "#package-action-menu" },
+      { label: "UserChip / UserSelect", href: "#package-users" },
       { label: "ImageLightbox", href: "#package-lightbox" },
       { label: "SiteHeader / SiteFooter", href: "#package-site-chrome" }
     ]

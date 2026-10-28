@@ -5,9 +5,10 @@
 ## 功能
 
 - **主题与样式**：MangoPreset、轻量主题、语义颜色、排版、间距和动效 token。
-- **表单交互**：FormField 的标签/说明/错误关联，可搜索单选、多选与组合面板。
-- **内容与反馈**：AsyncSlot 四态、自定义骨架、HoverCard 与带焦点管理的图片灯箱。
-- **网站组件**：页头、页脚、导航、品牌与社交账号配置。
+- **表单交互**：FormField、FileDropZone、可搜索单选、多选与组合面板。
+- **内容与反馈**：AsyncSlot 四态、ActionMenu、HoverCard 与带焦点管理的图片灯箱。
+- **用户组件**：UserChip、UserCard 与 UserSelect，使用通用用户 DTO，不依赖宿主路由或团队契约。
+- **网站组件**：PageHeader、SiteHeader、SiteFooter、导航、品牌与社交账号配置。
 - **主题偏好**：浅色、深色、跟随系统，以及可配置的存储键和主题根节点。
 
 ## 安装
