@@ -4,6 +4,7 @@ import { mount } from "@vue/test-utils";
 import type { Component } from "vue";
 import { createI18n, type I18nOptions } from "vue-i18n";
 import PrimeVue from "primevue/config";
+import Ripple from "primevue/ripple";
 
 import { uiMessages } from "../locale/index.js";
 
@@ -21,6 +22,7 @@ export function mountUiComponent(
     global: {
       ...((options.global as Record<string, unknown>) ?? {}),
       plugins: [[PrimeVue], i18n],
+      directives: { ripple: Ripple },
     },
   });
 }

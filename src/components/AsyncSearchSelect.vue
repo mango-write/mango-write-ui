@@ -1,16 +1,21 @@
 <script setup lang="ts">
-// 异步远程搜索单选 — SearchableSelect 的「选项在服务端」变体：本地不做过滤，
-// 输入经防抖交给注入的 search 取回选项。与业务完全解耦：取数与 placeholder 由
-// 调用方注入，包自持文案只兜空态/加载两处通用词。
-// 慢响应用递增序号守卫：过期返回的结果与 loading 状态都不落，避免旧结果闪回；
-// search 抛错按空结果处理（调用方在 search 内部做自己的错误上报），不让
-// 防抖回调产生未捕获 rejection。
-// 选中态展示优先用已见过的选项（含 avatar）；modelValue 被外部设成没见过的
-// 值时回退显示原始值字符串。
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, useId, watch } from "vue";
+// 异步远程搜索单选 — 公开门面不变（string id 的 modelValue + 注入 search +
+// select 事件），内部基 PrimeVue AutoComplete：浮层定位/翻转/z-index、键盘
+// a11y、focus ring 与 sm/lg/invalid 档全部继承上游；玻璃浮层配方来自
+// primevue-theme.css，这里不再自绘面板。
+// 门面自持三件事：
+//   • seq 守卫——过期响应与 loading 状态都不落，清除时作废在途请求；
+//   • 回显治愈——外部设入未见过的 id 先以裸值占位，initialOption 或之后任意
+//     一次取回命中即补上真实 label；
+//   • excludeValues 过滤（响应式）。
+// 打字中的查询串只留在本地，面板收起即回退已选值（等价旧 dismiss 语义；
+// 不能用 forceSelection——它无匹配时清空整个选择而不是恢复旧值）。auto 高亮
+// 首项的 auto-option-focus 依赖 select-on-focus 保持关闭：两者同开时上游会在
+// 结果落地且字段为空时自动选走首项。
+import AutoComplete from "primevue/autocomplete";
+import { computed, ref, useId, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
-import { useComboPanel } from "../lib/useComboPanel";
 import type { AsyncSearchOption } from "./async-search-select";
 
 const props = withDefaults(
@@ -29,6 +34,8 @@ const props = withDefaults(
     debounceMs?: number;
     /** 从结果里剔除的 value（如已被选过的项）；响应式，变更即时生效。 */
     excludeValues?: string[];
+    /** modelValue 命中未见过的 id 时的回显选项（调用方知道 label 时注入）。 */
+    initialOption?: AsyncSearchOption | null;
   }>(),
   {
     inputId: undefined,
@@ -41,6 +48,7 @@ const props = withDefaults(
     fluid: false,
     debounceMs: 250,
     excludeValues: () => [],
+    initialOption: undefined,
   },
 );
 const emit = defineEmits<{
@@ -52,437 +60,181 @@ const { t } = useI18n();
 const emptyMessageText = computed(() => props.emptyMessage ?? t("common.select.noMatch"));
 const loadingMessageText = computed(() => props.loadingMessage ?? t("common.select.searching"));
 
-const rootRef = ref<HTMLElement | null>(null);
-const inputRef = ref<HTMLInputElement | null>(null);
-const mirrorRef = ref<HTMLElement | null>(null);
-const panelRef = ref<HTMLElement | null>(null);
-const { open, panelStyle, openPanel, closePanel } = useComboPanel(rootRef, panelRef);
-
 const generatedId = useId();
 const fieldId = computed(() => props.inputId ?? `mw-ass-${generatedId}`);
-const listboxId = computed(() => `${fieldId.value}-listbox`);
-const optionId = (index: number) => `${listboxId.value}-option-${index}`;
 
-const typing = ref(false);
-const query = ref("");
-const results = ref<AsyncSearchOption[]>([]);
-const loading = ref(false);
-const activeIndex = ref(-1);
-const inputWidth = ref(0);
+// AutoComplete 的 modelValue 是完整选项对象或打字中的查询串；string id 门面经
+// seenOptions 翻译。查询串只落在本地，不外发。
 const seenOptions = ref(new Map<string, AsyncSearchOption>());
-
-const visibleResults = computed(() =>
-  results.value.filter((o) => !props.excludeValues.includes(o.value)),
-);
-
-const selectedOption = computed<AsyncSearchOption | null>(() => {
-  if (!props.modelValue) return null;
-  return seenOptions.value.get(props.modelValue) ?? { value: props.modelValue, label: props.modelValue };
-});
-const selectedLabel = computed(() => selectedOption.value?.label ?? "");
-
-const inputValue = computed(() => (typing.value ? query.value : selectedLabel.value));
-const mirrorText = computed(() => inputValue.value || props.placeholder || "");
+const selected = ref<AsyncSearchOption | string | null>(null);
 
 watch(
   () => props.modelValue,
-  (value) => {
-    if (!value) return;
-    // 外部直接设值（如回显）时组件可能还没取过数，先占位成原始值；
-    // 之后任何一次取回都会通过 remember() 补上真实 label。
-    if (!seenOptions.value.has(value)) {
-      seenOptions.value.set(value, { value, label: value });
+  (id) => {
+    if (!id) {
+      selected.value = null;
+      return;
     }
+    if (!seenOptions.value.has(id)) {
+      const seed =
+        props.initialOption?.value === id ? props.initialOption : { value: id, label: id };
+      seenOptions.value.set(id, seed);
+    }
+    selected.value = seenOptions.value.get(id)!;
   },
   { immediate: true },
 );
 
-function remember(options: AsyncSearchOption[]) {
-  for (const option of options) seenOptions.value.set(option.value, option);
-}
+const rawResults = ref<AsyncSearchOption[]>([]);
+const loading = ref(false);
+const suggestions = computed(() =>
+  rawResults.value.filter((o) => !props.excludeValues.includes(o.value)),
+);
 
 let seq = 0;
-async function runSearch(q: string) {
+async function runSearch(query: string) {
   const current = ++seq;
   loading.value = true;
   try {
-    const items = await props.search(q);
+    const items = await props.search(query);
     if (current !== seq) return;
-    results.value = items;
-    remember(items);
+    for (const option of items) seenOptions.value.set(option.value, option);
+    // 浅拷贝：上游面板靠 suggestions 的引用变化开合，记忆化 search 返回同一
+    // 数组实例时不会重开面板。
+    rawResults.value = [...items];
+    // 取回命中当前已选 id 时换上完整选项，输入框跟着补真实 label（回显治愈）。
+    if (props.modelValue && typeof selected.value === "object") {
+      const fresh = seenOptions.value.get(props.modelValue);
+      if (fresh && fresh !== selected.value) selected.value = fresh;
+    }
   } catch {
     if (current !== seq) return;
-    results.value = [];
+    rawResults.value = [];
   } finally {
     if (current === seq) loading.value = false;
   }
 }
 
-let debounceTimer: ReturnType<typeof setTimeout> | undefined;
-function cancelPendingSearch() {
-  if (debounceTimer) clearTimeout(debounceTimer);
-  debounceTimer = undefined;
-}
-watch(
-  query,
-  (q) => {
-    cancelPendingSearch();
-    // 选择/清除都会把 query 复位成空串，复位不该触发一次多余的取数；
-    // 真正的「清空重搜」发生在输入中（typing 仍为 true）。
-    if (!open.value && !typing.value && q === "") return;
-    debounceTimer = setTimeout(() => void runSearch(q), props.debounceMs);
-  },
-);
-onBeforeUnmount(cancelPendingSearch);
-
-function measure() {
-  if (mirrorRef.value) inputWidth.value = Math.ceil(mirrorRef.value.getBoundingClientRect().width) + 2;
-}
-onMounted(measure);
-watch(mirrorText, () => nextTick(measure));
-
-function scrollActiveIntoView() {
-  nextTick(() => {
-    const option = panelRef.value?.querySelectorAll<HTMLElement>('[role="option"]')[activeIndex.value];
-    option?.scrollIntoView?.({ block: "nearest" });
-  });
-}
-watch(activeIndex, scrollActiveIntoView);
-
-function reveal() {
-  if (props.disabled || open.value) return;
-  activeIndex.value = -1;
-  openPanel();
-  void runSearch(query.value);
-  scrollActiveIntoView();
-}
-function dismiss() {
-  closePanel();
-  typing.value = false;
-  query.value = "";
-  activeIndex.value = -1;
+function onComplete(event: { query: string }) {
+  void runSearch(event.query);
 }
 
-function onFocus() {
-  reveal();
-  nextTick(() => inputRef.value?.select());
-}
-function onInput(event: Event) {
-  typing.value = true;
-  query.value = (event.target as HTMLInputElement).value;
-  if (!open.value) openPanel();
-  activeIndex.value = 0;
-}
-function onFieldMousedown(event: MouseEvent) {
-  if (open.value) {
-    event.preventDefault();
-    dismiss();
-    inputRef.value?.blur();
+const acRef = ref<InstanceType<typeof AutoComplete> | null>(null);
+// 点击字段重开面板：上游只在 focus 事件上触发取数，选中/Escape 之后焦点留在框
+// 上、面板关着，再点字段上游无动于衷——旧版是「点字段即开」。箭头与清除按钮
+// 各有自己的开合/清除语义，排除掉。
+function onRootClick(event: MouseEvent) {
+  const target = event.target as HTMLElement | null;
+  if (target?.closest(".p-autocomplete-dropdown, .p-autocomplete-clear-icon")) return;
+  const ac = acRef.value as unknown as { overlayVisible: boolean; show: () => void } | null;
+  if (ac && !ac.overlayVisible) {
+    void runSearch("");
+    ac.show();
   }
 }
-function choose(option: AsyncSearchOption) {
-  emit("update:modelValue", option.value);
-  emit("select", option);
-  dismiss();
-  inputRef.value?.blur();
-}
-function clear(event: Event) {
-  event.stopPropagation();
-  cancelPendingSearch();
-  seq++; // 在途响应作废：清除后到达的旧结果不应复活列表
-  loading.value = false;
-  results.value = [];
-  typing.value = false;
-  query.value = "";
-  activeIndex.value = -1;
-  emit("update:modelValue", null);
-  emit("select", null);
-  inputRef.value?.focus();
+
+// 回退到已选值的展示。克隆一份选项：selected 常常本来就是那个对象，引用不变
+// 时上游 d_value 不会重新同步，输入框会留在查询串/空串上。
+function restoreSelected() {
+  if (!props.modelValue) {
+    selected.value = null;
+    return;
+  }
+  const option = seenOptions.value.get(props.modelValue);
+  selected.value = option ? { ...option } : { value: props.modelValue, label: props.modelValue };
 }
 
-function onKeydown(event: KeyboardEvent) {
-  if (event.key === "ArrowDown") {
-    event.preventDefault();
-    if (!open.value) return reveal();
-    if (visibleResults.value.length) activeIndex.value = Math.min(activeIndex.value + 1, visibleResults.value.length - 1);
-  } else if (event.key === "ArrowUp") {
-    event.preventDefault();
-    if (!open.value) return reveal();
-    if (visibleResults.value.length) activeIndex.value = Math.max(activeIndex.value - 1, 0);
-  } else if (event.key === "Home" && open.value) {
-    event.preventDefault();
-    activeIndex.value = visibleResults.value.length ? 0 : -1;
-  } else if (event.key === "End" && open.value) {
-    event.preventDefault();
-    activeIndex.value = visibleResults.value.length - 1;
-  } else if (event.key === "Enter") {
-    event.preventDefault();
-    if (!open.value) return reveal();
-    const option = visibleResults.value[activeIndex.value] ?? visibleResults.value[0];
-    if (option) choose(option);
-  } else if (event.key === "Escape" && open.value) {
-    event.stopPropagation();
-    dismiss();
+function onUpdateModelValue(value: AsyncSearchOption | string | null) {
+  if (value && typeof value === "object") {
+    selected.value = value;
+    seenOptions.value.set(value.value, value);
+    emit("update:modelValue", value.value);
+    emit("select", value);
+    return;
+  }
+  if (value === null) {
+    // 清除按钮：作废在途响应，不让旧结果复活；重开默认列表（等价旧 clear→focus
+    // →reveal 的行为，面板开着时也直接补齐结果，不会卡在空态）。
+    seq++;
+    loading.value = false;
+    rawResults.value = [];
+    selected.value = null;
+    if (props.modelValue !== null) {
+      emit("update:modelValue", null);
+      emit("select", null);
+    }
+    void runSearch("");
+    return;
+  }
+  if (value === "") {
+    // 打字删空不是清除选择：上游已收起面板，这里回退到已选值即可。
+    restoreSelected();
+    return;
+  }
+  selected.value = value;
+}
+
+function onDismiss() {
+  // 打字中收起（Escape/外点/走焦）：回退已选值。hide 事件在浮层 leave 钩子里，
+  // blur 兜底保证走焦这类不经过浮层关闭的路也能收口。
+  if (typeof selected.value === "string") {
+    restoreSelected();
   }
 }
 </script>
 
 <template>
-  <div
-    ref="rootRef"
-    class="mw-ass"
-    :class="{ 'mw-ass-focus': open, 'mw-ass-disabled': disabled, 'mw-ass-fluid': fluid }"
-    @mousedown="onFieldMousedown"
-    @click="!open && inputRef?.focus()"
+  <AutoComplete
+    ref="acRef"
+    :pt="{ root: { onClick: onRootClick } }"
+    :model-value="selected"
+    :suggestions="suggestions"
+    option-label="label"
+    data-key="value"
+    dropdown
+    dropdown-mode="blank"
+    complete-on-focus
+    auto-option-focus
+    :min-length="0"
+    :delay="debounceMs"
+    :loading="loading"
+    :show-clear="showClear"
+    :disabled="disabled"
+    :fluid="fluid"
+    :placeholder="placeholder"
+    :input-id="fieldId"
+    :aria-label="ariaLabel"
+    scroll-height="15rem"
+    @complete="onComplete"
+    @update:model-value="onUpdateModelValue"
+    @hide="onDismiss"
+    @blur="onDismiss"
   >
-    <div class="mw-ass-field">
-      <img v-if="!typing && selectedOption?.avatar" class="mw-ass-selected-avatar" :src="selectedOption.avatar" alt="" />
-      <input
-        :id="fieldId"
-        ref="inputRef"
-        class="mw-ass-input"
-        :class="{ 'mw-ass-placeholder': !selectedOption && !typing }"
-        :style="{ width: inputWidth ? inputWidth + 'px' : undefined }"
-        :value="inputValue"
-        :placeholder="placeholder"
-        :disabled="disabled"
-        :aria-label="ariaLabel"
-        aria-autocomplete="list"
-        aria-haspopup="listbox"
-        :aria-expanded="open"
-        :aria-controls="listboxId"
-        :aria-activedescendant="open && activeIndex >= 0 ? optionId(activeIndex) : undefined"
-        role="combobox"
-        type="text"
-        autocomplete="off"
-        spellcheck="false"
-        @focus="onFocus"
-        @input="onInput"
-        @keydown="onKeydown"
-      />
-      <span ref="mirrorRef" class="mw-ass-mirror" aria-hidden="true">{{ mirrorText }}</span>
-    </div>
-    <button
-      v-if="showClear && selectedOption && !disabled"
-      type="button"
-      class="mw-ass-clear"
-      :aria-label="t('common.select.clear')"
-      @mousedown.stop.prevent
-      @click="clear"
-    >
-      <i class="pi pi-times" aria-hidden="true" />
-    </button>
-    <span class="mw-ass-status" aria-hidden="true">
-      <i v-if="loading" class="pi pi-spin pi-spinner" />
-      <i v-else class="pi pi-chevron-down" />
-    </span>
-
-    <Teleport to="body">
-      <ul
-        v-if="open"
-        :id="listboxId"
-        ref="panelRef"
-        class="mw-ass-overlay"
-        :style="panelStyle"
-        :aria-label="ariaLabel"
-        role="listbox"
-        :aria-busy="loading"
-      >
-        <li
-          v-for="(option, i) in visibleResults"
-          :id="optionId(i)"
-          :key="option.value"
-          class="mw-ass-option"
-          :class="{
-            'mw-ass-option-selected': option.value === modelValue,
-            'mw-ass-option-active': i === activeIndex,
-          }"
-          :aria-selected="option.value === modelValue"
-          role="option"
-          @mousedown.prevent="choose(option)"
-          @mousemove="activeIndex = i"
-        >
-          <slot name="option" :option="option" :active="i === activeIndex" :selected="option.value === modelValue">
-            <span class="mw-ass-option-body">
-              <img v-if="option.avatar" class="mw-ass-avatar" :src="option.avatar" alt="" />
-              <span class="mw-ass-option-text">
-                <span class="mw-ass-option-label">{{ option.label }}</span>
-                <span v-if="option.description" class="mw-ass-option-desc">{{ option.description }}</span>
-              </span>
-            </span>
-          </slot>
-        </li>
-        <li v-if="!visibleResults.length" class="mw-ass-note">{{ loading ? loadingMessageText : emptyMessageText }}</li>
-      </ul>
-    </Teleport>
-  </div>
+    <template #option="{ option }">
+      <slot name="option" :option="option" :selected="option.value === modelValue">
+        <span class="mw-ass-option-body">
+          <img v-if="option.avatar" class="mw-ass-avatar" :src="option.avatar" alt="" />
+          <span class="mw-ass-option-text">
+            <span class="mw-ass-option-label">{{ option.label }}</span>
+            <span v-if="option.description" class="mw-ass-option-desc">{{ option.description }}</span>
+          </span>
+        </span>
+      </slot>
+    </template>
+    <template #empty>
+      <span class="mw-ass-note">{{ loading ? loadingMessageText : emptyMessageText }}</span>
+    </template>
+    <template #clearicon="{ clearCallback }">
+      <button type="button" class="p-autocomplete-clear-icon" :aria-label="t('common.select.clear')" @click="clearCallback">
+        <i class="pi pi-times" aria-hidden="true" />
+      </button>
+    </template>
+  </AutoComplete>
 </template>
 
-<style scoped>
-/* 外形配方与 SearchableSelect（.mw-ss）同源：仿玻璃字段 + --p-select-* 几何
-   token，几何对齐原生 Select。两套类名各自独立，避免跨组件耦合。 */
-.mw-ass {
-  position: relative;
-  display: inline-flex;
-  align-items: stretch;
-  width: fit-content;
-  max-width: 100%;
-  cursor: text;
-  background-color: var(--color-surface-base);
-  background-image: var(--material-control-face);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--p-select-border-radius, var(--radius));
-  box-shadow: var(--material-control-inset);
-  transition:
-    border-color 0.18s,
-    box-shadow 0.18s,
-    outline-color 0.18s;
-  outline: 3px solid transparent;
-  outline-offset: 0;
-}
-.mw-ass:not(.mw-ass-disabled):hover {
-  border-color: var(--color-border-strong);
-}
-.mw-ass-focus {
-  border-color: var(--color-brand-500);
-  outline-color: rgb(var(--color-brand-500-rgb) / 0.18);
-}
-.mw-ass-disabled {
-  opacity: var(--p-disabled-opacity, 0.6);
-  cursor: default;
-  background: var(--color-bg-soft);
-}
-.mw-ass-fluid {
-  width: 100%;
-}
-
-.mw-ass-field {
-  position: relative;
-  flex: 0 1 auto;
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  padding: var(--p-select-padding-y, 0.375rem) 0 var(--p-select-padding-y, 0.375rem) var(--p-select-padding-x, 0.625rem);
-}
-.mw-ass-selected-avatar {
-  width: 1.25rem;
-  height: 1.25rem;
-  border-radius: var(--radius-pill, 999px);
-  object-fit: cover;
-  flex-shrink: 0;
-}
-.mw-ass-input {
-  min-width: 6rem;
-  max-width: 100%;
-  border: none;
-  outline: none;
-  background: transparent;
-  color: var(--color-text-primary);
-  font-family: inherit;
-  font-size: 0.875rem;
-  line-height: 1.25;
-  padding: 0;
-  text-overflow: ellipsis;
-  cursor: text;
-}
-.mw-ass-input::placeholder {
-  color: var(--color-text-tertiary);
-  opacity: 1;
-}
-.mw-ass-disabled .mw-ass-input {
-  cursor: default;
-}
-.mw-ass-mirror {
-  position: absolute;
-  left: 0;
-  top: 0;
-  visibility: hidden;
-  pointer-events: none;
-  white-space: pre;
-  font-family: inherit;
-  font-size: 0.875rem;
-  line-height: 1.25;
-}
-
-.mw-ass-status {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  width: var(--p-select-dropdown-width, 2rem);
-  color: var(--color-text-tertiary);
-}
-.mw-ass-status .pi {
-  font-size: 0.75rem;
-}
-
-.mw-ass-clear {
-  align-self: center;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.25rem;
-  height: 1.25rem;
-  padding: 0;
-  border: 0;
-  border-radius: var(--radius-pill, 999px);
-  background: transparent;
-  color: var(--color-text-tertiary);
-  font: inherit;
-  cursor: pointer;
-  transition:
-    background 0.15s,
-    color 0.15s;
-}
-.mw-ass-clear:hover {
-  background: var(--color-surface-muted);
-  color: var(--color-text-primary);
-}
-.mw-ass-clear:focus-visible {
-  outline: 2px solid var(--color-brand-500);
-  outline-offset: 1px;
-}
-.mw-ass-clear .pi {
-  font-size: 0.6875rem;
-}
-</style>
-
 <style>
-/* 浮层（teleport 到 body，样式不能 scoped）——玻璃配方同 .mw-ss-overlay。 */
-.mw-ass-overlay {
-  margin: 0;
-  padding: var(--p-select-list-padding, 0.25rem);
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: var(--p-select-list-gap, 2px);
-  max-height: 15rem;
-  overflow-y: auto;
-  background-color: var(--material-scrim);
-  background-image: var(--material-specular);
-  -webkit-backdrop-filter: var(--material-blur);
-  backdrop-filter: var(--material-blur);
-  border: 1px solid var(--material-hairline);
-  border-radius: var(--p-select-overlay-border-radius, var(--radius));
-  box-shadow: var(--material-lens), var(--material-glass-shadow);
-}
-.mw-ass-overlay .mw-ass-option {
-  padding: var(--p-select-option-padding, 0.375rem 0.625rem);
-  border-radius: var(--p-select-option-border-radius, var(--radius-sm));
-  color: var(--color-text-primary);
-  font-size: 0.875rem;
-  line-height: 1.25;
-  cursor: pointer;
-}
-.mw-ass-overlay .mw-ass-option-active:not(.mw-ass-option-selected) {
-  background: var(--material-hover);
-}
-.mw-ass-overlay .mw-ass-option-selected {
-  background: rgb(var(--color-brand-500-rgb) / 0.16);
-  color: var(--color-brand-700);
-}
+/* 面板 teleport 到 body，选项布局只能全局声明。行高亮/选中底色由上游
+   autocomplete token + 主题的玻璃浮层规则承担，这里只排选项内容结构。 */
 .mw-ass-option-body {
   display: flex;
   align-items: center;
@@ -513,9 +265,17 @@ function onKeydown(event: KeyboardEvent) {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.mw-ass-overlay .mw-ass-note {
-  padding: var(--p-select-empty-message-padding, 0.375rem 0.625rem);
+/* 空态/加载文案的稳定类（文案由 #empty slot 提供，行样式在 .p-autocomplete-empty-message）。 */
+.mw-ass-note {
   color: var(--color-text-tertiary);
-  font-size: 0.875rem;
+}
+/* #clearicon 换成真 button 拿到 aria-label；清掉 UA 默认件，热区尺寸交给主题 §4。 */
+.p-autocomplete-clear-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  cursor: pointer;
 }
 </style>

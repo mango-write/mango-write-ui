@@ -52,6 +52,7 @@ import { useToast } from "primevue/usetoast";
 import { defineComponent, h, onBeforeUnmount, onMounted, ref } from "vue";
 import {
   ActionMenu,
+  AsyncSearchSelect,
   FileDropZone,
   ImageLightbox,
   PageHeader,
@@ -211,8 +212,19 @@ const demoUsers = [
 const selectedUserIds = ref(["u-zhang"]);
 
 const asyncSelected = ref<string | null>(null);
+// 外部直接设值 + initialOption：模拟从 URL query 恢复筛选条件的回显路径。
+const asyncEchoed = ref<string | null>("opt-beta");
 const demoAsyncPool: AsyncSearchOption[] = [
-  { value: "opt-alpha", label: "方案 Alpha", description: "演示数据 · 已发布" },
+  {
+    value: "opt-alpha",
+    label: "方案 Alpha",
+    description: "演示数据 · 已发布",
+    avatar:
+      "data:image/svg+xml;utf8," +
+      encodeURIComponent(
+        '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48"><rect width="48" height="48" fill="#7c5cff"/><text x="24" y="31" font-size="22" text-anchor="middle" fill="#fff" font-family="sans-serif">A</text></svg>',
+      ),
+  },
   { value: "opt-beta", label: "方案 Beta", description: "演示数据 · 草稿" },
   { value: "opt-gamma", label: "方案 Gamma" },
 ];
@@ -514,7 +526,18 @@ function confirmInline(event: MouseEvent) {
         <div class="tw:w-72">
           <AsyncSearchSelect v-model="asyncSelected" :search="demoAsyncSearch" fluid placeholder="搜索演示选项" />
         </div>
-        <AsyncSearchSelect v-model="asyncSelected" :search="demoAsyncSearch" disabled placeholder="搜索演示选项" />
+        <div class="tw:w-72">
+          <AsyncSearchSelect
+            v-model="asyncEchoed"
+            :search="demoAsyncSearch"
+            fluid
+            placeholder="搜索演示选项"
+            :initial-option="demoAsyncPool[1]"
+          />
+        </div>
+        <div class="tw:w-72">
+          <AsyncSearchSelect v-model="asyncEchoed" :search="demoAsyncSearch" disabled placeholder="搜索演示选项" :initial-option="demoAsyncPool[1]" />
+        </div>
         <small class="tw:text-muted">当前值：{{ asyncSelected ?? "（空）" }}</small>
       </div>
     </div>

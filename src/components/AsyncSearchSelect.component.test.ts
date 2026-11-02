@@ -15,10 +15,6 @@ let mounted: ReturnType<typeof mountUiComponent> | null = null;
 
 beforeEach(() => {
   vi.useFakeTimers();
-  vi.stubGlobal("requestAnimationFrame", (callback: (time: number) => void) => {
-    callback(0);
-    return 0;
-  });
 });
 
 afterEach(() => {
@@ -26,7 +22,6 @@ afterEach(() => {
   mounted = null;
   document.body.innerHTML = "";
   vi.useRealTimers();
-  vi.unstubAllGlobals();
 });
 
 function deferred() {
@@ -55,8 +50,11 @@ function mountSelect(props: Record<string, unknown> = {}) {
   return { wrapper: mounted, pending };
 }
 
+// 空态/加载文案行同样挂 role="option"（上游 #empty 的容器），断言真实选项时排除。
 function bodyOptions() {
-  return document.body.querySelectorAll('[role="option"]');
+  return document.body.querySelectorAll(
+    '[role="option"]:not(.p-autocomplete-empty-message)',
+  );
 }
 
 describe("AsyncSearchSelect", () => {
@@ -94,8 +92,9 @@ describe("AsyncSearchSelect", () => {
     pending[1].resolve(options); // 慢的旧响应后到
     await flushPromises();
     expect(bodyOptions()).toHaveLength(1);
-    expect(bodyOptions()[0].id).toContain("option-0");
-    expect(document.querySelector(".mw-ass-overlay")?.getAttribute("aria-busy")).toBe("false");
+    expect(bodyOptions()[0].id).toMatch(/_0$/);
+    // 新响应落地后 loading 已收，字段级 spinner 不回闪
+    expect(document.body.querySelector(".p-autocomplete-loader")).toBeNull();
   });
 
   it("键盘选择同时发 update:modelValue 与 select，收起时显示所选项", async () => {
@@ -105,15 +104,19 @@ describe("AsyncSearchSelect", () => {
     pending[0].resolve(options);
     await flushPromises();
 
-    await input.trigger("keydown", { key: "ArrowDown" });
-    expect(input.attributes("aria-activedescendant")).toContain("option-0");
-    await input.trigger("keydown", { key: "Enter" });
-    expect(wrapper.emitted("update:modelValue")?.at(-1)).toEqual(["a"]);
-    expect(wrapper.emitted("select")?.at(-1)).toEqual([options[0]]);
-    await wrapper.setProps({ modelValue: "a" });
+    // autoOptionFocus：结果落地即高亮首项
+    expect(input.attributes("aria-expanded")).toBe("true");
+    expect(input.attributes("aria-activedescendant")).toMatch(/_0$/);
+    await input.trigger("keydown", { key: "ArrowDown", code: "ArrowDown" });
+    expect(input.attributes("aria-activedescendant")).toMatch(/_1$/);
+    await input.trigger("keydown", { key: "Enter", code: "Enter" });
+    expect(wrapper.emitted("update:modelValue")?.at(-1)).toEqual(["b"]);
+    expect(wrapper.emitted("select")?.at(-1)).toEqual([options[1]]);
+    await wrapper.setProps({ modelValue: "b" });
     await flushPromises();
+    await vi.advanceTimersByTimeAsync(1); // 上游 hide 走 0ms 定时器，fake timers 下需推进
     expect(input.attributes("aria-expanded")).toBe("false");
-    expect((input.element as HTMLInputElement).value).toBe("Alpha");
+    expect((input.element as HTMLInputElement).value).toBe("Beta");
   });
 
   it("excludeValues 把对应选项从结果里剔除", async () => {
@@ -131,11 +134,11 @@ describe("AsyncSearchSelect", () => {
     await input.trigger("focus");
     pending[0].resolve(options);
     await flushPromises();
-    await input.trigger("keydown", { key: "Enter" }); // 选中 Alpha
+    await input.trigger("keydown", { key: "Enter", code: "Enter" }); // 选中 Alpha
     await wrapper.setProps({ modelValue: "a" });
     await flushPromises();
 
-    const clear = wrapper.get("button.mw-ass-clear");
+    const clear = wrapper.get("button.p-autocomplete-clear-icon");
     expect(clear.attributes("aria-label")).toBe("清除选择");
     await input.setValue("x"); // 触发一次防抖取数，让在途请求存在
     await vi.advanceTimersByTimeAsync(250);
@@ -155,7 +158,8 @@ describe("AsyncSearchSelect", () => {
     const { wrapper, pending } = mountSelect();
     const input = wrapper.get("input");
     await input.trigger("focus");
-    expect(document.body.querySelector(".mw-ass-note")?.textContent).toBe("正在搜索…");
+    // 首次取数期间面板未开，字段级 spinner 承担加载指示
+    expect(document.body.querySelector(".p-autocomplete-loader")).not.toBeNull();
 
     pending[0].resolve([]);
     await flushPromises();
@@ -170,5 +174,52 @@ describe("AsyncSearchSelect", () => {
     const { wrapper } = mountSelect({ modelValue: "ext-1" });
     await flushPromises();
     expect((wrapper.get("input").element as HTMLInputElement).value).toBe("ext-1");
+  });
+
+  it("initialOption 命中未见过的 modelValue 时回显已知选项", async () => {
+    const { wrapper } = mountSelect({
+      modelValue: "ext-2",
+      initialOption: { value: "ext-2", label: "李初见" },
+    });
+    await flushPromises();
+    expect((wrapper.get("input").element as HTMLInputElement).value).toBe("李初见");
+  });
+
+  it("打字未选中就收起面板：回退已选值，不把查询串误当值", async () => {
+    const { wrapper, pending } = mountSelect();
+    const input = wrapper.get("input");
+    await input.trigger("focus");
+    pending[0].resolve(options);
+    await flushPromises();
+    await input.trigger("keydown", { key: "Enter", code: "Enter" }); // 选中 Alpha
+    await wrapper.setProps({ modelValue: "a" });
+    await flushPromises();
+
+    await input.setValue("Gam");
+    await vi.advanceTimersByTimeAsync(250);
+    pending[1].resolve(options); // 面板随结果落地重新打开，Escape 才有「收起」可言
+    await flushPromises();
+    expect(input.attributes("aria-expanded")).toBe("true");
+    await input.trigger("keydown", { key: "Escape", code: "Escape" });
+    await input.trigger("blur"); // hide 之外，blur 也承担收口（走焦路径）
+    await flushPromises();
+    expect(wrapper.emitted("update:modelValue")?.at(-1)).toEqual(["a"]);
+    expect((input.element as HTMLInputElement).value).toBe("Alpha");
+  });
+
+  it("打字删空输入不误发清除：面板收起后回退已选值", async () => {
+    const { wrapper, pending } = mountSelect();
+    const input = wrapper.get("input");
+    await input.trigger("focus");
+    pending[0].resolve(options);
+    await flushPromises();
+    await input.trigger("keydown", { key: "Enter", code: "Enter" }); // 选中 Alpha
+    await wrapper.setProps({ modelValue: "a" });
+    await flushPromises();
+
+    await input.setValue("");
+    await flushPromises();
+    expect(wrapper.emitted("update:modelValue") ?? []).not.toContainEqual([null]);
+    expect((input.element as HTMLInputElement).value).toBe("Alpha");
   });
 });
