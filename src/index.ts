@@ -40,3 +40,5 @@ export {
 } from "./locale";
 
 export { default as AsyncSlot } from "./components/AsyncSlot.vue";
+export { default as AsyncSearchSelect } from "./components/AsyncSearchSelect.vue";
+export { type AsyncSearchOption } from "./components/async-search-select";

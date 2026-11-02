@@ -60,6 +60,7 @@ import {
   UserCard,
   UserChip,
   UserSelect,
+  type AsyncSearchOption,
 } from "../../src";
 
 const confirm = useConfirm();
@@ -208,6 +209,22 @@ const demoUsers = [
   { id: "u-wang", name: "王五", email: "wang.wu@mango.write", avatar: null },
 ];
 const selectedUserIds = ref(["u-zhang"]);
+
+const asyncSelected = ref<string | null>(null);
+const demoAsyncPool: AsyncSearchOption[] = [
+  { value: "opt-alpha", label: "方案 Alpha", description: "演示数据 · 已发布" },
+  { value: "opt-beta", label: "方案 Beta", description: "演示数据 · 草稿" },
+  { value: "opt-gamma", label: "方案 Gamma" },
+];
+function demoAsyncSearch(query: string): Promise<AsyncSearchOption[]> {
+  const q = query.trim().toLowerCase();
+  // 人为延迟让加载态可见；真实接调用方的远端取数。
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(demoAsyncPool.filter((o) => !q || o.label.toLowerCase().includes(q)));
+    }, 300);
+  });
+}
 
 function onDemoFiles(files: File[]) {
   demoFiles.value = files.map((file) => file.name).join("、");
@@ -488,6 +505,17 @@ function confirmInline(event: MouseEvent) {
         <UserCard :user="demoUsers[0]" />
         <UserSelect v-model="selectedUserIds" :users="demoUsers" />
         <UserSelect v-model="selectedUserIds" :users="demoUsers" disabled />
+      </div>
+    </div>
+
+    <div class="uc-block">
+      <div id="package-async-search-select" class="uc-title">AsyncSearchSelect · 异步远程搜索单选</div>
+      <div class="uc-stage uc-stage--col">
+        <div class="tw:w-72">
+          <AsyncSearchSelect v-model="asyncSelected" :search="demoAsyncSearch" fluid placeholder="搜索演示选项" />
+        </div>
+        <AsyncSearchSelect v-model="asyncSelected" :search="demoAsyncSearch" disabled placeholder="搜索演示选项" />
+        <small class="tw:text-muted">当前值：{{ asyncSelected ?? "（空）" }}</small>
       </div>
     </div>
 

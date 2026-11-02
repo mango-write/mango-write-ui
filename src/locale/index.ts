@@ -12,7 +12,7 @@ interface I18nWithMerge {
 // 覆盖后需重挂。
 export interface UiMessages {
   common: {
-    select: { noMatch: string; clear: string; remove: string };
+    select: { noMatch: string; clear: string; remove: string; searching: string };
     userSelect: { placeholder: string; empty: string };
     async: { loading: string; errorTitle: string; retry: string };
     action: { close: string };
@@ -32,7 +32,7 @@ export type UiLocaleSource = "zh-CN" | "en-US";
 export const uiMessages: Record<UiLocaleSource, UiMessages> = {
   "zh-CN": {
     common: {
-      select: { noMatch: "无匹配项", clear: "清除选择", remove: "移除 {label}" },
+      select: { noMatch: "无匹配项", clear: "清除选择", remove: "移除 {label}", searching: "正在搜索…" },
       userSelect: { placeholder: "搜索并选择用户", empty: "没有可选用户" },
       async: { loading: "正在加载", errorTitle: "加载失败", retry: "重试" },
       action: { close: "关闭" },
@@ -48,7 +48,7 @@ export const uiMessages: Record<UiLocaleSource, UiMessages> = {
   },
   "en-US": {
     common: {
-      select: { noMatch: "No matches", clear: "Clear selection", remove: "Remove {label}" },
+      select: { noMatch: "No matches", clear: "Clear selection", remove: "Remove {label}", searching: "Searching…" },
       userSelect: { placeholder: "Search and select users", empty: "No users available" },
       async: { loading: "Loading", errorTitle: "Failed to load", retry: "Retry" },
       action: { close: "Close" },
