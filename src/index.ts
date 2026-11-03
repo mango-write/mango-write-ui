@@ -6,6 +6,7 @@ export { default as ActionMenu } from "./components/ActionMenu.vue";
 export { type ActionMenuItem } from "./components/action-menu";
 export { default as FileDropZone } from "./components/FileDropZone.vue";
 export { default as PageHeader } from "./components/PageHeader.vue";
+export { default as NotFoundPage } from "./components/NotFoundPage.vue";
 export { default as FormField } from "./components/FormField.vue";
 export { default as HoverCard } from "./components/HoverCard.vue";
 export { default as ImageLightbox } from "./components/ImageLightbox.vue";
