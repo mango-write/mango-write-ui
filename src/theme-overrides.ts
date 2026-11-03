@@ -124,17 +124,25 @@ function mirrorLightToDark<T>(node: T): T {
 export const mangoOverrides = mirrorLightToDark({
   primitive: {
     // Radius ramp drives every component: form fields/buttons/content use `md`,
-    // option lists/menus use `sm`, modals use `xl`.
+    // option lists/menus use `sm`, cards use `xl`, modals use `2xl`.
     borderRadius: {
       none: "0",
       xs: "4px",
       sm: "6px",
       md: "8px",
       lg: "10px",
-      xl: "16px"
+      xl: "16px",
+      "2xl": "24px"
     }
   },
   semantic: {
+    // 浮层圆角单独一档：Aura 让 modal 复用 `xl`，但那档同时是 Card 的圆角，
+    // 想给弹窗跟着站点面板语言（20~28px）走就必须分开。深色分支无需镜像（纯几何）。
+    overlay: {
+      modal: {
+        borderRadius: "{border.radius.2xl}"
+      }
+    },
     transitionDuration: "0.18s",
     disabledOpacity: "0.6",
     // Overlay option rows (Select, MultiSelect, Listbox, AutoComplete, …) all
