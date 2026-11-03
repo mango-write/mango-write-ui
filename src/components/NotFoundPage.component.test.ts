@@ -28,7 +28,7 @@ describe("NotFoundPage", () => {
     expect(wrapper.get(".mw-nf__tagline").text()).toBe("芒果写作");
     expect(wrapper.get(".mw-nf__path-value").text()).toBe("/en/nope?x=1");
     expect(wrapper.get(".mw-nf__path-label").text()).toBe("请求路径");
-    expect(wrapper.findAll(".mw-nf__btn")).toHaveLength(2);
+    expect(wrapper.findAll(".mw-nf__actions button")).toHaveLength(2);
   });
 
   it("动作只 emit，不自行导航", async () => {
@@ -36,7 +36,7 @@ describe("NotFoundPage", () => {
       props: { ...base, secondaryLabel: "返回上一页" },
     });
 
-    const [primary, secondary] = wrapper.findAll(".mw-nf__btn");
+    const [primary, secondary] = wrapper.findAll(".mw-nf__actions button");
     await primary.trigger("click");
     await secondary.trigger("click");
 
@@ -49,6 +49,6 @@ describe("NotFoundPage", () => {
 
     expect(wrapper.find(".mw-nf__path").exists()).toBe(false);
     expect(wrapper.find(".mw-nf__tagline").exists()).toBe(false);
-    expect(wrapper.findAll(".mw-nf__btn")).toHaveLength(1);
+    expect(wrapper.findAll(".mw-nf__actions button")).toHaveLength(1);
   });
 });

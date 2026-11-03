@@ -49,13 +49,13 @@ const emit = defineEmits<{ (e: "primary"): void; (e: "secondary"): void }>();
       </div>
 
       <div class="mw-nf__actions">
-        <button type="button" class="mw-nf__btn mw-nf__btn--primary" @click="emit('primary')">
+        <button type="button" class="mw-btn-site" @click="emit('primary')">
           {{ primaryLabel }}
         </button>
         <button
           v-if="secondaryLabel"
           type="button"
-          class="mw-nf__btn mw-nf__btn--text"
+          class="mw-nf__btn--text"
           @click="emit('secondary')"
         >
           {{ secondaryLabel }}
@@ -233,34 +233,23 @@ const emit = defineEmits<{ (e: "primary"): void; (e: "secondary"): void }>();
   gap: 12px;
 }
 
-.mw-nf__btn {
-  min-height: 40px;
-  padding: 0 20px;
+/* 主按钮直接用 theme.css 的品牌 CTA 配方，这里只留不需要渐变的文字档。 */
+.mw-nf__btn--text {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0 18px;
   border: 0;
-  border-radius: 12px;
-  font-size: 0.9rem;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: 0.86rem;
   font-weight: 600;
   cursor: pointer;
   transition:
-    transform 180ms var(--motion-ease-standard),
-    box-shadow 180ms var(--motion-ease-standard),
-    background-color 180ms var(--motion-ease-standard);
-}
-
-.mw-nf__btn--primary {
-  color: #fff;
-  background-image: linear-gradient(135deg, var(--color-brand-400), var(--color-brand-600));
-  box-shadow: 0 10px 22px rgb(var(--color-brand-500-rgb) / 0.28);
-}
-
-.mw-nf__btn--primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 14px 28px rgb(var(--color-brand-500-rgb) / 0.34);
-}
-
-.mw-nf__btn--text {
-  color: var(--color-text-secondary);
-  background: transparent;
+    background-color 180ms var(--motion-ease-standard),
+    color 180ms var(--motion-ease-standard);
 }
 
 .mw-nf__btn--text:hover {
@@ -268,7 +257,7 @@ const emit = defineEmits<{ (e: "primary"): void; (e: "secondary"): void }>();
   color: var(--color-text-primary);
 }
 
-.mw-nf__btn:focus-visible {
+.mw-nf__btn--text:focus-visible {
   outline: 2px solid var(--color-brand-500);
   outline-offset: 2px;
 }
