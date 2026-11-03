@@ -65,6 +65,7 @@
     "build": "vite build && vue-tsc --declaration --emitDeclarationOnly -p tsconfig.build.json && node -e \"const{cpSync}=require('node:fs');for(const f of['theme.css','primevue-theme.css','var.css'])cpSync('src/'+f,'dist/'+f)\"",
     "prepare": "pnpm build",
     "dev": "vite",
+    "build:playground": "vite build --config vite.playground.config.ts",
     "typecheck": "vue-tsc --noEmit -p tsconfig.json",
     "test": "vitest run"
   },

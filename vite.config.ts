@@ -12,7 +12,8 @@ export default defineConfig({
     dedupe: ["vue", "vue-router", "vue-i18n", "primevue"],
   },
   server: {
-    port: 5174,
+    // 主仓 dev 拓扑把 5173-5175 分给了 web/authWeb/rewriteWeb，展示站让出。
+    port: 5176,
   },
   build: {
     lib: {

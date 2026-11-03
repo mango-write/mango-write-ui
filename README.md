@@ -136,9 +136,11 @@ pnpm typecheck
 pnpm test
 ```
 
-`pnpm dev` 启动独立展示应用：组件库位于 `http://localhost:5174/dev/ui`，图标库位于 `http://localhost:5174/dev/icon`。两个页面及其路由只归本仓维护，宿主应用不注册这些路由。
+`pnpm dev` 启动独立展示应用：组件库位于 `http://localhost:5176/dev/ui`，图标库位于 `http://localhost:5176/dev/icon`。两个页面及其路由只归本仓维护，宿主应用不注册这些路由。
 
-构建输出位于 `dist/`，包含 ESM、类型声明和 CSS；`dev/` 不进入发布产物。参与开发请阅读[贡献指南](CONTRIBUTING.md)。
+`pnpm build:playground` 把展示站构建为静态站点（`dist-playground/`），供宿主仓部署预览环境。
+
+库构建输出位于 `dist/`，包含 ESM、类型声明和 CSS；`dev/` 与 `dist-playground/` 不进入发布产物。参与开发请阅读[贡献指南](CONTRIBUTING.md)。
 
 ## 许可
 
