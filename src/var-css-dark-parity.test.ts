@@ -9,10 +9,14 @@ import { describe, expect, it } from "vitest";
 // CSS 没有原生的「一处声明两处引用」，这两块只能并列存在；本测试把
 // 「同源」变成机器约束：任何一侧改了深色值而另一侧没跟，这里就红。
 // 剥注释后再解析：选择器名在文件头注释里也出现，直接 indexOf 会抓到注释块。
+// 行尾归一化：Windows 检出（autocrlf）会把 LF 转 CRLF，换行敏感的选择器
+// indexOf 会静默失配，解析前先折回 LF。
 const varCss = readFileSync(
   fileURLToPath(new URL("./var.css", import.meta.url)),
   "utf8",
-).replace(/\/\*[\s\S]*?\*\//g, "");
+)
+  .replace(/\r\n/g, "\n")
+  .replace(/\/\*[\s\S]*?\*\//g, "");
 
 function extractBlock(selector: string): Map<string, string> {
   const start = varCss.indexOf(selector);
