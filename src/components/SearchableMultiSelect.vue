@@ -276,7 +276,17 @@ function onKeydown(event: KeyboardEvent) {
             @mousedown.stop.prevent
             @click.stop="removeAt(i)"
           >
-            <i class="pi pi-times" aria-hidden="true" />
+            <svg
+              class="pi pi-times"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+              aria-hidden="true"
+            >
+              <path d="M4 4l8 8M12 4l-8 8" />
+            </svg>
           </button>
         </span>
       </slot>
@@ -323,12 +333,35 @@ function onKeydown(event: KeyboardEvent) {
       >
         <span class="mw-ms-chip">
           <span class="mw-ms-chip-label">{{ labelOf(o) }}</span>
-          <i class="pi pi-times mw-ms-chip-remove" aria-hidden="true" />
+          <svg
+            class="pi pi-times mw-ms-chip-remove"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.75"
+            stroke-linecap="round"
+            aria-hidden="true"
+          >
+            <path d="M4 4l8 8M12 4l-8 8" />
+          </svg>
         </span>
       </slot>
     </div>
 
-    <span class="mw-ms-dropdown" aria-hidden="true"><i class="pi pi-chevron-down" /></span>
+    <span class="mw-ms-dropdown" aria-hidden="true">
+      <svg
+        class="pi pi-chevron-down"
+        viewBox="0 0 16 16"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.75"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M4 6l4 4 4-4" />
+      </svg>
+    </span>
 
     <Teleport to="body">
       <ul
@@ -365,11 +398,7 @@ function onKeydown(event: KeyboardEvent) {
 </template>
 
 <style scoped>
-/* ── Field — mirrors .p-multiselect geometry via global --p-multiselect-* tokens ──
-   颜色不走 --p-* 间接引用：PrimeVue 的组件 token 按需注入（页面没挂过该组件时
-   变量不存在，会落进浅色兜底，深色下就是白块），直接用 var.css token + 仿玻璃
-   字段配方（与 primevue-theme.css 的 .p-inputtext 族逐项一致）。几何 token
-   （padding/radius/宽度）与主题无关，保留 --p-* 引用。 */
+/* ── Field — Mango control surface tokens ── */
 .mw-ms {
   position: relative;
   display: inline-flex;
@@ -380,7 +409,7 @@ function onKeydown(event: KeyboardEvent) {
   background-color: var(--color-surface-base);
   background-image: var(--material-control-face);
   border: 1px solid var(--color-border-subtle);
-  border-radius: var(--p-multiselect-border-radius, var(--radius));
+  border-radius: var(--radius);
   box-shadow: var(--material-control-inset);
   transition:
     border-color 0.18s,
@@ -400,11 +429,11 @@ function onKeydown(event: KeyboardEvent) {
   border-color: var(--color-danger-500);
 }
 .mw-ms-disabled {
-  opacity: var(--p-disabled-opacity, 0.6);
+  opacity: var(--opacity-disabled);
   cursor: default;
 }
 
-/* Label row — same padding halving trick as .p-multiselect-label:has(.p-chip). */
+/* Label row */
 .mw-ms-label {
   flex: 1 1 auto;
   width: 1%;
@@ -412,22 +441,21 @@ function onKeydown(event: KeyboardEvent) {
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
-  gap: calc(var(--p-multiselect-padding-y, 0.375rem) / 2);
-  padding: calc(var(--p-multiselect-padding-y, 0.375rem) / 2)
-    calc(var(--p-multiselect-padding-x, 0.625rem) / 2);
+  gap: 0.1875rem;
+  padding: 0.1875rem 0.3125rem;
   overflow: hidden;
 }
 
-/* Chip — replicates .p-multiselect-chip (.p-chip) box: same padding, radius, size. */
+/* Chip */
 .mw-ms-chip {
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
   max-width: 100%;
-  padding-block: calc(var(--p-multiselect-padding-y, 0.375rem) / 2);
-  padding-inline: var(--p-chip-padding-x, 0.5rem);
-  border-radius: var(--p-multiselect-chip-border-radius, var(--radius-sm));
+  padding-block: 0.1875rem;
+  padding-inline: 0.5rem;
+  border-radius: var(--radius-sm);
   background: var(--color-surface-muted);
   color: var(--color-text-primary);
   font-size: 0.8125rem;
@@ -454,6 +482,11 @@ function onKeydown(event: KeyboardEvent) {
   transition:
     color 0.15s,
     background 0.15s;
+}
+.mw-ms-chip-remove .pi,
+.mw-ms-chip-remove.pi {
+  width: 0.75rem;
+  height: 0.75rem;
 }
 .mw-ms-chip-remove:hover {
   color: var(--color-text-primary);
@@ -492,7 +525,7 @@ function onKeydown(event: KeyboardEvent) {
   left: 0;
   display: flex;
   flex-wrap: nowrap;
-  gap: calc(var(--p-multiselect-padding-y, 0.375rem) / 2);
+  gap: 0.1875rem;
   visibility: hidden;
   pointer-events: none;
   white-space: nowrap;
@@ -503,53 +536,53 @@ function onKeydown(event: KeyboardEvent) {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: var(--p-multiselect-dropdown-width, 2.5rem);
+  width: 2.5rem;
   color: var(--color-text-tertiary);
 }
 .mw-ms-dropdown .pi {
+  width: 0.75rem;
+  height: 0.75rem;
   font-size: 0.75rem;
 }
 
 /* ── Size ramp ── */
 .mw-ms-sm {
-  --mw-ms-min-h: 1.5rem; /* empty height ≈ 24px like other sm fields (chips grow it naturally) */
+  --mw-ms-min-h: 1.5rem;
 }
 .mw-ms-sm .mw-ms-input,
 .mw-ms-sm .mw-ms-chip {
-  font-size: var(--p-multiselect-sm-font-size, 0.75rem);
+  font-size: 0.75rem;
 }
 .mw-ms-sm .mw-ms-dropdown {
   width: 1.75rem;
 }
 .mw-ms-lg .mw-ms-input {
-  font-size: var(--p-multiselect-lg-font-size, 1rem);
+  font-size: 1rem;
 }
 </style>
 
 <style>
-/* Panel — teleported to <body>, styled to read as a .p-multiselect overlay. */
+/* Panel — teleported to <body>, styled as a glass multiselect overlay. */
 .mw-ms-overlay {
   margin: 0;
-  padding: var(--p-multiselect-list-padding, 0.25rem);
+  padding: 0.25rem;
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: var(--p-multiselect-list-gap, 2px);
+  gap: 2px;
   max-height: 15rem;
   overflow-y: auto;
-  /* 真玻璃（浮层档）：配方与 .mw-glass 一致，见 styles.css 的 Material 节。
-     这块是自绘浮层（不是 PrimeVue 的 .p-*-overlay），所以在这里显式声明。 */
   background-color: var(--material-scrim);
   background-image: var(--material-specular);
   -webkit-backdrop-filter: var(--material-blur);
   backdrop-filter: var(--material-blur);
   border: 1px solid var(--material-hairline);
-  border-radius: var(--p-multiselect-overlay-border-radius, var(--radius));
+  border-radius: var(--radius);
   box-shadow: var(--material-lens), var(--material-glass-shadow);
 }
 .mw-ms-overlay .mw-ms-option {
-  padding: var(--p-multiselect-option-padding, 0.375rem 0.625rem);
-  border-radius: var(--p-multiselect-option-border-radius, var(--radius-sm));
+  padding: 0.375rem 0.625rem;
+  border-radius: var(--radius-sm);
   color: var(--color-text-primary);
   font-size: 0.875rem;
   line-height: 1.25;
@@ -558,8 +591,6 @@ function onKeydown(event: KeyboardEvent) {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-/* 玻璃面上的行态一律半透明——实心底色会把材质打断。inlay 是白叠层，浅色下压在
-   近白的玻璃面板上读不出来，行态走随 mode 翻转的 --material-hover。 */
 .mw-ms-overlay .mw-ms-option:not(.mw-ms-option-selected):hover,
 .mw-ms-overlay .mw-ms-option-active:not(.mw-ms-option-selected) {
   background: var(--material-hover);
@@ -569,7 +600,7 @@ function onKeydown(event: KeyboardEvent) {
   color: var(--color-brand-700);
 }
 .mw-ms-overlay .mw-ms-empty {
-  padding: var(--p-multiselect-empty-message-padding, 0.375rem 0.625rem);
+  padding: 0.375rem 0.625rem;
   color: var(--color-text-tertiary);
   font-size: 0.875rem;
 }

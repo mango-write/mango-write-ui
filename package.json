@@ -480,6 +480,302 @@
     "./primevue-theme.css": {
       "mango-source": "./src/primevue-theme.css",
       "default": "./dist/primevue-theme.css"
+    },
+    "./components/Accordion": {
+      "mango-source": {
+        "types": "./src/components/Accordion.vue",
+        "default": "./src/components/Accordion.vue"
+      },
+      "types": "./dist/components/Accordion.d.ts",
+      "default": "./dist/components/Accordion.js"
+    },
+    "./components/AccordionContent": {
+      "mango-source": {
+        "types": "./src/components/AccordionContent.vue",
+        "default": "./src/components/AccordionContent.vue"
+      },
+      "types": "./dist/components/AccordionContent.d.ts",
+      "default": "./dist/components/AccordionContent.js"
+    },
+    "./components/AccordionHeader": {
+      "mango-source": {
+        "types": "./src/components/AccordionHeader.vue",
+        "default": "./src/components/AccordionHeader.vue"
+      },
+      "types": "./dist/components/AccordionHeader.d.ts",
+      "default": "./dist/components/AccordionHeader.js"
+    },
+    "./components/AccordionPanel": {
+      "mango-source": {
+        "types": "./src/components/AccordionPanel.vue",
+        "default": "./src/components/AccordionPanel.vue"
+      },
+      "types": "./dist/components/AccordionPanel.d.ts",
+      "default": "./dist/components/AccordionPanel.js"
+    },
+    "./components/Chip": {
+      "mango-source": {
+        "types": "./src/components/Chip.vue",
+        "default": "./src/components/Chip.vue"
+      },
+      "types": "./dist/components/Chip.d.ts",
+      "default": "./dist/components/Chip.js"
+    },
+    "./components/ColorPicker": {
+      "mango-source": {
+        "types": "./src/components/ColorPicker.vue",
+        "default": "./src/components/ColorPicker.vue"
+      },
+      "types": "./dist/components/ColorPicker.d.ts",
+      "default": "./dist/components/ColorPicker.js"
+    },
+    "./components/Column": {
+      "mango-source": {
+        "types": "./src/components/Column.vue",
+        "default": "./src/components/Column.vue"
+      },
+      "types": "./dist/components/Column.d.ts",
+      "default": "./dist/components/Column.js"
+    },
+    "./components/DataTable": {
+      "mango-source": {
+        "types": "./src/components/DataTable.vue",
+        "default": "./src/components/DataTable.vue"
+      },
+      "types": "./dist/components/DataTable.d.ts",
+      "default": "./dist/components/DataTable.js"
+    },
+    "./components/DatePicker": {
+      "mango-source": {
+        "types": "./src/components/DatePicker.vue",
+        "default": "./src/components/DatePicker.vue"
+      },
+      "types": "./dist/components/DatePicker.d.ts",
+      "default": "./dist/components/DatePicker.js"
+    },
+    "./components/IconField": {
+      "mango-source": {
+        "types": "./src/components/IconField.vue",
+        "default": "./src/components/IconField.vue"
+      },
+      "types": "./dist/components/IconField.d.ts",
+      "default": "./dist/components/IconField.js"
+    },
+    "./components/InputGroup": {
+      "mango-source": {
+        "types": "./src/components/InputGroup.vue",
+        "default": "./src/components/InputGroup.vue"
+      },
+      "types": "./dist/components/InputGroup.d.ts",
+      "default": "./dist/components/InputGroup.js"
+    },
+    "./components/InputGroupAddon": {
+      "mango-source": {
+        "types": "./src/components/InputGroupAddon.vue",
+        "default": "./src/components/InputGroupAddon.vue"
+      },
+      "types": "./dist/components/InputGroupAddon.d.ts",
+      "default": "./dist/components/InputGroupAddon.js"
+    },
+    "./components/InputIcon": {
+      "mango-source": {
+        "types": "./src/components/InputIcon.vue",
+        "default": "./src/components/InputIcon.vue"
+      },
+      "types": "./dist/components/InputIcon.d.ts",
+      "default": "./dist/components/InputIcon.js"
+    },
+    "./components/InputNumber": {
+      "mango-source": {
+        "types": "./src/components/InputNumber.vue",
+        "default": "./src/components/InputNumber.vue"
+      },
+      "types": "./dist/components/InputNumber.d.ts",
+      "default": "./dist/components/InputNumber.js"
+    },
+    "./components/Listbox": {
+      "mango-source": {
+        "types": "./src/components/Listbox.vue",
+        "default": "./src/components/Listbox.vue"
+      },
+      "types": "./dist/components/Listbox.d.ts",
+      "default": "./dist/components/Listbox.js"
+    },
+    "./components/Menu": {
+      "mango-source": {
+        "types": "./src/components/Menu.vue",
+        "default": "./src/components/Menu.vue"
+      },
+      "types": "./dist/components/Menu.d.ts",
+      "default": "./dist/components/Menu.js"
+    },
+    "./components/MultiSelect": {
+      "mango-source": {
+        "types": "./src/components/MultiSelect.vue",
+        "default": "./src/components/MultiSelect.vue"
+      },
+      "types": "./dist/components/MultiSelect.d.ts",
+      "default": "./dist/components/MultiSelect.js"
+    },
+    "./components/Paginator": {
+      "mango-source": {
+        "types": "./src/components/Paginator.vue",
+        "default": "./src/components/Paginator.vue"
+      },
+      "types": "./dist/components/Paginator.d.ts",
+      "default": "./dist/components/Paginator.js"
+    },
+    "./components/ProgressSpinner": {
+      "mango-source": {
+        "types": "./src/components/ProgressSpinner.vue",
+        "default": "./src/components/ProgressSpinner.vue"
+      },
+      "types": "./dist/components/ProgressSpinner.d.ts",
+      "default": "./dist/components/ProgressSpinner.js"
+    },
+    "./components/RadioButton": {
+      "mango-source": {
+        "types": "./src/components/RadioButton.vue",
+        "default": "./src/components/RadioButton.vue"
+      },
+      "types": "./dist/components/RadioButton.d.ts",
+      "default": "./dist/components/RadioButton.js"
+    },
+    "./components/SelectButton": {
+      "mango-source": {
+        "types": "./src/components/SelectButton.vue",
+        "default": "./src/components/SelectButton.vue"
+      },
+      "types": "./dist/components/SelectButton.d.ts",
+      "default": "./dist/components/SelectButton.js"
+    },
+    "./components/Skeleton": {
+      "mango-source": {
+        "types": "./src/components/Skeleton.vue",
+        "default": "./src/components/Skeleton.vue"
+      },
+      "types": "./dist/components/Skeleton.d.ts",
+      "default": "./dist/components/Skeleton.js"
+    },
+    "./components/Slider": {
+      "mango-source": {
+        "types": "./src/components/Slider.vue",
+        "default": "./src/components/Slider.vue"
+      },
+      "types": "./dist/components/Slider.d.ts",
+      "default": "./dist/components/Slider.js"
+    },
+    "./components/accordion": {
+      "mango-source": {
+        "types": "./src/components/accordion.ts",
+        "default": "./src/components/accordion.ts"
+      },
+      "types": "./dist/components/accordion.d.ts",
+      "default": "./dist/components/accordion.js"
+    },
+    "./components/chip": {
+      "mango-source": {
+        "types": "./src/components/chip.ts",
+        "default": "./src/components/chip.ts"
+      },
+      "types": "./dist/components/chip.d.ts",
+      "default": "./dist/components/chip.js"
+    },
+    "./components/color-picker": {
+      "mango-source": {
+        "types": "./src/components/color-picker.ts",
+        "default": "./src/components/color-picker.ts"
+      },
+      "types": "./dist/components/color-picker.d.ts",
+      "default": "./dist/components/color-picker.js"
+    },
+    "./components/data-table": {
+      "mango-source": {
+        "types": "./src/components/data-table.ts",
+        "default": "./src/components/data-table.ts"
+      },
+      "types": "./dist/components/data-table.d.ts",
+      "default": "./dist/components/data-table.js"
+    },
+    "./components/date-picker": {
+      "mango-source": {
+        "types": "./src/components/date-picker.ts",
+        "default": "./src/components/date-picker.ts"
+      },
+      "types": "./dist/components/date-picker.d.ts",
+      "default": "./dist/components/date-picker.js"
+    },
+    "./components/input-number": {
+      "mango-source": {
+        "types": "./src/components/input-number.ts",
+        "default": "./src/components/input-number.ts"
+      },
+      "types": "./dist/components/input-number.d.ts",
+      "default": "./dist/components/input-number.js"
+    },
+    "./components/listbox": {
+      "mango-source": {
+        "types": "./src/components/listbox.ts",
+        "default": "./src/components/listbox.ts"
+      },
+      "types": "./dist/components/listbox.d.ts",
+      "default": "./dist/components/listbox.js"
+    },
+    "./components/menu": {
+      "mango-source": {
+        "types": "./src/components/menu.ts",
+        "default": "./src/components/menu.ts"
+      },
+      "types": "./dist/components/menu.d.ts",
+      "default": "./dist/components/menu.js"
+    },
+    "./components/multi-select": {
+      "mango-source": {
+        "types": "./src/components/multi-select.ts",
+        "default": "./src/components/multi-select.ts"
+      },
+      "types": "./dist/components/multi-select.d.ts",
+      "default": "./dist/components/multi-select.js"
+    },
+    "./components/progress-spinner": {
+      "mango-source": {
+        "types": "./src/components/progress-spinner.ts",
+        "default": "./src/components/progress-spinner.ts"
+      },
+      "types": "./dist/components/progress-spinner.d.ts",
+      "default": "./dist/components/progress-spinner.js"
+    },
+    "./components/radio-button": {
+      "mango-source": {
+        "types": "./src/components/radio-button.ts",
+        "default": "./src/components/radio-button.ts"
+      },
+      "types": "./dist/components/radio-button.d.ts",
+      "default": "./dist/components/radio-button.js"
+    },
+    "./components/select-button": {
+      "mango-source": {
+        "types": "./src/components/select-button.ts",
+        "default": "./src/components/select-button.ts"
+      },
+      "types": "./dist/components/select-button.d.ts",
+      "default": "./dist/components/select-button.js"
+    },
+    "./components/skeleton": {
+      "mango-source": {
+        "types": "./src/components/skeleton.ts",
+        "default": "./src/components/skeleton.ts"
+      },
+      "types": "./dist/components/skeleton.d.ts",
+      "default": "./dist/components/skeleton.js"
+    },
+    "./components/slider": {
+      "mango-source": {
+        "types": "./src/components/slider.ts",
+        "default": "./src/components/slider.ts"
+      },
+      "types": "./dist/components/slider.d.ts",
+      "default": "./dist/components/slider.js"
     }
   },
   "publishConfig": {
@@ -768,7 +1064,192 @@
       "./base.css": "./dist/base.css",
       "./components.css": "./dist/components.css",
       "./theme.css": "./dist/theme.css",
-      "./primevue-theme.css": "./dist/primevue-theme.css"
+      "./primevue-theme.css": "./dist/primevue-theme.css",
+      "./components/Accordion": {
+        "types": "./dist/components/Accordion.d.ts",
+        "import": "./dist/components/Accordion.js",
+        "default": "./dist/components/Accordion.js"
+      },
+      "./components/AccordionContent": {
+        "types": "./dist/components/AccordionContent.d.ts",
+        "import": "./dist/components/AccordionContent.js",
+        "default": "./dist/components/AccordionContent.js"
+      },
+      "./components/AccordionHeader": {
+        "types": "./dist/components/AccordionHeader.d.ts",
+        "import": "./dist/components/AccordionHeader.js",
+        "default": "./dist/components/AccordionHeader.js"
+      },
+      "./components/AccordionPanel": {
+        "types": "./dist/components/AccordionPanel.d.ts",
+        "import": "./dist/components/AccordionPanel.js",
+        "default": "./dist/components/AccordionPanel.js"
+      },
+      "./components/Chip": {
+        "types": "./dist/components/Chip.d.ts",
+        "import": "./dist/components/Chip.js",
+        "default": "./dist/components/Chip.js"
+      },
+      "./components/ColorPicker": {
+        "types": "./dist/components/ColorPicker.d.ts",
+        "import": "./dist/components/ColorPicker.js",
+        "default": "./dist/components/ColorPicker.js"
+      },
+      "./components/Column": {
+        "types": "./dist/components/Column.d.ts",
+        "import": "./dist/components/Column.js",
+        "default": "./dist/components/Column.js"
+      },
+      "./components/DataTable": {
+        "types": "./dist/components/DataTable.d.ts",
+        "import": "./dist/components/DataTable.js",
+        "default": "./dist/components/DataTable.js"
+      },
+      "./components/DatePicker": {
+        "types": "./dist/components/DatePicker.d.ts",
+        "import": "./dist/components/DatePicker.js",
+        "default": "./dist/components/DatePicker.js"
+      },
+      "./components/IconField": {
+        "types": "./dist/components/IconField.d.ts",
+        "import": "./dist/components/IconField.js",
+        "default": "./dist/components/IconField.js"
+      },
+      "./components/InputGroup": {
+        "types": "./dist/components/InputGroup.d.ts",
+        "import": "./dist/components/InputGroup.js",
+        "default": "./dist/components/InputGroup.js"
+      },
+      "./components/InputGroupAddon": {
+        "types": "./dist/components/InputGroupAddon.d.ts",
+        "import": "./dist/components/InputGroupAddon.js",
+        "default": "./dist/components/InputGroupAddon.js"
+      },
+      "./components/InputIcon": {
+        "types": "./dist/components/InputIcon.d.ts",
+        "import": "./dist/components/InputIcon.js",
+        "default": "./dist/components/InputIcon.js"
+      },
+      "./components/InputNumber": {
+        "types": "./dist/components/InputNumber.d.ts",
+        "import": "./dist/components/InputNumber.js",
+        "default": "./dist/components/InputNumber.js"
+      },
+      "./components/Listbox": {
+        "types": "./dist/components/Listbox.d.ts",
+        "import": "./dist/components/Listbox.js",
+        "default": "./dist/components/Listbox.js"
+      },
+      "./components/Menu": {
+        "types": "./dist/components/Menu.d.ts",
+        "import": "./dist/components/Menu.js",
+        "default": "./dist/components/Menu.js"
+      },
+      "./components/MultiSelect": {
+        "types": "./dist/components/MultiSelect.d.ts",
+        "import": "./dist/components/MultiSelect.js",
+        "default": "./dist/components/MultiSelect.js"
+      },
+      "./components/Paginator": {
+        "types": "./dist/components/Paginator.d.ts",
+        "import": "./dist/components/Paginator.js",
+        "default": "./dist/components/Paginator.js"
+      },
+      "./components/ProgressSpinner": {
+        "types": "./dist/components/ProgressSpinner.d.ts",
+        "import": "./dist/components/ProgressSpinner.js",
+        "default": "./dist/components/ProgressSpinner.js"
+      },
+      "./components/RadioButton": {
+        "types": "./dist/components/RadioButton.d.ts",
+        "import": "./dist/components/RadioButton.js",
+        "default": "./dist/components/RadioButton.js"
+      },
+      "./components/SelectButton": {
+        "types": "./dist/components/SelectButton.d.ts",
+        "import": "./dist/components/SelectButton.js",
+        "default": "./dist/components/SelectButton.js"
+      },
+      "./components/Skeleton": {
+        "types": "./dist/components/Skeleton.d.ts",
+        "import": "./dist/components/Skeleton.js",
+        "default": "./dist/components/Skeleton.js"
+      },
+      "./components/Slider": {
+        "types": "./dist/components/Slider.d.ts",
+        "import": "./dist/components/Slider.js",
+        "default": "./dist/components/Slider.js"
+      },
+      "./components/accordion": {
+        "types": "./dist/components/accordion.d.ts",
+        "import": "./dist/components/accordion.js",
+        "default": "./dist/components/accordion.js"
+      },
+      "./components/chip": {
+        "types": "./dist/components/chip.d.ts",
+        "import": "./dist/components/chip.js",
+        "default": "./dist/components/chip.js"
+      },
+      "./components/color-picker": {
+        "types": "./dist/components/color-picker.d.ts",
+        "import": "./dist/components/color-picker.js",
+        "default": "./dist/components/color-picker.js"
+      },
+      "./components/data-table": {
+        "types": "./dist/components/data-table.d.ts",
+        "import": "./dist/components/data-table.js",
+        "default": "./dist/components/data-table.js"
+      },
+      "./components/date-picker": {
+        "types": "./dist/components/date-picker.d.ts",
+        "import": "./dist/components/date-picker.js",
+        "default": "./dist/components/date-picker.js"
+      },
+      "./components/input-number": {
+        "types": "./dist/components/input-number.d.ts",
+        "import": "./dist/components/input-number.js",
+        "default": "./dist/components/input-number.js"
+      },
+      "./components/listbox": {
+        "types": "./dist/components/listbox.d.ts",
+        "import": "./dist/components/listbox.js",
+        "default": "./dist/components/listbox.js"
+      },
+      "./components/menu": {
+        "types": "./dist/components/menu.d.ts",
+        "import": "./dist/components/menu.js",
+        "default": "./dist/components/menu.js"
+      },
+      "./components/multi-select": {
+        "types": "./dist/components/multi-select.d.ts",
+        "import": "./dist/components/multi-select.js",
+        "default": "./dist/components/multi-select.js"
+      },
+      "./components/progress-spinner": {
+        "types": "./dist/components/progress-spinner.d.ts",
+        "import": "./dist/components/progress-spinner.js",
+        "default": "./dist/components/progress-spinner.js"
+      },
+      "./components/radio-button": {
+        "types": "./dist/components/radio-button.d.ts",
+        "import": "./dist/components/radio-button.js",
+        "default": "./dist/components/radio-button.js"
+      },
+      "./components/select-button": {
+        "types": "./dist/components/select-button.d.ts",
+        "import": "./dist/components/select-button.js",
+        "default": "./dist/components/select-button.js"
+      },
+      "./components/skeleton": {
+        "types": "./dist/components/skeleton.d.ts",
+        "import": "./dist/components/skeleton.js",
+        "default": "./dist/components/skeleton.js"
+      },
+      "./components/slider": {
+        "types": "./dist/components/slider.d.ts",
+        "import": "./dist/components/slider.js",
+        "default": "./dist/components/slider.js"
+      }
     }
   },
   "scripts": {

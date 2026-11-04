@@ -1,22 +1,12 @@
 <script setup lang="ts">
-// 异步远程搜索单选 — 公开门面不变（string id 的 modelValue + 注入 search +
-// select 事件），内部基 PrimeVue AutoComplete：浮层定位/翻转/z-index、键盘
-// a11y、focus ring 与 sm/lg/invalid 档全部继承上游；玻璃浮层配方来自
-// primevue-theme.css，这里不再自绘面板。
-// 门面自持三件事：
-//   • seq 守卫——过期响应与 loading 状态都不落，清除时作废在途请求；
-//   • 回显治愈——外部设入未见过的 id 先以裸值占位，initialOption 或之后任意
-//     一次取回命中即补上真实 label；
-//   • excludeValues 过滤（响应式）。
-// 打字中的查询串只留在本地，面板收起即回退已选值（等价旧 dismiss 语义；
-// 不能用 forceSelection——它无匹配时清空整个选择而不是恢复旧值）。auto 高亮
-// 首项的 auto-option-focus 依赖 select-on-focus 保持关闭：两者同开时上游会在
-// 结果落地且字段为空时自动选走首项。
-import AutoComplete from "primevue/autocomplete";
-import { computed, ref, useId, watch } from "vue";
+import { computed, nextTick, onBeforeUnmount, ref, useId, watch } from "vue";
 import { useI18n } from "vue-i18n";
-
+import { useComboPanel } from "../lib/useComboPanel";
 import type { AsyncSearchOption } from "./async-search-select";
+
+defineOptions({
+  name: "AsyncSearchSelect",
+});
 
 const props = withDefaults(
   defineProps<{
@@ -51,6 +41,7 @@ const props = withDefaults(
     initialOption: undefined,
   },
 );
+
 const emit = defineEmits<{
   (e: "update:modelValue", value: string | null): void;
   (e: "select", option: AsyncSearchOption | null): void;
@@ -62,28 +53,53 @@ const loadingMessageText = computed(() => props.loadingMessage ?? t("common.sele
 
 const generatedId = useId();
 const fieldId = computed(() => props.inputId ?? `mw-ass-${generatedId}`);
+const listboxId = computed(() => `${fieldId.value}_list`);
+const optionId = (index: number) => `${fieldId.value}_${index}`;
 
-// AutoComplete 的 modelValue 是完整选项对象或打字中的查询串；string id 门面经
-// seenOptions 翻译。查询串只落在本地，不外发。
+const rootRef = ref<HTMLElement | null>(null);
+const inputRef = ref<HTMLInputElement | null>(null);
+const panelRef = ref<HTMLElement | null>(null);
+const { open, panelStyle, openPanel, closePanel, reposition } = useComboPanel(rootRef, panelRef);
+
 const seenOptions = ref(new Map<string, AsyncSearchOption>());
 const selected = ref<AsyncSearchOption | string | null>(null);
+const focused = ref(false);
+const activeIndex = ref(-1);
+
+const displayValue = computed(() => {
+  if (selected.value === null) return "";
+  if (typeof selected.value === "string") return selected.value;
+  return selected.value.label;
+});
+
+function syncInputDom() {
+  if (inputRef.value && inputRef.value.value !== displayValue.value) {
+    inputRef.value.value = displayValue.value;
+  }
+}
 
 watch(
-  () => props.modelValue,
-  (id) => {
+  () => [props.modelValue, props.initialOption] as const,
+  ([id, initOpt]) => {
     if (!id) {
       selected.value = null;
+      syncInputDom();
       return;
     }
-    if (!seenOptions.value.has(id)) {
-      const seed =
-        props.initialOption?.value === id ? props.initialOption : { value: id, label: id };
-      seenOptions.value.set(id, seed);
+    if (initOpt?.value === id) {
+      seenOptions.value.set(id, initOpt);
+    } else if (!seenOptions.value.has(id)) {
+      seenOptions.value.set(id, { value: id, label: id });
     }
     selected.value = seenOptions.value.get(id)!;
+    syncInputDom();
   },
   { immediate: true },
 );
+
+watch(displayValue, () => {
+  syncInputDom();
+});
 
 const rawResults = ref<AsyncSearchOption[]>([]);
 const loading = ref(false);
@@ -92,6 +108,32 @@ const suggestions = computed(() =>
 );
 
 let seq = 0;
+let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+function clearDebounce() {
+  if (debounceTimer !== null) {
+    clearTimeout(debounceTimer);
+    debounceTimer = null;
+  }
+}
+
+onBeforeUnmount(() => {
+  clearDebounce();
+  seq++;
+});
+
+function scrollActiveIntoView() {
+  nextTick(() => {
+    if (activeIndex.value < 0) return;
+    const items = panelRef.value?.querySelectorAll<HTMLElement>(
+      '[role="option"]:not(.p-autocomplete-empty-message)',
+    );
+    items?.[activeIndex.value]?.scrollIntoView?.({ block: "nearest" });
+  });
+}
+
+watch(activeIndex, scrollActiveIntoView);
+
 async function runSearch(query: string) {
   const current = ++seq;
   loading.value = true;
@@ -99,165 +141,488 @@ async function runSearch(query: string) {
     const items = await props.search(query);
     if (current !== seq) return;
     for (const option of items) seenOptions.value.set(option.value, option);
-    // 浅拷贝：上游面板靠 suggestions 的引用变化开合，记忆化 search 返回同一
-    // 数组实例时不会重开面板。
     rawResults.value = [...items];
-    // 取回命中当前已选 id 时换上完整选项，输入框跟着补真实 label（回显治愈）。
-    if (props.modelValue && typeof selected.value === "object") {
+    if (props.modelValue && typeof selected.value === "object" && selected.value !== null) {
       const fresh = seenOptions.value.get(props.modelValue);
-      if (fresh && fresh !== selected.value) selected.value = fresh;
+      if (fresh && fresh !== selected.value) {
+        selected.value = fresh;
+        syncInputDom();
+      }
     }
+    openPanel();
+    activeIndex.value = suggestions.value.length > 0 ? 0 : -1;
+    nextTick(reposition);
   } catch {
     if (current !== seq) return;
     rawResults.value = [];
+    openPanel();
+    activeIndex.value = -1;
+    nextTick(reposition);
   } finally {
     if (current === seq) loading.value = false;
   }
 }
 
-function onComplete(event: { query: string }) {
-  void runSearch(event.query);
-}
-
-const acRef = ref<InstanceType<typeof AutoComplete> | null>(null);
-// 点击字段重开面板：上游只在 focus 事件上触发取数，选中/Escape 之后焦点留在框
-// 上、面板关着，再点字段上游无动于衷——旧版是「点字段即开」。箭头与清除按钮
-// 各有自己的开合/清除语义，排除掉。
-function onRootClick(event: MouseEvent) {
-  const target = event.target as HTMLElement | null;
-  if (target?.closest(".p-autocomplete-dropdown, .p-autocomplete-clear-icon")) return;
-  const ac = acRef.value as unknown as { overlayVisible: boolean; show: () => void } | null;
-  if (ac && !ac.overlayVisible) {
-    void runSearch("");
-    ac.show();
-  }
-}
-
-// 回退到已选值的展示。克隆一份选项：selected 常常本来就是那个对象，引用不变
-// 时上游 d_value 不会重新同步，输入框会留在查询串/空串上。
 function restoreSelected() {
   if (!props.modelValue) {
     selected.value = null;
-    return;
+  } else {
+    const option = seenOptions.value.get(props.modelValue);
+    selected.value = option ? { ...option } : { value: props.modelValue, label: props.modelValue };
   }
-  const option = seenOptions.value.get(props.modelValue);
-  selected.value = option ? { ...option } : { value: props.modelValue, label: props.modelValue };
-}
-
-function onUpdateModelValue(value: AsyncSearchOption | string | null) {
-  if (value && typeof value === "object") {
-    selected.value = value;
-    seenOptions.value.set(value.value, value);
-    emit("update:modelValue", value.value);
-    emit("select", value);
-    return;
-  }
-  if (value === null) {
-    // 清除按钮：作废在途响应，不让旧结果复活；重开默认列表（等价旧 clear→focus
-    // →reveal 的行为，面板开着时也直接补齐结果，不会卡在空态）。
-    seq++;
-    loading.value = false;
-    rawResults.value = [];
-    selected.value = null;
-    if (props.modelValue !== null) {
-      emit("update:modelValue", null);
-      emit("select", null);
-    }
-    void runSearch("");
-    return;
-  }
-  if (value === "") {
-    // 打字删空不是清除选择：上游已收起面板，这里回退到已选值即可。
-    restoreSelected();
-    return;
-  }
-  selected.value = value;
+  syncInputDom();
 }
 
 function onDismiss() {
-  // 打字中收起（Escape/外点/走焦）：回退已选值。hide 事件在浮层 leave 钩子里，
-  // blur 兜底保证走焦这类不经过浮层关闭的路也能收口。
+  clearDebounce();
   if (typeof selected.value === "string") {
     restoreSelected();
   }
 }
+
+watch(open, (isOpen) => {
+  if (!isOpen) {
+    activeIndex.value = -1;
+    onDismiss();
+  }
+});
+
+function onFocus() {
+  if (props.disabled) return;
+  focused.value = true;
+  if (!open.value && !loading.value) {
+    void runSearch("");
+  }
+}
+
+function onBlur() {
+  focused.value = false;
+  onDismiss();
+}
+
+function onRootClick(event: MouseEvent) {
+  if (props.disabled) return;
+  const target = event.target as HTMLElement | null;
+  if (target?.closest(".p-autocomplete-dropdown, .p-autocomplete-clear-icon")) return;
+  inputRef.value?.focus();
+  if (!open.value && !loading.value) {
+    void runSearch("");
+  }
+}
+
+function onDropdownClick() {
+  if (props.disabled) return;
+  if (open.value) {
+    closePanel();
+  } else {
+    inputRef.value?.focus();
+    if (!loading.value) {
+      void runSearch("");
+    }
+  }
+}
+
+function onInput(event: Event) {
+  if (props.disabled) return;
+  const val = (event.target as HTMLInputElement).value;
+  clearDebounce();
+  if (val === "") {
+    closePanel();
+    restoreSelected();
+    return;
+  }
+  selected.value = val;
+  if (props.debounceMs <= 0) {
+    void runSearch(val);
+  } else {
+    debounceTimer = setTimeout(() => {
+      debounceTimer = null;
+      void runSearch(val);
+    }, props.debounceMs);
+  }
+}
+
+function selectOption(option: AsyncSearchOption) {
+  if (props.disabled) return;
+  clearDebounce();
+  selected.value = option;
+  seenOptions.value.set(option.value, option);
+  syncInputDom();
+  closePanel();
+  emit("update:modelValue", option.value);
+  emit("select", option);
+}
+
+function onClearClick() {
+  if (props.disabled) return;
+  clearDebounce();
+  seq++;
+  loading.value = false;
+  rawResults.value = [];
+  selected.value = null;
+  activeIndex.value = -1;
+  closePanel();
+  syncInputDom();
+  if (props.modelValue !== null) {
+    emit("update:modelValue", null);
+    emit("select", null);
+  }
+  void runSearch("");
+}
+
+function onKeydown(event: KeyboardEvent) {
+  if (props.disabled) return;
+  if (event.key === "ArrowDown") {
+    event.preventDefault();
+    if (!open.value) {
+      if (!loading.value) void runSearch("");
+      return;
+    }
+    if (suggestions.value.length > 0) {
+      activeIndex.value = Math.min(activeIndex.value + 1, suggestions.value.length - 1);
+    }
+  } else if (event.key === "ArrowUp") {
+    event.preventDefault();
+    if (!open.value) {
+      if (!loading.value) void runSearch("");
+      return;
+    }
+    if (suggestions.value.length > 0) {
+      activeIndex.value = Math.max(activeIndex.value - 1, 0);
+    }
+  } else if (event.key === "Home" && open.value) {
+    event.preventDefault();
+    activeIndex.value = suggestions.value.length > 0 ? 0 : -1;
+  } else if (event.key === "End" && open.value) {
+    event.preventDefault();
+    activeIndex.value = suggestions.value.length - 1;
+  } else if (event.key === "Enter") {
+    if (!open.value) return;
+    event.preventDefault();
+    const option = suggestions.value[activeIndex.value] ?? suggestions.value[0];
+    if (option) selectOption(option);
+  } else if (event.key === "Escape") {
+    if (open.value) {
+      event.preventDefault();
+      event.stopPropagation();
+      closePanel();
+    }
+    onDismiss();
+  }
+}
+
+const showClearButton = computed(
+  () => props.showClear && !props.disabled && (props.modelValue !== null || selected.value !== null),
+);
 </script>
 
 <template>
-  <AutoComplete
-    ref="acRef"
-    :pt="{ root: { onClick: onRootClick } }"
-    :model-value="selected"
-    :suggestions="suggestions"
-    option-label="label"
-    data-key="value"
-    dropdown
-    dropdown-mode="blank"
-    complete-on-focus
-    auto-option-focus
-    :min-length="0"
-    :delay="debounceMs"
-    :loading="loading"
-    :show-clear="showClear"
-    :disabled="disabled"
-    :fluid="fluid"
-    :placeholder="placeholder"
-    :input-id="fieldId"
-    :aria-label="ariaLabel"
-    scroll-height="15rem"
-    @complete="onComplete"
-    @update:model-value="onUpdateModelValue"
-    @hide="onDismiss"
-    @blur="onDismiss"
+  <div
+    ref="rootRef"
+    class="mw-ass p-autocomplete p-component p-inputwrapper mw-control"
+    :class="{
+      'mw-ass--fluid p-autocomplete-fluid': fluid,
+      'mw-ass--disabled p-disabled': disabled,
+      'mw-ass--open p-inputwrapper-focus': open || focused,
+      'p-inputwrapper-filled': Boolean(displayValue),
+    }"
+    :data-state="open ? 'open' : 'closed'"
+    :data-disabled="disabled ? 'true' : undefined"
+    @click="onRootClick"
   >
-    <template #option="{ option }">
-      <slot name="option" :option="option" :selected="option.value === modelValue">
-        <span class="mw-ass-option-body">
-          <img v-if="option.avatar" class="mw-ass-avatar" :src="option.avatar" alt="" />
-          <span class="mw-ass-option-text">
-            <span class="mw-ass-option-label">{{ option.label }}</span>
-            <span v-if="option.description" class="mw-ass-option-desc">{{ option.description }}</span>
-          </span>
-        </span>
-      </slot>
-    </template>
-    <template #empty>
-      <span class="mw-ass-note">{{ loading ? loadingMessageText : emptyMessageText }}</span>
-    </template>
-    <template #clearicon="{ clearCallback }">
-      <button type="button" class="p-autocomplete-clear-icon" :aria-label="t('common.select.clear')" @click="clearCallback">
-        <i class="pi pi-times" aria-hidden="true" />
-      </button>
-    </template>
-  </AutoComplete>
+    <input
+      :id="fieldId"
+      ref="inputRef"
+      type="text"
+      role="combobox"
+      class="mw-ass-input p-autocomplete-input p-inputtext p-component mw-input"
+      :value="displayValue"
+      :placeholder="placeholder"
+      :disabled="disabled"
+      :aria-label="ariaLabel"
+      aria-autocomplete="list"
+      aria-haspopup="listbox"
+      :aria-expanded="open ? 'true' : 'false'"
+      :aria-controls="listboxId"
+      :aria-activedescendant="open && activeIndex >= 0 ? optionId(activeIndex) : undefined"
+      autocomplete="off"
+      spellcheck="false"
+      @focus="onFocus"
+      @blur="onBlur"
+      @input="onInput"
+      @keydown="onKeydown"
+    />
+
+    <svg
+      v-if="loading"
+      class="p-autocomplete-loader pi pi-spinner"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.75"
+      stroke-linecap="round"
+      aria-hidden="true"
+    >
+      <path d="M8 2a6 6 0 1 1-4.24 1.76" />
+    </svg>
+
+    <button
+      v-if="showClearButton"
+      type="button"
+      class="p-autocomplete-clear-icon"
+      :aria-label="t('common.select.clear')"
+      @mousedown.stop.prevent
+      @click.stop="onClearClick"
+    >
+      <svg
+        class="pi pi-times"
+        viewBox="0 0 16 16"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.75"
+        stroke-linecap="round"
+        aria-hidden="true"
+      >
+        <path d="M4 4l8 8M12 4l-8 8" />
+      </svg>
+    </button>
+
+    <button
+      type="button"
+      class="p-autocomplete-dropdown"
+      :disabled="disabled"
+      tabindex="-1"
+      aria-hidden="true"
+      @mousedown.stop.prevent
+      @click.stop="onDropdownClick"
+    >
+      <svg
+        class="pi pi-chevron-down"
+        viewBox="0 0 16 16"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.75"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M4 6l4 4 4-4" />
+      </svg>
+    </button>
+
+    <Teleport to="body">
+      <div
+        v-if="open"
+        ref="panelRef"
+        class="mw-ass-overlay p-autocomplete-overlay p-component mw-glass"
+        :style="panelStyle"
+        @mousedown.prevent
+      >
+        <div class="p-autocomplete-list-container">
+          <ul
+            :id="listboxId"
+            role="listbox"
+            class="p-autocomplete-list"
+            :aria-label="ariaLabel"
+          >
+            <li
+              v-for="(option, i) in suggestions"
+              :id="optionId(i)"
+              :key="option.value"
+              role="option"
+              class="p-autocomplete-option"
+              :class="{
+                'p-autocomplete-option-selected': option.value === modelValue,
+                'p-focus': i === activeIndex,
+              }"
+              :aria-selected="option.value === modelValue"
+              :data-highlighted="i === activeIndex ? '' : undefined"
+              :data-state="option.value === modelValue ? 'checked' : 'unchecked'"
+              @mousemove="activeIndex = i"
+              @click="selectOption(option)"
+            >
+              <slot name="option" :option="option" :selected="option.value === modelValue">
+                <span class="mw-ass-option-body">
+                  <img v-if="option.avatar" class="mw-ass-avatar" :src="option.avatar" alt="" />
+                  <span class="mw-ass-option-text">
+                    <span class="mw-ass-option-label">{{ option.label }}</span>
+                    <span v-if="option.description" class="mw-ass-option-desc">{{ option.description }}</span>
+                  </span>
+                </span>
+              </slot>
+            </li>
+            <li
+              v-if="!suggestions.length"
+              role="option"
+              class="p-autocomplete-empty-message"
+            >
+              <span class="mw-ass-note">{{ loading ? loadingMessageText : emptyMessageText }}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </Teleport>
+  </div>
 </template>
 
 <style>
-/* 面板 teleport 到 body，选项布局只能全局声明。行高亮/选中底色由上游
-   autocomplete token + 主题的玻璃浮层规则承担，这里只排选项内容结构。 */
+.mw-ass {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-width: 10rem;
+  max-width: 100%;
+  min-height: var(--control-height-compact);
+}
+
+.mw-ass--fluid,
+.p-autocomplete-fluid {
+  display: flex;
+  width: 100%;
+}
+
+.mw-ass-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 100%;
+  padding: 0.375rem 0 0.375rem 0.625rem;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--color-text-primary);
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1.25;
+}
+
+.mw-ass-input::placeholder {
+  color: var(--color-text-tertiary);
+  opacity: 1;
+}
+
+.p-autocomplete-loader {
+  flex-shrink: 0;
+  width: 0.875rem;
+  height: 0.875rem;
+  margin-inline: 0.25rem;
+  color: var(--color-text-tertiary);
+}
+
+.p-autocomplete-clear-icon {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+}
+
+.p-autocomplete-clear-icon:hover {
+  background: var(--color-surface-muted);
+  color: var(--color-text-primary);
+}
+
+.p-autocomplete-clear-icon .pi {
+  width: 0.6875rem;
+  height: 0.6875rem;
+}
+
+.p-autocomplete-dropdown {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+}
+
+.p-autocomplete-dropdown .pi {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+.mw-ass-overlay {
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.p-autocomplete-list-container {
+  max-height: 15rem;
+  overflow-y: auto;
+}
+
+.p-autocomplete-list {
+  margin: 0;
+  padding: 0.25rem;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.p-autocomplete-option {
+  padding: 0.375rem 0.625rem;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-primary);
+  font-size: 0.875rem;
+  line-height: 1.25;
+  cursor: pointer;
+}
+
+.p-autocomplete-option[data-highlighted]:not(.p-autocomplete-option-selected),
+.p-autocomplete-option.p-focus:not(.p-autocomplete-option-selected) {
+  background: var(--material-hover);
+}
+
+.p-autocomplete-option-selected {
+  background: rgb(var(--color-brand-500-rgb) / 0.16);
+  color: var(--color-brand-700);
+}
+
+.p-autocomplete-empty-message {
+  padding: 0.375rem 0.625rem;
+  color: var(--color-text-tertiary);
+  font-size: 0.875rem;
+}
+
 .mw-ass-option-body {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   min-width: 0;
 }
+
 .mw-ass-avatar {
   width: 1.5rem;
   height: 1.5rem;
-  border-radius: var(--radius-pill, 999px);
+  border-radius: var(--radius-pill);
   object-fit: cover;
   flex-shrink: 0;
 }
+
 .mw-ass-option-text {
   display: flex;
   flex-direction: column;
   min-width: 0;
 }
+
 .mw-ass-option-label {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 .mw-ass-option-desc {
   color: var(--color-text-tertiary);
   font-size: 0.75rem;
@@ -265,17 +630,8 @@ function onDismiss() {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-/* 空态/加载文案的稳定类（文案由 #empty slot 提供，行样式在 .p-autocomplete-empty-message）。 */
+
 .mw-ass-note {
   color: var(--color-text-tertiary);
-}
-/* #clearicon 换成真 button 拿到 aria-label；清掉 UA 默认件，热区尺寸交给主题 §4。 */
-.p-autocomplete-clear-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  background: transparent;
-  cursor: pointer;
 }
 </style>
