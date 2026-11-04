@@ -1,8 +1,7 @@
 // A lightweight dropdown-panel controller for combobox-style widgets
 // (SearchableSelect / SearchableMultiSelect) and small anchored popovers
-// (章节编号浮层). PrimeVue's Popover fights a focus-driven "type to filter"
-// flow — it dismisses itself mid-typing — so these widgets manage their own
-// teleported panel instead:
+// (章节编号浮层). A focus-driven "type to filter" flow needs a panel that never
+// dismisses itself mid-typing, so these widgets manage their own teleported panel:
 //   • opens on focus/click, stays open while typing in the trigger's input,
 //   • closes only on outside pointerdown, Escape, or an explicit call,
 //   • positions with fixed coords (flips above when there's no room below) and
@@ -48,6 +47,8 @@ export function useComboPanel(
 ) {
   const open = ref(false);
   const panelStyle = ref<Record<string, string>>({});
+  // 面板相对锚点的实际落位，给进入动效定方向（data-side）。
+  const side = ref<"top" | "bottom" | "right">("bottom");
 
   function anchorRect(): DOMRect | null {
     return typeof anchor === "function" ? anchor() : (anchor.value?.getBoundingClientRect() ?? null);
@@ -81,6 +82,7 @@ export function useComboPanel(
     const placement =
       typeof options.placement === "function" ? options.placement() : options.placement;
     if (placement === "right") {
+      side.value = "right";
       // 夹进视口：右侧放不下时往左收（极窄视口下可能回盖锚点列，可接受兜底）。
       const left =
         panelW > 0
@@ -102,6 +104,7 @@ export function useComboPanel(
     const flip = below < Math.min(panelH || 240, 240) && r.top > below;
     // 夹进视口：锚点贴右边缘时面板不能溢出去。
     const left = panelW > 0 ? Math.max(8, Math.min(r.left, window.innerWidth - panelW - 8)) : r.left;
+    side.value = flip ? "top" : "bottom";
     panelStyle.value = {
       position: "fixed",
       left: `${Math.round(left)}px`,
@@ -154,5 +157,5 @@ export function useComboPanel(
 
   onBeforeUnmount(unbind);
 
-  return { open, panelStyle, openPanel, closePanel, reposition };
+  return { open, panelStyle, side, openPanel, closePanel, reposition };
 }

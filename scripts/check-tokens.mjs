@@ -1,0 +1,172 @@
+#!/usr/bin/env node
+// 设计 token 门禁：组件只许读 var.css 的 Scale / Semantic / Derived / Domain 层与本组件 --mw-* 局部变量。
+// 规则与理由见 ../DESIGN.md「门禁」。CLI：node scripts/check-tokens.mjs；vitest 经 check-tokens.test.ts 调用。
+import { readFileSync, readdirSync, statSync } from "node:fs";
+import { dirname, join, relative } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const root = join(dirname(fileURLToPath(import.meta.url)), "..");
+const src = join(root, "src");
+
+const FLOATING = new Set([
+  "ActionMenu", "AsyncSearchSelect", "ColorPicker", "ConfirmHost", "DatePicker", "Dialog",
+  "HoverCard", "Menu", "MultiSelect", "Popover", "SearchableMultiSelect", "SearchableSelect",
+  "Select", "ToastHost", "UserSelect",
+]);
+const OPAQUE_BG = /var\(--bg-(surface|raised|sunken|canvas)\)/;
+const RAW_CHECKED_PROPS =
+  /^(padding|padding-[a-z-]+|margin|margin-[a-z-]+|gap|row-gap|column-gap|border-radius|border-[a-z-]*-radius|font-size|line-height|letter-spacing|box-shadow|outline-offset|font-weight|transition|transition-duration|transition-delay|animation|animation-duration)$/;
+const COLOR_LITERAL = /#[0-9a-fA-F]{3,8}\b|\brgba?\(\s*\d|\bhsla?\(|\boklch\(|\b(?:white|black)\b/;
+const ALLOWED_EXTERNAL = [/^--reka-/, /^--tw-/];
+const PI_ICON = /\bpi-[a-z0-9-]+\b|\bprimeicons\b/;
+
+export function scanPiIcons(file, text) {
+  const out = [];
+  const lines = text.split("\n");
+  for (let i = 0; i < lines.length; i += 1) {
+    const m = lines[i].match(PI_ICON);
+    if (m) out.push({ file, line: i + 1, rule: "no-pi-icon", detail: m[0] });
+  }
+  return out;
+}
+
+function walk(dir, out = []) {
+  for (const name of readdirSync(dir)) {
+    const full = join(dir, name);
+    if (statSync(full).isDirectory()) walk(full, out);
+    else out.push(full);
+  }
+  return out;
+}
+
+function stripComments(css) {
+  return css.replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, " "));
+}
+
+function styleBlocks(file) {
+  const text = readFileSync(file, "utf8");
+  if (!file.endsWith(".vue")) return [{ css: text, offset: 0 }];
+  const blocks = [];
+  const re = /<style\b[^>]*>([\s\S]*?)<\/style>/g;
+  let m;
+  while ((m = re.exec(text))) {
+    const offset = text.slice(0, m.index + m[0].indexOf(">") + 1).split("\n").length - 1;
+    blocks.push({ css: m[1], offset });
+  }
+  return blocks;
+}
+
+function declarations(css) {
+  const out = [];
+  const text = stripComments(css);
+  let chunkStart = 0;
+  for (let i = 0; i <= text.length; i += 1) {
+    const ch = text[i];
+    if (ch !== ";" && ch !== "{" && ch !== "}" && i !== text.length) continue;
+    const chunk = text.slice(chunkStart, i);
+    const lead = chunk.length - chunk.trimStart().length;
+    const line = text.slice(0, chunkStart + lead).split("\n").length - 1;
+    chunkStart = i + 1;
+    const colon = chunk.indexOf(":");
+    if (colon <= 0) continue;
+    const prop = chunk.slice(0, colon).trim();
+    if (/^-?-?[a-z][a-z0-9-]*$/i.test(prop)) {
+      out.push({ prop, value: chunk.slice(colon + 1).trim(), line });
+    }
+  }
+  return out;
+}
+
+function stripVar(value) {
+  let prev;
+  let next = value;
+  do {
+    prev = next;
+    next = next.replace(/var\([^()]*\)/g, "");
+  } while (next !== prev);
+  return next;
+}
+
+export function checkTokens() {
+  const varCss = readFileSync(join(src, "var.css"), "utf8");
+  const legacyBody = varCss.slice(varCss.indexOf("@legacy-start"), varCss.indexOf("@legacy-end"));
+  const legacy = new Set([...legacyBody.matchAll(/(--[a-z0-9-]+)\s*:/g)].map((m) => m[1]));
+  for (const m of varCss.matchAll(/(--color-[a-z0-9-]+-rgb)\s*:/g)) {
+    if (!m[1].startsWith("--color-mark-") && !m[1].startsWith("--color-annotation-")) legacy.add(m[1]);
+  }
+
+  const componentFiles = walk(join(src, "components")).filter((f) => f.endsWith(".vue"));
+  const sharedFiles = [join(src, "var.css"), join(src, "base.css"), join(src, "components.css")];
+  const defined = new Set();
+  for (const file of [...sharedFiles, ...componentFiles]) {
+    for (const { css } of styleBlocks(file)) {
+      for (const m of stripComments(css).matchAll(/(--[a-zA-Z0-9-]+)\s*:/g)) defined.add(m[1]);
+    }
+  }
+
+  const violations = [];
+  const report = (file, line, rule, detail) =>
+    violations.push({ file: relative(root, file), line: line + 1, rule, detail });
+
+  for (const file of [join(src, "base.css"), join(src, "components.css"), ...componentFiles]) {
+    const isComponent = file !== join(src, "base.css");
+    const name = file.split("/").pop().replace(/\.vue$/, "");
+    for (const { css, offset } of styleBlocks(file)) {
+      for (const { prop, value, line } of declarations(css)) {
+        const at = offset + line;
+        if (prop.startsWith("--") && isComponent && file.endsWith(".vue") && !prop.startsWith("--mw-") && !prop.startsWith("--control-")) {
+          report(file, at, "local-token-prefix", `${prop}（组件内局部变量必须以 --mw- 开头）`);
+        }
+        for (const m of value.matchAll(/var\(\s*(--[a-zA-Z0-9-]+)\s*(,?)/g)) {
+          const token = m[1];
+          if (ALLOWED_EXTERNAL.some((re) => re.test(token))) continue;
+          // --mw-* 带回落值 = 组件对外暴露的可选定制钩子，允许不预先定义。
+          if (token.startsWith("--mw-") && m[2] === ",") continue;
+          if (!defined.has(token)) report(file, at, "undefined-token", token);
+          else if (legacy.has(token)) report(file, at, "legacy-token", token);
+          else if (isComponent && token.startsWith("--palette-")) report(file, at, "palette-in-component", token);
+        }
+        if (!isComponent) continue;
+        if (!prop.startsWith("--") && COLOR_LITERAL.test(stripVar(value))) {
+          report(file, at, "color-literal", `${prop}: ${value}`);
+        }
+        if (RAW_CHECKED_PROPS.test(prop)) {
+          const bare = stripVar(value);
+          const lengths = [...bare.matchAll(/(?<![\w.-])(-?\d*\.?\d+)(px|rem|em)\b/g)]
+            .filter(([, n, unit]) => !(unit === "px" && Math.abs(Number(n)) <= 1) && Number(n) !== 0);
+          if (lengths.length && !/^(transition|animation)/.test(prop)) {
+            report(file, at, "raw-length", `${prop}: ${value}`);
+          }
+          if (/^(transition|animation)/.test(prop) && /(?<![\w.-])\d*\.?\d+m?s\b/.test(bare)) {
+            report(file, at, "raw-duration", `${prop}: ${value}`);
+          }
+          if (prop === "font-weight" && /\d/.test(bare)) report(file, at, "raw-font-weight", value);
+        }
+        if (prop === "z-index" && /^-?\d+$/.test(value) && Math.abs(Number(value)) > 10) {
+          report(file, at, "raw-z-index", value);
+        }
+        if (FLOATING.has(name) && /^background/.test(prop) && OPAQUE_BG.test(value)) {
+          const src = readFileSync(file, "utf8").split("\n")[at] ?? "";
+          if (!src.includes("opaque-ok")) report(file, at, "opaque-in-frost", `${prop}: ${value}`);
+        }
+      }
+    }
+  }
+  for (const file of [join(src, "components.css"), ...walk(join(src, "components"))]) {
+    violations.push(...scanPiIcons(relative(root, file), readFileSync(file, "utf8")));
+  }
+  return violations;
+}
+
+if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+  const violations = checkTokens();
+  const byRule = new Map();
+  for (const v of violations) byRule.set(v.rule, (byRule.get(v.rule) ?? 0) + 1);
+  const filter = process.argv[2];
+  for (const v of violations) {
+    if (filter && !v.file.includes(filter)) continue;
+    console.log(`${v.file}:${v.line}  ${v.rule}  ${v.detail}`);
+  }
+  console.log(`\n${violations.length} violations`, Object.fromEntries(byRule));
+  process.exit(violations.length ? 1 : 0);
+}

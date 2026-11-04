@@ -1,4 +1,4 @@
-export type SelectButtonSize = "sm" | "md" | "lg" | "small" | "large";
+export type SelectButtonSize = "xs" | "sm" | "md" | "lg" | "small" | "large";
 
 export type SelectButtonOptionAccessor<T = any, R = any> =
   | string

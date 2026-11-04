@@ -20,7 +20,7 @@ export interface ConfirmOptions {
   header?: string;
   message: string;
   description?: string;
-  icon?: string | Component;
+  icon?: Component;
   acceptLabel?: string;
   rejectLabel?: string;
   danger?: boolean;
@@ -38,7 +38,7 @@ export interface LegacyConfirmButtonProps {
   severity?: "primary" | "danger" | "secondary" | "warn" | "info" | "success" | "contrast";
   text?: boolean;
   outlined?: boolean;
-  icon?: string;
+  icon?: Component;
   class?: string;
   [key: string]: unknown;
 }
@@ -46,7 +46,7 @@ export interface LegacyConfirmButtonProps {
 export interface LegacyConfirmRequireOptions {
   message: string;
   header?: string;
-  icon?: string | Component;
+  icon?: Component;
   group?: string;
   acceptLabel?: string;
   rejectLabel?: string;
@@ -85,7 +85,7 @@ export interface ConfirmRequest {
   header?: string;
   message: string;
   description?: string;
-  icon?: string | Component;
+  icon?: Component;
   acceptLabel?: string;
   rejectLabel?: string;
   danger: boolean;

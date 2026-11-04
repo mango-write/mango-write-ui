@@ -371,9 +371,7 @@ function getItemSlotProps(item: MenuItem): MenuItemSlotProps {
       onClick: (event: MouseEvent) => onItemClick(event, item),
     },
     icon: {
-      class: ["mw-menu__item-icon", "p-menu-item-icon", item.icon]
-        .filter(Boolean)
-        .join(" "),
+      class: "mw-menu__item-icon p-menu-item-icon",
       "aria-hidden": "true",
     },
     label: {
@@ -427,7 +425,7 @@ const rootClass = computed(() => [
   {
     "mw-menu--popup": props.popup,
     "p-menu-overlay": props.popup,
-    "mw-glass": props.popup,
+    "mw-frost": props.popup,
   },
   attrs.class,
 ]);
@@ -467,6 +465,7 @@ defineExpose({
 
 <template>
   <Teleport :to="teleportTarget" :disabled="teleportDisabled">
+    <Transition name="mw-menu">
     <div
       v-if="!popup || isOpen"
       ref="menuRef"
@@ -521,6 +520,7 @@ defineExpose({
                 'mw-menu__item--disabled': isItemDisabled(entry.item),
                 'p-disabled': isItemDisabled(entry.item),
                 'mw-menu__item--focused': focusedIndex === entry.navIndex,
+                'mw-menu__item--danger': Boolean(entry.item.danger),
                 'p-focus': focusedIndex === entry.navIndex,
               },
               entry.item.class,
@@ -553,14 +553,17 @@ defineExpose({
                 :aria-disabled="isItemDisabled(entry.item) || undefined"
                 @click="onItemClick($event, entry.item)"
               >
-                <span
+                <component
+                  :is="entry.item.icon"
                   v-if="entry.item.icon"
                   class="mw-menu__item-icon p-menu-item-icon"
-                  :class="entry.item.icon"
                   aria-hidden="true"
                 />
                 <span class="mw-menu__item-label p-menu-item-label">
                   {{ resolveLabel(entry.item) }}
+                </span>
+                <span v-if="entry.item.shortcut" class="mw-menu__item-shortcut">
+                  {{ entry.item.shortcut }}
                 </span>
               </a>
             </div>
@@ -572,64 +575,80 @@ defineExpose({
         <slot name="end" />
       </div>
     </div>
+    </Transition>
   </Teleport>
 </template>
 
 <style>
 .mw-menu {
-  min-width: 12rem;
-  padding: var(--space-1);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-md);
-  background-color: var(--color-surface-base);
-  color: var(--color-text-primary);
-  font-family: var(--font-family-sans);
-  font-size: var(--font-size-body-sm);
-  line-height: var(--line-height-body);
+  box-sizing: border-box;
+  min-width: 200px;
+  max-width: 320px;
+  padding: var(--float-padding);
+  border: var(--border-width) solid var(--border-subtle);
+  border-radius: var(--radius-float);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--type-body-sm-size);
+  line-height: var(--type-body-sm-line);
   outline: none;
 }
 
+.mw-menu:not(.mw-menu--popup):focus-visible {
+  outline: var(--focus-width) solid var(--focus-color);
+  outline-offset: var(--focus-offset);
+}
+
 .mw-menu--popup {
-  z-index: var(--z-floating);
-  border-color: var(--material-hairline);
+  z-index: var(--z-dropdown);
+  border-color: var(--frost-border);
+  transform-origin: top left;
 }
 
 .mw-menu__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-px);
   margin: 0;
   padding: 0;
   list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
 }
 
 .mw-menu__submenu-label {
-  padding: var(--space-1) var(--space-2);
-  color: var(--color-text-tertiary);
-  font-size: var(--font-size-caption);
-  font-weight: 600;
+  padding: var(--space-1-5) var(--space-2) var(--space-1);
+  color: var(--text-tertiary);
+  font-size: var(--type-caption-size);
+  font-weight: var(--weight-medium);
+  line-height: var(--type-caption-line);
 }
 
 .mw-menu__separator {
-  height: 1px;
-  margin: var(--space-1) var(--space-2);
-  background-color: var(--material-inlay-border);
+  height: var(--border-width);
+  margin: var(--space-1) 0;
+  background-color: var(--border-subtle);
+  list-style: none;
 }
 
 .mw-menu__item {
+  margin: 0;
+  padding: 0;
   list-style: none;
 }
 
 .mw-menu__item-content {
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-item);
   transition:
-    background-color var(--motion-duration-fast) var(--motion-ease-standard),
-    color var(--motion-duration-fast) var(--motion-ease-standard);
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
 }
 
 .mw-menu__item:not([data-disabled]) .mw-menu__item-content:hover,
 .mw-menu__item:not([data-disabled])[data-highlighted] .mw-menu__item-content {
-  background-color: var(--material-hover);
+  background-color: var(--fill-default);
+}
+
+.mw-menu__item:not([data-disabled]) .mw-menu__item-content:active {
+  background-color: var(--fill-strong);
 }
 
 .mw-menu__item--disabled,
@@ -642,11 +661,16 @@ defineExpose({
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  width: 100%;
   box-sizing: border-box;
-  padding: 6px 10px;
-  border-radius: var(--radius-sm);
+  width: 100%;
+  min-height: var(--size-sm-h);
+  padding: var(--space-1) var(--space-2);
+  border: 0;
+  border-radius: var(--radius-item);
+  background: transparent;
   color: inherit;
+  font: inherit;
+  text-align: start;
   text-decoration: none;
   cursor: pointer;
   user-select: none;
@@ -659,18 +683,73 @@ defineExpose({
 }
 
 .mw-menu__item-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
-  color: var(--color-text-secondary);
+  width: var(--control-icon);
+  height: var(--control-icon);
+  font-size: var(--control-icon);
+  color: var(--text-secondary);
 }
 
 .mw-menu__item-label {
   flex: 1 1 auto;
   min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mw-menu__item-shortcut {
+  flex: none;
+  margin-inline-start: var(--space-4);
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+}
+
+.mw-menu__item--danger .mw-menu__item-link,
+.mw-menu__item--danger .mw-menu__item-icon {
+  color: var(--danger-text);
+}
+
+.mw-menu__item--danger:not([data-disabled]) .mw-menu__item-content:hover,
+.mw-menu__item--danger:not([data-disabled])[data-highlighted] .mw-menu__item-content {
+  background-color: var(--danger-subtle);
+}
+
+.mw-menu-enter-active {
+  transition:
+    opacity var(--duration-base) var(--ease-enter),
+    transform var(--duration-base) var(--ease-enter);
+}
+
+.mw-menu-leave-active {
+  transition: opacity var(--duration-instant) var(--ease-exit);
+}
+
+.mw-menu-enter-from {
+  opacity: 0;
+  transform: translateY(calc(var(--motion-enter-offset) * -1)) scale(var(--motion-enter-scale));
+}
+
+.mw-menu-leave-to {
+  opacity: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .mw-menu__item-content {
     transition: none;
+  }
+
+  .mw-menu-enter-active {
+    transition: opacity var(--duration-base) var(--ease-enter);
+  }
+
+  .mw-menu-enter-from {
+    transform: none;
   }
 }
 </style>

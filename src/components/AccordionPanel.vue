@@ -81,7 +81,7 @@ const rootAttrs = computed(() => {
 
 <style>
 .mw-accordion__panel {
-  border-bottom: 1px solid var(--color-border-subtle);
+  border-bottom: var(--border-width) solid var(--border-subtle);
 }
 
 .mw-accordion__panel:last-child {

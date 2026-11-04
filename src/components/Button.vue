@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, useAttrs, useSlots } from "vue";
+import { LoaderCircle } from "lucide-vue-next";
 import type { ButtonProps } from "./button.js";
 
 defineOptions({
@@ -29,7 +30,7 @@ const props = withDefaults(defineProps<ButtonProps>(), {
   raised: false,
   rounded: false,
   fluid: false,
-  size: "md",
+  size: undefined,
   badge: undefined,
   badgeClass: undefined,
   badgeSeverity: undefined,
@@ -58,10 +59,13 @@ const resolvedVariant = computed(() => {
   return "filled";
 });
 
+// 不传 size = 跟随容器的密度上下文（--control-*），传了才定档。
 const resolvedSize = computed(() => {
   if (props.size === "small" || props.size === "sm") return "sm";
   if (props.size === "large" || props.size === "lg") return "lg";
-  return "md";
+  if (props.size === "xs") return "xs";
+  if (props.size === "md") return "md";
+  return undefined;
 });
 
 const resolvedSeverity = computed(() => {
@@ -79,7 +83,7 @@ const rootClass = computed(() => [
   "mw-btn",
   `mw-btn--${resolvedVariant.value}`,
   `mw-btn--${resolvedSeverity.value}`,
-  `mw-btn--${resolvedSize.value}`,
+  resolvedSize.value ? [`mw-btn--${resolvedSize.value}`, `mw-size-${resolvedSize.value}`] : undefined,
   {
     "mw-btn--icon-only": isIconOnly.value,
     "mw-btn--icon-right": props.iconPos === "right",
@@ -126,21 +130,16 @@ function onClick(event: MouseEvent) {
     :data-size="resolvedSize"
     @click="onClick"
   >
-    <span
+    <LoaderCircle
       v-if="loading"
-      class="mw-btn__spinner"
+      class="mw-btn__icon mw-btn__spinner"
       aria-hidden="true"
     />
     <template v-else-if="iconPos === 'left'">
       <slot name="icon">
-        <i
-          v-if="typeof icon === 'string'"
-          :class="['mw-btn__icon', icon]"
-          aria-hidden="true"
-        />
         <component
           :is="icon"
-          v-else-if="icon"
+          v-if="icon"
           class="mw-btn__icon"
           aria-hidden="true"
         />
@@ -153,14 +152,9 @@ function onClick(event: MouseEvent) {
 
     <template v-if="!loading && iconPos === 'right'">
       <slot name="icon">
-        <i
-          v-if="typeof icon === 'string'"
-          :class="['mw-btn__icon', icon]"
-          aria-hidden="true"
-        />
         <component
           :is="icon"
-          v-else-if="icon"
+          v-if="icon"
           class="mw-btn__icon"
           aria-hidden="true"
         />
@@ -183,258 +177,312 @@ function onClick(event: MouseEvent) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-2);
-  min-height: var(--control-height-default);
-  padding-inline: var(--space-4);
-  padding-block: var(--space-2);
-  border-radius: var(--radius);
-  border: 1px solid transparent;
-  font-family: var(--font-family-sans);
-  font-size: var(--font-size-body-sm);
-  font-weight: 500;
-  line-height: var(--line-height-tight);
+  gap: var(--control-gap);
+  height: var(--control-h);
+  padding-inline: var(--control-px);
+  border: var(--border-width) solid transparent;
+  border-radius: var(--control-radius);
+  font-family: var(--font-sans);
+  font-size: var(--control-font);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-tight);
   text-decoration: none;
   white-space: nowrap;
   user-select: none;
   cursor: pointer;
   transition:
-    background-color var(--motion-duration-fast) var(--motion-ease-standard),
-    border-color var(--motion-duration-fast) var(--motion-ease-standard),
-    color var(--motion-duration-fast) var(--motion-ease-standard),
-    box-shadow var(--motion-duration-fast) var(--motion-ease-standard),
-    transform var(--motion-duration-fast) var(--motion-ease-standard);
+    background-color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard);
 }
 
 .mw-btn:focus-visible {
-  outline: none;
-  box-shadow: var(--effect-focus-ring);
+  outline: var(--focus-width) solid var(--focus-color);
+  outline-offset: var(--focus-offset);
 }
 
-.mw-btn--sm {
-  min-height: var(--control-height-compact);
-  padding-inline: var(--space-3);
-  padding-block: var(--space-1);
-  font-size: var(--font-size-caption);
+.mw-btn__icon,
+.mw-btn > :deep(svg) {
+  flex: none;
+  width: var(--control-icon);
+  height: var(--control-icon);
+  font-size: var(--control-icon);
 }
 
-.mw-btn--lg {
-  min-height: var(--control-height-large);
-  padding-inline: var(--space-5);
-  padding-block: var(--space-3);
-  font-size: var(--font-size-body);
+.mw-btn:has(> .mw-btn__icon):not(.mw-btn--icon-only):not(.mw-btn--icon-right) {
+  padding-inline-start: calc(var(--control-px) * 0.75);
+}
+
+.mw-btn--icon-right:has(> .mw-btn__icon):not(.mw-btn--icon-only) {
+  padding-inline-end: calc(var(--control-px) * 0.75);
 }
 
 .mw-btn--icon-only {
-  width: var(--control-height-default);
+  width: var(--control-h);
   padding: 0;
 }
 
-.mw-btn--icon-only.mw-btn--sm {
-  width: var(--control-height-compact);
-}
-
-.mw-btn--icon-only.mw-btn--lg {
-  width: var(--control-height-large);
-}
-
 .mw-btn--rounded {
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-full);
+}
+
+.mw-btn--rounded:not(.mw-btn--icon-only) {
+  padding-inline: calc(var(--control-px) * 1.25);
+}
+
+.mw-btn--rounded:has(> .mw-btn__icon):not(.mw-btn--icon-only):not(.mw-btn--icon-right) {
+  padding-inline-start: var(--control-px);
+}
+
+.mw-btn--rounded.mw-btn--icon-right:has(> .mw-btn__icon):not(.mw-btn--icon-only) {
+  padding-inline-end: var(--control-px);
 }
 
 .mw-btn--raised {
-  box-shadow: var(--shadow-xs);
+  box-shadow: var(--shadow-raised);
 }
 
 .mw-btn--fluid {
   width: 100%;
 }
 
-/* Filled variants */
+/* filled：只有 primary / danger / contrast 是实心动作色；状态色不承担动作，退为 tinted。 */
 .mw-btn--filled.mw-btn--primary {
-  background-color: var(--color-brand-500);
-  color: var(--color-text-on-brand);
+  background-color: var(--accent);
+  color: var(--text-on-accent);
 }
 
-.mw-btn--filled.mw-btn--primary:hover:not(:disabled):not([data-disabled]) {
-  background-color: var(--color-brand-400);
+.mw-btn--filled.mw-btn--primary:hover:not([data-disabled]) {
+  background-color: var(--accent-hover);
 }
 
-.mw-btn--filled.mw-btn--primary:active:not(:disabled):not([data-disabled]) {
-  background-color: var(--color-brand-600);
+.mw-btn--filled.mw-btn--primary:active:not([data-disabled]) {
+  background-color: var(--accent-pressed);
 }
 
 .mw-btn--filled.mw-btn--secondary {
-  background-color: var(--color-surface-muted);
-  border-color: var(--color-border-subtle);
-  color: var(--color-text-primary);
+  background-color: var(--control-bg);
+  border-color: var(--control-border);
+  color: var(--text-primary);
 }
 
-.mw-btn--filled.mw-btn--secondary:hover:not(:disabled):not([data-disabled]) {
-  background-color: var(--color-bg-hover);
-  border-color: var(--color-border-strong);
+.mw-btn--filled.mw-btn--secondary:hover:not([data-disabled]) {
+  background-color: var(--control-bg-hover);
+  border-color: var(--control-border-hover);
 }
 
-.mw-btn--filled.mw-btn--success {
-  background-color: var(--color-success-500);
-  color: var(--color-text-on-brand);
-}
-
-.mw-btn--filled.mw-btn--success:hover:not(:disabled):not([data-disabled]) {
-  background-color: var(--color-success-600);
-}
-
-.mw-btn--filled.mw-btn--info {
-  background-color: var(--color-info-500);
-  color: var(--color-surface-base);
-}
-
-.mw-btn--filled.mw-btn--warning {
-  background-color: var(--color-warning-500);
-  color: var(--color-text-on-brand);
-}
-
-.mw-btn--filled.mw-btn--warning:hover:not(:disabled):not([data-disabled]) {
-  background-color: var(--color-warning-600);
+.mw-btn--filled.mw-btn--secondary:active:not([data-disabled]) {
+  background-color: var(--fill-strong);
 }
 
 .mw-btn--filled.mw-btn--danger {
-  background-color: var(--color-danger-500);
-  color: var(--color-surface-base);
+  background-color: var(--danger);
+  color: var(--text-on-danger);
 }
 
-.mw-btn--filled.mw-btn--danger:hover:not(:disabled):not([data-disabled]) {
-  background-color: var(--color-danger-700);
+.mw-btn--filled.mw-btn--danger:hover:not([data-disabled]) {
+  background-color: var(--danger-hover);
 }
 
 .mw-btn--filled.mw-btn--contrast,
 .mw-btn--filled.mw-btn--help {
-  background-color: var(--color-text-primary);
-  color: var(--color-surface-base);
+  background-color: var(--bg-inverse);
+  color: var(--text-inverse);
 }
 
-/* Outlined variants */
+.mw-btn--filled.mw-btn--contrast:hover:not([data-disabled]),
+.mw-btn--filled.mw-btn--help:hover:not([data-disabled]) {
+  opacity: 0.88;
+}
+
+.mw-btn--tinted.mw-btn--primary,
+.mw-btn--filled.mw-btn--info,
+.mw-btn--filled.mw-btn--success,
+.mw-btn--filled.mw-btn--warning {
+  background-color: var(--mw-btn-tint, var(--accent-subtle));
+  color: var(--mw-btn-tint-text, var(--text-accent));
+}
+
+.mw-btn--tinted.mw-btn--primary:hover:not([data-disabled]),
+.mw-btn--filled.mw-btn--info:hover:not([data-disabled]),
+.mw-btn--filled.mw-btn--success:hover:not([data-disabled]),
+.mw-btn--filled.mw-btn--warning:hover:not([data-disabled]) {
+  background-color: var(--mw-btn-tint-hover, var(--accent-subtle-hover));
+}
+
+.mw-btn--success {
+  --mw-btn-tint: var(--success-subtle);
+  --mw-btn-tint-hover: var(--success-border);
+  --mw-btn-tint-text: var(--success-text);
+}
+
+.mw-btn--info {
+  --mw-btn-tint: var(--info-subtle);
+  --mw-btn-tint-hover: var(--info-border);
+  --mw-btn-tint-text: var(--info-text);
+}
+
+.mw-btn--warning {
+  --mw-btn-tint: var(--warning-subtle);
+  --mw-btn-tint-hover: var(--warning-border);
+  --mw-btn-tint-text: var(--warning-text);
+}
+
+.mw-btn--tinted.mw-btn--secondary,
+.mw-btn--tinted.mw-btn--contrast,
+.mw-btn--tinted.mw-btn--help {
+  background-color: var(--fill-default);
+  color: var(--text-primary);
+}
+
+.mw-btn--tinted.mw-btn--secondary:hover:not([data-disabled]),
+.mw-btn--tinted.mw-btn--contrast:hover:not([data-disabled]),
+.mw-btn--tinted.mw-btn--help:hover:not([data-disabled]) {
+  background-color: var(--fill-strong);
+}
+
+.mw-btn--tinted.mw-btn--danger {
+  background-color: var(--danger-subtle);
+  color: var(--danger-text);
+}
+
+.mw-btn--tinted.mw-btn--danger:hover:not([data-disabled]) {
+  background-color: var(--danger-border);
+}
+
+.mw-btn--tinted.mw-btn--success,
+.mw-btn--tinted.mw-btn--info,
+.mw-btn--tinted.mw-btn--warning {
+  background-color: var(--mw-btn-tint);
+  color: var(--mw-btn-tint-text);
+}
+
 .mw-btn--outlined {
   background-color: transparent;
-  border-color: var(--color-border-subtle);
-  color: var(--color-text-primary);
+  border-color: var(--border-default);
+  color: var(--text-primary);
 }
 
-.mw-btn--outlined:hover:not(:disabled):not([data-disabled]) {
-  background-color: var(--color-bg-hover);
-  border-color: var(--color-border-strong);
+.mw-btn--outlined:hover:not([data-disabled]) {
+  background-color: var(--fill-subtle);
+  border-color: var(--border-strong);
 }
 
 .mw-btn--outlined.mw-btn--primary {
-  border-color: var(--color-brand-500);
-  color: var(--color-brand-700);
+  border-color: var(--accent-border);
+  color: var(--text-accent);
 }
 
-.mw-btn--outlined.mw-btn--primary:hover:not(:disabled):not([data-disabled]) {
-  background-color: var(--color-brand-50);
+.mw-btn--outlined.mw-btn--primary:hover:not([data-disabled]) {
+  background-color: var(--accent-subtle);
+  border-color: var(--accent);
 }
 
 .mw-btn--outlined.mw-btn--danger {
-  border-color: var(--color-danger-border);
-  color: var(--color-danger-700);
+  border-color: var(--danger-border);
+  color: var(--danger-text);
 }
 
-.mw-btn--outlined.mw-btn--danger:hover:not(:disabled):not([data-disabled]) {
-  background-color: var(--color-danger-surface);
+.mw-btn--outlined.mw-btn--danger:hover:not([data-disabled]) {
+  background-color: var(--danger-subtle);
 }
 
-.mw-btn--outlined.mw-btn--success {
-  border-color: var(--color-success-border);
-  color: var(--color-success-600);
-}
-
-.mw-btn--outlined.mw-btn--success:hover:not(:disabled):not([data-disabled]) {
-  background-color: var(--color-success-surface);
-}
-
+.mw-btn--outlined.mw-btn--success,
+.mw-btn--outlined.mw-btn--info,
 .mw-btn--outlined.mw-btn--warning {
-  border-color: var(--color-warning-border);
-  color: var(--color-warning-600);
+  border-color: var(--mw-btn-tint-hover);
+  color: var(--mw-btn-tint-text);
 }
 
-.mw-btn--outlined.mw-btn--warning:hover:not(:disabled):not([data-disabled]) {
-  background-color: var(--color-warning-surface);
-}
-
-.mw-btn--outlined.mw-btn--info {
-  border-color: var(--color-info-border);
-  color: var(--color-info-500);
-}
-
-.mw-btn--outlined.mw-btn--info:hover:not(:disabled):not([data-disabled]) {
-  background-color: var(--color-info-surface);
-}
-
-/* Text variants */
 .mw-btn--text {
   background-color: transparent;
-  border-color: transparent;
-  color: var(--color-text-secondary);
+  color: var(--text-secondary);
 }
 
-.mw-btn--text:hover:not(:disabled):not([data-disabled]) {
-  background-color: var(--material-hover);
-  color: var(--color-text-primary);
+.mw-btn--text:hover:not([data-disabled]) {
+  background-color: var(--fill-default);
+  color: var(--text-primary);
+}
+
+.mw-btn--text:active:not([data-disabled]) {
+  background-color: var(--fill-strong);
 }
 
 .mw-btn--text.mw-btn--primary {
-  color: var(--color-brand-700);
+  color: var(--text-accent);
+}
+
+.mw-btn--text.mw-btn--primary:hover:not([data-disabled]) {
+  background-color: var(--accent-subtle);
+  color: var(--text-accent);
 }
 
 .mw-btn--text.mw-btn--danger {
-  color: var(--color-danger-700);
+  color: var(--danger-text);
 }
 
-.mw-btn--text.mw-btn--danger:hover:not(:disabled):not([data-disabled]) {
-  background-color: var(--color-danger-surface);
+.mw-btn--text.mw-btn--danger:hover:not([data-disabled]) {
+  background-color: var(--danger-subtle);
+  color: var(--danger-text);
 }
 
-/* Link variant */
+.mw-btn--text.mw-btn--success,
+.mw-btn--text.mw-btn--info,
+.mw-btn--text.mw-btn--warning {
+  color: var(--mw-btn-tint-text);
+}
+
 .mw-btn--link {
+  height: auto;
+  padding-inline: 0;
   background-color: transparent;
-  border-color: transparent;
-  color: var(--color-brand-600);
-  padding-inline: var(--space-1);
+  color: var(--text-accent);
 }
 
-.mw-btn--link:hover:not(:disabled):not([data-disabled]) {
-  color: var(--color-brand-700);
+.mw-btn--link:hover:not([data-disabled]) {
   text-decoration: underline;
+  text-underline-offset: 0.2em;
 }
 
-/* Disabled & loading */
 .mw-btn:disabled,
 .mw-btn[data-disabled] {
   opacity: var(--opacity-disabled);
   cursor: not-allowed;
 }
 
+.mw-btn[data-loading] {
+  cursor: progress;
+}
+
 .mw-btn__spinner {
-  display: inline-block;
-  width: 14px;
-  height: 14px;
-  border-radius: var(--radius-pill);
-  border: 2px solid currentColor;
-  border-right-color: transparent;
-  animation: mw-btn-spin var(--motion-duration-spatial) linear infinite;
+  flex: none;
+  width: var(--control-icon);
+  height: var(--control-icon);
+  animation: mw-btn-spin calc(var(--duration-slower) * 2) linear infinite;
 }
 
 .mw-btn__badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 18px;
-  height: 18px;
+  min-width: var(--icon-md);
+  height: var(--icon-md);
   padding-inline: var(--space-1);
-  border-radius: var(--radius-pill);
-  background-color: var(--color-surface-base);
-  color: var(--color-text-primary);
-  font-size: var(--font-size-caption);
-  font-weight: 600;
+  border-radius: var(--radius-full);
+  background-color: var(--fill-strong);
+  color: inherit;
+  font-size: var(--type-micro-size);
+  font-weight: var(--weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (pointer: coarse) {
+  .mw-btn::after {
+    content: "";
+    position: absolute;
+    inset: min(0px, calc((var(--control-h) - var(--hit-min)) / 2));
+  }
 }
 
 @keyframes mw-btn-spin {
@@ -446,9 +494,6 @@ function onClick(event: MouseEvent) {
 @media (prefers-reduced-motion: reduce) {
   .mw-btn {
     transition: none;
-  }
-  .mw-btn__spinner {
-    animation: none;
   }
 }
 </style>

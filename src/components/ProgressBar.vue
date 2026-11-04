@@ -55,17 +55,19 @@ const indicatorStyle = computed(() =>
 
 <style>
 .mw-progress-bar {
+  --_pb-h: var(--icon-lg);
+  --_pb-ind-dur: calc(var(--duration-slow) * 4);
   position: relative;
   width: 100%;
-  height: 1.25rem;
-  border-radius: var(--radius-pill);
-  background-color: var(--color-surface-muted);
-  border: 1px solid var(--color-border-subtle);
+  height: var(--_pb-h);
+  border-radius: var(--radius-full);
+  background-color: var(--fill-default);
+  border: var(--border-width) solid var(--border-subtle);
   overflow: hidden;
 }
 
 .mw-progress-bar--indeterminate {
-  height: 0.375rem;
+  --_pb-h: var(--space-1-5);
 }
 
 .mw-progress-bar__indicator {
@@ -73,14 +75,14 @@ const indicatorStyle = computed(() =>
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--color-brand-500);
-  color: var(--color-text-on-brand);
-  border-radius: var(--radius-pill);
+  background-color: var(--accent);
+  color: var(--text-on-accent);
+  border-radius: var(--radius-full);
   overflow: hidden;
 }
 
 .mw-progress-bar--determinate .mw-progress-bar__indicator {
-  transition: width var(--motion-duration-slow) var(--motion-ease-standard);
+  transition: width var(--duration-slow) var(--ease-standard);
 }
 
 .mw-progress-bar--indeterminate .mw-progress-bar__indicator {
@@ -88,15 +90,15 @@ const indicatorStyle = computed(() =>
   inset-block: 0;
   left: 0;
   width: 40%;
-  animation: mw-progress-bar-indeterminate 1.4s var(--motion-ease-standard) infinite;
+  animation: mw-progress-bar-indeterminate var(--_pb-ind-dur) var(--ease-standard) infinite;
 }
 
 .mw-progress-bar__label {
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: var(--type-caption-size);
+  font-weight: var(--weight-semibold);
   line-height: 1;
   white-space: nowrap;
-  padding-inline: 0.375rem;
+  padding-inline: var(--space-1-5);
 }
 
 @keyframes mw-progress-bar-indeterminate {

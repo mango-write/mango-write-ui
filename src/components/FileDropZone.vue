@@ -9,7 +9,7 @@ const props = withDefaults(
     /** 透传给隐藏 file input 的 accept（如 ".zip,application/zip"）。 */
     accept?: string;
     multiple?: boolean;
-    /** solid = 实底（页面/普通对话框）；inlay = 玻璃浮层内嵌材质（mw-inlay）。 */
+    /** solid = 页面 / 对话框里的控件面；inlay = 霜面或分组内的半透明内嵌面。 */
     surface?: "solid" | "inlay";
     /** 裸条档：配合消费方自定布局（横向单行），仅保留拖/点行为与 over 反馈。 */
     bare?: boolean;
@@ -82,19 +82,8 @@ function onPicked(event: Event) {
   <div
     class="mw-filedrop"
     :class="[
-      'tw:flex tw:cursor-pointer tw:rounded-lg tw:text-center tw:transition-colors',
-      bare
-        ? 'tw:flex-row tw:items-center tw:gap-1.5 tw:text-left'
-        : framed
-          ? 'tw:flex-col tw:items-center tw:border-2 tw:border-dashed'
-          : 'tw:flex-col tw:items-center',
-      framed
-        ? surface === 'inlay'
-          ? 'mw-inlay'
-          : isOver
-            ? 'tw:bg-primary-50'
-            : 'tw:bg-surface'
-        : '',
+      bare ? 'mw-filedrop--bare' : framed ? 'mw-filedrop--framed' : 'mw-filedrop--plain',
+      framed ? `mw-filedrop--${surface}` : '',
       isOver ? 'mw-filedrop--over' : '',
       disabled ? 'mw-filedrop--disabled' : '',
     ]"
@@ -114,7 +103,7 @@ function onPicked(event: Event) {
     <input
       ref="input"
       type="file"
-      class="tw:hidden"
+      class="mw-filedrop__input"
       :accept="accept"
       :multiple="multiple"
       :disabled="disabled"
@@ -126,25 +115,73 @@ function onPicked(event: Event) {
 
 <style scoped>
 .mw-filedrop {
-  border-color: var(--color-border-subtle);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: var(--radius-card);
+  color: var(--text-secondary);
+  text-align: center;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard),
+    outline-color var(--duration-fast) var(--ease-standard);
 }
-.mw-filedrop--over {
-  border-color: var(--color-brand-500);
+
+.mw-filedrop--bare {
+  flex-direction: row;
+  gap: var(--space-1-5);
+  text-align: start;
 }
+
+.mw-filedrop--framed {
+  border: var(--border-width) dashed var(--border-strong);
+}
+
+.mw-filedrop--solid {
+  background-color: var(--control-bg);
+}
+
+.mw-filedrop--inlay {
+  background-color: var(--fill-subtle);
+}
+
+.mw-filedrop--framed:hover:not(.mw-filedrop--disabled) {
+  border-color: var(--text-tertiary);
+  background-color: var(--fill-default);
+}
+
+.mw-filedrop:focus-visible {
+  outline: var(--focus-width) solid var(--focus-color);
+  outline-offset: var(--focus-offset);
+}
+
+.mw-filedrop--over,
+.mw-filedrop--framed.mw-filedrop--over:hover {
+  border-color: var(--accent);
+  background-color: var(--accent-subtle);
+  color: var(--text-primary);
+}
+
+/* 无框档没有 border 可换色，over 用内收虚线 outline 亮起（outline 不参与布局）。 */
+.mw-filedrop--bare.mw-filedrop--over,
+.mw-filedrop--plain.mw-filedrop--over {
+  outline: var(--border-width) dashed var(--accent);
+  outline-offset: calc(-1 * var(--space-1));
+}
+
 .mw-filedrop--disabled {
+  opacity: var(--opacity-disabled);
   cursor: not-allowed;
-  opacity: 0.6;
 }
-/* 无框档（bare/plain）没有 border 可换色，over 用 outline + 底色亮起（outline 不参与布局）。 */
-.mw-filedrop--over.bare,
-.mw-filedrop--over.plain {
-  background: var(--color-brand-50);
-  outline: 1.5px dashed var(--color-brand-500);
-  outline-offset: -3px;
+
+.mw-filedrop__input {
+  display: none;
 }
-/* mw-inlay 的 1px 实线 border 简写是未分层规则，会盖过 tw: 工具类，虚线厚度在这钉回。 */
-.mw-filedrop.mw-inlay {
-  border-style: dashed;
-  border-width: 2px;
+
+@media (prefers-reduced-motion: reduce) {
+  .mw-filedrop {
+    transition: none;
+  }
 }
 </style>

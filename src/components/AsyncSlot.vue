@@ -11,6 +11,7 @@
 //  3. 空态强制要求 emptyTitle（#empty 整块覆盖或 #empty-action 至少给一个
 //     下一步）——空态是邀请不是墓碑；dev 下缺文案给控制台警告；
 //  4. 错误态默认渲染重试按钮（emit retry），#error-action 可覆盖。
+import { CircleAlert, Inbox, RotateCw } from "lucide-vue-next";
 import { useI18n } from "vue-i18n";
 import Button from "./Button.vue";
 import { useSlots } from "vue";
@@ -62,7 +63,7 @@ const skeletonRows = props.skeleton === "text" ? 3 : 5;
           <div
             v-for="i in skeletonRows"
             :key="i"
-            class="mw-async-skeleton mw-async-skeleton--row"
+            :class="['mw-async-skeleton', skeleton === 'text' ? 'mw-async-skeleton--line' : 'mw-async-skeleton--row']"
             :style="{ width: i === skeletonRows ? '62%' : undefined }"
           />
         </template>
@@ -72,7 +73,7 @@ const skeletonRows = props.skeleton === "text" ? 3 : 5;
     <!-- 空态：整块 #empty 覆盖优先（复杂空态），否则 title/hint + #empty-action。 -->
     <div v-else-if="status === 'empty'" key="empty" class="mw-async mw-async--empty">
       <slot name="empty">
-        <span class="mw-async-empty-icon"><i class="pi pi-inbox" /></span>
+        <span class="mw-async-empty-icon"><Inbox class="mw-async-slot__icon" aria-hidden="true" /></span>
         <p class="mw-async-title">{{ emptyTitle ? t(emptyTitle) : "" }}</p>
         <p v-if="emptyHint" class="mw-async-hint">{{ t(emptyHint) }}</p>
         <div v-if="slots['empty-action']" class="mw-async-action">
@@ -84,14 +85,14 @@ const skeletonRows = props.skeleton === "text" ? 3 : 5;
     <!-- 错误态：说清发生了什么 + 怎么办；默认重试按钮，#error-action 可覆盖。 -->
     <div v-else-if="status === 'error'" key="error" class="mw-async mw-async--error" role="alert">
       <slot name="error">
-        <span class="mw-async-empty-icon"><i class="pi pi-exclamation-triangle" /></span>
+        <span class="mw-async-empty-icon"><CircleAlert class="mw-async-slot__icon mw-async-slot__icon--danger" aria-hidden="true" /></span>
         <p class="mw-async-title">{{ errorTitle ? t(errorTitle) : t("common.async.errorTitle") }}</p>
         <p v-if="errorHint" class="mw-async-hint">{{ t(errorHint) }}</p>
         <div class="mw-async-action">
           <slot name="error-action">
             <Button
               :label="t('common.async.retry')"
-              icon="pi pi-refresh"
+              :icon="RotateCw"
               severity="secondary"
               variant="outlined"
               @click="emit('retry')"
@@ -123,21 +124,23 @@ const skeletonRows = props.skeleton === "text" ? 3 : 5;
   top: 0;
 }
 
-/* 状态换装的过渡语言与 mw-area 一致（交叉淡入 + 4px 位移），但类名独立，
-   不与外层区域级过渡共享类空间。 */
-.mw-async-enter-active,
+.mw-async-enter-active {
+  transition:
+    opacity var(--duration-base) var(--ease-enter),
+    transform var(--duration-base) var(--ease-enter);
+}
 .mw-async-leave-active {
   transition:
-    opacity var(--motion-duration-base) var(--motion-ease-standard),
-    transform var(--motion-duration-base) var(--motion-ease-standard);
+    opacity var(--duration-fast) var(--ease-exit),
+    transform var(--duration-fast) var(--ease-exit);
 }
 .mw-async-enter-from {
   opacity: 0;
-  transform: translateY(4px);
+  transform: translateY(var(--motion-enter-offset));
 }
 .mw-async-leave-to {
   opacity: 0;
-  transform: translateY(-4px);
+  transform: translateY(calc(var(--motion-enter-offset) * -1));
 }
 @media (prefers-reduced-motion: reduce) {
   .mw-async-enter-active,
@@ -163,20 +166,25 @@ const skeletonRows = props.skeleton === "text" ? 3 : 5;
 .mw-async--loading {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 4px 0;
+  gap: var(--space-2);
+  padding: var(--space-1) 0;
 }
 .mw-async-skeleton {
-  border-radius: var(--radius-sm);
-  background: var(--color-surface-muted);
-  animation: mw-async-pulse 1.4s var(--motion-ease-standard) infinite;
+  border-radius: var(--radius-item);
+  background: var(--fill-default);
+  animation: mw-async-pulse calc(var(--duration-slower) * 3.5) var(--ease-standard) infinite;
 }
 .mw-async-skeleton--row {
-  height: 44px;
+  height: var(--size-lg-h);
+}
+.mw-async-skeleton--line {
+  height: var(--space-3);
+  margin-block: var(--space-1);
+  border-radius: var(--radius-xs);
 }
 .mw-async-skeleton--card {
-  height: 160px;
-  border-radius: var(--radius-lg);
+  height: calc(var(--space-20) * 2);
+  border-radius: var(--radius-card);
 }
 @keyframes mw-async-pulse {
   0%,
@@ -198,30 +206,39 @@ const skeletonRows = props.skeleton === "text" ? 3 : 5;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 48px 16px;
+  gap: var(--space-1);
+  padding: var(--space-12) var(--space-4);
   text-align: center;
 }
 .mw-async-empty-icon {
-  font-size: 28px;
-  color: var(--color-text-quaternary);
+  display: inline-flex;
+  margin-bottom: var(--space-2);
+  color: var(--text-tertiary);
+  font-size: var(--icon-2xl);
+}
+.mw-async-slot__icon {
+  width: var(--icon-2xl);
+  height: var(--icon-2xl);
 }
 .mw-async-title {
   margin: 0;
-  font-size: var(--font-size-body);
-  color: var(--color-text-secondary);
+  color: var(--text-primary);
+  font-size: var(--type-title-sm-size);
+  font-weight: var(--weight-semibold);
+  line-height: var(--type-title-sm-line);
 }
 .mw-async-hint {
-  margin: 0;
-  font-size: var(--font-size-body-sm);
-  color: var(--color-text-tertiary);
   max-width: 36em;
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--type-body-sm-size);
+  line-height: var(--type-body-sm-line);
 }
 .mw-async--error .mw-async-empty-icon {
-  color: var(--color-warning-500);
+  color: var(--warning);
 }
 .mw-async-action {
-  margin-top: 6px;
+  margin-top: var(--space-3);
 }
 .mw-async--ready {
   display: flex;

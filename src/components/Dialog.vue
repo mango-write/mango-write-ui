@@ -86,8 +86,8 @@ const portalTo = computed(() =>
 
 const dialogClass = computed(() => [
   "mw-dialog",
-  "mw-glass",
-  "mw-glass--strong",
+  "mw-frost",
+  "mw-frost--thick",
   {
     "mw-dialog--maximized": maximized.value,
     "mw-dialog--non-modal": !props.modal,
@@ -285,7 +285,7 @@ onBeforeUnmount(() => {
           <slot v-if="$slots.empty" name="empty" />
         </div>
 
-        <footer v-if="$slots.footer" class="mw-dialog__footer">
+        <footer v-if="$slots.footer" class="mw-dialog__footer mw-size-md">
           <slot name="footer" />
         </footer>
       </DialogContent>
@@ -297,32 +297,41 @@ onBeforeUnmount(() => {
 .mw-dialog__overlay {
   position: fixed;
   inset: 0;
-  z-index: var(--z-scrim);
-  background: var(--material-mask);
-  -webkit-backdrop-filter: var(--material-mask-blur);
-  backdrop-filter: var(--material-mask-blur);
-  transition: opacity var(--motion-duration-base) var(--motion-ease-standard);
+  z-index: var(--z-overlay);
+  background: var(--scrim);
+}
+
+.mw-dialog__overlay[data-state="open"] {
+  animation: mw-dialog-fade-in var(--duration-slow) var(--ease-emphasized);
+}
+
+.mw-dialog__overlay[data-state="closed"] {
+  animation: mw-dialog-fade-out var(--duration-fast) var(--ease-exit);
 }
 
 .mw-dialog {
   position: fixed;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: calc(var(--z-scrim) + 1);
+  translate: -50% -50%;
+  z-index: calc(var(--z-overlay) + 1);
   display: flex;
   flex-direction: column;
-  width: min(32rem, calc(100vw - 2rem));
-  max-width: calc(100vw - 2rem);
-  max-height: calc(100vh - 2rem);
-  border: 1px solid var(--material-hairline);
-  border-radius: var(--radius-xl);
-  color: var(--color-text-primary);
-  font-family: var(--font-family-sans);
+  width: min(32rem, calc(100vw - var(--space-8)));
+  max-width: calc(100vw - var(--space-8));
+  max-height: calc(100vh - var(--space-8));
+  border-radius: var(--radius-dialog);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
   overflow: hidden;
-  transition:
-    opacity var(--motion-duration-base) var(--motion-ease-standard),
-    transform var(--motion-duration-base) var(--motion-ease-standard);
+}
+
+.mw-dialog[data-state="open"] {
+  animation: mw-dialog-enter var(--duration-slow) var(--ease-emphasized);
+}
+
+.mw-dialog[data-state="closed"] {
+  animation: mw-dialog-fade-out var(--duration-fast) var(--ease-exit);
 }
 
 .mw-dialog:focus-visible {
@@ -332,14 +341,14 @@ onBeforeUnmount(() => {
 .mw-dialog--maximized {
   top: 0;
   left: 0;
-  transform: none;
+  translate: none;
   width: 100vw !important;
   height: 100vh !important;
   max-width: 100vw !important;
   max-height: 100vh !important;
   border-radius: 0;
-  background-color: var(--color-surface-base);
-  background-image: none;
+  border-color: transparent;
+  background-color: var(--bg-surface); /* opaque-ok：最大化后底下没有可透出的内容 */
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
@@ -349,18 +358,19 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
-  padding: var(--space-4) var(--space-5) var(--space-3);
+  padding: var(--space-5) var(--space-5) var(--space-3);
   flex-shrink: 0;
 }
 
 .mw-dialog__title {
   margin: 0;
-  font-size: var(--font-size-title-sm);
-  font-weight: 600;
-  line-height: var(--line-height-tight);
-  color: var(--color-text-primary);
   min-width: 0;
   flex: 1 1 auto;
+  color: var(--text-primary);
+  font-size: var(--type-title-size);
+  font-weight: var(--weight-semibold);
+  line-height: var(--type-title-line);
+  letter-spacing: var(--tracking-title);
 }
 
 .mw-dialog__actions {
@@ -368,41 +378,51 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: var(--space-1);
   flex-shrink: 0;
+  margin-inline-end: calc(var(--space-1) * -1);
 }
 
 .mw-dialog__action-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: var(--size-sm-h);
+  height: var(--size-sm-h);
   padding: 0;
   border: 0;
-  border-radius: var(--radius);
+  border-radius: var(--size-sm-radius);
   background: transparent;
-  color: var(--color-text-tertiary);
+  color: var(--text-tertiary);
   cursor: pointer;
   transition:
-    color var(--motion-duration-fast) var(--motion-ease-standard),
-    background-color var(--motion-duration-fast) var(--motion-ease-standard);
+    color var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard);
+}
+
+.mw-dialog__action-btn :deep(svg) {
+  width: var(--icon-md);
+  height: var(--icon-md);
 }
 
 .mw-dialog__action-btn:hover {
-  background-color: var(--material-hover);
-  color: var(--color-text-primary);
+  background-color: var(--fill-default);
+  color: var(--text-primary);
+}
+
+.mw-dialog__action-btn:active {
+  background-color: var(--fill-strong);
 }
 
 .mw-dialog__action-btn:focus-visible {
-  outline: none;
-  box-shadow: var(--effect-focus-ring);
+  outline: var(--focus-width) solid var(--focus-color);
+  outline-offset: var(--focus-offset);
 }
 
 .mw-dialog__description {
   margin: 0;
   padding: 0 var(--space-5) var(--space-3);
-  font-size: var(--font-size-body-sm);
-  line-height: var(--line-height-body);
-  color: var(--color-text-secondary);
+  color: var(--text-secondary);
+  font-size: var(--type-body-sm-size);
+  line-height: var(--type-body-sm-line);
   flex-shrink: 0;
 }
 
@@ -415,9 +435,9 @@ onBeforeUnmount(() => {
   flex: 1 1 auto;
   min-height: 0;
   padding: 0 var(--space-5) var(--space-5);
-  font-size: var(--font-size-body);
-  line-height: var(--line-height-body);
-  color: var(--color-text-primary);
+  color: var(--text-secondary);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
 }
 
 .mw-dialog:not(:has(.mw-dialog__header)) .mw-dialog__body {
@@ -425,7 +445,7 @@ onBeforeUnmount(() => {
 }
 
 .mw-dialog:has(.mw-dialog__footer) .mw-dialog__body {
-  padding-bottom: var(--space-4);
+  padding-bottom: var(--space-2);
 }
 
 .mw-dialog__footer {
@@ -433,8 +453,7 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: flex-end;
   gap: var(--space-2);
-  padding: var(--space-3) var(--space-5) var(--space-4);
-  border-top: 1px solid var(--material-inlay-border);
+  padding: var(--space-3) var(--space-5) var(--space-5);
   flex-shrink: 0;
 }
 
@@ -450,9 +469,30 @@ onBeforeUnmount(() => {
   border: 0;
 }
 
+@keyframes mw-dialog-enter {
+  from {
+    opacity: 0;
+    scale: var(--motion-enter-scale);
+  }
+}
+
+@keyframes mw-dialog-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes mw-dialog-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .mw-dialog__overlay,
-  .mw-dialog,
+  .mw-dialog[data-state="open"] {
+    animation-name: mw-dialog-fade-in;
+  }
+
   .mw-dialog__action-btn {
     transition: none;
   }

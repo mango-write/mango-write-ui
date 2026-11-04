@@ -1,11 +1,7 @@
 <script setup lang="ts">
 /**
- * HoverCard — liquid glass、可放任意 Vue 内容的富 tooltip。
- *
- * 分工：纯文本提示继续用 `v-tooltip`；富内容走本组件（PrimeVue Tooltip 是
- * 指令，内容只吃字符串/HTML 字符串，放不进组件和插槽，`mw-bubble` 那条
- * escape:false 手拼 HTML 的路线就到头了）。面板与浮层同款玻璃
- * （--material-* 四件套），不带箭头——悬浮偏移已足够表达指向。
+ * HoverCard —— 可放任意 Vue 内容的富提示，霜面浮层、不带箭头（悬浮偏移已足够表达指向）。
+ * 纯文本提示用 `v-tooltip`；两者共用 `.mw-hovercard__panel`（base.css）与 lib/hover-card 的定位算法。
  *
  * 定位（防漂移的关键，与 useComboPanel 同一模型）：
  *   • panel 传送门挂 body + `position: fixed`，坐标取 getBoundingClientRect
@@ -112,7 +108,7 @@ function reposition() {
     position: "fixed",
     left: `${Math.round(pos.left)}px`,
     top: `${Math.round(pos.top)}px`,
-    zIndex: "var(--z-floating)",
+    zIndex: "var(--z-tooltip)",
   };
 }
 
@@ -290,7 +286,7 @@ function cancelHide() {
         ref="panelRef"
         :role="interactive ? 'dialog' : 'tooltip'"
         :aria-label="interactive ? label : undefined"
-        class="mw-hovercard__panel"
+        class="mw-hovercard__panel mw-hovercard__panel--card"
         :class="[`mw-hovercard__panel--${side}`, { 'mw-hovercard__panel--static': !interactive }]"
         :style="panelStyle"
         @mouseenter="cancelHide"
@@ -318,11 +314,16 @@ function cancelHide() {
 }
 
 .mw-hovercard:focus-visible {
-  outline: 0;
-  border-radius: var(--radius-sm);
-  box-shadow: var(--effect-focus-ring);
+  border-radius: var(--radius-xs);
+  outline: var(--focus-width) solid var(--focus-color);
+  outline-offset: var(--focus-offset);
 }
 
-/* 面板样式（.mw-hovercard__panel 玻璃、--static、出入场过渡）在 styles.css
-   全局——v-tooltip 指令创建的 DOM 没有本组件的 scoped 属性，两处共用一枚面板。 */
+/* 面板材质、--static 与出入场在 base.css（v-tooltip 指令的 DOM 也用它）；这里只把富内容卡片放大一档。 */
+.mw-hovercard__panel--card {
+  padding: var(--space-3);
+  border-radius: var(--radius-float);
+  font-size: var(--type-body-sm-size);
+  line-height: var(--type-body-sm-line);
+}
 </style>

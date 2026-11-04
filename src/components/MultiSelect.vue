@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, getCurrentInstance, nextTick, ref, useAttrs, useId, watch } from "vue";
+import { Check, ChevronDown, X } from "lucide-vue-next";
 import { useComboPanel } from "../lib/useComboPanel";
 import { uiMessages } from "../locale/index.js";
 import type {
@@ -488,17 +489,7 @@ function optionKey(option: any, index: number): string {
                 @mousedown.stop.prevent
                 @click.stop="removeValue(item.value, $event)"
               >
-                <svg
-                  class="pi pi-times"
-                  viewBox="0 0 16 16"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.75"
-                  stroke-linecap="round"
-                  aria-hidden="true"
-                >
-                  <path d="M4 4l8 8M12 4l-8 8" />
-                </svg>
+                <X aria-hidden="true" />
               </button>
             </span>
           </template>
@@ -518,39 +509,18 @@ function optionKey(option: any, index: number): string {
       @mousedown.stop.prevent
       @click.stop="clearSelection"
     >
-      <svg
-        class="pi pi-times"
-        viewBox="0 0 16 16"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.75"
-        stroke-linecap="round"
-        aria-hidden="true"
-      >
-        <path d="M4 4l8 8M12 4l-8 8" />
-      </svg>
+      <X aria-hidden="true" />
     </button>
 
     <span class="mw-multiselect__dropdown p-multiselect-dropdown" aria-hidden="true">
-      <svg
-        class="pi pi-chevron-down p-multiselect-dropdown-icon"
-        viewBox="0 0 16 16"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.75"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        aria-hidden="true"
-      >
-        <path d="M4 6l4 4 4-4" />
-      </svg>
+      <ChevronDown class="p-multiselect-dropdown-icon" aria-hidden="true" />
     </span>
 
     <Teleport to="body">
       <div
         v-if="open"
         ref="panelRef"
-        class="mw-multiselect__overlay p-multiselect-overlay p-component mw-glass"
+        class="mw-multiselect__overlay p-multiselect-overlay p-component mw-frost mw-glass"
         :style="panelStyle"
       >
         <div
@@ -569,19 +539,7 @@ function optionKey(option: any, index: number): string {
             @mousedown.prevent
             @click="toggleAll"
           >
-            <svg
-              v-if="allFilteredSelected"
-              class="pi pi-check"
-              viewBox="0 0 16 16"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M3.5 8.5l3 3 6-6.5" />
-            </svg>
+            <Check v-if="allFilteredSelected" aria-hidden="true" />
           </button>
           <div v-if="filter" class="mw-multiselect__filter-container p-multiselect-filter-container">
             <input
@@ -637,18 +595,7 @@ function optionKey(option: any, index: number): string {
               @click="toggleOption(option, $event)"
             >
               <span class="mw-multiselect__checkbox p-multiselect-option-checkbox" aria-hidden="true">
-                <svg
-                  v-if="isOptionSelected(option)"
-                  class="pi pi-check"
-                  viewBox="0 0 16 16"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path d="M3.5 8.5l3 3 6-6.5" />
-                </svg>
+                <Check v-if="isOptionSelected(option)" aria-hidden="true" />
               </span>
               <slot
                 name="option"
@@ -679,12 +626,13 @@ function optionKey(option: any, index: number): string {
 
 <style>
 .mw-multiselect {
+  --_ms-min-w: calc(var(--size-lg-h) * 3);
   position: relative;
   display: inline-flex;
   align-items: center;
-  min-width: 7rem;
+  min-width: var(--_ms-min-w);
   max-width: 100%;
-  min-height: var(--control-height-compact);
+  min-height: var(--control-h);
   cursor: pointer;
   user-select: none;
 }
@@ -712,37 +660,37 @@ function optionKey(option: any, index: number): string {
 }
 
 .mw-multiselect__label {
-  padding: 0.375rem 0 0.375rem 0.625rem;
-  font-size: 0.875rem;
-  line-height: 1.25;
-  color: var(--color-text-primary);
+  padding: var(--space-1) 0 var(--space-1) var(--control-px);
+  font-size: var(--control-font);
+  line-height: var(--type-body-sm-line);
+  color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .mw-multiselect__label--placeholder {
-  color: var(--color-text-tertiary);
+  color: var(--text-tertiary);
 }
 
 .mw-multiselect__label--chip {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.25rem;
-  padding: 0.1875rem 0 0.1875rem 0.375rem;
+  gap: var(--space-1);
+  padding: var(--space-1) 0 var(--space-1) var(--space-1-5);
 }
 
 .mw-multiselect__chip {
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
-  padding: 0.125rem 0.5rem;
-  border-radius: var(--radius-sm);
-  background: var(--color-surface-muted);
-  color: var(--color-text-primary);
-  font-size: 0.8125rem;
-  line-height: 1.25;
+  gap: var(--space-1);
+  padding: var(--space-0-5) var(--space-2);
+  border-radius: var(--radius-xs);
+  background-color: var(--fill-default);
+  color: var(--text-primary);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
 }
 
 .mw-multiselect__chip-remove {
@@ -751,19 +699,19 @@ function optionKey(option: any, index: number): string {
   justify-content: center;
   padding: 0;
   border: 0;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-full);
   background: transparent;
-  color: var(--color-text-tertiary);
+  color: var(--text-tertiary);
   cursor: pointer;
 }
 
 .mw-multiselect__chip-remove:hover {
-  color: var(--color-text-primary);
+  color: var(--text-primary);
 }
 
-.mw-multiselect__chip-remove .pi {
-  width: 0.6875rem;
-  height: 0.6875rem;
+.mw-multiselect__chip-remove svg {
+  width: var(--icon-xs);
+  height: var(--icon-xs);
 }
 
 .mw-multiselect__clear {
@@ -771,25 +719,25 @@ function optionKey(option: any, index: number): string {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.25rem;
-  height: 1.25rem;
+  width: var(--icon-lg);
+  height: var(--icon-lg);
   padding: 0;
-  margin-inline: 0.25rem 0;
+  margin-inline: var(--space-1) 0;
   border: 0;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-full);
   background: transparent;
-  color: var(--color-text-tertiary);
+  color: var(--text-tertiary);
   cursor: pointer;
 }
 
 .mw-multiselect__clear:hover {
-  background: var(--color-surface-muted);
-  color: var(--color-text-primary);
+  background-color: var(--fill-default);
+  color: var(--text-primary);
 }
 
-.mw-multiselect__clear .pi {
-  width: 0.6875rem;
-  height: 0.6875rem;
+.mw-multiselect__clear svg {
+  width: var(--icon-xs);
+  height: var(--icon-xs);
 }
 
 .mw-multiselect__dropdown {
@@ -797,44 +745,41 @@ function optionKey(option: any, index: number): string {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2rem;
-  color: var(--color-text-tertiary);
+  width: var(--size-md-h);
+  color: var(--text-tertiary);
 }
 
-.mw-multiselect__dropdown .pi {
-  width: 0.75rem;
-  height: 0.75rem;
+.mw-multiselect__dropdown svg {
+  width: var(--icon-xs);
+  height: var(--icon-xs);
 }
 
 .mw-multiselect--sm {
-  min-height: 1.5rem;
-}
-
-.mw-multiselect--sm .mw-multiselect__label {
-  padding: 0.25rem 0 0.25rem 0.5rem;
-  font-size: 0.75rem;
+  --control-h: var(--size-sm-h);
+  --control-font: var(--size-sm-font);
+  --control-px: var(--size-sm-px);
+  --control-radius: var(--size-sm-radius);
 }
 
 .mw-multiselect--lg {
-  min-height: 2.5rem;
-}
-
-.mw-multiselect--lg .mw-multiselect__label {
-  padding: 0.5rem 0 0.5rem 0.75rem;
-  font-size: 1rem;
+  --control-h: var(--size-lg-h);
+  --control-font: var(--size-lg-font);
+  --control-px: var(--size-lg-px);
+  --control-radius: var(--size-lg-radius);
 }
 
 .mw-multiselect__overlay {
-  border-radius: var(--radius);
+  border-radius: var(--radius-float);
+  box-shadow: var(--shadow-floating);
   overflow: hidden;
 }
 
 .mw-multiselect__header {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.375rem 0.5rem;
-  border-bottom: 1px solid var(--material-hairline);
+  gap: var(--space-2);
+  padding: var(--space-1-5) var(--space-2);
+  border-bottom: var(--border-width) solid var(--border-subtle);
 }
 
 .mw-multiselect__toggle-all,
@@ -843,25 +788,25 @@ function optionKey(option: any, index: number): string {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1rem;
-  height: 1rem;
-  border: 1px solid var(--color-border-strong);
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  border: var(--border-width) solid var(--border-strong);
   border-radius: var(--radius-xs);
-  background: var(--color-surface-base);
-  color: var(--color-text-on-brand);
+  background-color: var(--control-bg);
+  color: var(--text-on-accent);
   cursor: pointer;
 }
 
 .mw-multiselect__toggle-all--checked,
 .mw-multiselect__option--selected .mw-multiselect__checkbox {
-  border-color: var(--color-brand-500);
-  background: var(--color-brand-500);
+  border-color: var(--accent);
+  background-color: var(--accent);
 }
 
-.mw-multiselect__toggle-all .pi,
-.mw-multiselect__checkbox .pi {
-  width: 0.75rem;
-  height: 0.75rem;
+.mw-multiselect__toggle-all svg,
+.mw-multiselect__checkbox svg {
+  width: var(--icon-xs);
+  height: var(--icon-xs);
 }
 
 .mw-multiselect__filter-container {
@@ -870,9 +815,13 @@ function optionKey(option: any, index: number): string {
 }
 
 .mw-multiselect__filter {
+  --control-bg: var(--fill-subtle);
+  --control-bg-hover: var(--fill-default);
   width: 100%;
-  padding: 0.25rem 0.5rem;
-  font-size: 0.875rem;
+  min-height: var(--size-sm-h);
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--type-body-sm-size);
+  line-height: var(--type-body-sm-line);
 }
 
 .mw-multiselect__list-container {
@@ -881,33 +830,39 @@ function optionKey(option: any, index: number): string {
 
 .mw-multiselect__list {
   margin: 0;
-  padding: 0.25rem;
+  padding: var(--space-1);
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--space-0-5);
 }
 
 .mw-multiselect__option {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.375rem 0.625rem;
-  border-radius: var(--radius-sm);
-  color: var(--color-text-primary);
-  font-size: 0.875rem;
-  line-height: 1.25;
+  gap: var(--space-2);
+  min-height: var(--size-sm-h);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-item);
+  color: var(--text-primary);
+  font-size: var(--type-body-sm-size);
+  line-height: var(--type-body-sm-line);
   cursor: pointer;
 }
 
 .mw-multiselect__option[data-highlighted]:not(.mw-multiselect__option--selected),
 .mw-multiselect__option.p-focus:not(.mw-multiselect__option--selected) {
-  background: var(--material-hover);
+  background-color: var(--fill-default);
 }
 
 .mw-multiselect__option--selected {
-  background: rgb(var(--color-brand-500-rgb) / 0.16);
-  color: var(--color-brand-700);
+  background-color: var(--fill-selected);
+  color: var(--text-accent);
+  font-weight: var(--weight-medium);
+}
+
+.mw-multiselect__option--selected[data-highlighted] {
+  background-color: var(--fill-selected-hover);
 }
 
 .mw-multiselect__option--disabled {
@@ -924,13 +879,15 @@ function optionKey(option: any, index: number): string {
 }
 
 .mw-multiselect__empty {
-  padding: 0.375rem 0.625rem;
-  color: var(--color-text-tertiary);
-  font-size: 0.875rem;
+  padding: var(--space-2) var(--space-2-5);
+  color: var(--text-tertiary);
+  font-size: var(--type-body-sm-size);
+  line-height: var(--type-body-sm-line);
+  text-align: center;
 }
 
 .mw-multiselect__footer {
-  padding: 0.375rem 0.5rem;
-  border-top: 1px solid var(--material-hairline);
+  padding: var(--space-1-5) var(--space-2);
+  border-top: var(--border-width) solid var(--border-subtle);
 }
 </style>

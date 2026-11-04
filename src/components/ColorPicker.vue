@@ -200,21 +200,20 @@ function handleColorEvent(event: Event) {
 }
 
 .mw-color-picker__input {
+  --mw-color-picker-inset: var(--space-1);
+
   appearance: none;
   -webkit-appearance: none;
-  width: 28px;
-  height: 28px;
-  padding: 2px;
-  border-radius: var(--radius-sm);
-  background-color: var(--color-surface-base);
-  border: 1px solid var(--color-border-strong);
+  width: var(--control-h);
+  height: var(--control-h);
+  padding: calc(var(--mw-color-picker-inset) - var(--border-width));
   cursor: pointer;
   overflow: hidden;
 }
 
 .mw-color-picker--inline .mw-color-picker__input {
-  width: 36px;
-  height: 36px;
+  width: var(--size-lg-h);
+  height: var(--size-lg-h);
 }
 
 .mw-color-picker__input::-webkit-color-swatch-wrapper {
@@ -223,15 +222,27 @@ function handleColorEvent(event: Event) {
 
 .mw-color-picker__input::-webkit-color-swatch {
   border: 0;
-  border-radius: var(--radius-xs);
+  border-radius: calc(var(--control-radius) - var(--mw-color-picker-inset));
+  box-shadow: inset 0 0 0 var(--border-width) var(--border-subtle);
 }
 
 .mw-color-picker__input::-moz-color-swatch {
   border: 0;
-  border-radius: var(--radius-xs);
+  border-radius: calc(var(--control-radius) - var(--mw-color-picker-inset));
+  box-shadow: inset 0 0 0 var(--border-width) var(--border-subtle);
 }
 
 .mw-color-picker__input:disabled {
   cursor: not-allowed;
+}
+
+.mw-color-picker--readonly .mw-color-picker__input {
+  border-color: var(--control-border);
+  background-color: var(--control-bg-readonly);
+  cursor: default;
+}
+
+.mw-color-picker__input:focus-visible {
+  outline: none;
 }
 </style>

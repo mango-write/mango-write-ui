@@ -199,12 +199,14 @@ defineExpose({
 
 <style scoped>
 .mw-radio {
+  --_rb-size: var(--icon-md);
+  --_rb-dot: var(--space-2);
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 18px;
+  width: var(--_rb-size);
+  height: var(--_rb-size);
   vertical-align: middle;
   flex-shrink: 0;
   cursor: pointer;
@@ -212,13 +214,13 @@ defineExpose({
 }
 
 .mw-radio--sm {
-  width: 16px;
-  height: 16px;
+  --_rb-size: var(--icon-sm);
+  --_rb-dot: var(--space-1-5);
 }
 
 .mw-radio--lg {
-  width: 20px;
-  height: 20px;
+  --_rb-size: var(--icon-lg);
+  --_rb-dot: var(--space-2-5);
 }
 
 .mw-radio--disabled,
@@ -249,56 +251,43 @@ defineExpose({
   justify-content: center;
   width: 100%;
   height: 100%;
-  border-radius: var(--radius-pill);
-  background-color: var(--color-surface-base);
-  background-image: var(--material-control-face);
-  border: 1px solid var(--color-border-strong);
-  box-shadow: var(--material-control-inset);
+  border-radius: var(--radius-full);
+  background-color: var(--control-bg);
+  border: var(--border-width) solid var(--border-strong);
   pointer-events: none;
   transition:
-    background-color var(--motion-duration-fast) var(--motion-ease-standard),
-    border-color var(--motion-duration-fast) var(--motion-ease-standard),
-    box-shadow var(--motion-duration-fast) var(--motion-ease-standard);
+    background-color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard);
 }
 
 .mw-radio:hover:not([data-disabled]):not([data-readonly]) .mw-radio__box {
-  border-color: var(--color-brand-500);
+  border-color: var(--accent);
 }
 
 .mw-radio__input:focus-visible + .mw-radio__box {
-  border-color: var(--color-brand-500);
-  box-shadow: var(--effect-focus-ring);
+  border-color: var(--focus-color);
+  box-shadow: var(--focus-shadow);
 }
 
 .mw-radio[data-invalid] .mw-radio__box {
-  border-color: var(--color-danger-500);
+  border-color: var(--danger);
 }
 
 .mw-radio--checked .mw-radio__box,
 .mw-radio[data-state="checked"] .mw-radio__box {
-  background-color: var(--color-brand-500);
-  background-image: none;
-  border-color: var(--color-brand-500);
+  background-color: var(--accent);
+  border-color: var(--accent);
   box-shadow: none;
 }
 
 .mw-radio__icon {
-  width: 8px;
-  height: 8px;
-  border-radius: var(--radius-pill);
-  background-color: var(--color-text-on-brand);
+  width: var(--_rb-dot);
+  height: var(--_rb-dot);
+  border-radius: var(--radius-full);
+  background-color: var(--text-on-accent);
   transform: scale(0);
-  transition: transform var(--motion-duration-fast) var(--motion-spring-pop);
-}
-
-.mw-radio--sm .mw-radio__icon {
-  width: 6px;
-  height: 6px;
-}
-
-.mw-radio--lg .mw-radio__icon {
-  width: 10px;
-  height: 10px;
+  transition: transform var(--duration-fast) var(--ease-spring-pop);
 }
 
 .mw-radio--checked .mw-radio__icon,

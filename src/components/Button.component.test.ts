@@ -1,5 +1,6 @@
 import { defineComponent, h, markRaw } from "vue";
 import { describe, expect, it, vi } from "vitest";
+import { Plus } from "lucide-vue-next";
 
 import { mountUiComponent } from "../test-utils/mount.js";
 import Button from "./Button.vue";
@@ -65,13 +66,13 @@ describe("Button", () => {
   it("纯图标按钮自动挂载 .mw-btn--icon-only，有文案或默认插槽时不挂载", () => {
     const iconOnly = mountUiComponent(Button, {
       props: {
-        icon: "pi pi-plus",
+        icon: Plus,
         "aria-label": "新建",
       },
     });
     expect(iconOnly.classes()).toContain("mw-btn--icon-only");
     expect(iconOnly.attributes("aria-label")).toBe("新建");
-    expect(iconOnly.find("i.pi.pi-plus").exists()).toBe(true);
+    expect(iconOnly.find("svg.mw-btn__icon").exists()).toBe(true);
 
     const withLabel = mountUiComponent(Button, {
       props: {
@@ -84,7 +85,7 @@ describe("Button", () => {
 
     const withSlot = mountUiComponent(Button, {
       props: {
-        icon: "pi pi-plus",
+        icon: Plus,
       },
       slots: {
         default: () => "插槽文本",

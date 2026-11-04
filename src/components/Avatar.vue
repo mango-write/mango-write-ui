@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { computed, ref, watch, type Component } from "vue";
 
-export type AvatarSize = "sm" | "md" | "lg" | "normal" | "large" | "xlarge";
+export type AvatarSize = "xs" | "sm" | "md" | "lg" | "normal" | "large" | "xlarge";
 export type AvatarShape = "square" | "circle";
 
 export interface AvatarProps {
   label?: string;
-  icon?: string | Component;
+  icon?: Component;
   image?: string;
   size?: AvatarSize;
   shape?: AvatarShape;
@@ -21,7 +21,7 @@ const props = withDefaults(defineProps<AvatarProps>(), {
   label: undefined,
   icon: undefined,
   image: undefined,
-  size: "normal",
+  size: undefined,
   shape: "square",
   ariaLabel: undefined,
 });
@@ -43,17 +43,25 @@ watch(
 
 const showImage = computed(() => Boolean(props.image) && !imageFailed.value);
 
-const normalizedSize = computed<"sm" | "normal" | "large" | "xlarge">(() => {
-  if (props.size === "sm") return "sm";
+const normalizedSize = computed(() => {
+  if (props.size === "xs" || props.size === "sm" || props.size === "xlarge") return props.size;
   if (props.size === "lg" || props.size === "large") return "large";
-  if (props.size === "xlarge") return "xlarge";
-  return "normal";
+  if (props.size === "md" || props.size === "normal") return "normal";
+  return undefined;
+});
+
+const sizeStep = computed(() => {
+  if (normalizedSize.value === "normal") return "md";
+  if (normalizedSize.value === "large") return "lg";
+  if (normalizedSize.value === "xlarge") return undefined;
+  return normalizedSize.value;
 });
 
 const avatarClasses = computed(() => [
   `mw-avatar--${props.shape}`,
-  `mw-avatar--${normalizedSize.value}`,
-  props.size !== normalizedSize.value ? `mw-avatar--${props.size}` : undefined,
+  normalizedSize.value ? `mw-avatar--${normalizedSize.value}` : undefined,
+  props.size && props.size !== normalizedSize.value ? `mw-avatar--${props.size}` : undefined,
+  sizeStep.value ? `mw-size-${sizeStep.value}` : undefined,
   {
     "mw-avatar--image": showImage.value,
   },
@@ -85,12 +93,7 @@ function onImageError(event: Event) {
     <slot v-else>
       <span v-if="label" class="mw-avatar__label">{{ label }}</span>
       <slot v-else name="icon">
-        <i
-          v-if="typeof icon === 'string' && icon"
-          :class="['mw-avatar__icon', icon]"
-          aria-hidden="true"
-        />
-        <component :is="icon" v-else-if="icon" class="mw-avatar__icon" aria-hidden="true" />
+        <component :is="icon" v-if="icon" class="mw-avatar__icon" aria-hidden="true" />
       </slot>
     </slot>
   </span>
@@ -99,65 +102,54 @@ function onImageError(event: Event) {
 <style>
 .mw-avatar {
   display: inline-flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  width: 1.75rem;
-  height: 1.75rem;
-  font-size: 0.875rem;
-  font-weight: 600;
+  box-sizing: border-box;
+  width: var(--mw-avatar-size, var(--control-h));
+  height: var(--mw-avatar-size, var(--control-h));
+  border-radius: var(--control-radius);
+  background-color: var(--fill-strong);
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: var(--control-font);
+  font-weight: var(--weight-semibold);
   line-height: 1;
-  background-color: var(--color-surface-muted);
-  color: var(--color-text-primary);
-  border-radius: var(--radius-sm);
   overflow: hidden;
   user-select: none;
-  flex-shrink: 0;
 }
 
 .mw-avatar--circle {
-  border-radius: var(--radius-pill);
-}
-
-.mw-avatar--square {
-  border-radius: var(--radius-sm);
-}
-
-.mw-avatar--sm {
-  width: 1.375rem;
-  height: 1.375rem;
-  font-size: 0.75rem;
-}
-
-.mw-avatar--normal,
-.mw-avatar--md {
-  width: 1.75rem;
-  height: 1.75rem;
-  font-size: 0.875rem;
-}
-
-.mw-avatar--large,
-.mw-avatar--lg {
-  width: 2.25rem;
-  height: 2.25rem;
-  font-size: 1rem;
+  border-radius: var(--radius-full);
 }
 
 .mw-avatar--xlarge {
-  width: 3rem;
-  height: 3rem;
-  font-size: 1.25rem;
+  --mw-avatar-size: var(--space-12);
+  --control-icon: var(--icon-2xl);
+  border-radius: var(--radius-lg);
+  font-size: var(--type-title-lg-size);
+}
+
+.mw-avatar--xlarge.mw-avatar--circle {
+  border-radius: var(--radius-full);
+}
+
+.mw-avatar--image {
+  background-color: transparent;
 }
 
 .mw-avatar__image {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
 }
 
-.mw-avatar__icon {
-  font-size: 1em;
-  width: 1em;
-  height: 1em;
+.mw-avatar__icon,
+.mw-avatar > svg {
+  flex: none;
+  width: var(--control-icon);
+  height: var(--control-icon);
+  font-size: var(--control-icon);
 }
 </style>

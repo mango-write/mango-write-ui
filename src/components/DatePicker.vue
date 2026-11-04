@@ -1,5 +1,14 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, useAttrs, useId, watch } from "vue";
+import {
+  Calendar,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronUp,
+  Clock,
+  X,
+} from "lucide-vue-next";
 import { useComboPanel } from "../lib/useComboPanel";
 import { uiMessages } from "../locale/index.js";
 import type {
@@ -746,21 +755,7 @@ const rootClasses = computed(() => [
       tabindex="-1"
       @click="onClearClick"
     >
-      <svg
-        class="pi pi-times"
-        viewBox="0 0 16 16"
-        width="12"
-        height="12"
-        fill="none"
-        aria-hidden="true"
-      >
-        <path
-          d="M4 4L12 12M12 4L4 12"
-          stroke="currentColor"
-          stroke-width="1.6"
-          stroke-linecap="round"
-        />
-      </svg>
+      <X :size="12" aria-hidden="true" />
     </button>
 
     <button
@@ -773,49 +768,8 @@ const rootClasses = computed(() => [
       tabindex="-1"
       @click="togglePanel"
     >
-      <svg
-        v-if="timeOnly"
-        class="pi pi-clock"
-        viewBox="0 0 16 16"
-        width="14"
-        height="14"
-        fill="none"
-        aria-hidden="true"
-      >
-        <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5" />
-        <path
-          d="M8 4.8V8L10.4 9.6"
-          stroke="currentColor"
-          stroke-width="1.5"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        />
-      </svg>
-      <svg
-        v-else
-        class="pi pi-calendar"
-        viewBox="0 0 16 16"
-        width="14"
-        height="14"
-        fill="none"
-        aria-hidden="true"
-      >
-        <rect
-          x="2.25"
-          y="3.25"
-          width="11.5"
-          height="10.5"
-          rx="1.75"
-          stroke="currentColor"
-          stroke-width="1.4"
-        />
-        <path
-          d="M5 2V4.2M11 2V4.2M2.5 6.2H13.5"
-          stroke="currentColor"
-          stroke-width="1.4"
-          stroke-linecap="round"
-        />
-      </svg>
+      <Clock v-if="timeOnly" :size="14" aria-hidden="true" />
+      <Calendar v-else :size="14" aria-hidden="true" />
     </button>
 
     <Teleport to="body">
@@ -823,7 +777,7 @@ const rootClasses = computed(() => [
         v-if="open"
         :id="panelId"
         ref="panelEl"
-        class="mw-date-picker__panel p-datepicker-panel p-component mw-glass"
+        class="mw-date-picker__panel p-datepicker-panel p-component mw-frost mw-glass"
         :style="panelStyle"
         role="dialog"
         :aria-label="ariaLabel || '选择日期'"
@@ -836,22 +790,7 @@ const rootClasses = computed(() => [
               aria-label="上个月"
               @click="prevMonth"
             >
-              <svg
-                class="pi pi-chevron-left"
-                viewBox="0 0 16 16"
-                width="14"
-                height="14"
-                fill="none"
-                aria-hidden="true"
-              >
-                <path
-                  d="M10 3.5L5.5 8L10 12.5"
-                  stroke="currentColor"
-                  stroke-width="1.6"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
+              <ChevronLeft :size="14" aria-hidden="true" />
             </button>
 
             <div class="mw-date-picker__title p-datepicker-title">
@@ -865,22 +804,7 @@ const rootClasses = computed(() => [
               aria-label="下个月"
               @click="nextMonth"
             >
-              <svg
-                class="pi pi-chevron-right"
-                viewBox="0 0 16 16"
-                width="14"
-                height="14"
-                fill="none"
-                aria-hidden="true"
-              >
-                <path
-                  d="M6 3.5L10.5 8L6 12.5"
-                  stroke="currentColor"
-                  stroke-width="1.6"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
+              <ChevronRight :size="14" aria-hidden="true" />
             </button>
           </div>
 
@@ -945,22 +869,7 @@ const rootClasses = computed(() => [
               aria-label="Next Hour"
               @click="changeHour(1)"
             >
-              <svg
-                class="pi pi-chevron-up"
-                viewBox="0 0 16 16"
-                width="12"
-                height="12"
-                fill="none"
-                aria-hidden="true"
-              >
-                <path
-                  d="M3.5 10L8 5.5L12.5 10"
-                  stroke="currentColor"
-                  stroke-width="1.6"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
+              <ChevronUp :size="12" aria-hidden="true" />
             </button>
             <span class="mw-date-picker__time-val" data-time-part="hour">{{ displayHour }}</span>
             <button
@@ -969,22 +878,7 @@ const rootClasses = computed(() => [
               aria-label="Previous Hour"
               @click="changeHour(-1)"
             >
-              <svg
-                class="pi pi-chevron-down"
-                viewBox="0 0 16 16"
-                width="12"
-                height="12"
-                fill="none"
-                aria-hidden="true"
-              >
-                <path
-                  d="M3.5 6L8 10.5L12.5 6"
-                  stroke="currentColor"
-                  stroke-width="1.6"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
+              <ChevronDown :size="12" aria-hidden="true" />
             </button>
           </div>
 
@@ -997,22 +891,7 @@ const rootClasses = computed(() => [
               aria-label="Next Minute"
               @click="changeMinute(1)"
             >
-              <svg
-                class="pi pi-chevron-up"
-                viewBox="0 0 16 16"
-                width="12"
-                height="12"
-                fill="none"
-                aria-hidden="true"
-              >
-                <path
-                  d="M3.5 10L8 5.5L12.5 10"
-                  stroke="currentColor"
-                  stroke-width="1.6"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
+              <ChevronUp :size="12" aria-hidden="true" />
             </button>
             <span class="mw-date-picker__time-val" data-time-part="minute">{{ displayMinute }}</span>
             <button
@@ -1021,22 +900,7 @@ const rootClasses = computed(() => [
               aria-label="Previous Minute"
               @click="changeMinute(-1)"
             >
-              <svg
-                class="pi pi-chevron-down"
-                viewBox="0 0 16 16"
-                width="12"
-                height="12"
-                fill="none"
-                aria-hidden="true"
-              >
-                <path
-                  d="M3.5 6L8 10.5L12.5 6"
-                  stroke="currentColor"
-                  stroke-width="1.6"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
+              <ChevronDown :size="12" aria-hidden="true" />
             </button>
           </div>
 
@@ -1050,22 +914,7 @@ const rootClasses = computed(() => [
               aria-label="Toggle AM/PM"
               @click="toggleAmPm"
             >
-              <svg
-                class="pi pi-chevron-up"
-                viewBox="0 0 16 16"
-                width="12"
-                height="12"
-                fill="none"
-                aria-hidden="true"
-              >
-                <path
-                  d="M3.5 10L8 5.5L12.5 10"
-                  stroke="currentColor"
-                  stroke-width="1.6"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
+              <ChevronUp :size="12" aria-hidden="true" />
             </button>
             <span class="mw-date-picker__time-val" data-time-part="ampm">{{ displayAmPm }}</span>
             <button
@@ -1074,22 +923,7 @@ const rootClasses = computed(() => [
               aria-label="Toggle AM/PM"
               @click="toggleAmPm"
             >
-              <svg
-                class="pi pi-chevron-down"
-                viewBox="0 0 16 16"
-                width="12"
-                height="12"
-                fill="none"
-                aria-hidden="true"
-              >
-                <path
-                  d="M3.5 6L8 10.5L12.5 6"
-                  stroke="currentColor"
-                  stroke-width="1.6"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
+              <ChevronDown :size="12" aria-hidden="true" />
             </button>
           </div>
         </div>
@@ -1117,3 +951,271 @@ const rootClasses = computed(() => [
     </Teleport>
   </div>
 </template>
+
+<style>
+.mw-date-picker {
+  --_dp-min-w: calc(var(--size-lg-h) * 4);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--control-h);
+  min-width: var(--_dp-min-w);
+  padding-inline-end: var(--space-1);
+}
+
+.mw-date-picker--fluid {
+  width: 100%;
+  display: flex;
+}
+
+.mw-date-picker--sm {
+  --control-h: var(--size-sm-h);
+  --control-font: var(--size-sm-font);
+  --control-px: var(--size-sm-px);
+  --control-radius: var(--size-sm-radius);
+}
+
+.mw-date-picker--lg {
+  --control-h: var(--size-lg-h);
+  --control-font: var(--size-lg-font);
+  --control-px: var(--size-lg-px);
+  --control-radius: var(--size-lg-radius);
+}
+
+.mw-date-picker--disabled {
+  opacity: var(--opacity-disabled);
+  cursor: not-allowed;
+}
+
+.mw-date-picker--invalid {
+  border-color: var(--danger);
+}
+
+.mw-date-picker__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  padding: var(--space-1-5) var(--control-px);
+  outline: none;
+}
+
+.mw-date-picker__clear,
+.mw-date-picker__dropdown {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--size-xs-h);
+  height: var(--size-xs-h);
+  border: 0;
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  flex-shrink: 0;
+  border-radius: var(--radius-xs);
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+
+.mw-date-picker__clear:hover:not(:disabled),
+.mw-date-picker__dropdown:hover:not(:disabled) {
+  background-color: var(--fill-default);
+  color: var(--text-primary);
+}
+
+.mw-date-picker__panel {
+  border-radius: var(--radius-float);
+  box-shadow: var(--shadow-floating);
+  padding: var(--space-2-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  user-select: none;
+}
+
+.mw-date-picker__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding-bottom: var(--space-1-5);
+  border-bottom: var(--border-width) solid var(--border-subtle);
+}
+
+.mw-date-picker__title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  font-size: var(--type-body-sm-size);
+  line-height: var(--type-body-sm-line);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+}
+
+.mw-date-picker__nav-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--size-sm-h);
+  height: var(--size-sm-h);
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: var(--radius-item);
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+
+.mw-date-picker__nav-btn:hover {
+  background-color: var(--fill-default);
+  color: var(--text-primary);
+}
+
+.mw-date-picker__calendar {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.mw-date-picker__weekday {
+  padding: var(--space-1) 0;
+  font-size: var(--type-micro-size);
+  line-height: var(--type-micro-line);
+  font-weight: var(--weight-medium);
+  color: var(--text-tertiary);
+  text-align: center;
+}
+
+.mw-date-picker__day-cell {
+  padding: var(--space-px);
+  text-align: center;
+}
+
+.mw-date-picker__day {
+  width: var(--size-md-h);
+  height: var(--size-md-h);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: var(--radius-item);
+  background: transparent;
+  color: var(--text-primary);
+  font-size: var(--type-body-sm-size);
+  line-height: var(--type-body-sm-line);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+
+.mw-date-picker__day:hover:not(:disabled) {
+  background-color: var(--fill-default);
+}
+
+.mw-date-picker__day--other-month {
+  color: var(--text-tertiary);
+}
+
+.mw-date-picker__day--today {
+  font-weight: var(--weight-semibold);
+  border: var(--border-width) solid var(--border-strong);
+}
+
+.mw-date-picker__day--in-range {
+  background-color: var(--fill-selected);
+}
+
+.mw-date-picker__day--selected,
+.mw-date-picker__day--selected:hover:not(:disabled) {
+  background-color: var(--accent);
+  color: var(--text-on-accent);
+  font-weight: var(--weight-semibold);
+}
+
+.mw-date-picker__day--disabled {
+  opacity: var(--opacity-disabled);
+  cursor: not-allowed;
+}
+
+.mw-date-picker__time-picker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding-top: var(--space-1-5);
+  border-top: var(--border-width) solid var(--border-subtle);
+}
+
+.mw-date-picker__time-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-0-5);
+}
+
+.mw-date-picker__time-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--size-xs-h);
+  height: var(--icon-lg);
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+}
+
+.mw-date-picker__time-btn:hover {
+  background-color: var(--fill-default);
+  color: var(--text-primary);
+}
+
+.mw-date-picker__time-val {
+  font-size: var(--type-body-sm-size);
+  line-height: var(--type-body-sm-line);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--weight-medium);
+  color: var(--text-primary);
+}
+
+.mw-date-picker__buttonbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: var(--space-1-5);
+  border-top: var(--border-width) solid var(--border-subtle);
+}
+
+.mw-date-picker__bar-btn {
+  border: 0;
+  background: transparent;
+  color: var(--text-accent);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  font-weight: var(--weight-medium);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-item);
+  cursor: pointer;
+}
+
+.mw-date-picker__bar-btn:hover {
+  background-color: var(--fill-default);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mw-date-picker__clear,
+  .mw-date-picker__dropdown,
+  .mw-date-picker__nav-btn,
+  .mw-date-picker__day {
+    transition: none;
+  }
+}
+</style>

@@ -11,7 +11,7 @@ import {
   defineComponent,
 } from "vue";
 
-export type DataTableSize = "small" | "large" | "sm" | "md" | "lg";
+export type DataTableSize = "small" | "large" | "xs" | "sm" | "md" | "lg";
 export type DataTableSelectionMode = "single" | "multiple";
 export type DataTableFrozenAlign = "left" | "right";
 export type DataTableColumnResizeMode = "fit" | "expand";

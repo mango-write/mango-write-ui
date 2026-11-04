@@ -1,6 +1,6 @@
 import type { CSSProperties } from "vue";
 
-export type SelectSize = "sm" | "md" | "lg" | "small" | "large";
+export type SelectSize = "xs" | "sm" | "md" | "lg" | "small" | "large";
 
 export type SelectOptionAccessor<T = any, R = any> = string | ((option: T) => R);
 

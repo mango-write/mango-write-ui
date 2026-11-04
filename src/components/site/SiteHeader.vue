@@ -1,9 +1,10 @@
 <script setup lang="ts">
-// 站点壳顶栏：write landing 与 rewrite 营销站共用。玻璃固定栏 + 品牌 slot +
+// 站点壳顶栏：write landing 与 rewrite 营销站共用。霜面固定栏 + 品牌 slot +
 // nav + 语言切换（可选，圆形单字按钮）+ 主题切换 + 移动抽屉。不依赖 vue-router /
 // pinia / i18n——链接是裸 <a href>（营销页整页跳转可接受），文案与右侧动作全部由
 // props/slots 注入；语言切换只暴露开关与 emit，具体切换逻辑由各 app 注入。
 import { nextTick, onMounted, onUnmounted, ref } from "vue";
+import { Menu, Moon, Sun, X } from "lucide-vue-next";
 
 import AppLogo from "../AppLogo.vue";
 import { useThemePreference } from "../../lib/theme";
@@ -144,7 +145,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <header ref="headerEl" class="mw-site-header" :class="{ scrolled }">
+  <header ref="headerEl" class="mw-site-header mw-frost" :class="{ scrolled }">
     <div class="mw-site-header__inner">
       <a :href="homeHref" class="mw-site-header__brand" :aria-label="brandLabel">
         <slot name="brand"><AppLogo /></slot>
@@ -180,8 +181,8 @@ onUnmounted(() => {
           :title="themeLabel"
           @click="toggleTheme"
         >
-          <svg v-if="themeResolved === 'light'" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
-          <svg v-else xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+          <Sun v-if="themeResolved === 'light'" aria-hidden="true" />
+          <Moon v-else aria-hidden="true" />
         </button>
 
         <slot name="actions" />
@@ -196,8 +197,8 @@ onUnmounted(() => {
         :aria-label="menuLabel"
         @click="toggleDrawer"
       >
-        <svg v-if="!menuOpen" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-        <svg v-else xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        <Menu v-if="!menuOpen" aria-hidden="true" />
+        <X v-else aria-hidden="true" />
       </button>
     </div>
 
@@ -226,8 +227,8 @@ onUnmounted(() => {
       <div class="mw-site-header__drawer-row">
         <button v-if="showLang" type="button" class="mw-site-header__drawer-theme mw-site-header__lang" :aria-label="langTitle" @click="toggleLang(); closeDrawer()">{{ langLabel }}</button>
         <button v-if="showTheme" type="button" class="mw-site-header__drawer-theme" :aria-label="themeLabel" @click="toggleTheme">
-          <svg v-if="themeResolved === 'light'" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
-          <svg v-else xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+          <Sun v-if="themeResolved === 'light'" aria-hidden="true" />
+          <Moon v-else aria-hidden="true" />
         </button>
         <!-- 抽屉状态只在壳内部；宿主把链接拦成 SPA 导航时（不整页重载），须自行调用 closeDrawer 收抽屉 -->
         <slot name="mobile-actions" :close-drawer="closeDrawer" />
@@ -242,190 +243,212 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+/* 顶栏借 .mw-frost 的材质与降级，但它是贴边的壳而非浮层：只留底边，静止时不投影。 */
 .mw-site-header {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  z-index: 100;
-  background: var(--color-surface-glass);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-bottom: 1px solid var(--color-border-soft);
-  transition: box-shadow 0.3s ease;
+  z-index: var(--z-sticky);
+  border-width: 0 0 var(--border-width);
+  border-color: var(--border-subtle);
+  box-shadow: none;
+  transition: box-shadow var(--duration-slow) var(--ease-standard);
 }
 
 .mw-site-header.scrolled {
-  box-shadow: var(--shadow-xs);
+  box-shadow: var(--shadow-raised);
 }
 
 .mw-site-header__inner {
-  max-width: var(--site-chrome, 1240px);
-  margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  padding: 14px 24px;
+  gap: var(--space-4);
+  max-width: var(--site-chrome);
+  margin: 0 auto;
+  padding: calc(var(--space-3) + var(--space-0-5)) var(--space-6);
 }
 
 .mw-site-header__brand {
   display: inline-flex;
   align-items: center;
+  flex-shrink: 0;
   /* brand slot 可以在 logo 旁挂产品后缀标（rewrite 站的「降 AI」），留间距。 */
-  gap: 0.5rem;
+  gap: var(--space-2);
   text-decoration: none;
+  white-space: nowrap;
 }
 
-/* 顶栏 logo 比组件默认（26px）大一圈，营销/站点壳更醒目。 */
 .mw-site-header :deep(.mw-logo) {
-  height: 32px;
+  height: var(--space-8);
 }
 
 .mw-site-header__desktop {
   display: flex;
   align-items: center;
-  gap: 10px;
+  flex-shrink: 0;
+  gap: var(--space-2-5);
 }
 
 .mw-site-header__nav {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-1);
 }
 
 .mw-site-header__link {
   position: relative;
   display: inline-flex;
   align-items: center;
-  border-radius: var(--radius-pill);
-  padding: 6px 12px;
-  font-size: 0.88rem;
-  font-weight: 600;
-  color: var(--color-text-secondary);
+  padding: var(--space-1-5) var(--space-3);
+  border-radius: var(--radius-full);
+  color: var(--text-secondary);
+  font-size: var(--type-body-size);
+  font-weight: var(--weight-semibold);
+  line-height: var(--type-body-sm-line);
   text-decoration: none;
-  transition: color 0.15s ease-out, background-color 0.15s ease-out;
+  white-space: nowrap;
+  transition:
+    color var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard);
 }
 
 .mw-site-header__link:hover {
-  color: var(--color-text-primary);
-  background: rgb(var(--color-brand-500-rgb) / 0.08);
+  background: var(--fill-default);
+  color: var(--text-primary);
 }
 
 .mw-site-header__link.active {
-  color: var(--color-brand-700);
-  background: rgb(var(--color-brand-500-rgb) / 0.14);
+  background: var(--fill-selected);
+  color: var(--text-accent);
 }
 
 .mw-site-header__icon-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: var(--size-lg-h);
+  height: var(--size-lg-h);
   border: none;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   background: transparent;
-  color: var(--color-text-secondary);
+  color: var(--text-secondary);
   cursor: pointer;
-  transition: color 0.15s ease-out, background-color 0.15s ease-out;
+  transition:
+    color var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard);
 }
 
 .mw-site-header__icon-btn:hover {
-  color: var(--color-text-primary);
-  background: rgb(var(--color-brand-500-rgb) / 0.08);
+  background: var(--fill-default);
+  color: var(--text-primary);
 }
 
-/* 语言切换按钮：与主题按钮同形（圆形 36px），用单字/双字标签表达当前语言。 */
+.mw-site-header__icon-btn > svg,
+.mw-site-header__drawer-theme > svg {
+  width: var(--icon-lg);
+  height: var(--icon-lg);
+}
+
 .mw-site-header__lang {
-  font-size: 0.82rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
+  font-size: var(--type-body-sm-size);
+  font-weight: var(--weight-bold);
 }
 
 .mw-site-header__burger {
   display: none;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: var(--size-lg-h);
+  height: var(--size-lg-h);
   border: none;
   border-radius: var(--radius-md);
   background: transparent;
-  color: var(--color-brand-500);
+  color: var(--text-primary);
   cursor: pointer;
 }
 
+.mw-site-header__burger > svg {
+  width: var(--icon-2xl);
+  height: var(--icon-2xl);
+}
+
 .mw-site-header__burger:hover {
-  background: rgb(var(--color-brand-500-rgb) / 0.08);
+  background: var(--fill-default);
 }
 
 .mw-site-header__scrim {
   position: fixed;
   inset: 0;
-  /* header 自身 z-index 100；遮罩必须垫在它下面，点内容区任意处收起抽屉 */
-  z-index: 99;
-  background: var(--material-mask);
-  animation: mw-site-header-fade-in 160ms ease-out;
+  /* 遮罩垫在顶栏之下，点内容区任意处收起抽屉。 */
+  z-index: calc(var(--z-sticky) - 1);
+  background: var(--scrim);
+  animation: mw-site-header-fade-in var(--duration-base) var(--ease-enter);
 }
 
 .mw-site-header__drawer {
   max-height: calc(100dvh - var(--mw-site-header-chrome, 68px));
   overflow-y: auto;
   overscroll-behavior: contain;
-  border-top: 1px solid var(--color-border-subtle);
-  background: var(--color-surface-overlay);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  animation: mw-site-header-slide-down 200ms ease-out;
+  border-top: var(--border-width) solid var(--border-subtle);
+  animation: mw-site-header-slide-down var(--duration-base) var(--ease-enter);
 }
 
 .mw-site-header__drawer-nav {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 12px 24px 0;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-6) 0;
 }
 
 .mw-site-header__drawer-link {
-  border-radius: var(--radius-sm);
-  padding: 12px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--color-text-secondary);
+  padding: var(--space-3);
+  border-radius: var(--radius-item);
+  color: var(--text-secondary);
+  font-size: var(--type-body-lg-size);
+  font-weight: var(--weight-semibold);
+  line-height: var(--type-body-line);
   text-decoration: none;
-  transition: color 0.15s ease-out, background-color 0.15s ease-out;
+  transition:
+    color var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard);
 }
 
 .mw-site-header__drawer-link:hover {
-  color: var(--color-text-primary);
-  background: rgb(var(--color-brand-500-rgb) / 0.08);
+  background: var(--fill-default);
+  color: var(--text-primary);
 }
 
 .mw-site-header__drawer-link.active {
-  color: var(--color-text-primary);
-  background: rgb(var(--color-brand-500-rgb) / 0.12);
+  background: var(--fill-selected);
+  color: var(--text-accent);
 }
 
 .mw-site-header__drawer-row {
   display: flex;
-  align-items: center;
   flex-wrap: wrap;
-  gap: 12px;
-  padding: 12px 24px 20px;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-6) var(--space-5);
 }
 
 .mw-site-header__drawer-theme {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  width: var(--hit-min);
+  height: var(--hit-min);
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   background: transparent;
-  color: var(--color-text-secondary);
+  color: var(--text-secondary);
   cursor: pointer;
+}
+
+.mw-site-header__drawer-theme:hover {
+  background: var(--fill-default);
+  color: var(--text-primary);
 }
 
 @keyframes mw-site-header-fade-in {
@@ -437,14 +460,10 @@ onUnmounted(() => {
   }
 }
 
-.mw-site-header__drawer-theme:hover {
-  background: rgb(var(--color-brand-500-rgb) / 0.08);
-}
-
 @keyframes mw-site-header-slide-down {
   from {
     opacity: 0;
-    transform: translateY(-0.5rem);
+    transform: translateY(calc(var(--motion-enter-offset) * -2));
   }
   to {
     opacity: 1;
@@ -464,15 +483,15 @@ onUnmounted(() => {
 
 @media (max-width: 560px) {
   .mw-site-header__inner {
-    padding: 10px 16px;
+    padding: var(--space-2-5) var(--space-4);
   }
 
   .mw-site-header__drawer-nav {
-    padding: 8px 12px 0;
+    padding: var(--space-2) var(--space-3) 0;
   }
 
   .mw-site-header__drawer-row {
-    padding: 8px 16px 20px;
+    padding: var(--space-2) var(--space-4) var(--space-5);
   }
 }
 
@@ -484,9 +503,12 @@ onUnmounted(() => {
     transition: none;
   }
 
-  .mw-site-header__scrim,
-  .mw-site-header__drawer {
+  .mw-site-header__scrim {
     animation: none;
+  }
+
+  .mw-site-header__drawer {
+    animation: mw-site-header-fade-in var(--duration-base) var(--ease-enter);
   }
 }
 </style>

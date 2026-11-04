@@ -38,7 +38,7 @@ describe("Popover", () => {
 
     const content = wrapper.get('[data-testid="decl-popover"]');
     expect(content.classes()).toContain("mw-popover");
-    expect(content.classes()).toContain("mw-glass");
+    expect(content.classes()).toContain("mw-frost");
     expect(content.attributes("aria-label")).toBe("文献详情浮层");
     expect(wrapper.get(".popover-body").text()).toBe("浮层正文内容");
 

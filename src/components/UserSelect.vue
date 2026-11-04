@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { X } from "lucide-vue-next";
 import { useI18n } from "vue-i18n";
 import SearchableMultiSelect from "./SearchableMultiSelect.vue";
 import UserChip from "./UserChip.vue";
@@ -47,7 +48,7 @@ function onUpdate(value: unknown[]) {
     <template #chip="{ option, remove }">
       <span class="mw-user-select__chip">
         <UserChip :user="asUser(option)" variant="tag" :show-card="false" />
-        <i class="pi pi-times mw-user-select__remove" @mousedown.stop.prevent="remove()" />
+        <X class="mw-user-select__remove" aria-hidden="true" @mousedown.stop.prevent="remove()" />
       </span>
     </template>
     <template #option="{ option }">
@@ -65,18 +66,20 @@ function onUpdate(value: unknown[]) {
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: var(--space-1);
   max-width: 100%;
 }
 .mw-user-select__remove {
   flex-shrink: 0;
-  color: var(--color-text-tertiary);
-  font-size: 0.75rem;
+  width: var(--icon-xs);
+  height: var(--icon-xs);
+  color: var(--text-tertiary);
+  font-size: var(--type-caption-size);
   cursor: pointer;
-  border-radius: var(--radius-pill);
-  transition: color 0.15s;
+  border-radius: var(--radius-full);
+  transition: color var(--duration-fast) var(--ease-standard);
 }
 .mw-user-select__remove:hover {
-  color: var(--color-text-primary);
+  color: var(--text-primary);
 }
 </style>

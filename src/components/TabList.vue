@@ -35,9 +35,9 @@ const rootAttrs = computed(() => {
 <style scoped>
 .mw-tab-list {
   display: flex;
-  align-items: center;
-  gap: var(--space-1);
-  border-bottom: 1px solid var(--color-border-subtle);
+  align-items: stretch;
+  gap: var(--space-2);
+  border-bottom: var(--border-width) solid var(--border-subtle);
   overflow-x: auto;
   scrollbar-width: none;
 }
@@ -48,8 +48,8 @@ const rootAttrs = computed(() => {
 
 .mw-tab-list[aria-orientation="vertical"] {
   flex-direction: column;
-  align-items: stretch;
+  gap: var(--space-0-5);
   border-bottom: 0;
-  border-right: 1px solid var(--color-border-subtle);
+  border-inline-end: var(--border-width) solid var(--border-subtle);
 }
 </style>

@@ -40,7 +40,8 @@ const rootAttrs = computed(() => {
 }
 
 .mw-tab-panel:focus-visible {
-  border-radius: var(--radius);
-  box-shadow: var(--effect-focus-ring);
+  border-radius: var(--radius-item);
+  outline: var(--focus-width) solid var(--focus-color);
+  outline-offset: var(--focus-offset);
 }
 </style>

@@ -311,12 +311,16 @@ function onKeydown(handleIndex: 0 | 1, event: KeyboardEvent) {
 
 <style scoped>
 .mw-slider {
+  --_sl-hit: var(--icon-lg);
+  --_sl-track: var(--space-1-5);
+  --_sl-thumb: var(--icon-sm);
+  --_sl-v-len: calc(var(--size-lg-h) * 3.5);
   position: relative;
   display: inline-flex;
   align-items: center;
   width: 100%;
-  min-width: 6rem;
-  height: 20px;
+  min-width: calc(var(--size-lg-h) * 2.5);
+  height: var(--_sl-hit);
   cursor: pointer;
   user-select: none;
   touch-action: none;
@@ -325,9 +329,9 @@ function onKeydown(handleIndex: 0 | 1, event: KeyboardEvent) {
 
 .mw-slider--vertical {
   flex-direction: column;
-  width: 20px;
-  min-width: 20px;
-  height: 140px;
+  width: var(--_sl-hit);
+  min-width: var(--_sl-hit);
+  height: var(--_sl-v-len);
 }
 
 .mw-slider--disabled,
@@ -339,15 +343,15 @@ function onKeydown(handleIndex: 0 | 1, event: KeyboardEvent) {
 .mw-slider__track {
   position: relative;
   width: 100%;
-  height: 6px;
-  border-radius: var(--radius-pill);
-  background-color: var(--color-border-subtle);
+  height: var(--_sl-track);
+  border-radius: var(--radius-full);
+  background-color: var(--fill-strong);
   overflow: hidden;
   pointer-events: none;
 }
 
 .mw-slider--vertical .mw-slider__track {
-  width: 6px;
+  width: var(--_sl-track);
   height: 100%;
 }
 
@@ -355,8 +359,8 @@ function onKeydown(handleIndex: 0 | 1, event: KeyboardEvent) {
   position: absolute;
   top: 0;
   bottom: 0;
-  background-color: var(--color-brand-500);
-  border-radius: var(--radius-pill);
+  background-color: var(--accent);
+  border-radius: var(--radius-full);
 }
 
 .mw-slider--vertical .mw-slider__range {
@@ -383,18 +387,18 @@ function onKeydown(handleIndex: 0 | 1, event: KeyboardEvent) {
 .mw-slider__handle {
   position: absolute;
   top: 50%;
-  width: 16px;
-  height: 16px;
-  border-radius: var(--radius-pill);
-  background-color: var(--color-surface-base);
-  border: 2px solid var(--color-brand-500);
-  box-shadow: var(--shadow-xs);
+  width: var(--_sl-thumb);
+  height: var(--_sl-thumb);
+  border-radius: var(--radius-full);
+  background-color: var(--bg-raised); /* opaque-ok: physical slider thumb */
+  border: calc(var(--border-width) * 2) solid var(--accent);
+  box-shadow: var(--shadow-raised);
   transform: translate(-50%, -50%);
   pointer-events: none;
   z-index: 1;
   transition:
-    transform var(--motion-duration-fast) var(--motion-spring-snap),
-    box-shadow var(--motion-duration-fast) var(--motion-ease-standard);
+    transform var(--duration-fast) var(--ease-spring-snap),
+    box-shadow var(--duration-fast) var(--ease-standard);
 }
 
 .mw-slider--vertical .mw-slider__handle {
@@ -404,7 +408,7 @@ function onKeydown(handleIndex: 0 | 1, event: KeyboardEvent) {
 }
 
 .mw-slider__input:focus-visible ~ .mw-slider__handle {
-  box-shadow: var(--effect-focus-ring);
+  box-shadow: var(--focus-shadow);
 }
 
 @media (prefers-reduced-motion: reduce) {

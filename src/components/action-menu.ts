@@ -1,3 +1,5 @@
+import type { Component } from "vue";
+
 export interface ActionMenuCommandEvent {
   originalEvent: Event;
   item: ActionMenuItem;
@@ -6,7 +8,7 @@ export interface ActionMenuCommandEvent {
 export interface ActionMenuItem {
   key?: string;
   label?: string | (() => string);
-  icon?: string;
+  icon?: Component;
   command?: (event: ActionMenuCommandEvent) => void;
   url?: string;
   target?: string;

@@ -1,10 +1,10 @@
 /**
- * v-tooltip —— 纯文本 tooltip 指令（自研，**不是 PrimeVue Tooltip**）。
+ * v-tooltip —— 纯文本 tooltip 指令。
  *
  * 底座与 HoverCard 同源：定位走 ./hover-card.ts 的 computeHoverCardPosition
- *（fixed + 视口系坐标 + 翻转/夹紧 + 出视口收起），面板复用全局
- * `.mw-hovercard__panel` 玻璃样式（styles.css——指令创建的 DOM 没有组件的
- * scoped 属性，面板样式必须是全局的），与 PrimeVue 浮层同配方、不带箭头。
+ *（fixed + 视口系坐标 + 翻转/夹紧 + 出视口收起），面板复用 base.css 的全局
+ * `.mw-hovercard__panel` 霜面样式（指令创建的 DOM 没有组件的 scoped 属性，
+ * 面板样式必须是全局的），不带箭头。
  *
  * 用法：值只接字符串；方向用修饰符 `.top`（默认）/`.right`/`.bottom`/`.left`。
  * 富内容（组件、按钮、多行结构）不要往这里塞，用 HoverCard 组件。
@@ -63,7 +63,7 @@ function reposition(el: HostEl, st: TooltipState) {
   panel.style.position = "fixed";
   panel.style.left = `${Math.round(pos.left)}px`;
   panel.style.top = `${Math.round(pos.top)}px`;
-  panel.style.zIndex = "2000";
+  panel.style.zIndex = "var(--z-tooltip)";
 }
 
 function show(el: HostEl, st: TooltipState) {

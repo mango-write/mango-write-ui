@@ -249,7 +249,7 @@ onBeforeUnmount(() => {
         @click.self="onOverlayClick"
       />
       <DialogContent
-        class="mw-confirm mw-glass mw-glass--strong"
+        class="mw-confirm mw-frost mw-frost--thick"
         :class="{ 'mw-confirm--danger': renderRequest.danger }"
         :data-danger="renderRequest.danger ? 'true' : undefined"
         :data-group="group"
@@ -271,16 +271,12 @@ onBeforeUnmount(() => {
               :class="{ 'mw-confirm__icon--danger': renderRequest.danger }"
               aria-hidden="true"
             >
-              <i
-                v-if="typeof renderRequest.icon === 'string'"
-                :class="renderRequest.icon"
-              />
               <component
                 :is="renderRequest.icon"
-                v-else-if="renderRequest.icon"
+                v-if="renderRequest.icon"
               />
-              <AlertTriangle v-else-if="renderRequest.danger" :size="20" />
-              <HelpCircle v-else :size="20" />
+              <AlertTriangle v-else-if="renderRequest.danger" :size="18" />
+              <HelpCircle v-else :size="18" />
             </span>
             <DialogTitle class="mw-confirm__title">
               {{ renderRequest.title || renderRequest.header || defaultTitle }}
@@ -296,7 +292,7 @@ onBeforeUnmount(() => {
             </slot>
           </DialogDescription>
 
-          <div class="mw-confirm__footer">
+          <div class="mw-confirm__footer mw-size-md">
             <button
               ref="rejectBtnRef"
               type="button"
@@ -327,29 +323,40 @@ onBeforeUnmount(() => {
 .mw-confirm-overlay {
   position: fixed;
   inset: 0;
-  z-index: var(--z-scrim);
-  background-color: var(--material-mask);
-  -webkit-backdrop-filter: var(--material-mask-blur);
-  backdrop-filter: var(--material-mask-blur);
+  z-index: var(--z-overlay);
+  background-color: var(--scrim);
+}
+
+.mw-confirm-overlay[data-state="open"] {
+  animation: mw-confirm-fade-in var(--duration-slow) var(--ease-emphasized);
+}
+
+.mw-confirm-overlay[data-state="closed"] {
+  animation: mw-confirm-fade-out var(--duration-fast) var(--ease-exit);
 }
 
 .mw-confirm {
   position: fixed;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: var(--z-scrim);
-  width: min(440px, calc(100vw - 32px));
+  translate: -50% -50%;
+  z-index: calc(var(--z-overlay) + 1);
+  width: min(27.5rem, calc(100vw - var(--space-8)));
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-3);
   padding: var(--space-5);
-  border-radius: var(--radius-xl);
-  border: 1px solid var(--material-hairline);
-  background-color: var(--elevation-3-surface);
-  box-shadow: var(--elevation-3-shadow);
-  color: var(--color-text-primary);
-  font-family: var(--font-family-sans);
+  border-radius: var(--radius-dialog);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+}
+
+.mw-confirm[data-state="open"] {
+  animation: mw-confirm-enter var(--duration-slow) var(--ease-emphasized);
+}
+
+.mw-confirm[data-state="closed"] {
+  animation: mw-confirm-fade-out var(--duration-fast) var(--ease-exit);
 }
 
 .mw-confirm:focus {
@@ -367,43 +374,50 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius);
-  background-color: var(--color-info-surface);
-  color: var(--color-info-500);
+  width: var(--size-md-h);
+  height: var(--size-md-h);
+  border-radius: var(--radius-md);
+  background-color: var(--info-subtle);
+  color: var(--info);
+}
+
+.mw-confirm__icon :deep(svg) {
+  width: var(--icon-lg);
+  height: var(--icon-lg);
+  font-size: var(--icon-lg);
 }
 
 .mw-confirm__icon--danger {
-  background-color: var(--color-danger-surface);
-  color: var(--color-danger-500);
+  background-color: var(--danger-subtle);
+  color: var(--danger);
 }
 
 .mw-confirm__title {
   margin: 0;
-  font-size: var(--font-size-title-sm);
-  font-weight: 600;
-  line-height: var(--line-height-tight);
-  color: var(--color-text-primary);
+  color: var(--text-primary);
+  font-size: var(--type-title-size);
+  font-weight: var(--weight-semibold);
+  line-height: var(--type-title-line);
+  letter-spacing: var(--tracking-title);
 }
 
 .mw-confirm__body {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
-  font-size: var(--font-size-body-sm);
-  line-height: var(--line-height-body);
-  color: var(--color-text-secondary);
+  gap: var(--space-1-5);
+  color: var(--text-secondary);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
 }
 
-.mw-confirm__message {
+.mw-confirm__message,
+.mw-confirm__description {
   margin: 0;
-  color: var(--color-text-primary);
 }
 
 .mw-confirm__description {
-  margin: 0;
-  color: var(--color-text-secondary);
+  font-size: var(--type-body-sm-size);
+  line-height: var(--type-body-sm-line);
 }
 
 .mw-confirm__footer {
@@ -411,76 +425,113 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: flex-end;
   gap: var(--space-2);
-  margin-top: var(--space-1);
+  margin-top: var(--space-2);
 }
 
 .mw-confirm__btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 36px;
-  padding: 0 var(--space-4);
-  border-radius: var(--radius);
-  font-family: var(--font-family-sans);
-  font-size: var(--font-size-body-sm);
-  font-weight: 500;
+  height: var(--control-h);
+  padding-inline: var(--control-px);
+  border: var(--border-width) solid transparent;
+  border-radius: var(--control-radius);
+  font-family: var(--font-sans);
+  font-size: var(--control-font);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-tight);
+  white-space: nowrap;
   cursor: pointer;
   transition:
-    background-color var(--motion-duration-fast) var(--motion-ease-standard),
-    border-color var(--motion-duration-fast) var(--motion-ease-standard),
-    box-shadow var(--motion-duration-fast) var(--motion-ease-standard);
+    background-color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
 }
 
 .mw-confirm__btn:focus-visible {
-  outline: none;
-  box-shadow: var(--effect-focus-ring);
+  outline: var(--focus-width) solid var(--focus-color);
+  outline-offset: var(--focus-offset);
 }
 
 .mw-confirm__btn--reject {
-  border: 1px solid var(--color-border-subtle);
-  background-color: var(--color-surface-base);
-  color: var(--color-text-secondary);
+  border-color: var(--control-border);
+  background-color: var(--control-bg);
+  color: var(--text-primary);
 }
 
 .mw-confirm__btn--reject:hover {
-  background-color: var(--color-bg-hover);
-  border-color: var(--color-border-strong);
-  color: var(--color-text-primary);
+  border-color: var(--control-border-hover);
+  background-color: var(--control-bg-hover);
+}
+
+.mw-confirm__btn--reject:active {
+  background-color: var(--fill-strong);
 }
 
 .mw-confirm__btn--primary {
-  border: 1px solid transparent;
-  background-color: var(--color-brand-500);
-  color: var(--color-text-on-brand);
+  background-color: var(--accent);
+  color: var(--text-on-accent);
 }
 
 .mw-confirm__btn--primary:hover {
-  background-color: var(--color-brand-600);
+  background-color: var(--accent-hover);
+}
+
+.mw-confirm__btn--primary:active {
+  background-color: var(--accent-pressed);
 }
 
 .mw-confirm__btn--danger {
-  border: 1px solid var(--color-danger-border);
-  background-color: var(--color-danger-500);
-  color: var(--site-on-ink);
+  background-color: var(--danger);
+  color: var(--text-on-danger);
 }
 
 .mw-confirm__btn--danger:hover {
-  background-color: var(--color-danger-700);
+  background-color: var(--danger-hover);
 }
 
 .mw-confirm__btn--warn {
-  border: 1px solid var(--color-warning-border);
-  background-color: var(--color-warning-500);
-  color: var(--color-text-on-brand);
+  background-color: var(--warning-subtle);
+  color: var(--warning-text);
+}
+
+.mw-confirm__btn--warn:hover {
+  background-color: var(--warning-border);
 }
 
 .mw-confirm__btn--secondary {
-  border: 1px solid var(--color-border-strong);
-  background-color: var(--color-surface-muted);
-  color: var(--color-text-primary);
+  background-color: var(--fill-default);
+  color: var(--text-primary);
+}
+
+.mw-confirm__btn--secondary:hover {
+  background-color: var(--fill-strong);
+}
+
+@keyframes mw-confirm-enter {
+  from {
+    opacity: 0;
+    scale: var(--motion-enter-scale);
+  }
+}
+
+@keyframes mw-confirm-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes mw-confirm-fade-out {
+  to {
+    opacity: 0;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .mw-confirm[data-state="open"] {
+    animation-name: mw-confirm-fade-in;
+  }
+
   .mw-confirm__btn {
     transition: none;
   }

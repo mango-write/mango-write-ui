@@ -51,10 +51,11 @@ async function bundleConsumer(entryCode: string, useMangoSource: boolean): Promi
           input: entryFile,
           external: [
             "vue",
+            "vue-i18n",
             "vue-router",
             /^primevue(\/.*)?$/,
             /^@primeuix\/.*$/,
-            /^primeicons(\/.*)?$/,
+            /^lucide-vue-next(\/.*)?$/,
             /^reka-ui(\/.*)?$/,
             /^@tanstack\/vue-table(\/.*)?$/,
           ],

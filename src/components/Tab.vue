@@ -37,54 +37,87 @@ const rootAttrs = computed(() => {
 .mw-tab {
   position: relative;
   display: inline-flex;
+  flex: none;
   align-items: center;
   justify-content: center;
-  gap: var(--space-2);
-  min-height: 36px;
-  padding: var(--space-2) var(--space-3);
+  gap: var(--control-gap);
+  height: var(--control-h);
+  padding-block: 0;
+  padding-inline: var(--space-2);
   border: 0;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
+  border-radius: var(--radius-item) var(--radius-item) 0 0;
   background: transparent;
-  color: var(--color-text-secondary);
-  font-family: var(--font-family-sans);
-  font-size: var(--font-size-body-sm);
-  font-weight: 500;
-  line-height: 1.25;
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: var(--control-font);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-tight);
   white-space: nowrap;
   cursor: pointer;
-  transition:
-    color var(--motion-duration-fast) var(--motion-ease-standard),
-    border-color var(--motion-duration-base) var(--motion-ease-standard),
-    background-color var(--motion-duration-fast) var(--motion-ease-standard);
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+
+.mw-tab::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: var(--space-0-5);
+  border-radius: var(--radius-full);
+  background-color: var(--accent);
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+
+.mw-tab :deep(svg) {
+  flex: none;
+  width: var(--control-icon);
+  height: var(--control-icon);
 }
 
 .mw-tab:hover:not(:disabled):not([data-disabled]) {
-  color: var(--color-text-primary);
-  background-color: var(--material-hover);
-  border-top-left-radius: var(--radius-sm);
-  border-top-right-radius: var(--radius-sm);
+  color: var(--text-primary);
 }
 
 .mw-tab[data-state="active"] {
-  color: var(--color-brand-700);
-  border-bottom-color: var(--color-brand-500);
+  color: var(--text-primary);
+}
+
+.mw-tab[data-state="active"]::after {
+  opacity: 1;
 }
 
 .mw-tab:focus-visible {
-  outline: none;
-  border-radius: var(--radius-sm);
-  box-shadow: var(--effect-focus-ring);
+  outline: var(--focus-width) solid var(--focus-color);
+  outline-offset: calc(-1 * var(--focus-width));
 }
 
 .mw-tab:disabled,
 .mw-tab[data-disabled] {
-  opacity: var(--opacity-disabled);
+  color: var(--text-disabled);
   cursor: not-allowed;
 }
 
+.mw-tab[data-orientation="vertical"] {
+  justify-content: flex-start;
+  padding-inline: var(--control-px);
+  border-radius: var(--radius-item) 0 0 var(--radius-item);
+}
+
+.mw-tab[data-orientation="vertical"]::after {
+  inset-inline: auto 0;
+  inset-block: var(--space-1);
+  width: var(--space-0-5);
+  height: auto;
+}
+
+.mw-tab[data-orientation="vertical"]:hover:not(:disabled):not([data-disabled]) {
+  background-color: var(--fill-subtle);
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .mw-tab {
+  .mw-tab,
+  .mw-tab::after {
     transition: none;
   }
 }

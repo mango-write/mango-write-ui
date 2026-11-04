@@ -1,6 +1,6 @@
 import type { CSSProperties } from "vue";
 
-export type InputNumberSize = "sm" | "md" | "lg" | "small" | "large";
+export type InputNumberSize = "xs" | "sm" | "md" | "lg" | "small" | "large";
 
 export type InputNumberMode = "decimal" | "currency";
 

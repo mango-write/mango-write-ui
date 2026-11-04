@@ -48,14 +48,14 @@ const rootAttrs = computed(() => {
 
 <style>
 .mw-accordion__content {
-  color: var(--color-text-primary);
-  font-family: var(--font-family-sans);
-  font-size: var(--font-size-body-sm);
-  line-height: var(--line-height-body);
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: var(--type-body-sm-size);
+  line-height: var(--type-body-sm-line);
 }
 
 .mw-accordion__content-inner {
   min-width: 0;
-  padding: 0 var(--space-3) var(--space-3);
+  padding: var(--space-1) var(--control-px) var(--space-4);
 }
 </style>

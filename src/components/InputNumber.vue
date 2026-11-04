@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, useAttrs, watch, type CSSProperties } from "vue";
+import { ChevronDown, ChevronUp, Minus, Plus, X } from "lucide-vue-next";
 import type {
   InputNumberButtonLayout,
   InputNumberClassValue,
@@ -48,7 +49,7 @@ const props = withDefaults(defineProps<InputNumberProps>(), {
   invalid: false,
   required: false,
   fluid: false,
-  size: "md",
+  size: undefined,
   inputId: undefined,
   id: undefined,
   name: undefined,
@@ -65,10 +66,11 @@ const attrs = useAttrs();
 const inputEl = ref<HTMLInputElement | null>(null);
 const isFocused = ref(false);
 
-const resolvedSize = computed<"sm" | "md" | "lg">(() => {
+const resolvedSize = computed(() => {
   if (props.size === "small" || props.size === "sm") return "sm";
   if (props.size === "large" || props.size === "lg") return "lg";
-  return "md";
+  if (props.size === "xs" || props.size === "md") return props.size;
+  return undefined;
 });
 
 function countDecimals(num: number): number {
@@ -244,7 +246,7 @@ const resolvedInputId = computed(() => props.inputId ?? props.id);
 const rootClass = computed(() => [
   "mw-input-number",
   "p-inputnumber",
-  `mw-input-number--${resolvedSize.value}`,
+  resolvedSize.value ? [`mw-input-number--${resolvedSize.value}`, `mw-size-${resolvedSize.value}`] : undefined,
   {
     "mw-input-number--fluid": props.fluid,
     "p-inputnumber-fluid": props.fluid,
@@ -265,7 +267,7 @@ const inputClasses = computed(() => [
   "mw-input",
   "p-inputtext",
   "p-inputnumber-input",
-  `mw-input-number__input--${resolvedSize.value}`,
+  resolvedSize.value ? `mw-input-number__input--${resolvedSize.value}` : undefined,
   props.inputClass,
 ]);
 
@@ -480,9 +482,7 @@ defineExpose({
       aria-label="Decrement"
       @click="stepBy(-1, $event)"
     >
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true">
-        <path d="M3.5 8h9" />
-      </svg>
+      <Minus :size="12" aria-hidden="true" />
     </button>
 
     <button
@@ -494,9 +494,7 @@ defineExpose({
       aria-label="Increment"
       @click="stepBy(1, $event)"
     >
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M4 10l4-4 4 4" />
-      </svg>
+      <ChevronUp :size="12" aria-hidden="true" />
     </button>
 
     <input
@@ -544,9 +542,7 @@ defineExpose({
       @mousedown.prevent
       @click="onClear"
     >
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true">
-        <path d="M4 4l8 8M12 4l-8 8" />
-      </svg>
+      <X :size="12" aria-hidden="true" />
     </button>
 
     <span
@@ -561,9 +557,7 @@ defineExpose({
         aria-label="Increment"
         @click="stepBy(1, $event)"
       >
-        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M4 10l4-4 4 4" />
-        </svg>
+        <ChevronUp :size="12" aria-hidden="true" />
       </button>
       <button
         type="button"
@@ -573,9 +567,7 @@ defineExpose({
         aria-label="Decrement"
         @click="stepBy(-1, $event)"
       >
-        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M4 6l4 4 4-4" />
-        </svg>
+        <ChevronDown :size="12" aria-hidden="true" />
       </button>
     </span>
 
@@ -588,9 +580,7 @@ defineExpose({
       aria-label="Increment"
       @click="stepBy(1, $event)"
     >
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true">
-        <path d="M8 3.5v9M3.5 8h9" />
-      </svg>
+      <Plus :size="12" aria-hidden="true" />
     </button>
 
     <button
@@ -602,18 +592,19 @@ defineExpose({
       aria-label="Decrement"
       @click="stepBy(-1, $event)"
     >
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M4 6l4 4 4-4" />
-      </svg>
+      <ChevronDown :size="12" aria-hidden="true" />
     </button>
   </span>
 </template>
 
 <style scoped>
 .mw-input-number {
+  --mw-input-number-step-w: calc(var(--control-icon) + var(--space-1));
+
   position: relative;
   display: inline-flex;
   align-items: stretch;
+  height: var(--control-h);
   vertical-align: middle;
 }
 
@@ -629,55 +620,35 @@ defineExpose({
 .mw-input-number--vertical {
   flex-direction: column;
   width: fit-content;
+  height: auto;
 }
 
 .mw-input-number__input {
   flex: 1 1 auto;
   min-width: 0;
   width: 100%;
-  min-height: var(--control-height-default);
-  padding-inline: var(--space-3);
-  padding-block: var(--space-2);
-  border-radius: var(--radius);
-  font-family: var(--font-family-sans);
-  font-size: var(--font-size-body-sm);
-  line-height: var(--line-height-body);
-  color: var(--color-text-primary);
-}
-
-.mw-input-number__input::placeholder {
-  color: var(--color-text-tertiary);
+  height: var(--control-h);
+  padding-inline: var(--control-px);
+  font-variant-numeric: tabular-nums;
 }
 
 .mw-input-number--stacked .mw-input-number__input {
-  width: 6rem;
-  padding-inline-end: 1.75rem;
+  width: calc(var(--control-h) * 3);
+  padding-inline-end: calc(var(--mw-input-number-step-w) + var(--control-gap));
 }
 
-.mw-input-number__input--sm {
-  min-height: var(--control-height-compact);
-  padding-inline: var(--space-2);
-  padding-block: var(--space-1);
-  font-size: var(--font-size-caption);
-}
-
-.mw-input-number__input--lg {
-  min-height: var(--control-height-large);
-  padding-inline: var(--space-4);
-  padding-block: var(--space-3);
-  font-size: var(--font-size-body);
+.mw-input-number--fluid.mw-input-number--stacked .mw-input-number__input {
+  width: 100%;
 }
 
 .mw-input-number__button-group {
   position: absolute;
-  inset-block-start: 2px;
-  inset-inline-end: 2px;
-  height: calc(100% - 4px);
-  width: 1.375rem;
+  inset-block: calc(var(--border-width) * 2);
+  inset-inline-end: calc(var(--border-width) * 2);
   display: flex;
   flex-direction: column;
-  border-start-end-radius: var(--radius-sm);
-  border-end-end-radius: var(--radius-sm);
+  width: var(--mw-input-number-step-w);
+  border-radius: calc(var(--control-radius) - var(--border-width) * 2);
   overflow: hidden;
 }
 
@@ -690,63 +661,138 @@ defineExpose({
   padding: 0;
   border: 0;
   background: transparent;
-  color: var(--color-text-secondary);
+  color: var(--text-secondary);
   cursor: pointer;
   transition:
-    background-color var(--motion-duration-fast) var(--motion-ease-standard),
-    color var(--motion-duration-fast) var(--motion-ease-standard);
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
 }
 
 .mw-input-number__button:hover:not(:disabled) {
-  background-color: var(--color-bg-hover);
-  color: var(--color-text-primary);
+  background-color: var(--fill-default);
+  color: var(--text-primary);
+}
+
+.mw-input-number__button:active:not(:disabled) {
+  background-color: var(--fill-strong);
 }
 
 .mw-input-number__button:disabled {
-  opacity: var(--opacity-disabled);
+  color: var(--text-disabled);
   cursor: not-allowed;
 }
 
 .mw-input-number__button svg {
-  width: 12px;
-  height: 12px;
   flex-shrink: 0;
+  width: calc(var(--control-icon) * 0.75);
+  height: calc(var(--control-icon) * 0.75);
+}
+
+.mw-input-number--horizontal .mw-input-number__button,
+.mw-input-number--vertical .mw-input-number__button {
+  flex: none;
+  border: var(--border-width) solid var(--control-border);
+  background-color: var(--fill-subtle);
+}
+
+.mw-input-number--horizontal .mw-input-number__button {
+  width: var(--control-h);
+}
+
+.mw-input-number--horizontal .mw-input-number__button svg,
+.mw-input-number--vertical .mw-input-number__button svg {
+  width: var(--control-icon);
+  height: var(--control-icon);
+}
+
+.mw-input-number--horizontal .mw-input-number__input {
+  width: calc(var(--control-h) * 2.5);
+  text-align: center;
+}
+
+.mw-input-number--horizontal .mw-input-number__button--down {
+  margin-inline-end: calc(-1 * var(--border-width));
+  border-radius: var(--control-radius) 0 0 var(--control-radius);
+}
+
+.mw-input-number--horizontal .mw-input-number__button--up {
+  margin-inline-start: calc(-1 * var(--border-width));
+  border-radius: 0 var(--control-radius) var(--control-radius) 0;
+}
+
+.mw-input-number--horizontal .mw-input-number__input,
+.mw-input-number--vertical .mw-input-number__input {
+  border-radius: 0;
+}
+
+.mw-input-number--horizontal .mw-input-number__input:focus-visible,
+.mw-input-number--vertical .mw-input-number__input:focus-visible {
+  position: relative;
+  z-index: var(--z-raised);
+}
+
+.mw-input-number--vertical .mw-input-number__button {
+  height: calc(var(--control-h) * 0.75);
+}
+
+.mw-input-number--vertical .mw-input-number__input {
+  width: calc(var(--control-h) * 2.5);
+  text-align: center;
+}
+
+.mw-input-number--vertical .mw-input-number__button--up {
+  margin-block-end: calc(-1 * var(--border-width));
+  border-radius: var(--control-radius) var(--control-radius) 0 0;
+}
+
+.mw-input-number--vertical .mw-input-number__button--down {
+  margin-block-start: calc(-1 * var(--border-width));
+  border-radius: 0 0 var(--control-radius) var(--control-radius);
 }
 
 .mw-input-number__clear {
   position: absolute;
   inset-block-start: 50%;
-  inset-inline-end: 8px;
-  transform: translateY(-50%);
+  inset-inline-end: var(--control-px);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 18px;
-  padding: 3px;
+  width: var(--control-icon);
+  height: var(--control-icon);
+  padding: 0;
   border: 0;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-full);
   background: transparent;
-  color: var(--color-text-tertiary);
+  color: var(--text-tertiary);
   cursor: pointer;
+  transform: translateY(-50%);
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
 }
 
 .mw-input-number--stacked .mw-input-number__clear {
-  inset-inline-end: 26px;
+  inset-inline-end: calc(var(--mw-input-number-step-w) + var(--control-gap));
 }
 
 .mw-input-number__clear:hover {
-  color: var(--color-brand-600);
-  background-color: rgb(var(--color-brand-500-rgb) / 0.14);
+  background-color: var(--fill-default);
+  color: var(--text-primary);
+}
+
+.mw-input-number__clear:focus-visible {
+  outline: var(--focus-width) solid var(--focus-color);
+  outline-offset: var(--focus-offset);
 }
 
 .mw-input-number__clear svg {
-  width: 10px;
-  height: 10px;
+  width: calc(var(--control-icon) * 0.75);
+  height: calc(var(--control-icon) * 0.75);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .mw-input-number__button {
+  .mw-input-number__button,
+  .mw-input-number__clear {
     transition: none;
   }
 }

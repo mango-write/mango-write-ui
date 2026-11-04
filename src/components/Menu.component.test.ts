@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { nextTick } from "vue";
+import { Settings, User } from "lucide-vue-next";
 import { mountUiComponent } from "../test-utils/mount.js";
 import Menu from "./Menu.vue";
 import type { MenuItem } from "./menu";
@@ -8,12 +9,12 @@ describe("Menu", () => {
   it("renders inline menu items, submenus, and separators", () => {
     const commandSpy = vi.fn();
     const model: MenuItem[] = [
-      { label: "Profile", icon: "pi pi-user", command: commandSpy },
+      { label: "Profile", icon: User, command: commandSpy },
       { separator: true },
       {
         label: "Workspace",
         items: [
-          { label: "Settings", icon: "pi pi-cog" },
+          { label: "Settings", icon: Settings },
           { label: "Disabled Item", disabled: true },
           { label: "Hidden Item", visible: false },
         ],

@@ -13,6 +13,7 @@
 // 3）面板用自管的 Teleport 浮层（见 useComboPanel），避免 PrimeVue Popover 在
 //    「聚焦即输入过滤」场景下中途自我关闭。
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, useId, watch } from "vue";
+import { ChevronDown, X } from "lucide-vue-next";
 import { useI18n } from "vue-i18n";
 import { useComboPanel } from "../lib/useComboPanel";
 
@@ -276,17 +277,7 @@ function onKeydown(event: KeyboardEvent) {
             @mousedown.stop.prevent
             @click.stop="removeAt(i)"
           >
-            <svg
-              class="pi pi-times"
-              viewBox="0 0 16 16"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.75"
-              stroke-linecap="round"
-              aria-hidden="true"
-            >
-              <path d="M4 4l8 8M12 4l-8 8" />
-            </svg>
+            <X aria-hidden="true" />
           </button>
         </span>
       </slot>
@@ -333,34 +324,13 @@ function onKeydown(event: KeyboardEvent) {
       >
         <span class="mw-ms-chip">
           <span class="mw-ms-chip-label">{{ labelOf(o) }}</span>
-          <svg
-            class="pi pi-times mw-ms-chip-remove"
-            viewBox="0 0 16 16"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.75"
-            stroke-linecap="round"
-            aria-hidden="true"
-          >
-            <path d="M4 4l8 8M12 4l-8 8" />
-          </svg>
+          <X class="mw-ms-chip-remove" aria-hidden="true" />
         </span>
       </slot>
     </div>
 
     <span class="mw-ms-dropdown" aria-hidden="true">
-      <svg
-        class="pi pi-chevron-down"
-        viewBox="0 0 16 16"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.75"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        aria-hidden="true"
-      >
-        <path d="M4 6l4 4 4-4" />
-      </svg>
+      <ChevronDown aria-hidden="true" />
     </span>
 
     <Teleport to="body">
@@ -368,7 +338,7 @@ function onKeydown(event: KeyboardEvent) {
         v-if="open"
         :id="listboxId"
         ref="panelRef"
-        class="mw-ms-overlay"
+        class="mw-ms-overlay mw-frost"
         :style="panelStyle"
         :aria-label="ariaLabel"
         :aria-labelledby="ariaLabelledby"
@@ -398,42 +368,39 @@ function onKeydown(event: KeyboardEvent) {
 </template>
 
 <style scoped>
-/* ── Field — Mango control surface tokens ── */
 .mw-ms {
+  --_ms-min-h: var(--control-h);
   position: relative;
   display: inline-flex;
   align-items: stretch;
   width: 100%;
-  min-height: var(--mw-ms-min-h, 2rem);
+  min-height: var(--_ms-min-h);
   cursor: text;
-  background-color: var(--color-surface-base);
-  background-image: var(--material-control-face);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius);
-  box-shadow: var(--material-control-inset);
+  background-color: var(--control-bg);
+  border: var(--border-width) solid var(--control-border);
+  border-radius: var(--control-radius);
   transition:
-    border-color 0.18s,
-    box-shadow 0.18s,
-    outline-color 0.18s;
-  outline: 3px solid transparent;
-  outline-offset: 0;
+    border-color var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard);
 }
 .mw-ms:not(.mw-ms-disabled):hover {
-  border-color: var(--color-border-strong);
+  border-color: var(--control-border-hover);
+  background-color: var(--control-bg-hover);
 }
 .mw-ms-focus {
-  border-color: var(--color-brand-500);
-  outline-color: rgb(var(--color-brand-500-rgb) / 0.18);
+  border-color: var(--focus-color);
+  box-shadow: var(--focus-shadow);
 }
 .mw-ms-invalid {
-  border-color: var(--color-danger-500);
+  border-color: var(--danger);
 }
 .mw-ms-disabled {
   opacity: var(--opacity-disabled);
   cursor: default;
+  background-color: var(--control-bg-disabled);
 }
 
-/* Label row */
 .mw-ms-label {
   flex: 1 1 auto;
   width: 1%;
@@ -441,25 +408,24 @@ function onKeydown(event: KeyboardEvent) {
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
-  gap: 0.1875rem;
-  padding: 0.1875rem 0.3125rem;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-1-5);
   overflow: hidden;
 }
 
-/* Chip */
 .mw-ms-chip {
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: var(--space-1);
   max-width: 100%;
-  padding-block: 0.1875rem;
-  padding-inline: 0.5rem;
-  border-radius: var(--radius-sm);
-  background: var(--color-surface-muted);
-  color: var(--color-text-primary);
-  font-size: 0.8125rem;
-  line-height: 1.25;
+  padding-block: var(--space-0-5);
+  padding-inline: var(--space-2);
+  border-radius: var(--radius-xs);
+  background-color: var(--fill-default);
+  color: var(--text-primary);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
   white-space: nowrap;
 }
 .mw-ms-chip-label {
@@ -473,59 +439,58 @@ function onKeydown(event: KeyboardEvent) {
   justify-content: center;
   padding: 0;
   border: 0;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-full);
   background: transparent;
-  color: var(--color-text-tertiary);
+  color: var(--text-tertiary);
   font: inherit;
-  font-size: 0.75rem;
+  font-size: var(--type-caption-size);
   cursor: pointer;
   transition:
-    color 0.15s,
-    background 0.15s;
+    color var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard);
 }
-.mw-ms-chip-remove .pi,
-.mw-ms-chip-remove.pi {
-  width: 0.75rem;
-  height: 0.75rem;
+.mw-ms-chip-remove svg,
+svg.mw-ms-chip-remove {
+  width: var(--icon-xs);
+  height: var(--icon-xs);
 }
 .mw-ms-chip-remove:hover {
-  color: var(--color-text-primary);
-  background: var(--color-surface-muted);
+  color: var(--text-primary);
+  background-color: var(--fill-strong);
 }
 .mw-ms-chip-remove:focus-visible {
-  outline: 2px solid var(--color-brand-500);
-  outline-offset: 1px;
+  outline: var(--focus-width) solid var(--focus-color);
+  outline-offset: var(--space-px);
 }
 .mw-ms-chip-more {
-  color: var(--color-text-secondary);
+  color: var(--text-secondary);
 }
 
 .mw-ms-input {
   flex: 1 1 auto;
   width: 1%;
-  min-width: 1.5rem;
+  min-width: var(--size-xs-h);
   border: none;
   outline: none;
   background: transparent;
-  color: var(--color-text-primary);
+  color: var(--text-primary);
   font-family: inherit;
-  font-size: 0.875rem;
-  line-height: 1.25;
+  font-size: var(--control-font);
+  line-height: var(--type-body-sm-line);
   padding: 0;
 }
 .mw-ms-input::placeholder {
-  color: var(--color-text-tertiary);
+  color: var(--text-tertiary);
   opacity: 1;
 }
 
-/* Hidden measuring row — laid out like the label row but taken out of flow. */
 .mw-ms-measure {
   position: absolute;
   top: 0;
   left: 0;
   display: flex;
   flex-wrap: nowrap;
-  gap: 0.1875rem;
+  gap: var(--space-1);
   visibility: hidden;
   pointer-events: none;
   white-space: nowrap;
@@ -536,56 +501,50 @@ function onKeydown(event: KeyboardEvent) {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 2.5rem;
-  color: var(--color-text-tertiary);
+  width: var(--size-md-h);
+  color: var(--text-tertiary);
 }
-.mw-ms-dropdown .pi {
-  width: 0.75rem;
-  height: 0.75rem;
-  font-size: 0.75rem;
+.mw-ms-dropdown svg {
+  width: var(--icon-xs);
+  height: var(--icon-xs);
+  font-size: var(--icon-xs);
 }
 
-/* ── Size ramp ── */
 .mw-ms-sm {
-  --mw-ms-min-h: 1.5rem;
-}
-.mw-ms-sm .mw-ms-input,
-.mw-ms-sm .mw-ms-chip {
-  font-size: 0.75rem;
+  --_ms-min-h: var(--size-sm-h);
+  --control-font: var(--size-sm-font);
+  --control-radius: var(--size-sm-radius);
 }
 .mw-ms-sm .mw-ms-dropdown {
-  width: 1.75rem;
+  width: var(--size-sm-h);
 }
-.mw-ms-lg .mw-ms-input {
-  font-size: 1rem;
+.mw-ms-lg {
+  --_ms-min-h: var(--size-lg-h);
+  --control-font: var(--size-lg-font);
+  --control-radius: var(--size-lg-radius);
 }
 </style>
 
 <style>
-/* Panel — teleported to <body>, styled as a glass multiselect overlay. */
 .mw-ms-overlay {
+  --_ms-max-h: calc(var(--size-lg-h) * 6);
   margin: 0;
-  padding: 0.25rem;
+  padding: var(--space-1);
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  max-height: 15rem;
+  gap: var(--space-0-5);
+  max-height: var(--_ms-max-h);
   overflow-y: auto;
-  background-color: var(--material-scrim);
-  background-image: var(--material-specular);
-  -webkit-backdrop-filter: var(--material-blur);
-  backdrop-filter: var(--material-blur);
-  border: 1px solid var(--material-hairline);
-  border-radius: var(--radius);
-  box-shadow: var(--material-lens), var(--material-glass-shadow);
+  border-radius: var(--radius-float);
+  box-shadow: var(--shadow-floating);
 }
 .mw-ms-overlay .mw-ms-option {
-  padding: 0.375rem 0.625rem;
-  border-radius: var(--radius-sm);
-  color: var(--color-text-primary);
-  font-size: 0.875rem;
-  line-height: 1.25;
+  padding: var(--space-1-5) var(--space-2-5);
+  border-radius: var(--radius-item);
+  color: var(--text-primary);
+  font-size: var(--type-body-sm-size);
+  line-height: var(--type-body-sm-line);
   cursor: pointer;
   white-space: nowrap;
   overflow: hidden;
@@ -593,15 +552,17 @@ function onKeydown(event: KeyboardEvent) {
 }
 .mw-ms-overlay .mw-ms-option:not(.mw-ms-option-selected):hover,
 .mw-ms-overlay .mw-ms-option-active:not(.mw-ms-option-selected) {
-  background: var(--material-hover);
+  background-color: var(--fill-default);
 }
 .mw-ms-overlay .mw-ms-option-selected {
-  background: rgb(var(--color-brand-500-rgb) / 0.16);
-  color: var(--color-brand-700);
+  background-color: var(--fill-selected);
+  color: var(--text-accent);
+  font-weight: var(--weight-medium);
 }
 .mw-ms-overlay .mw-ms-empty {
-  padding: 0.375rem 0.625rem;
-  color: var(--color-text-tertiary);
-  font-size: 0.875rem;
+  padding: var(--space-2) var(--space-2-5);
+  color: var(--text-tertiary);
+  font-size: var(--type-body-sm-size);
+  line-height: var(--type-body-sm-line);
 }
 </style>

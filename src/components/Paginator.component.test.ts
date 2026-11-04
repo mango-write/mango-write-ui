@@ -100,8 +100,14 @@ describe("Paginator", () => {
     expect(lastBtn.attributes("disabled")).toBeDefined();
 
     // 切换每页条数为 50，自动回到第一页
-    const select = wrapper.get("select.p-paginator-rpp-options");
-    await select.setValue("50");
+    const selectTrigger = wrapper.get(".p-paginator-rpp-options");
+    expect(selectTrigger.classes()).toContain("mw-select");
+    await selectTrigger.trigger("click");
+    await nextTick();
+    const options = Array.from(document.body.querySelectorAll<HTMLElement>('[role="option"]'));
+    const opt50 = options.find((el) => el.textContent?.trim() === "50");
+    expect(opt50).toBeDefined();
+    opt50!.click();
     await nextTick();
 
     expect(pageEvents.at(-1)).toEqual({

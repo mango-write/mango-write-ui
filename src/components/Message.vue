@@ -21,7 +21,7 @@ export type MessageSeverity =
 export interface MessageProps {
   severity?: MessageSeverity;
   closable?: boolean;
-  icon?: string | Component;
+  icon?: Component;
 }
 
 const props = withDefaults(defineProps<MessageProps>(), {
@@ -94,8 +94,7 @@ function onClose(event: MouseEvent) {
   >
     <span v-if="$slots.icon || icon" class="mw-message__icon" aria-hidden="true">
       <slot name="icon">
-        <i v-if="typeof icon === 'string'" :class="icon" />
-        <component :is="icon" v-else-if="icon" />
+        <component :is="icon" v-if="icon" />
       </slot>
     </span>
     <div class="mw-message__content">
@@ -108,110 +107,123 @@ function onClose(event: MouseEvent) {
       :aria-label="closeLabel"
       @click="onClose"
     >
-      <X :size="14" aria-hidden="true" />
+      <X class="mw-message__close-icon" :size="14" aria-hidden="true" />
     </button>
   </div>
 </template>
 
 <style scoped>
 .mw-message {
+  --mw-message-icon: var(--info);
   display: flex;
   align-items: flex-start;
   gap: var(--space-2);
   padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius);
-  border: 1px solid var(--color-info-border);
-  background-color: var(--color-info-surface);
-  color: var(--color-text-primary);
-  font-family: var(--font-family-sans);
-  font-size: var(--font-size-body-sm);
-  line-height: var(--line-height-body);
-}
-
-.mw-message--info {
-  border-color: var(--color-info-border);
-  background-color: var(--color-info-surface);
-  color: var(--color-info-500);
+  border: var(--border-width) solid var(--info-border);
+  border-radius: var(--radius-md);
+  background-color: var(--info-subtle);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--type-body-sm-size);
+  line-height: var(--type-body-sm-line);
 }
 
 .mw-message--success {
-  border-color: var(--color-success-border);
-  background-color: var(--color-success-surface);
-  color: var(--color-success-600);
+  --mw-message-icon: var(--success);
+  border-color: var(--success-border);
+  background-color: var(--success-subtle);
 }
 
 .mw-message--warn,
 .mw-message--warning {
-  border-color: var(--color-warning-border);
-  background-color: var(--color-warning-surface);
-  color: var(--color-warning-600);
+  --mw-message-icon: var(--warning);
+  border-color: var(--warning-border);
+  background-color: var(--warning-subtle);
 }
 
 .mw-message--error {
-  border-color: var(--color-danger-border);
-  background-color: var(--color-danger-surface);
-  color: var(--color-danger-700);
+  --mw-message-icon: var(--danger);
+  border-color: var(--danger-border);
+  background-color: var(--danger-subtle);
 }
 
 .mw-message--secondary {
-  border-color: var(--color-border-subtle);
-  background-color: var(--color-surface-muted);
-  color: var(--color-text-secondary);
+  --mw-message-icon: var(--text-secondary);
+  border-color: var(--border-subtle);
+  background-color: var(--fill-subtle);
 }
 
 .mw-message--contrast {
-  border-color: var(--site-ink-line);
-  background-color: var(--site-ink);
-  color: var(--site-on-ink);
+  --mw-message-icon: var(--text-inverse);
+  border-color: transparent;
+  background-color: var(--bg-inverse);
+  color: var(--text-inverse);
 }
 
 .mw-message__icon {
   display: inline-flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  margin-top: 2px;
-  color: currentColor;
+  width: var(--icon-md);
+  height: var(--type-body-sm-line);
+  color: var(--mw-message-icon);
+}
+
+.mw-message__icon :deep(svg) {
+  width: var(--icon-md);
+  height: var(--icon-md);
+  font-size: var(--icon-md);
 }
 
 .mw-message__content {
   flex: 1 1 auto;
   min-width: 0;
-  color: var(--color-text-primary);
-}
-
-.mw-message--contrast .mw-message__content {
-  color: var(--site-on-ink);
+  color: inherit;
 }
 
 .mw-message__close {
   display: inline-flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  width: 24px;
-  height: 24px;
+  width: var(--size-xs-h);
+  height: var(--size-xs-h);
+  margin-block: calc(var(--space-0-5) * -1);
+  margin-inline-end: calc(var(--space-1) * -1);
   padding: 0;
-  margin: -2px -4px -2px 0;
   border: none;
-  border-radius: var(--radius-xs);
+  border-radius: var(--radius-sm);
   background: transparent;
-  color: currentColor;
+  color: var(--text-secondary);
   cursor: pointer;
-  opacity: 0.72;
   transition:
-    opacity var(--motion-duration-fast) var(--motion-ease-standard),
-    background-color var(--motion-duration-fast) var(--motion-ease-standard);
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+
+.mw-message--contrast .mw-message__close {
+  color: inherit;
 }
 
 .mw-message__close:hover {
-  opacity: 1;
-  background-color: var(--material-hover);
+  background-color: var(--fill-default);
+  color: var(--text-primary);
+}
+
+.mw-message--contrast .mw-message__close:hover {
+  background-color: var(--fill-default);
+  color: inherit;
 }
 
 .mw-message__close:focus-visible {
-  outline: none;
-  box-shadow: var(--effect-focus-ring);
+  outline: var(--focus-width) solid var(--focus-color);
+  outline-offset: 0;
+}
+
+.mw-message__close :deep(svg) {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
 }
 
 @media (prefers-reduced-motion: reduce) {

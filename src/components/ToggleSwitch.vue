@@ -99,43 +99,47 @@ function onKeydownCapture(event: KeyboardEvent) {
 
 <style scoped>
 .mw-toggle-switch {
+  --_ts-w: calc(var(--size-md-h) + var(--space-1-5));
+  --_ts-h: calc(var(--icon-md) + var(--space-1));
+  --_ts-thumb: var(--icon-sm);
+  --_ts-shift: var(--icon-sm);
   position: relative;
   display: inline-flex;
   align-items: center;
-  width: 38px;
-  height: 22px;
-  padding: 2px;
-  border-radius: var(--radius-pill);
-  background-color: var(--color-surface-muted);
+  width: var(--_ts-w);
+  height: var(--_ts-h);
+  padding: var(--space-0-5);
+  border-radius: var(--radius-full);
+  background-color: var(--fill-strong);
   background-image: none;
-  border: 1px solid var(--color-border-strong);
+  border: var(--border-width) solid var(--border-strong);
   cursor: pointer;
   flex-shrink: 0;
   transition:
-    background-color var(--motion-duration-fast) var(--motion-ease-standard),
-    border-color var(--motion-duration-fast) var(--motion-ease-standard),
-    box-shadow var(--motion-duration-fast) var(--motion-ease-standard);
+    background-color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard);
 }
 
 .mw-toggle-switch[data-state="checked"] {
-  background-color: var(--color-brand-500);
-  border-color: var(--color-brand-500);
+  background-color: var(--accent);
+  border-color: var(--accent);
 }
 
 .mw-toggle-switch__thumb {
   display: block;
-  width: 16px;
-  height: 16px;
-  border-radius: var(--radius-pill);
-  background-color: var(--color-surface-base);
-  box-shadow: var(--shadow-xs);
-  transition: transform var(--motion-duration-base) var(--motion-spring-pop);
+  width: var(--_ts-thumb);
+  height: var(--_ts-thumb);
+  border-radius: var(--radius-full);
+  background-color: var(--bg-raised); /* opaque-ok: physical switch thumb */
+  box-shadow: var(--shadow-raised);
+  transition: transform var(--duration-base) var(--ease-spring-pop);
   transform: translateX(0);
 }
 
 .mw-toggle-switch[data-state="checked"] .mw-toggle-switch__thumb {
-  transform: translateX(16px);
-  background-color: var(--color-text-on-brand);
+  transform: translateX(var(--_ts-shift));
+  background-color: var(--text-on-accent);
 }
 
 @media (prefers-reduced-motion: reduce) {

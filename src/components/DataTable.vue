@@ -8,6 +8,15 @@ import {
   watch,
   type StyleValue,
 } from "vue";
+import {
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+  Check,
+  ChevronDown,
+  ChevronRight,
+  Minus,
+} from "lucide-vue-next";
 import Paginator from "./Paginator.vue";
 import {
   ColumnSlotRenderer,
@@ -75,7 +84,7 @@ const props = withDefaults(defineProps<DataTableProps>(), {
   columnResizeMode: "fit",
   stripedRows: false,
   rowHover: false,
-  size: "md",
+  size: undefined,
   rowClass: undefined,
   rowStyle: undefined,
   tableStyle: undefined,
@@ -809,10 +818,13 @@ function exportCSV(options?: DataTableExportCSVOptions): string {
   return csvContent;
 }
 
+// 不传 size = 跟随容器的密度上下文（--control-*），传了才定档。
 const resolvedSize = computed(() => {
   if (props.size === "small" || props.size === "sm") return "sm";
   if (props.size === "large" || props.size === "lg") return "lg";
-  return "md";
+  if (props.size === "xs") return "xs";
+  if (props.size === "md") return "md";
+  return undefined;
 });
 
 const isFlexScrollable = computed(
@@ -822,7 +834,9 @@ const isFlexScrollable = computed(
 const rootClass = computed(() => [
   "mw-datatable",
   "p-datatable",
-  `mw-datatable--${resolvedSize.value}`,
+  resolvedSize.value
+    ? [`mw-datatable--${resolvedSize.value}`, `mw-size-${resolvedSize.value}`]
+    : undefined,
   {
     "p-datatable-sm": resolvedSize.value === "sm",
     "p-datatable-lg": resolvedSize.value === "lg",
@@ -961,35 +975,16 @@ defineExpose({
                   aria-label="Select all rows"
                   @click.stop="onToggleSelectAll($event)"
                 >
-                  <svg
+                  <Minus
                     v-if="someCurrentPageSelected"
                     class="mw-datatable__checkbox-icon"
-                    viewBox="0 0 16 16"
-                    fill="none"
                     aria-hidden="true"
-                  >
-                    <path
-                      d="M3.5 8H12.5"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                    />
-                  </svg>
-                  <svg
+                  />
+                  <Check
                     v-else-if="allCurrentPageSelected"
                     class="mw-datatable__checkbox-icon"
-                    viewBox="0 0 16 16"
-                    fill="none"
                     aria-hidden="true"
-                  >
-                    <path
-                      d="M3.5 8.5L6.5 11.5L12.5 4.5"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
+                  />
                 </button>
               </template>
 
@@ -1014,48 +1009,21 @@ defineExpose({
                   class="mw-datatable__sort-icon p-sortable-column-icon"
                   aria-hidden="true"
                 >
-                  <svg
+                  <ArrowUp
                     v-if="isColumnSorted(col) && effectiveSortOrder === 1"
-                    viewBox="0 0 16 16"
-                    fill="none"
                     class="mw-datatable__sort-svg"
-                  >
-                    <path
-                      d="M8 3.5V12.5M8 3.5L4.5 7M8 3.5L11.5 7"
-                      stroke="currentColor"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                  <svg
+                    aria-hidden="true"
+                  />
+                  <ArrowDown
                     v-else-if="isColumnSorted(col) && effectiveSortOrder === -1"
-                    viewBox="0 0 16 16"
-                    fill="none"
                     class="mw-datatable__sort-svg"
-                  >
-                    <path
-                      d="M8 12.5V3.5M8 12.5L4.5 9M8 12.5L11.5 9"
-                      stroke="currentColor"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                  <svg
+                    aria-hidden="true"
+                  />
+                  <ArrowUpDown
                     v-else
-                    viewBox="0 0 16 16"
-                    fill="none"
                     class="mw-datatable__sort-svg mw-datatable__sort-svg--unsorted"
-                  >
-                    <path
-                      d="M5.5 6L8 3.5L10.5 6M5.5 10L8 12.5L10.5 10"
-                      stroke="currentColor"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
+                    aria-hidden="true"
+                  />
                 </span>
               </div>
 
@@ -1129,21 +1097,11 @@ defineExpose({
                         toggleRowSelection($event, row, rowIndex, 'checkbox')
                       "
                     >
-                      <svg
+                      <Check
                         v-if="isRowSelected(row)"
                         class="mw-datatable__checkbox-icon"
-                        viewBox="0 0 16 16"
-                        fill="none"
                         aria-hidden="true"
-                      >
-                        <path
-                          d="M3.5 8.5L6.5 11.5L12.5 4.5"
-                          stroke="currentColor"
-                          stroke-width="2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        />
-                      </svg>
+                      />
                     </button>
                   </template>
 
@@ -1177,24 +1135,16 @@ defineExpose({
                       aria-label="Toggle Row"
                       @click.stop="toggleRowExpansion($event, row)"
                     >
-                      <svg
+                      <ChevronDown
+                        v-if="isRowExpanded(row)"
                         class="mw-datatable__expander-icon"
-                        viewBox="0 0 16 16"
-                        fill="none"
                         aria-hidden="true"
-                      >
-                        <path
-                          :d="
-                            isRowExpanded(row)
-                              ? 'M4 6L8 10L12 6'
-                              : 'M6 4L10 8L6 12'
-                          "
-                          stroke="currentColor"
-                          stroke-width="1.75"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        />
-                      </svg>
+                      />
+                      <ChevronRight
+                        v-else
+                        class="mw-datatable__expander-icon"
+                        aria-hidden="true"
+                      />
                     </button>
                   </template>
 
@@ -1311,13 +1261,32 @@ defineExpose({
 
 <style scoped>
 .mw-datatable {
+  --mw-datatable-row-h: var(--size-lg-h);
+  --mw-datatable-face: var(--mw-datatable-bg, var(--bg-raised));
+  --mw-datatable-row-fill: transparent;
   position: relative;
   display: flex;
   flex-direction: column;
   width: 100%;
-  font-family: var(--font-family-sans);
-  font-size: var(--font-size-body-sm);
-  color: var(--color-text-primary);
+  overflow: hidden;
+  border: var(--border-width) solid var(--mw-datatable-border, var(--border-subtle));
+  border-radius: var(--mw-datatable-radius, var(--radius-card));
+  background: var(--mw-datatable-face);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--control-font);
+}
+
+.mw-datatable--xs {
+  --mw-datatable-row-h: var(--size-sm-h);
+}
+
+.mw-datatable--sm {
+  --mw-datatable-row-h: var(--size-md-h);
+}
+
+.mw-datatable--lg {
+  --mw-datatable-row-h: calc(var(--size-lg-h) + var(--space-2));
 }
 
 .mw-datatable--flex-scrollable {
@@ -1328,14 +1297,16 @@ defineExpose({
 
 .mw-datatable__header {
   padding: var(--space-3) var(--space-4);
-  background: var(--color-surface-muted);
-  border-bottom: 1px solid var(--color-border-subtle);
+  border-bottom: var(--border-width) solid var(--border-subtle);
 }
 
 .mw-datatable__footer {
   padding: var(--space-3) var(--space-4);
-  background: var(--color-surface-muted);
-  border-top: 1px solid var(--color-border-subtle);
+  border-top: var(--border-width) solid var(--border-subtle);
+}
+
+.mw-datatable__paginator {
+  border-top: var(--border-width) solid var(--border-subtle);
 }
 
 .mw-datatable__table-container {
@@ -1354,36 +1325,27 @@ defineExpose({
   border-collapse: separate;
   border-spacing: 0;
   text-align: start;
+  font-variant-numeric: tabular-nums;
 }
 
 .mw-datatable__header-cell,
 .mw-datatable__body-cell,
 .mw-datatable__footer-cell {
-  padding: var(--space-3) var(--space-4);
-  line-height: 1.25;
-  border-bottom: 1px solid var(--color-border-subtle);
+  height: var(--mw-datatable-row-h);
+  padding: var(--space-1) var(--space-3);
+  border-bottom: var(--border-width) solid var(--border-subtle);
+  line-height: var(--leading-tight);
   vertical-align: middle;
-}
-
-.mw-datatable--sm .mw-datatable__header-cell,
-.mw-datatable--sm .mw-datatable__body-cell,
-.mw-datatable--sm .mw-datatable__footer-cell {
-  padding: var(--space-2) var(--space-3);
-  font-size: var(--font-size-caption);
-}
-
-.mw-datatable--lg .mw-datatable__header-cell,
-.mw-datatable--lg .mw-datatable__body-cell,
-.mw-datatable--lg .mw-datatable__footer-cell {
-  padding: var(--space-4) var(--space-5);
-  font-size: var(--font-size-body);
 }
 
 .mw-datatable__header-cell {
   position: relative;
-  background: var(--color-surface-muted);
-  color: var(--color-text-secondary);
-  font-weight: 600;
+  border-bottom-color: var(--border-default);
+  background: transparent;
+  color: var(--text-tertiary);
+  font-size: var(--type-caption-size);
+  font-weight: var(--weight-medium);
+  text-align: start;
   white-space: nowrap;
   user-select: none;
 }
@@ -1392,28 +1354,28 @@ defineExpose({
   position: sticky;
   top: 0;
   z-index: 2;
+  background: var(--mw-datatable-face);
 }
 
 .mw-datatable__header-cell--sortable {
   cursor: pointer;
   transition:
-    background-color var(--motion-duration-fast) var(--motion-ease-standard),
-    color var(--motion-duration-fast) var(--motion-ease-standard);
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
 }
 
 .mw-datatable__header-cell--sortable:hover {
-  background: var(--color-bg-hover);
-  color: var(--color-text-primary);
+  background: linear-gradient(var(--fill-subtle), var(--fill-subtle)), var(--mw-datatable-face);
+  color: var(--text-secondary);
 }
 
 .mw-datatable__header-cell--sortable:focus-visible {
-  outline: none;
-  box-shadow: inset 0 0 0 2px var(--color-brand-500);
+  outline: var(--focus-width) solid var(--focus-color);
+  outline-offset: calc(var(--focus-width) * -1);
 }
 
 .mw-datatable__header-cell--sorted {
-  color: var(--color-brand-700);
-  background: rgb(var(--color-brand-500-rgb) / 0.08);
+  color: var(--text-primary);
 }
 
 .mw-datatable__header-content {
@@ -1426,23 +1388,33 @@ defineExpose({
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: currentColor;
+  color: var(--text-tertiary);
+}
+
+.mw-datatable__header-cell--sorted .mw-datatable__sort-icon {
+  color: var(--text-accent);
 }
 
 .mw-datatable__sort-svg {
-  width: 14px;
-  height: 14px;
+  width: var(--icon-sm);
+  height: var(--icon-sm);
 }
 
 .mw-datatable__sort-svg--unsorted {
-  opacity: 0.45;
+  opacity: 0.5;
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+
+.mw-datatable__header-cell--sortable:hover .mw-datatable__sort-svg--unsorted,
+.mw-datatable__header-cell--sortable:focus-visible .mw-datatable__sort-svg--unsorted {
+  opacity: 1;
 }
 
 .mw-datatable__resizer {
   position: absolute;
   top: 0;
   inset-inline-end: 0;
-  width: 8px;
+  width: var(--space-2);
   height: 100%;
   cursor: col-resize;
   user-select: none;
@@ -1454,33 +1426,43 @@ defineExpose({
   position: absolute;
   top: 20%;
   bottom: 20%;
-  inset-inline-end: 2px;
-  width: 2px;
-  border-radius: var(--radius-pill);
-  background: var(--color-brand-500);
+  inset-inline-end: var(--space-0-5);
+  width: var(--space-0-5);
+  border-radius: var(--radius-full);
+  background: var(--accent);
 }
 
 .mw-datatable__body-cell {
-  background: var(--color-surface-base);
-  color: var(--color-text-primary);
+  background-color: var(--mw-datatable-row-fill);
+  color: var(--text-primary);
+  transition: background-color var(--duration-fast) var(--ease-standard);
 }
 
-.mw-datatable--striped
-  .mw-datatable__tbody
-  > .mw-datatable__row:nth-child(even):not(.mw-datatable__row--selected)
-  > .mw-datatable__body-cell {
-  background: var(--color-surface-muted);
+.mw-datatable__tbody > .mw-datatable__row:last-child > .mw-datatable__body-cell,
+.mw-datatable__tbody > .mw-datatable__row:last-child > .mw-datatable__expansion-cell,
+.mw-datatable__tbody > .mw-datatable__empty-row > .mw-datatable__empty-cell {
+  border-bottom: 0;
 }
 
-.mw-datatable--hoverable
-  .mw-datatable__tbody
-  > .mw-datatable__row:not(.mw-datatable__row--selected):hover
-  > .mw-datatable__body-cell {
-  background: var(--color-bg-soft);
+.mw-datatable--striped .mw-datatable__tbody > .mw-datatable__row:nth-child(even) {
+  --mw-datatable-row-fill: var(--fill-subtle);
 }
 
-.mw-datatable__row--selected > .mw-datatable__body-cell {
-  background: rgb(var(--color-brand-500-rgb) / 0.12);
+.mw-datatable--hoverable .mw-datatable__tbody > .mw-datatable__row:hover {
+  --mw-datatable-row-fill: var(--fill-subtle);
+}
+
+.mw-datatable--hoverable.mw-datatable--striped .mw-datatable__tbody > .mw-datatable__row:hover {
+  --mw-datatable-row-fill: var(--fill-default);
+}
+
+.mw-datatable__tbody > .mw-datatable__row--selected,
+.mw-datatable--striped .mw-datatable__tbody > .mw-datatable__row--selected:nth-child(even) {
+  --mw-datatable-row-fill: var(--fill-selected);
+}
+
+.mw-datatable--hoverable .mw-datatable__tbody > .mw-datatable__row--selected:hover {
+  --mw-datatable-row-fill: var(--fill-selected-hover);
 }
 
 .mw-datatable__cell--frozen {
@@ -1488,8 +1470,17 @@ defineExpose({
   z-index: 1;
 }
 
+/* 冻结列压在滚动内容之上，必须是实底：半透明行态叠在表面色上。 */
+.mw-datatable__body-cell.mw-datatable__cell--frozen,
+.mw-datatable__footer-cell.mw-datatable__cell--frozen {
+  background:
+    linear-gradient(var(--mw-datatable-row-fill), var(--mw-datatable-row-fill)),
+    var(--mw-datatable-face);
+}
+
 .mw-datatable__thead .mw-datatable__cell--frozen {
   z-index: 3;
+  background: var(--mw-datatable-face);
 }
 
 .mw-datatable__checkbox,
@@ -1497,8 +1488,8 @@ defineExpose({
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 18px;
+  width: var(--icon-lg);
+  height: var(--icon-lg);
   padding: 0;
   cursor: pointer;
   vertical-align: middle;
@@ -1509,27 +1500,27 @@ defineExpose({
 }
 
 .mw-datatable__radio {
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-full);
 }
 
 .mw-datatable__checkbox[data-state="checked"],
 .mw-datatable__checkbox[data-state="indeterminate"],
 .mw-datatable__radio[data-state="checked"] {
-  background-color: var(--color-brand-500);
+  background-color: var(--accent);
   background-image: none;
-  border-color: var(--color-brand-500);
-  color: var(--color-text-on-brand);
+  border-color: var(--accent);
+  color: var(--text-on-accent);
 }
 
 .mw-datatable__checkbox-icon {
-  width: 12px;
-  height: 12px;
+  width: var(--icon-xs);
+  height: var(--icon-xs);
 }
 
 .mw-datatable__radio-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: var(--radius-pill);
+  width: var(--space-2);
+  height: var(--space-2);
+  border-radius: var(--radius-full);
   background: currentColor;
 }
 
@@ -1537,39 +1528,46 @@ defineExpose({
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: var(--control-h);
+  height: var(--control-h);
   padding: 0;
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: var(--control-radius);
   background: transparent;
-  color: var(--color-text-secondary);
+  color: var(--text-secondary);
   cursor: pointer;
   transition:
-    background-color var(--motion-duration-fast) var(--motion-ease-standard),
-    color var(--motion-duration-fast) var(--motion-ease-standard);
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
 }
 
 .mw-datatable__expander:hover {
-  background: var(--material-hover);
-  color: var(--color-text-primary);
+  background: var(--fill-default);
+  color: var(--text-primary);
+}
+
+.mw-datatable__expander:focus-visible {
+  outline: var(--focus-width) solid var(--focus-color);
+  outline-offset: calc(var(--focus-width) * -1);
 }
 
 .mw-datatable__expander-icon {
-  width: 14px;
-  height: 14px;
+  width: var(--control-icon);
+  height: var(--control-icon);
 }
 
 .mw-datatable__expansion-cell {
   padding: var(--space-3) var(--space-4);
-  background: var(--color-bg-soft);
-  border-bottom: 1px solid var(--color-border-subtle);
+  border-bottom: var(--border-width) solid var(--border-subtle);
+  background: var(--fill-subtle);
 }
 
 .mw-datatable__empty-cell {
-  padding: var(--space-6) var(--space-4);
+  padding: var(--space-12) var(--space-4);
+  color: var(--text-secondary);
+  font-size: var(--type-body-sm-size);
+  line-height: var(--type-body-sm-line);
   text-align: center;
-  color: var(--color-text-tertiary);
 }
 
 .mw-datatable__loading-overlay {
@@ -1579,16 +1577,16 @@ defineExpose({
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgb(var(--color-brand-500-rgb) / 0.04);
+  background: color-mix(in srgb, var(--mw-datatable-face) 60%, transparent);
 }
 
 .mw-datatable__loading-spinner {
-  width: 24px;
-  height: 24px;
-  border-radius: var(--radius-pill);
-  border: 2px solid var(--color-brand-500);
+  width: var(--icon-2xl);
+  height: var(--icon-2xl);
+  border: var(--focus-width) solid var(--accent);
   border-right-color: transparent;
-  animation: mw-datatable-spin var(--motion-duration-spatial) linear infinite;
+  border-radius: var(--radius-full);
+  animation: mw-datatable-spin calc(var(--duration-slower) * 2) linear infinite;
 }
 
 @keyframes mw-datatable-spin {
@@ -1599,6 +1597,8 @@ defineExpose({
 
 @media (prefers-reduced-motion: reduce) {
   .mw-datatable__header-cell--sortable,
+  .mw-datatable__body-cell,
+  .mw-datatable__sort-svg--unsorted,
   .mw-datatable__expander {
     transition: none;
   }

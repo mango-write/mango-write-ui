@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, type Component } from "vue";
+import { X } from "lucide-vue-next";
 
 defineOptions({ name: "MwChip" });
 
 withDefaults(
   defineProps<{
     label?: string;
-    icon?: string;
+    icon?: Component;
     image?: string;
     removable?: boolean;
   }>(),
@@ -41,7 +42,7 @@ function keydownCallback(event: KeyboardEvent): void {
   <div v-if="visible" class="mw-chip p-chip p-component" :aria-label="label">
     <slot>
       <img v-if="image" :src="image" class="mw-chip__image p-chip-image" alt="" />
-      <span v-else-if="icon" class="mw-chip__icon p-chip-icon" :class="icon" aria-hidden="true" />
+      <component :is="icon" v-else-if="icon" class="mw-chip__icon p-chip-icon" aria-hidden="true" />
       <span v-if="label" class="mw-chip__label p-chip-label">{{ label }}</span>
     </slot>
     <slot
@@ -57,15 +58,90 @@ function keydownCallback(event: KeyboardEvent): void {
         @click.stop="removeCallback"
         @keydown="keydownCallback"
       >
-        <svg viewBox="0 0 14 14" fill="none" aria-hidden="true">
-          <path
-            d="M4 4L10 10M10 4L4 10"
-            stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linecap="round"
-          />
-        </svg>
+        <X class="mw-chip__remove-icon" aria-hidden="true" />
       </button>
     </slot>
   </div>
 </template>
+
+<style>
+.mw-chip {
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  gap: var(--space-1-5);
+  min-height: calc(var(--control-h) - var(--space-2));
+  padding-inline: calc(var(--control-px) * 0.5 + var(--space-1));
+  border-radius: var(--radius-full);
+  background-color: var(--fill-default);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: calc(var(--control-font) - var(--space-px));
+  font-weight: var(--weight-medium);
+  line-height: var(--type-caption-line);
+  white-space: nowrap;
+}
+
+.mw-chip:has(> .mw-chip__image) {
+  padding-inline-start: var(--space-0-5);
+}
+
+.mw-chip:has(> .mw-chip__remove) {
+  padding-inline-end: var(--space-1);
+}
+
+.mw-chip__image {
+  flex: none;
+  width: calc(var(--control-h) - var(--space-3));
+  height: calc(var(--control-h) - var(--space-3));
+  border-radius: var(--radius-full);
+  object-fit: cover;
+}
+
+.mw-chip__icon {
+  flex: none;
+  width: calc(var(--control-icon) - var(--space-0-5));
+  height: calc(var(--control-icon) - var(--space-0-5));
+  font-size: calc(var(--control-icon) - var(--space-0-5));
+  color: var(--text-secondary);
+}
+
+.mw-chip__remove {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-icon);
+  height: var(--control-icon);
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+
+.mw-chip__remove:hover {
+  background-color: var(--fill-strong);
+  color: var(--text-primary);
+}
+
+.mw-chip__remove:focus-visible {
+  outline: var(--focus-width) solid var(--focus-color);
+  outline-offset: 0;
+}
+
+.mw-chip__remove svg {
+  width: calc(var(--control-icon) * 0.75);
+  height: calc(var(--control-icon) * 0.75);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mw-chip__remove {
+    transition: none;
+  }
+}
+</style>

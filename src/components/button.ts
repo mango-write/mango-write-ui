@@ -11,9 +11,9 @@ export type ButtonSeverity =
   | "contrast"
   | "help";
 
-export type ButtonVariant = "filled" | "outlined" | "text" | "link";
+export type ButtonVariant = "filled" | "tinted" | "outlined" | "text" | "link";
 
-export type ButtonSize = "sm" | "md" | "lg" | "small" | "large";
+export type ButtonSize = "xs" | "sm" | "md" | "lg" | "small" | "large";
 
 export type ButtonIconPosition = "left" | "right";
 
@@ -21,7 +21,7 @@ export type NativeButtonType = "button" | "submit" | "reset";
 
 export interface ButtonProps {
   label?: string;
-  icon?: string | Component;
+  icon?: Component;
   iconPos?: ButtonIconPosition;
   loading?: boolean;
   disabled?: boolean;

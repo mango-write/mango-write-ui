@@ -10,6 +10,7 @@
 // 输入框宽度按内容用一个隐藏镜像 span 量算（inputWidth），所以选中后字段直接缩到
 // 文字宽度、不预留多余的输入空当；打字时随查询串增长。
 import { computed, nextTick, onMounted, ref, useId, watch } from "vue";
+import { ChevronDown, X } from "lucide-vue-next";
 import { useI18n } from "vue-i18n";
 import { useComboPanel } from "../lib/useComboPanel";
 
@@ -227,31 +228,10 @@ function onKeydown(event: KeyboardEvent) {
       @mousedown.stop.prevent
       @click="clear"
     >
-      <svg
-        class="pi pi-times"
-        viewBox="0 0 16 16"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.75"
-        stroke-linecap="round"
-        aria-hidden="true"
-      >
-        <path d="M4 4l8 8M12 4l-8 8" />
-      </svg>
+      <X aria-hidden="true" />
     </button>
     <span class="mw-ss-dropdown" aria-hidden="true">
-      <svg
-        class="pi pi-chevron-down"
-        viewBox="0 0 16 16"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.75"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        aria-hidden="true"
-      >
-        <path d="M4 6l4 4 4-4" />
-      </svg>
+      <ChevronDown aria-hidden="true" />
     </span>
 
     <Teleport to="body">
@@ -259,7 +239,7 @@ function onKeydown(event: KeyboardEvent) {
         v-if="open"
         :id="listboxId"
         ref="panelRef"
-        class="mw-ss-overlay"
+        class="mw-ss-overlay mw-frost"
         :style="panelStyle"
         :aria-label="ariaLabel"
         :aria-labelledby="ariaLabelledby"
@@ -288,76 +268,68 @@ function onKeydown(event: KeyboardEvent) {
 </template>
 
 <style scoped>
-/* ── Field — Mango control surface tokens ── */
 .mw-ss {
   position: relative;
   display: inline-flex;
   align-items: stretch;
-  /* Hug content (value + chevron) so the field shrinks to its minimum after a
-     selection instead of reserving slack. `fit-content` is a definite width, so
-     a flex parent's `align-items: stretch` won't blow it back out to full width. */
   width: fit-content;
   max-width: 100%;
+  min-height: var(--control-h);
   cursor: text;
-  background-color: var(--color-surface-base);
-  background-image: var(--material-control-face);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius);
-  box-shadow: var(--material-control-inset);
+  background-color: var(--control-bg);
+  border: var(--border-width) solid var(--control-border);
+  border-radius: var(--control-radius);
   transition:
-    border-color 0.18s,
-    box-shadow 0.18s,
-    outline-color 0.18s;
-  outline: 3px solid transparent;
-  outline-offset: 0;
+    border-color var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard);
 }
 .mw-ss:not(.mw-ss-disabled):hover {
-  border-color: var(--color-border-strong);
+  border-color: var(--control-border-hover);
+  background-color: var(--control-bg-hover);
 }
 .mw-ss-focus {
-  border-color: var(--color-brand-500);
-  outline-color: rgb(var(--color-brand-500-rgb) / 0.18);
+  border-color: var(--focus-color);
+  box-shadow: var(--focus-shadow);
 }
 .mw-ss-invalid {
-  border-color: var(--color-danger-500);
+  border-color: var(--danger);
 }
 .mw-ss-disabled {
   opacity: var(--opacity-disabled);
   cursor: default;
-  background: var(--color-bg-soft);
+  background-color: var(--control-bg-disabled);
 }
 
-/* Field text column — hugs the input's content width (no reserved slack). */
 .mw-ss-field {
   position: relative;
   flex: 0 1 auto;
   min-width: 0;
   display: flex;
   align-items: center;
-  padding: 0.375rem 0 0.375rem 0.625rem;
+  padding: var(--space-1) 0 var(--space-1) var(--control-px);
 }
 .mw-ss-input {
-  min-width: 1.5rem;
+  min-width: var(--size-xs-h);
   max-width: 100%;
   border: none;
   outline: none;
   background: transparent;
-  color: var(--color-text-primary);
+  color: var(--text-primary);
   font-family: inherit;
-  font-size: 0.875rem;
-  line-height: 1.25;
+  font-size: var(--control-font);
+  line-height: var(--type-body-sm-line);
   padding: 0;
   text-overflow: ellipsis;
   cursor: text;
 }
 .mw-ss-input::placeholder {
-  color: var(--color-text-tertiary);
+  color: var(--text-tertiary);
   opacity: 1;
 }
 .mw-ss-disabled .mw-ss-input {
   cursor: default;
 }
-/* Hidden width probe — same font metrics as the input. */
 .mw-ss-mirror {
   position: absolute;
   left: 0;
@@ -366,119 +338,111 @@ function onKeydown(event: KeyboardEvent) {
   pointer-events: none;
   white-space: pre;
   font-family: inherit;
-  font-size: 0.875rem;
-  line-height: 1.25;
+  font-size: var(--control-font);
+  line-height: var(--type-body-sm-line);
 }
 
-/* Chevron column — 2rem width + 0.75rem glyph. */
 .mw-ss-dropdown {
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 2rem;
-  color: var(--color-text-tertiary);
+  width: var(--size-md-h);
+  color: var(--text-tertiary);
 }
-.mw-ss-dropdown .pi {
-  width: 0.75rem;
-  height: 0.75rem;
-  font-size: 0.75rem;
+.mw-ss-dropdown svg {
+  width: var(--icon-xs);
+  height: var(--icon-xs);
+  font-size: var(--icon-xs);
 }
 
-/* Clear — a round hit-target with a clear hover state (design 3.3). */
 .mw-ss-clear {
   align-self: center;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 1.25rem;
-  height: 1.25rem;
+  width: var(--icon-lg);
+  height: var(--icon-lg);
   padding: 0;
   border: 0;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-full);
   background: transparent;
-  color: var(--color-text-tertiary);
+  color: var(--text-tertiary);
   font: inherit;
   cursor: pointer;
   transition:
-    background 0.15s,
-    color 0.15s;
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
 }
 .mw-ss-clear:hover {
-  background: var(--color-surface-muted);
-  color: var(--color-text-primary);
+  background-color: var(--fill-default);
+  color: var(--text-primary);
 }
 .mw-ss-clear:focus-visible {
-  outline: 2px solid var(--color-brand-500);
-  outline-offset: 1px;
+  outline: var(--focus-width) solid var(--focus-color);
+  outline-offset: var(--space-px);
 }
-.mw-ss-clear .pi {
-  width: 0.6875rem;
-  height: 0.6875rem;
-  font-size: 0.6875rem;
+.mw-ss-clear svg {
+  width: var(--icon-xs);
+  height: var(--icon-xs);
+  font-size: var(--icon-xs);
 }
 
-/* ── Size ramp — matches formField sm/lg tokens ── */
-.mw-ss-sm .mw-ss-field {
-  padding: 0.292em 0 0.292em 0.5rem;
-}
-.mw-ss-sm .mw-ss-input,
-.mw-ss-sm .mw-ss-mirror {
-  font-size: 0.75rem;
+.mw-ss-sm {
+  --control-h: var(--size-sm-h);
+  --control-font: var(--size-sm-font);
+  --control-px: var(--size-sm-px);
+  --control-radius: var(--size-sm-radius);
 }
 .mw-ss-sm .mw-ss-dropdown {
-  width: 1.75rem;
+  width: var(--size-sm-h);
 }
-.mw-ss-lg .mw-ss-field {
-  padding: 0.5rem 0 0.5rem 0.75rem;
-}
-.mw-ss-lg .mw-ss-input,
-.mw-ss-lg .mw-ss-mirror {
-  font-size: 1rem;
+.mw-ss-lg {
+  --control-h: var(--size-lg-h);
+  --control-font: var(--size-lg-font);
+  --control-px: var(--size-lg-px);
+  --control-radius: var(--size-lg-radius);
 }
 </style>
 
 <style>
-/* Panel — teleported to <body>, styled as a glass select overlay. */
 .mw-ss-overlay {
+  --_ss-max-h: calc(var(--size-lg-h) * 6);
   margin: 0;
-  padding: 0.25rem;
+  padding: var(--space-1);
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  max-height: 15rem;
+  gap: var(--space-0-5);
+  max-height: var(--_ss-max-h);
   overflow-y: auto;
-  background-color: var(--material-scrim);
-  background-image: var(--material-specular);
-  -webkit-backdrop-filter: var(--material-blur);
-  backdrop-filter: var(--material-blur);
-  border: 1px solid var(--material-hairline);
-  border-radius: var(--radius);
-  box-shadow: var(--material-lens), var(--material-glass-shadow);
+  border-radius: var(--radius-float);
+  box-shadow: var(--shadow-floating);
 }
 .mw-ss-overlay .mw-ss-option {
-  padding: 0.375rem 0.625rem;
-  border-radius: var(--radius-sm);
-  color: var(--color-text-primary);
-  font-size: 0.875rem;
-  line-height: 1.25;
+  padding: var(--space-1-5) var(--space-2-5);
+  border-radius: var(--radius-item);
+  color: var(--text-primary);
+  font-size: var(--type-body-sm-size);
+  line-height: var(--type-body-sm-line);
   cursor: pointer;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .mw-ss-overlay .mw-ss-option-active:not(.mw-ss-option-selected) {
-  background: var(--material-hover);
+  background-color: var(--fill-default);
 }
 .mw-ss-overlay .mw-ss-option-selected {
-  background: rgb(var(--color-brand-500-rgb) / 0.16);
-  color: var(--color-brand-700);
+  background-color: var(--fill-selected);
+  color: var(--text-accent);
+  font-weight: var(--weight-medium);
 }
 .mw-ss-overlay .mw-ss-empty {
-  padding: 0.375rem 0.625rem;
-  color: var(--color-text-tertiary);
-  font-size: 0.875rem;
+  padding: var(--space-2) var(--space-2-5);
+  color: var(--text-tertiary);
+  font-size: var(--type-body-sm-size);
+  line-height: var(--type-body-sm-line);
 }
 </style>

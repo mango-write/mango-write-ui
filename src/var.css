@@ -1,828 +1,766 @@
+/* Mango 设计语言「纸与霜」· Token 唯一真相源
+   规范正文见 ../DESIGN.md；数值只在本文件，展示站 /dev/ui 的 Foundations 直接读取这里。
+
+   分层（组件只许读 ② ③ ④，不许读 ① 与 ⑥，由 scripts/check-tokens.mjs 强制）：
+     ① Palette   原料色板，与主题无关
+     ② Scale     尺寸 / 间距 / 字号 / 圆角 / 动效 / 布局 / 层级，与主题无关
+     ③ Semantic  语义色（浅色基值 + 深色覆盖 + 跟随系统兜底，三块）
+     ④ Derived   由语义派生（color-mix），在每个主题作用域上重新求值
+     ⑤ Domain    业务域专用（批注、划线、代码、灯箱、营销舞台）
+     ⑥ Legacy    旧名映射，只给存量 app 用；冻结，不许新增引用
+
+   主题作用域：`[data-theme="light|dark"]` 可挂在任意元素上（展示站并排对照靠它），
+   因此派生与旧名映射挂在 `:root, [data-theme]`，确保在子作用域里重新求值。 */
+
+/* ① Palette ─────────────────────────────────────────────────────────────── */
 :root {
-  color-scheme: light;
+  --palette-mango-50: #fff7ed;
+  --palette-mango-100: #ffedd5;
+  --palette-mango-200: #fed7aa;
+  --palette-mango-300: #fdba74;
+  --palette-mango-400: #fb923c;
+  --palette-mango-500: #f97316;
+  --palette-mango-600: #ea580c;
+  --palette-mango-700: #c2410c;
+  --palette-mango-800: #9a3412;
+  --palette-mango-900: #7c2d12;
+  --palette-mango-950: #431407;
 
-  /* Brand */
-  --color-brand-50: #fff7ed;
-  --color-brand-100: #ffedd5;
-  --color-brand-200: #fed7aa;
-  --color-brand-300: #fdba74;
-  --color-brand-400: #fb923c;
-  --color-brand-500: #f97316;
-  --color-brand-600: #ea580c;
-  --color-brand-700: #c2410c;
-  /* 装饰性品牌渐变（首页营销卡 / 提示框）：浅色 400→500 提亮，深色 500→600 收沉。
-     品牌阶号深色下非单调，渐变尾必须显式指定，不能裸 from/to 同一语义阶。 */
-  --brand-grad-from: var(--color-brand-400);
-  --brand-grad-to: var(--color-brand-500);
-  /* 800–950 只服务 PrimeVue 的 --p-primary-* 调色阶；本仓 CSS 不直接用。
-     它们原本以字面 hex 写在 theme.ts 里，深色下不会跟着换——收进这里统一。 */
-  --color-brand-800: #9a3412;
-  --color-brand-900: #7c2d12;
-  --color-brand-950: #431407;
-  --color-brand-400-rgb: 251 146 60;
-  --color-brand-500-rgb: 249 115 22;
-  --color-brand-600-rgb: 234 88 12;
-  --color-brand-700-rgb: 194 65 12;
-  /* 营销站深色舞台：刻意不随深浅主题切换（深色区块在两种主题下都是深色）。 */
-  --site-ink: oklch(0.17 0.014 55);
-  --site-ink-raised: oklch(0.215 0.018 55);
-  --site-ink-line: oklch(0.3 0.02 55);
-  --site-on-ink: oklch(0.97 0.008 75);
-  --site-on-ink-muted: oklch(0.76 0.02 65);
-  --site-radius-panel: 40px;
-  --site-radius-card: 28px;
-  --site-radius-icon: 24px;
+  --palette-paper-0: #ffffff;
+  --palette-paper-50: #fdfcfa;
+  --palette-paper-100: #f7f5f2;
+  --palette-paper-200: #f1efec;
+  --palette-paper-300: #e4e0db;
+  --palette-paper-400: #aaa49d;
+  --palette-paper-500: #756e67;
+  --palette-paper-600: #57514a;
+  --palette-paper-700: #3a352f;
+  --palette-paper-800: #24201c;
+  --palette-paper-900: #1f1b17;
 
-  /* Surface — warm-tinted neutrals */
-  --color-bg: oklch(0.992 0.004 70);
-  --color-bg-soft: oklch(0.975 0.005 70);
-  /* hover 档，比 bg-soft 强一档：bg-soft 压在 surface-base 上只差 ~2% 读不出
-     hover（深色下 bg-soft 甚至比面更暗），压不住的地方 hover 用这一档。 */
-  --color-bg-hover: oklch(0.958 0.006 70);
-  --color-surface-base: #ffffff;
-  --color-surface-muted: oklch(0.985 0.004 70);
-  --color-surface-canvas: oklch(0.96 0.005 70);
-  --color-surface-elevated: rgba(255, 255, 255, 0.92);
-  --color-surface-glass: rgba(255, 255, 255, 0.78);
-  --color-surface-overlay: rgba(255, 255, 255, 0.95);
-  /* === Canvas — 壳的唯一定义背景 ===
-     .mw-shell 上这张画布是全 app 唯一的「桌面」，四座岛浮在它上面；**工作台
-     页面根不铺底色**，否则沟缝被盖住、只剩顶栏下一条缝，那条缝就读成断层。
-     画布必须**明显低于岛面**：浅色曾用 0.970，与岛面 (254,254,254) 只差
-     1.078 的对比——沟缝看不见，四座岛糊成一整片白，「没有玻璃感」的根因。
-     光斑贴顶（圆心压在顶边之上向下淡出），只有 radial 柔光、不叠顶部天光带；
-     全部静态 background-image，不动画、不新增合成层。加光斑前先想它压在谁
-     身上：圆心曾落在视口顶边，顶栏采到全画布最饱和的一块，被烧成橘带子。 */
-  --canvas-base: oklch(0.938 0.012 74);
-  --canvas-backdrop:
-    radial-gradient(1600px 850px at 78% -18%, rgb(var(--color-brand-400-rgb) / 0.20), transparent 62%),
-    radial-gradient(1250px 850px at -8% 106%, rgb(var(--color-brand-600-rgb) / 0.11), transparent 58%),
-    var(--canvas-base);
-  --canvas-gutter: 6px;
-  --canvas-island-radius: 14px;
+  --palette-carbon-50: #f2efeb;
+  --palette-carbon-100: #bdb7b0;
+  --palette-carbon-200: #8f8982;
+  --palette-carbon-300: #5f5a55;
+  --palette-carbon-700: #2a2826;
+  --palette-carbon-750: #22201e;
+  --palette-carbon-800: #211f1d;
+  --palette-carbon-850: #181716;
+  --palette-carbon-900: #131211;
+  --palette-carbon-950: #0f0e0d;
 
-  /* === Island — 浮岛的面 ===
-     四座岛（顶栏 + 左栏 + 中栏 + 右栏）**共用同一套面**，轨道内容（tab 行 /
-     面板身 / 脚行 / Copilot）一律 transparent 继承岛面——铺实心底色等于把
-     材质从内部打断，且岛的 specular / lens 全被盖在下面。
-     **没有 backdrop-filter。** 岛底下是静态画布（平滑渐变），blur 一张平滑
-     渐变的输出与输入逐像素相同——实测关掉截图不变，四座岛白付四个合成层。
-     真玻璃只在浮层上（--material-*，底下每次都不一样）。浅色的透光感因此
-     不靠 blur，靠 scrim 放低到能吃进画布的暖调（见下）。
-     分界靠三件，缺一件浅色下就消失：
-       ① 外沿接触环 + 落地投影（--island-shadow，**要很轻**，理由见那里）
-       ② 顶棱一线内高光（--island-lens 第一段）
-       ③ **一圈暗发丝**（--island-lens 第二段）——岛面比画布亮，白高光叠上去
-          几乎无落差（scrim 0.92 时代那一圈白的实际贡献是 +0.2/255）；
-          浅面上只有暗线才画得出边。深色反过来，那一圈是白的。
-     不靠 border：border 在圆角处跟着糊。 */
-  /* scrim 0.74（曾是 0.92）：**浅色的玻璃感全靠这一档**。0.92 时岛面是死白
-     (254,254,254)，画布的暖光斑透不过来，四座岛在整片视野里是同一个色值——
-     再怎么调高光都救不回来（白叠白）。0.74 让岛面吃进画布的暖调，且**沿岛的
-     长边有渐变**（右上采到光斑、左下没有），那道横跨顶栏的微妙冷暖差就是
-     「这是一块透光的板」的读感来源。再往下（0.5 / 0.12 试过）内容会读成
-     「没有底色」，别越线。 */
-  --island-scrim: rgba(255, 255, 255, 0.74);
-  /* 两段：左上角的角部聚光（真玻璃的光在圆角处汇聚）+ 斜切镜面。面不再是纯白
-     之后这两段才有落差可言。 */
-  --island-specular:
-    radial-gradient(120% 180% at 0% 0%, rgba(255, 255, 255, 0.55) 0%,
-      rgba(255, 255, 255, 0) 42%),
-    linear-gradient(158deg, rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0.14) 30%,
-      rgba(255, 255, 255, 0) 62%);
-  /* 四段 = 一块有厚度的材料：顶棱进光 · 一圈暗发丝（边）· 顶部内侧亮晕 ·
-     底缘回暗。四段都落在**大面**上（只有四座岛用它），不适用「一条边只画一条
-     线」那条针对小浮层的告诫；小浮层走的是 --material-lens。 */
-  --island-lens:
-    inset 0 1px 0 rgba(255, 255, 255, 0.95),
-    inset 0 0 0 1px rgba(20, 14, 8, 0.045),
-    inset 0 10px 12px -12px rgba(255, 255, 255, 0.9),
-    inset 0 -10px 14px -12px rgba(20, 14, 8, 0.045);
-  /* 中栏纸面。**不要用纯白**：卡片 / 分组卡在它上面还要再升一档到 elevation-2
-     （= #fff），纸面同为纯白等于把卡片抹平。 */
-  --island-paper: var(--color-bg);
-  --island-paper-lens:
-    inset 0 1px 0 rgba(255, 255, 255, 0.9),
-    inset 0 0 0 1px rgba(20, 14, 8, 0.045);
-  /* **浅色的投影要很轻**：沟缝只有 6px，相邻两座岛的接触环 + 落地投影在缝里
-     叠加，稍重一点整条缝就读成「深色勾缝」而不是「露出来的画布」。分离主要
-     交给 lens 的暗发丝和岛/画布的色差，投影只负责「浮起来」那一点点。 */
-  --island-shadow:
-    0 0 0 0.5px rgba(20, 14, 8, 0.05),
-    0 1px 2px rgba(20, 14, 8, 0.035),
-    0 8px 20px -14px rgba(20, 14, 8, 0.14);
+  --palette-red-300: #fca5a5;
+  --palette-red-400: #f87171;
+  --palette-red-600: #dc2626;
+  --palette-red-700: #b91c1c;
+  --palette-green-300: #86efac;
+  --palette-green-400: #4ade80;
+  --palette-green-600: #16a34a;
+  --palette-green-700: #15803d;
+  --palette-amber-300: #fcd34d;
+  --palette-amber-400: #fbbf24;
+  --palette-amber-500: #f59e0b;
+  --palette-amber-700: #b45309;
+  --palette-blue-300: #93c5fd;
+  --palette-blue-400: #60a5fa;
+  --palette-blue-600: #3b82c4;
+  --palette-blue-700: #1d5f99;
+}
 
-  /* Text */
-  --color-text-primary: oklch(0.22 0.01 70);
-  --color-text-secondary: oklch(0.42 0.012 70);
-  --color-text-tertiary: oklch(0.6 0.012 70);
-  --color-text-quaternary: oklch(0.72 0.01 70);
-  /* filled 品牌/状态面上的前景统一用深墨：短标签仍按正文 AA 验收，
-     不按非文本图形豁免。 */
-  --color-text-on-brand: #170d08;
-  /* 底色芯片上的墨字（writer 底色按钮的「A」）。高亮调色板是封闭的浅色粉彩
-     （serialization color-palette.ts），两套主题下都不变浅，所以字色恒为深墨、
-     不进 dark 覆盖块——进去了反而会跟着翻成白字。 */
-  --color-text-on-highlight: #170d08;
+/* ② Scale ───────────────────────────────────────────────────────────────── */
+:root {
+  /* Type families：系统字体优先，不自托管（跨平台字形差异是已知代价）。 */
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB",
+    "Microsoft YaHei", "Noto Sans SC", "Inter", "WenQuanYi Micro Hei", sans-serif;
+  --font-serif:
+    "Source Serif 4", "Noto Serif SC", "Songti SC", "STSong", Georgia, "Times New Roman", serif;
+  --font-mono:
+    "SF Mono", ui-monospace, "JetBrains Mono", SFMono-Regular, Menlo, Consolas,
+    "Liberation Mono", monospace;
 
-  /* Border */
-  --color-border-subtle: oklch(0.92 0.006 70);
-  --color-border-strong: oklch(0.86 0.008 70);
-  --color-border-soft: oklch(0.94 0.006 70 / 0.72);
-  --color-border-inverse-soft: rgba(255, 255, 255, 0.65);
+  /* Type scale：字号 / 行高成对使用，行高落 4px 网格。 */
+  --type-micro-size: 0.6875rem;
+  --type-micro-line: 1rem;
+  --type-caption-size: 0.75rem;
+  --type-caption-line: 1rem;
+  --type-body-sm-size: 0.8125rem;
+  --type-body-sm-line: 1.25rem;
+  --type-body-size: 0.875rem;
+  --type-body-line: 1.375rem;
+  --type-body-lg-size: 1rem;
+  --type-body-lg-line: 1.625rem;
+  --type-title-sm-size: 0.875rem;
+  --type-title-sm-line: 1.25rem;
+  --type-title-size: 1rem;
+  --type-title-line: 1.5rem;
+  --type-title-lg-size: 1.25rem;
+  --type-title-lg-line: 1.75rem;
+  --type-headline-size: 1.5rem;
+  --type-headline-line: 2rem;
+  --type-display-size: 2rem;
+  --type-display-line: 2.5rem;
+  --type-display-lg-size: 2.75rem;
+  --type-display-lg-line: 3.25rem;
 
-  /* === Status ===
-     阶形不对称是故意的：success/warning 到 600（文字档），danger 到 700（文字档）
-     ——没有 50/100/300/600，别按 Tailwind 习惯补写；淡底用 *-surface，描边用 *-border。 */
-  --color-success-500: oklch(0.65 0.13 150);
-  --color-success-600: oklch(0.55 0.14 150);
-  --color-success-500-rgb: 34 197 94;
-  --color-info-500: oklch(0.58 0.11 245);
-  --color-info-500-rgb: 58 128 183;
-  --color-warning-500: oklch(0.74 0.16 60);
-  --color-warning-500-rgb: 242 143 41;
-  --color-warning-600: oklch(0.64 0.15 60);
-  --color-danger-500: oklch(0.62 0.18 25);
-  --color-danger-700: oklch(0.45 0.16 25);
-  --color-danger-500-rgb: 220 38 38;
-  --color-success-surface: rgb(var(--color-success-500-rgb) / 0.1);
-  --color-info-surface: rgb(var(--color-info-500-rgb) / 0.08);
-  --color-warning-surface: rgb(var(--color-warning-500-rgb) / 0.1);
-  --color-danger-surface: rgb(var(--color-danger-500-rgb) / 0.1);
-  --color-success-border: rgb(var(--color-success-500-rgb) / 0.2);
-  --color-info-border: rgb(var(--color-info-500-rgb) / 0.16);
-  --color-warning-border: rgb(var(--color-warning-500-rgb) / 0.2);
-  --color-danger-border: rgb(var(--color-danger-500-rgb) / 0.22);
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
 
-  /* === Annotation（批注/审阅映射高亮） ===
-     主题色（brand）：批注是「人对内容的标记」，语义色归主题。与 AI 未定稿新文
-     的绿（success）、旧文的红（danger）三者区分。surface=划词底、border=下缘线/竖线。
-     Reader 批注（mw-reader-highlight）与 Writer 评论/审阅映射共用这一组。 */
-  --color-annotation-500: var(--color-brand-400);
-  --color-annotation-500-rgb: var(--color-brand-400-rgb);
-  --color-annotation-surface: rgb(var(--color-annotation-500-rgb) / 0.18);
-  --color-annotation-border: rgb(var(--color-annotation-500-rgb) / 0.55);
+  --tracking-display: -0.02em;
+  --tracking-title: -0.01em;
+  --tracking-normal: 0;
+  --tracking-caps: 0.06em;
 
-  /* === 划线 Mark（阅读荧光笔/下划线）：个人阅读标记，与批注橙（人对内容的意见）、
-     原文作者高亮（原文自带内容）三分。surface/border 由 -rgb 墨色派生，深色只翻 -rgb。 */
-  --color-mark-yellow-rgb: 250 202 21;
-  --color-mark-yellow-surface: rgb(var(--color-mark-yellow-rgb) / 0.4);
-  --color-mark-yellow-border: rgb(var(--color-mark-yellow-rgb) / 0.85);
-  --color-mark-green-rgb: 74 222 128;
-  --color-mark-green-surface: rgb(var(--color-mark-green-rgb) / 0.4);
-  --color-mark-green-border: rgb(var(--color-mark-green-rgb) / 0.85);
-  --color-mark-blue-rgb: 96 165 250;
-  --color-mark-blue-surface: rgb(var(--color-mark-blue-rgb) / 0.4);
-  --color-mark-blue-border: rgb(var(--color-mark-blue-rgb) / 0.85);
-  --color-mark-pink-rgb: 244 114 182;
-  --color-mark-pink-surface: rgb(var(--color-mark-pink-rgb) / 0.4);
-  --color-mark-pink-border: rgb(var(--color-mark-pink-rgb) / 0.85);
-  --color-mark-purple-rgb: 167 139 250;
-  --color-mark-purple-surface: rgb(var(--color-mark-purple-rgb) / 0.4);
-  --color-mark-purple-border: rgb(var(--color-mark-purple-rgb) / 0.85);
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.7;
 
-  /* === 原文作者高亮（mark[data-mw-highlight]，parser/写作器调色板默认黄） ===
-     与批注橙是两个语义：这是「原文自带的内容」，不参与批注配色。 */
-  --color-source-highlight: #fff3a3;
-
-  /* === Typography ===
-     真话：Inter / Noto Sans SC / Source Serif 4 / JetBrains Mono **都没有自托管**
-     （index.html 零 @font-face、零 Google Fonts，是「在大陆运营、避开网络依赖」的
-     既有决定）。栈里保留这些名字只意味着「本机装了就用」，实际渲染以系统字体为准：
-       macOS   → SF Pro + PingFang SC + Songti SC + SF Mono
-       Windows → Segoe UI + 微软雅黑/等线 + 宋体 + Consolas
-     **跨平台字形不一致是已知代价**，不是 bug。要消除它得建自托管字体流水线，
-     那是独立决定（issue #110 已评估并明确本次不做）。改这段前先读那条结论。 */
-  --font-family-sans:
-    "Inter", "Noto Sans SC", -apple-system, BlinkMacSystemFont,
-    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "DengXian",
-    "WenQuanYi Micro Hei", sans-serif;
-  --font-family-serif:
-    "Source Serif 4", "Noto Serif SC", "Songti SC", "STSong",
-    Georgia, "Times New Roman", serif;
-  --font-family-mono:
-    "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo,
-    Consolas, "Liberation Mono", monospace;
-  --font-size-caption: 0.78rem;
-  --font-size-body-sm: 0.86rem;
-  --font-size-body: 0.95rem;
-  --font-size-title-sm: 1.02rem;
-  --font-size-title-md: 1.25rem;
-  --font-size-display: clamp(1.8rem, 2.6vw, 2.8rem);
-  --line-height-tight: 1.2;
-  --line-height-body: 1.5;
-  --line-height-relaxed: 1.65;
-  --line-height-display: 1.1;
-
-  /* Spacing & control geometry */
+  /* Space：4px 网格；带 -0-5 / -1-5 / -2-5 的半档只给控件内部微调。 */
+  --space-0: 0;
+  --space-px: 1px;
+  --space-0-5: 2px;
   --space-1: 4px;
+  --space-1-5: 6px;
   --space-2: 8px;
+  --space-2-5: 10px;
   --space-3: 12px;
   --space-4: 16px;
   --space-5: 20px;
   --space-6: 24px;
   --space-8: 32px;
+  --space-10: 40px;
   --space-12: 48px;
   --space-16: 64px;
-  --control-height-compact: 32px;
-  --control-height-default: 40px;
-  --control-height-large: 48px;
-  --control-target-min: 44px;
+  --space-20: 80px;
 
-  /* Fixed dark scenes：不随页面主题翻转的媒体查看环境。 */
-  --lightbox-scrim: rgb(15 15 15 / 0.82);
-  --lightbox-toolbar: rgb(38 38 38 / 0.9);
-  --lightbox-text: rgb(229 229 229);
-  --lightbox-text-muted: rgb(212 212 212);
-  --lightbox-hover: rgb(255 255 255 / 0.14);
-  --lightbox-divider: rgb(255 255 255 / 0.18);
+  /* Size axis：一根轴派生控件的全部几何。图标约为高度的一半。 */
+  --size-xs-h: 24px;
+  --size-xs-font: var(--type-caption-size);
+  --size-xs-icon: 14px;
+  --size-xs-px: 6px;
+  --size-xs-gap: 4px;
+  --size-xs-radius: 6px;
 
-  /* Radius */
+  --size-sm-h: 28px;
+  --size-sm-font: var(--type-caption-size);
+  --size-sm-icon: 14px;
+  --size-sm-px: 8px;
+  --size-sm-gap: 6px;
+  --size-sm-radius: 6px;
+
+  --size-md-h: 32px;
+  --size-md-font: var(--type-body-sm-size);
+  --size-md-icon: 16px;
+  --size-md-px: 12px;
+  --size-md-gap: 6px;
+  --size-md-radius: 8px;
+
+  --size-lg-h: 40px;
+  --size-lg-font: var(--type-body-size);
+  --size-lg-icon: 18px;
+  --size-lg-px: 16px;
+  --size-lg-gap: 8px;
+  --size-lg-radius: 10px;
+
+  /* 控件上下文：默认 md；`.mw-size-*` 挂在组件上 = 定档，挂在容器上 = 密度上下文。 */
+  --control-h: var(--size-md-h);
+  --control-font: var(--size-md-font);
+  --control-icon: var(--size-md-icon);
+  --control-px: var(--size-md-px);
+  --control-gap: var(--size-md-gap);
+  --control-radius: var(--size-md-radius);
+  --hit-min: 44px;
+
+  /* Icon */
+  --icon-xs: 12px;
+  --icon-sm: 14px;
+  --icon-md: 16px;
+  --icon-lg: 18px;
+  --icon-xl: 20px;
+  --icon-2xl: 24px;
+  --icon-stroke: 1.75;
+
+  /* Radius：容器套容器时内圆角 = 外圆角 − 内边距。 */
+  --radius-2xs: 2px;
   --radius-xs: 4px;
   --radius-sm: 6px;
-  --radius: 8px;
-  --radius-md: 10px;
+  --radius-md: 8px;
   --radius-lg: 12px;
   --radius-xl: 16px;
-  --radius-2xl: 20px;
-  --radius-pill: 999px;
-  /* macOS 控件半径（issue #110 · §3.2）：28px 高的 plain 控件取高度 1/4（7px），
-     图标组背板大一档（9px）。segmented 外 8 / 内 6 复用 --radius / --radius-sm。 */
-  --radius-control: 7px;
-  --radius-control-group: 9px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+  --radius-item: var(--radius-md);
+  --radius-card: var(--radius-lg);
+  --radius-float: var(--radius-lg);
+  --radius-dialog: var(--radius-xl);
+  --radius-sheet: var(--radius-lg);
+  --float-padding: var(--space-1);
 
-  /* Shadow — workbench-grade (subtle) */
-  --shadow-xs: 0 1px 2px rgba(20, 14, 8, 0.04);
-  --shadow: 0 2px 8px rgba(20, 14, 8, 0.06), 0 1px 2px rgba(20, 14, 8, 0.04);
-  --shadow-md: 0 8px 20px -6px rgba(40, 20, 4, 0.1), 0 2px 6px rgba(20, 14, 8, 0.05);
-  --shadow-lg: 0 18px 40px -12px rgba(40, 20, 4, 0.18), 0 4px 12px rgba(20, 14, 8, 0.06);
-  --shadow-brand-md: 0 6px 16px -6px rgb(var(--color-brand-500-rgb) / 0.45);
-  --shadow-brand-lg: 0 14px 30px -10px rgb(var(--color-brand-500-rgb) / 0.45);
+  /* Border & focus */
+  --border-width: 1px;
+  --focus-width: 2px;
+  --focus-offset: 2px;
 
-  /* Motion */
-  /* 时长分两族：微交互走 fast/base/slow；空间转场（主角 morph、容器级
-     位移）走 spatial——它比 slow 慢是有意的，长出来的尾程是「沉降感」
-     本身（见 frontend-design-guide §9 动效语言）。 */
-  --motion-duration-fast: 120ms;
-  --motion-duration-base: 180ms;
-  --motion-duration-slow: 280ms;
-  --motion-duration-spatial: 420ms;
-  /* standard：进场与状态切换（快启动、长沉降）；emphasized：空间滑翔
-     （iOS sheet 同族曲线，慢启动长滑行，配 spatial 时长）；exit：出场
-     加速离场（配合「出场时长 ≈ 进场 60%」的非对称规则）。 */
-  --motion-ease-standard: cubic-bezier(0.2, 0, 0, 1);
-  --motion-ease-emphasized: cubic-bezier(0.32, 0.72, 0, 1);
-  --motion-ease-exit: cubic-bezier(0.55, 0, 1, 1);
-  --motion-lift-hover: translateY(-1px);
-  --opacity-disabled: 0.6;
-  --opacity-disabled-strong: 0.45;
-
-  /* Layout */
-  --layout-topbar-height: 56px;
-  /* 桌面 app 模式的窗口顶条高：与壳侧同源
-     （apps/write-desktop/src/main/window.ts 的 DESKTOP_STRIP_HEIGHT），
-     改一边必须同步另一边。 */
-  --layout-desktop-strip-height: 48px;
-  --layout-max-width-content: 1120px;
-  --layout-max-width-page: 1440px;
-  --layout-sidebar-width: 280px;
-  --layout-rail-width: 64px;
-  --layout-aside-width: 360px;
-  --layout-card-padding: 20px;
-  --layout-card-padding-compact: 16px;
-  --layout-card-padding-lg: 24px;
-  --layout-section-spacing: 64px;
-  --layout-section-spacing-compact: 48px;
-  --layout-footer-height: 120px;
-
-  /* === Layer（只给 Teleport 到 body 的层用）===
-     模块内部一律 `isolation: isolate` + 局部小数字，不需要 token。
-     PrimeVue 的浮层是自增计数器（overlay/menu 起 1000、modal/tooltip 起 1100，
-     每叠一层继续爬），固定数字赢不了它——要盖住 PrimeVue 浮层只能交给 PrimeVue 渲染。
-     所以这里的值一律低于 1000，明确接受「下拉/弹窗会盖住它」。详见
-     docs/frontend-design-guide.md §10.3。 */
-  --z-floating: 900; /* 自绘的悬浮小层：tooltip、跟随气泡 */
-  --z-scrim: 950; /* 自绘的全屏遮罩层：图片灯箱 */
-
-  /* Effect */
-  --effect-focus-ring: 0 0 0 3px rgb(var(--color-brand-500-rgb) / 0.18);
-  --effect-glow-brand-soft: 0 0 0 4px rgb(var(--color-brand-500-rgb) / 0.15);
-  --effect-blur-overlay: 12px;
-  --effect-blur-panel: 14px;
-  --effect-blur-hero: 64px;
-
-  /* Gradient */
-  --gradient-page-background:
-    radial-gradient(900px 540px at 80% -10%, var(--color-brand-50), transparent 60%),
-    radial-gradient(680px 440px at -10% 110%, oklch(0.96 0.04 50), transparent 55%),
-    var(--color-bg);
-  --gradient-brand-accent:
-    linear-gradient(135deg, var(--color-brand-400) 0%, var(--color-brand-600) 100%);
-  --gradient-surface-accent:
-    radial-gradient(circle at top right, rgb(var(--color-brand-500-rgb) / 0.08), transparent 56%),
-    var(--color-surface-base);
-  --gradient-panel-accent:
-    linear-gradient(180deg, rgb(var(--color-brand-500-rgb) / 0.06), transparent 64%),
-    var(--color-surface-muted);
-
-  /* === Elevation — 语义化的「第几层」（issue #110）===
-     **写「第几层」，不要写「什么阴影」。** 这一族存在的唯一理由是深浅两套的抬升
-     手法根本不同：浅色靠阴影，深色靠亮度（深色下阴影几乎不可见，硬套只会脏）。
-     把这条规则收进 token 之后，消费方两套主题下写法完全一样：
-         background: var(--elevation-2-surface);
-         box-shadow: var(--elevation-2-shadow);
-     四层的语义是固定的，不许按「想要多重的阴影」挑层：
-       0 页面底（.mw-main 外层）· 1 常驻面（表头、分组底；左右栏不在此列，
-       它们 transparent 继承岛面，见 Island 节）
-       2 内容面（卡片、分组卡、中栏）· 3 浮层（Dialog / Menu / Popover / Toast）
-     深色下 2/3 层的 shadow 换成极细高光描边——**阴影在深色里只负责「分离」，
-     不负责「抬升」**，抬升交给 surface 的亮度递增。 */
-  --elevation-0-surface: var(--color-bg);
-  --elevation-0-shadow: none;
-  --elevation-1-surface: var(--color-bg-soft);
-  --elevation-1-shadow: none;
-  --elevation-2-surface: var(--color-surface-base);
-  --elevation-2-shadow: var(--shadow-xs);
-  --elevation-3-surface: var(--color-surface-overlay);
-  --elevation-3-shadow: var(--shadow-lg);
-
-  /* === Material — 玻璃与仿玻璃（issue #110）===
-     两件不同的东西，别混：
-     - **真玻璃**（--material-glass-* 一套）只贴「底下真有内容会滚过去」的大面积
-       背板：**浮层、正文上的浮动控件**。工作台自 A2 起是「画布 + 浮岛」，
-       左右栏的岛面走 --island-*（见下），顶栏自 A3 起不画面，也不贴玻璃。
-     - **仿玻璃**（--material-control-*）给小控件用：底下是纯色，透不出东西，而且
-       数量多，每个一个合成层会直接撞破「单页玻璃层 ≤ 3」。用绘制的方式做质感。
-     红线：filter / backdrop-filter **不得出现在 transition 或 @keyframes 的属性
-     列表里**（转场快照上逐帧重算 = 掉帧源）；静态声明允许。
-
-     真玻璃四件套，缺一件就退回 2013 年的毛玻璃（**四件必须一起用**，
-     统一封装在 styles.css 的 .mw-glass，消费方加类即可，不许各处自调数值）：
-       ① scrim   底色，控制「透多少」——高于 0.6 就等于不透
-       ② blur    backdrop-filter；浅色 brightness 略提亮，**深色必须压暗**
-                 （深色玻璃提亮 = 一层灰纱，这是仿品最常错的一处）
-       ③ specular 镜面高光：左上进光的斜切亮面 + 顶边一线更亮的弧。走
-                 background-image，零滤镜成本，「liquid」感里最便宜的那一层
-       ④ lens    边缘透镜：顶边一线进光 + 底边一线回暗，模拟光穿过玻璃厚度
-                 = 「一块有体积的材料」而非一层膜。
-                 **一条边只画一条线。** 曾经这里同时有「侧边线 + 通圈 + 内侧一圈
-                 22px 的白晕」，叠在浮层自己的 1px border 外沿内侧，小尺寸下场景
-                 （下拉、Select）看上去就是「一个框里又套了一个框」，像渲染坏了。
-                 边的层次交给 border + 投影，lens 只负责上下两棱。 */
-  --material-blur: blur(24px) saturate(190%) brightness(1.05);
-  --material-blur-strong: blur(38px) saturate(210%) brightness(1.07);
-  --material-scrim: rgba(255, 255, 255, 0.55);
-  /* strong 档 = Dialog / 命令面板这类「盖住半屏、底下压着成片正文」的大浮层。
-     0.66 时代浅色下面板吃背景色太深：白底字段（input 面是 0.55–0.9 白的
-     仿玻璃）压上去像贴纸。0.84 让面落在 ~0.93 白——玻璃感交给 blur + specular
-     + lens，底色只负责「内容读起来有底」。 */
-  --material-scrim-strong: rgba(255, 255, 255, 0.84);
-  /* 浅色下 hairline 用暖深不用白：白描边在白底上隐形，只在面板底缘的投影
-     暗区里反出一条亮线——和 lens 底棱叠起来就是「底边两层」。描边的职责是
-     定义边缘（进光的高光棱归 lens 顶线），白描边在浅色下不履行这个职责。 */
-  --material-hairline: rgba(20, 14, 8, 0.1);
-  --material-specular:
-    linear-gradient(148deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.13) 26%,
-      rgba(255, 255, 255, 0) 54%),
-    linear-gradient(0deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0) 32%);
-  --material-lens:
-    inset 0 1px 0 rgba(255, 255, 255, 0.75),
-    inset 0 -1px 0 rgba(20, 14, 8, 0.05);
-  /* 玻璃的落地投影：比同层实心面更散更浅——透光的东西不该压出硬影。 */
-  --material-glass-shadow:
-    0 18px 44px -18px rgba(20, 14, 8, 0.3), 0 2px 8px -4px rgba(20, 14, 8, 0.12);
-  /* 悬浮板「底下真有内容滑过」时的投影档（顶栏 --scrolled）：只压深，不加边框
-     ——圆角悬浮板上的一条下边框没有物理意义。 */
-  /* Dialog / Drawer 遮罩：**压暗**背景，不是把它糊成一片白雾。重模糊会让整页
-     看起来像渲染坏了；真正让面板浮起来的是亮度差，不是模糊量。 */
-  --material-mask: rgba(28, 20, 12, 0.34);
-  --material-mask-blur: blur(7px) saturate(104%) brightness(0.95);
-  --material-control-face:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.55));
-  --material-control-inset:
-    inset 0 1px 0 rgba(255, 255, 255, 0.95), inset 0 -1px 0 rgba(20, 14, 8, 0.04);
-  /* 玻璃面上的「内嵌块」（浮层里的列表框、分组框、字段面）：不许用不透明底色
-     ——实心块压在玻璃上会把材质打断（那正是旧 Dialog 里最出戏的一处）。 */
-  --material-inlay: rgba(255, 255, 255, 0.42);
-  --material-inlay-border: rgba(20, 14, 8, 0.07);
-  /* 岛面轨道内容（侧栏 tab 行等）上的 hover 填充。**不能复用 --material-inlay**：
-     浅色下它是白叠层，压在近白的岛面上 hover 读不出来；这里浅色翻成暖深叠层、
-     深色保持白叠层，随 mode 翻转。 */
-  --material-hover: rgba(20, 14, 8, 0.07);
-
-  /* === Spring — 弹簧缓动（issue #110）===
-     阻尼谐振子采样成 linear()。**适用边界写死，越界即滥用**：
-       只用于「小物体归位」——位移 < 24px 或 scale 变化，时长 ≤ --motion-duration-base。
-       转场、抽屉、面板位移一律用 --motion-ease-emphasized，**禁止 spring**
-       （弹簧在大位移上显得廉价、像玩具）。
-     snap 超调 1.5%（按钮松手、勾选）· pop 超调 8.3%（switch knob、菜单展开）。 */
-  --motion-spring-snap:
+  /* Motion：只动 transform / opacity / 颜色；filter 与 backdrop-filter 不进动画。 */
+  --duration-instant: 80ms;
+  --duration-fast: 120ms;
+  --duration-base: 180ms;
+  --duration-slow: 260ms;
+  --duration-slower: 400ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-enter: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --ease-exit: cubic-bezier(0.3, 0, 0.8, 0.15);
+  --ease-emphasized: cubic-bezier(0.32, 0.72, 0, 1);
+  /* 弹簧只给小物体归位（位移 < 24px 或缩放），时长 ≤ base。 */
+  --ease-spring-snap:
     linear(0, 0.032, 0.11, 0.213, 0.327, 0.441, 0.547, 0.643, 0.727, 0.797,
       0.855, 0.901, 0.936, 0.963, 0.983, 0.996, 1.006, 1.011, 1.014, 1.015,
       1.015, 1.014, 1);
-  --motion-spring-pop:
+  --ease-spring-pop:
     linear(0, 0.04, 0.138, 0.271, 0.416, 0.56, 0.692, 0.806, 0.899, 0.971,
       1.022, 1.056, 1.075, 1.083, 1.082, 1.075, 1.065, 1.053, 1.041, 1.029,
       1.019, 1.011, 1);
+  --motion-enter-offset: 4px;
+  --motion-enter-scale: 0.97;
+  --opacity-disabled: 0.45;
 
-  /* Compatibility aliases (do not introduce new code that depends on these) */
-  --bg: var(--color-bg);
-  --bg-soft: var(--color-bg-soft);
-  --surface: var(--color-surface-base);
-  --surface-2: var(--color-surface-muted);
-  --border: var(--color-border-subtle);
-  --border-strong: var(--color-border-strong);
-  --text-1: var(--color-text-primary);
-  --text-2: var(--color-text-secondary);
-  --text-3: var(--color-text-tertiary);
-  --text-4: var(--color-text-quaternary);
-  --font-sans: var(--font-family-sans);
-  --font-serif: var(--font-family-serif);
-  --font-mono: var(--font-family-mono);
-  --mango-color-primary: var(--color-brand-500);
-  --mango-color-primary-active: var(--color-brand-600);
-  --mango-color-primary-active-rgb: var(--color-brand-600-rgb);
-  --mango-color-primary-deep: var(--color-brand-700);
-  --mango-color-primary-deep-rgb: var(--color-brand-700-rgb);
-  --mango-color-primary-hover: var(--color-brand-400);
-  --mango-color-primary-hover-rgb: var(--color-brand-400-rgb);
-  --mango-color-primary-rgb: var(--color-brand-500-rgb);
-  --mango-color-primary-soft: var(--color-brand-100);
-  --mango-color-primary-subtle: var(--color-brand-50);
-  --accent: var(--color-brand-600);
-  --background: var(--color-surface-canvas);
-  --brand: var(--color-brand-500);
-  --brand-deep: var(--color-brand-700);
-  --card: var(--color-surface-base);
-  --foreground: var(--color-text-primary);
-  --font-body: var(--font-family-sans);
-  --font-display: var(--font-family-serif);
-  --muted: var(--color-text-secondary);
-  --site-footer-height: var(--layout-footer-height);
+  /* Layout */
+  --container-prose: 720px;
+  --container-content: 1120px;
+  --container-page: 1440px;
+  --page-gutter: var(--space-4);
+  --shell-topbar-h: 48px;
+  --shell-sidebar-w: 272px;
+  --shell-rail-w: 56px;
+  --shell-aside-w: 352px;
+  --shell-gutter: var(--space-2);
 
-  /* === 代码语法配色（hljs token 着色用）===
-     亮色取 GitHub Light、深色取 GitHub Dark 的代码色板，收敛成 6 个语义组。 */
+  /* Layers：所有 body 级浮层都由本库渲染，数值即全部秩序。 */
+  --z-base: 0;
+  --z-raised: 10;
+  --z-sticky: 100;
+  --z-dropdown: 1000;
+  --z-overlay: 1100;
+  --z-toast: 1200;
+  --z-tooltip: 1300;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --page-gutter: var(--space-6);
+  }
+}
+
+@media (min-width: 1280px) {
+  :root {
+    --page-gutter: var(--space-8);
+  }
+}
+
+/* ③ Semantic · 浅色基值 ──────────────────────────────────────────────────── */
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+
+  --bg-canvas: #f1efec;
+  --bg-surface: #fdfcfa;
+  --bg-raised: #ffffff;
+  --bg-sunken: #f7f5f2;
+  --bg-inverse: #24201c;
+
+  --text-primary: #1f1b17;
+  --text-secondary: #57514a;
+  --text-tertiary: #756e67;
+  --text-disabled: #aaa49d;
+  --text-inverse: #fdfcfa;
+  --text-on-accent: #ffffff;
+  --text-on-danger: #ffffff;
+  --text-accent: #c2410c;
+
+  /* 墨色底：所有半透明填充 / 边框都由它派生，纸面与霜面上读感一致。 */
+  --ink-rgb: 31 27 23;
+  --sheen-rgb: 255 255 255;
+
+  --accent: #f97316;
+  --accent-hover: #fb8a3d;
+  --accent-pressed: #ea580c;
+
+  --danger: #dc2626;
+  --danger-hover: #c81e1e;
+  --danger-text: #b91c1c;
+  --success: #16a34a;
+  --success-text: #15803d;
+  --warning: #f59e0b;
+  --warning-text: #b45309;
+  --info: #3b82c4;
+  --info-text: #1d5f99;
+
+  --control-bg: rgb(255 255 255 / 0.72);
+  --control-bg-hover: rgb(255 255 255 / 0.92);
+
+  --frost-bg: rgb(252 250 247 / 0.8);
+  --frost-bg-thick: rgb(252 250 247 / 0.9);
+  --frost-fallback: #faf8f5;
+  --frost-blur: blur(20px) saturate(160%);
+  --frost-blur-thick: blur(32px) saturate(170%);
+  --frost-highlight: inset 0 1px 0 rgb(255 255 255 / 0.65);
+  --scrim: rgb(24 18 12 / 0.36);
+
+  --shadow-raised: 0 1px 2px rgb(31 27 23 / 0.06), 0 1px 1px rgb(31 27 23 / 0.03);
+  --shadow-floating: 0 10px 28px -8px rgb(31 27 23 / 0.18), 0 2px 6px -2px rgb(31 27 23 / 0.08);
+  --shadow-overlay: 0 28px 64px -18px rgb(31 27 23 / 0.3), 0 8px 18px -10px rgb(31 27 23 / 0.12);
+
+  /* Domain base values */
+  --color-text-on-highlight: #170d08;
+  --color-source-highlight: #fff3a3;
+  --color-mark-yellow-rgb: 250 202 21;
+  --color-mark-green-rgb: 74 222 128;
+  --color-mark-blue-rgb: 96 165 250;
+  --color-mark-pink-rgb: 244 114 182;
+  --color-mark-purple-rgb: 167 139 250;
   --code-comment: #6e7781;
   --code-keyword: #cf222e;
   --code-string: #116329;
   --code-constant: #0550ae;
   --code-entity: #8250df;
   --code-variable: #953800;
+
+  /* Legacy base values（RGB 三元组无法由 color-mix 派生，冻结在此） */
+  --color-brand-400-rgb: 251 146 60;
+  --color-brand-500-rgb: 249 115 22;
+  --color-brand-600-rgb: 234 88 12;
+  --color-brand-700-rgb: 194 65 12;
+  --color-success-500-rgb: 22 163 74;
+  --color-info-500-rgb: 59 130 196;
+  --color-warning-500-rgb: 245 158 11;
+  --color-danger-500-rgb: 220 38 38;
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   深色主题 · C「冷炭暖光」（issue #110 · P0 定稿）
-   ═══════════════════════════════════════════════════════════════════════════
-   底色收到近中性（oklch hue 265、chroma .004–.006），把所有暖度留给品牌与强调色。
-   对比度实测：text-1/bg 16.89 · text-2/bg 8.81 · text-3/bg 5.16 · text-3/surface 4.56
-   · brand-700/surface 9.01 —— 全部过 WCAG AA。
-
-   三条必须知道否则会改错的事：
-
-   1. **浅色 :root 是完备集，这里只做覆盖。** 任何颜色 token 都不许「只在这个块里
-      第一次出现」——漏一个就是深色下拿到浅色值，且极难排查。加新颜色 token 时先
-      在 :root 定义，再决定要不要在这里覆盖。
-
-   2. **深色下 brand-600 与 brand-700 的方向是相反的。** 600 是「按下态」，要比 500
-      更暗（实心按钮按下去应该变沉）；700 是「品牌深色文本/强强调」，在深底上「更强」
-      必须是**更亮**。所以 600 比 500 暗、700 比 500 亮，不是笔误。
-
-   3. **filled 品牌按钮在深浅两套下都用深色文字。** 白字压品牌橙不满足正文 AA；
-      短标签也不能按非文本图形豁免。
-
-   深色有属性入口与系统偏好首帧入口，两块逐值一致由 var-css-dark-parity.test.ts 锁死。
-   ═══════════════════════════════════════════════════════════════════════════ */
-:root[data-theme="dark"] {
+/* ③ Semantic · 深色覆盖（与下方媒体查询块逐条一致，var-css-dark-parity.test.ts 锁死） */
+[data-theme="dark"] {
   color-scheme: dark;
 
-  /* === Brand — 暖橙在冷炭底上提亮 ===
-     **--color-brand-{400,500,600,700} 是语义角色，不是单调调色阶**（本仓一直这么用：
-     400=hover、500=基准、600=按下态兼重点文本、700=强强调文本）。所以深色下 400 比
-     500 亮、600 比 500 暗、700 又比 500 亮——**不单调是对的**，别"顺手排序修好它"。
-     50–300 与 800–950 才是给 PrimeVue --p-primary-* 用的调色阶，那两段在深色下单调。
-     深色实测：500 作文字 6.05:1 · 600 作文字 5.06:1 · 700 作文字 9.01:1。 */
-  --color-brand-50: #442415;
-  --color-brand-100: #5d2f19;
-  --color-brand-200: #7a3f1d;
-  --color-brand-300: #b85c22;
-  --color-brand-400: #ff9850;
-  --color-brand-500: #f6722b;
-  /* 600 定在 oklch(.655 .185 43)：既要比 500 深（按下态该变沉），又要能当正文用
-     —— 它在 web 侧被引用 122 次，多数是「重点文本」。#e25500 只有 4.55:1，余量太薄。 */
-  --color-brand-600: #e96018;
-  --color-brand-700: #ffa763;
-  --color-brand-800: #ffbe84;
-  --color-brand-900: #ffd5ad;
-  --color-brand-950: #ffead6;
-  --color-brand-400-rgb: 255 152 80;
-  --color-brand-500-rgb: 246 114 43;
-  --color-brand-600-rgb: 233 96 24;
-  --color-brand-700-rgb: 255 167 99;
-  --brand-grad-from: var(--color-brand-500);
-  --brand-grad-to: var(--color-brand-600);
+  --bg-canvas: #0f0e0d;
+  --bg-surface: #181716;
+  --bg-raised: #211f1d;
+  --bg-sunken: #131211;
+  --bg-inverse: #f2efeb;
 
-  /* Surface — 近中性冷炭，亮度递增即层级递增 */
-  --color-bg: #0b0c0e;
-  --color-bg-soft: #131416;
-  /* hover 档：深色按「亮度递增即层级递增」提亮，落 base 与 overlay 之间 */
-  --color-bg-hover: #232528;
-  --color-surface-base: #191b1d;
-  --color-surface-muted: #161719;
-  --color-surface-canvas: #101012;
-  --color-surface-elevated: rgba(37, 38, 41, 0.92);
-  --color-surface-glass: rgba(25, 27, 29, 0.72);
-  --color-surface-overlay: #252629;
+  --text-primary: #f2efeb;
+  --text-secondary: #bdb7b0;
+  --text-tertiary: #8f8982;
+  --text-disabled: #5f5a55;
+  --text-inverse: #1f1b17;
+  --text-on-accent: #ffffff;
+  --text-on-danger: #ffffff;
+  --text-accent: #fdba74;
 
-  /* Text */
-  --color-text-primary: #eeeef0;
-  --color-text-secondary: #adaeb0;
-  --color-text-tertiary: #828386;
-  --color-text-quaternary: #656669;
-  --color-text-on-brand: #170d08; /* 深字压在品牌橙上，见上面第 3 条 */
+  --ink-rgb: 255 250 244;
+  --sheen-rgb: 255 250 244;
 
-  /* Border */
-  --color-border-subtle: #2b2d30;
-  --color-border-strong: #3f4145;
-  --color-border-soft: rgba(255, 255, 255, 0.08);
-  --color-border-inverse-soft: rgba(255, 255, 255, 0.14);
+  --accent: #f97316;
+  --accent-hover: #fb8a3d;
+  --accent-pressed: #ea580c;
 
-  /* Status — 深底上一律提亮；-surface/-border 由 -rgb 派生，自动跟随 */
-  --color-success-500: #4dbf74;
-  --color-success-600: #78d694;
-  --color-success-500-rgb: 77 191 116;
-  --color-info-500: #62a4df;
-  --color-info-500-rgb: 98 164 223;
-  --color-warning-500: #fe9d41;
-  --color-warning-600: #ffb972;
-  --color-warning-500-rgb: 254 157 65;
-  --color-danger-500: #f3625f;
-  --color-danger-700: #ff918b;
-  --color-danger-500-rgb: 243 98 95;
-  /* 深底上纯 alpha 混色偏灰，底色权重要比浅色高一档 */
-  --color-success-surface: rgb(var(--color-success-500-rgb) / 0.14);
-  --color-info-surface: rgb(var(--color-info-500-rgb) / 0.13);
-  --color-warning-surface: rgb(var(--color-warning-500-rgb) / 0.14);
-  --color-danger-surface: rgb(var(--color-danger-500-rgb) / 0.15);
-  --color-success-border: rgb(var(--color-success-500-rgb) / 0.32);
-  --color-info-border: rgb(var(--color-info-500-rgb) / 0.28);
-  --color-warning-border: rgb(var(--color-warning-500-rgb) / 0.32);
-  --color-danger-border: rgb(var(--color-danger-500-rgb) / 0.34);
+  --danger: #dc2626;
+  --danger-hover: #ef4444;
+  --danger-text: #fca5a5;
+  --success: #4ade80;
+  --success-text: #86efac;
+  --warning: #fbbf24;
+  --warning-text: #fcd34d;
+  --info: #60a5fa;
+  --info-text: #93c5fd;
 
-  /* 批注的 -500/-rgb 经 --color-brand-400-* 自动换深，这里只按上面 status
-     同一口径（深底纯 alpha 混色偏灰，权重比浅色高一档）重定派生权重。 */
-  --color-annotation-surface: rgb(var(--color-annotation-500-rgb) / 0.22);
-  --color-annotation-border: rgb(var(--color-annotation-500-rgb) / 0.65);
+  --control-bg: rgb(255 250 244 / 0.05);
+  --control-bg-hover: rgb(255 250 244 / 0.08);
 
-  /* 作者高亮：深底上实心 #fff3a3 会糊成一片刺眼亮斑，改半透明版压进纸面。 */
+  --frost-bg: rgb(34 32 30 / 0.78);
+  --frost-bg-thick: rgb(34 32 30 / 0.88);
+  --frost-fallback: #22201e;
+  --frost-blur: blur(20px) saturate(140%);
+  --frost-blur-thick: blur(32px) saturate(150%);
+  --frost-highlight: inset 0 1px 0 rgb(255 250 244 / 0.06);
+  --scrim: rgb(0 0 0 / 0.55);
+
+  --shadow-raised: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow-floating: 0 12px 32px -8px rgb(0 0 0 / 0.6), 0 2px 6px -2px rgb(0 0 0 / 0.4);
+  --shadow-overlay: 0 32px 72px -18px rgb(0 0 0 / 0.72), 0 8px 20px -10px rgb(0 0 0 / 0.5);
+
   --color-source-highlight: rgb(255 243 163 / 0.28);
-
-  /* 划线墨色提亮：surface(0.4) 在深底自动压成暗调不刺眼，border(0.85) 保持鲜亮。 */
   --color-mark-yellow-rgb: 253 224 71;
   --color-mark-green-rgb: 134 239 172;
   --color-mark-blue-rgb: 147 197 253;
   --color-mark-pink-rgb: 249 168 212;
   --color-mark-purple-rgb: 196 181 253;
-
-  /* Shadow — 深色下阴影更深更散，但**不承担抬升**（见 elevation） */
-  --shadow-xs: 0 1px 2px rgb(0 0 0 / 0.4);
-  --shadow: 0 2px 8px rgb(0 0 0 / 0.45);
-  --shadow-md: 0 10px 24px -8px rgb(0 0 0 / 0.55), 0 2px 6px rgb(0 0 0 / 0.4);
-  --shadow-lg: 0 20px 44px -14px rgb(0 0 0 / 0.66), 0 4px 12px rgb(0 0 0 / 0.4);
-  --shadow-brand-md: 0 6px 16px -6px rgb(var(--color-brand-500-rgb) / 0.5);
-  --shadow-brand-lg: 0 14px 30px -10px rgb(var(--color-brand-500-rgb) / 0.5);
-
-  /* === Elevation — surface 半跟着上面的亮度阶自动走；shadow 半在这里换手法 ===
-     浅色 2/3 层靠阴影抬升；深色改用极细高光描边只做「分离」，抬升交给亮度。 */
-  --elevation-2-shadow: 0 0 0 1px rgb(255 255 255 / 0.05);
-  --elevation-3-shadow:
-    0 20px 44px -14px rgb(0 0 0 / 0.66), 0 0 0 1px rgb(255 255 255 / 0.07);
-
-  /* Material */
-  --material-blur: blur(24px) saturate(160%) brightness(0.68) contrast(1.05);
-  --material-blur-strong: blur(38px) saturate(175%) brightness(0.62) contrast(1.06);
-  --material-scrim: rgba(28, 30, 34, 0.56);
-  --material-scrim-strong: rgba(28, 30, 34, 0.68);
-  --material-hairline: rgba(255, 255, 255, 0.12);
-  --material-specular:
-    linear-gradient(148deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.03) 26%,
-      rgba(255, 255, 255, 0) 54%),
-    linear-gradient(0deg, rgba(255, 255, 255, 0.045) 0%, rgba(255, 255, 255, 0) 32%);
-  --material-lens:
-    inset 0 1px 0 rgba(255, 255, 255, 0.14),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.35);
-  --material-glass-shadow:
-    0 22px 50px -20px rgba(0, 0, 0, 0.72), 0 2px 10px -4px rgba(0, 0, 0, 0.5);
-  --material-mask: rgba(0, 0, 0, 0.55);
-  --material-mask-blur: blur(7px) saturate(100%) brightness(0.62);
-  --material-control-face:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02));
-  --material-control-inset:
-    inset 0 1px 0 rgba(255, 255, 255, 0.08), inset 0 -1px 0 rgba(0, 0, 0, 0.25);
-  --material-inlay: rgba(255, 255, 255, 0.055);
-  --material-inlay-border: rgba(255, 255, 255, 0.08);
-  --material-hover: rgba(255, 255, 255, 0.055);
-
-  --canvas-base: #15171c;
-  --canvas-backdrop:
-    radial-gradient(1600px 850px at 78% -18%, rgb(var(--color-brand-500-rgb) / 0.085), transparent 62%),
-    radial-gradient(1250px 850px at -8% 106%, rgb(var(--color-brand-600-rgb) / 0.05), transparent 58%),
-    var(--canvas-base);
-
-  --island-scrim: rgba(30, 32, 36, 0.88);
-  --island-specular:
-    linear-gradient(158deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.025) 24%,
-      rgba(255, 255, 255, 0) 52%);
-  --island-lens:
-    inset 0 1px 0 rgba(255, 255, 255, 0.13),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.06);
-  --island-paper-lens: inset 0 0 0 1px rgba(255, 255, 255, 0.055);
-  --island-shadow:
-    0 0 0 0.5px rgba(255, 255, 255, 0.06),
-    0 1px 3px rgba(0, 0, 0, 0.45),
-    0 12px 28px -14px rgba(0, 0, 0, 0.65);
-
-  /* Effect */
-  --effect-focus-ring: 0 0 0 3px rgb(var(--color-brand-500-rgb) / 0.32);
-  --effect-glow-brand-soft: 0 0 0 4px rgb(var(--color-brand-500-rgb) / 0.26);
-
-  /* Gradient */
-  --gradient-page-background:
-    radial-gradient(900px 540px at 80% -10%, rgb(var(--color-brand-500-rgb) / 0.1), transparent 60%),
-    radial-gradient(680px 440px at -10% 110%, rgb(var(--color-brand-600-rgb) / 0.07), transparent 55%),
-    var(--color-bg);
-  --gradient-surface-accent:
-    radial-gradient(circle at top right, rgb(var(--color-brand-500-rgb) / 0.12), transparent 56%),
-    var(--color-surface-base);
-    --gradient-panel-accent:
-      linear-gradient(180deg, rgb(var(--color-brand-500-rgb) / 0.1), transparent 64%),
-      var(--color-surface-muted);
-
   --code-comment: #8b949e;
   --code-keyword: #ff7b72;
   --code-string: #7ee787;
   --code-constant: #79c0ff;
   --code-entity: #d2a8ff;
   --code-variable: #ffa657;
+
+  --color-brand-400-rgb: 251 146 60;
+  --color-brand-500-rgb: 249 115 22;
+  --color-brand-600-rgb: 234 88 12;
+  --color-brand-700-rgb: 253 186 116;
+  --color-success-500-rgb: 74 222 128;
+  --color-info-500-rgb: 96 165 250;
+  --color-warning-500-rgb: 251 191 36;
+  --color-danger-500-rgb: 248 113 113;
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   深色 · 跟随系统兜底（issue #110 · P6）
-   ═══════════════════════════════════════════════════════════════════════════
-   内容与上面 :root[data-theme="dark"] 块完全同源：首帧（JS 还没把偏好落成
-   data-theme 属性之前）由系统媒体查询直接给出深色 token，深色用户不闪白。
-   选择器 :not([data-theme="light"]) 让「手动固定浅色」压过系统深色。
-   **改任何一处深色值，另一处必须同步改**——两块的声明一致性由
-   apps/web/src/app/var-css-dark-parity.test.ts 逐条比对锁死，手抄漂移会红。 */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
 
-    --color-brand-50: #442415;
-    --color-brand-100: #5d2f19;
-    --color-brand-200: #7a3f1d;
-    --color-brand-300: #b85c22;
-    --color-brand-400: #ff9850;
-    --color-brand-500: #f6722b;
-    --color-brand-600: #e96018;
-    --color-brand-700: #ffa763;
-    --color-brand-800: #ffbe84;
-    --color-brand-900: #ffd5ad;
-    --color-brand-950: #ffead6;
-    --color-brand-400-rgb: 255 152 80;
-    --color-brand-500-rgb: 246 114 43;
-    --color-brand-600-rgb: 233 96 24;
-    --color-brand-700-rgb: 255 167 99;
-  --brand-grad-from: var(--color-brand-500);
-  --brand-grad-to: var(--color-brand-600);
+    --bg-canvas: #0f0e0d;
+    --bg-surface: #181716;
+    --bg-raised: #211f1d;
+    --bg-sunken: #131211;
+    --bg-inverse: #f2efeb;
 
-    --color-bg: #0b0c0e;
-    --color-bg-soft: #131416;
-    /* hover 档：深色按「亮度递增即层级递增」提亮，落 base 与 overlay 之间 */
-    --color-bg-hover: #232528;
-    --color-surface-base: #191b1d;
-    --color-surface-muted: #161719;
-    --color-surface-canvas: #101012;
-    --color-surface-elevated: rgba(37, 38, 41, 0.92);
-    --color-surface-glass: rgba(25, 27, 29, 0.72);
-    --color-surface-overlay: #252629;
-  
-    --color-text-primary: #eeeef0;
-    --color-text-secondary: #adaeb0;
-    --color-text-tertiary: #828386;
-    --color-text-quaternary: #656669;
-    --color-text-on-brand: #170d08;
+    --text-primary: #f2efeb;
+    --text-secondary: #bdb7b0;
+    --text-tertiary: #8f8982;
+    --text-disabled: #5f5a55;
+    --text-inverse: #1f1b17;
+    --text-on-accent: #ffffff;
+    --text-on-danger: #ffffff;
+    --text-accent: #fdba74;
 
-    --color-border-subtle: #2b2d30;
-    --color-border-strong: #3f4145;
-    --color-border-soft: rgba(255, 255, 255, 0.08);
-    --color-border-inverse-soft: rgba(255, 255, 255, 0.14);
+    --ink-rgb: 255 250 244;
+    --sheen-rgb: 255 250 244;
 
-    --color-success-500: #4dbf74;
-    --color-success-600: #78d694;
-    --color-success-500-rgb: 77 191 116;
-    --color-info-500: #62a4df;
-    --color-info-500-rgb: 98 164 223;
-    --color-warning-500: #fe9d41;
-    --color-warning-600: #ffb972;
-    --color-warning-500-rgb: 254 157 65;
-    --color-danger-500: #f3625f;
-    --color-danger-700: #ff918b;
-    --color-danger-500-rgb: 243 98 95;
-    --color-success-surface: rgb(var(--color-success-500-rgb) / 0.14);
-    --color-info-surface: rgb(var(--color-info-500-rgb) / 0.13);
-    --color-warning-surface: rgb(var(--color-warning-500-rgb) / 0.14);
-    --color-danger-surface: rgb(var(--color-danger-500-rgb) / 0.15);
-    --color-success-border: rgb(var(--color-success-500-rgb) / 0.32);
-    --color-info-border: rgb(var(--color-info-500-rgb) / 0.28);
-    --color-warning-border: rgb(var(--color-warning-500-rgb) / 0.32);
-    --color-danger-border: rgb(var(--color-danger-500-rgb) / 0.34);
+    --accent: #f97316;
+    --accent-hover: #fb8a3d;
+    --accent-pressed: #ea580c;
 
-    --color-annotation-surface: rgb(var(--color-annotation-500-rgb) / 0.22);
-    --color-annotation-border: rgb(var(--color-annotation-500-rgb) / 0.65);
+    --danger: #dc2626;
+    --danger-hover: #ef4444;
+    --danger-text: #fca5a5;
+    --success: #4ade80;
+    --success-text: #86efac;
+    --warning: #fbbf24;
+    --warning-text: #fcd34d;
+    --info: #60a5fa;
+    --info-text: #93c5fd;
 
-    /* 作者高亮：深底上实心 #fff3a3 会糊成一片刺眼亮斑，改半透明版压进纸面。 */
+    --control-bg: rgb(255 250 244 / 0.05);
+    --control-bg-hover: rgb(255 250 244 / 0.08);
+
+    --frost-bg: rgb(34 32 30 / 0.78);
+    --frost-bg-thick: rgb(34 32 30 / 0.88);
+    --frost-fallback: #22201e;
+    --frost-blur: blur(20px) saturate(140%);
+    --frost-blur-thick: blur(32px) saturate(150%);
+    --frost-highlight: inset 0 1px 0 rgb(255 250 244 / 0.06);
+    --scrim: rgb(0 0 0 / 0.55);
+
+    --shadow-raised: 0 1px 2px rgb(0 0 0 / 0.4);
+    --shadow-floating: 0 12px 32px -8px rgb(0 0 0 / 0.6), 0 2px 6px -2px rgb(0 0 0 / 0.4);
+    --shadow-overlay: 0 32px 72px -18px rgb(0 0 0 / 0.72), 0 8px 20px -10px rgb(0 0 0 / 0.5);
+
     --color-source-highlight: rgb(255 243 163 / 0.28);
-
-    /* 划线墨色提亮：surface(0.4) 在深底自动压成暗调不刺眼，border(0.85) 保持鲜亮。 */
     --color-mark-yellow-rgb: 253 224 71;
     --color-mark-green-rgb: 134 239 172;
     --color-mark-blue-rgb: 147 197 253;
     --color-mark-pink-rgb: 249 168 212;
     --color-mark-purple-rgb: 196 181 253;
-
-    --shadow-xs: 0 1px 2px rgb(0 0 0 / 0.4);
-    --shadow: 0 2px 8px rgb(0 0 0 / 0.45);
-    --shadow-md: 0 10px 24px -8px rgb(0 0 0 / 0.55), 0 2px 6px rgb(0 0 0 / 0.4);
-    --shadow-lg: 0 20px 44px -14px rgb(0 0 0 / 0.66), 0 4px 12px rgb(0 0 0 / 0.4);
-    --shadow-brand-md: 0 6px 16px -6px rgb(var(--color-brand-500-rgb) / 0.5);
-    --shadow-brand-lg: 0 14px 30px -10px rgb(var(--color-brand-500-rgb) / 0.5);
-
-    --elevation-2-shadow: 0 0 0 1px rgb(255 255 255 / 0.05);
-    --elevation-3-shadow:
-      0 20px 44px -14px rgb(0 0 0 / 0.66), 0 0 0 1px rgb(255 255 255 / 0.07);
-
-    --material-blur: blur(24px) saturate(160%) brightness(0.68) contrast(1.05);
-    --material-blur-strong: blur(38px) saturate(175%) brightness(0.62) contrast(1.06);
-    --material-scrim: rgba(28, 30, 34, 0.56);
-    --material-scrim-strong: rgba(28, 30, 34, 0.68);
-    --material-hairline: rgba(255, 255, 255, 0.12);
-    --material-specular:
-      linear-gradient(148deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.03) 26%,
-        rgba(255, 255, 255, 0) 54%),
-      linear-gradient(0deg, rgba(255, 255, 255, 0.045) 0%, rgba(255, 255, 255, 0) 32%);
-    --material-lens:
-      inset 0 1px 0 rgba(255, 255, 255, 0.14),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.35);
-    --material-glass-shadow:
-      0 22px 50px -20px rgba(0, 0, 0, 0.72), 0 2px 10px -4px rgba(0, 0, 0, 0.5);
-    --material-mask: rgba(0, 0, 0, 0.55);
-    --material-mask-blur: blur(7px) saturate(100%) brightness(0.62);
-    --material-control-face:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02));
-    --material-control-inset:
-      inset 0 1px 0 rgba(255, 255, 255, 0.08), inset 0 -1px 0 rgba(0, 0, 0, 0.25);
-    --material-inlay: rgba(255, 255, 255, 0.055);
-    --material-inlay-border: rgba(255, 255, 255, 0.08);
-    --material-hover: rgba(255, 255, 255, 0.055);
-
-    --canvas-base: #15171c;
-    --canvas-backdrop:
-      radial-gradient(1600px 850px at 78% -18%, rgb(var(--color-brand-500-rgb) / 0.085), transparent 62%),
-      radial-gradient(1250px 850px at -8% 106%, rgb(var(--color-brand-600-rgb) / 0.05), transparent 58%),
-      var(--canvas-base);
-
-    --island-scrim: rgba(30, 32, 36, 0.88);
-    --island-specular:
-      linear-gradient(158deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.025) 24%,
-        rgba(255, 255, 255, 0) 52%);
-    --island-lens:
-      inset 0 1px 0 rgba(255, 255, 255, 0.13),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.06);
-    --island-paper-lens: inset 0 0 0 1px rgba(255, 255, 255, 0.055);
-    --island-shadow:
-      0 0 0 0.5px rgba(255, 255, 255, 0.06),
-      0 1px 3px rgba(0, 0, 0, 0.45),
-      0 12px 28px -14px rgba(0, 0, 0, 0.65);
-
-    --effect-focus-ring: 0 0 0 3px rgb(var(--color-brand-500-rgb) / 0.32);
-    --effect-glow-brand-soft: 0 0 0 4px rgb(var(--color-brand-500-rgb) / 0.26);
-
-    --gradient-page-background:
-      radial-gradient(900px 540px at 80% -10%, rgb(var(--color-brand-500-rgb) / 0.1), transparent 60%),
-      radial-gradient(680px 440px at -10% 110%, rgb(var(--color-brand-600-rgb) / 0.07), transparent 55%),
-      var(--color-bg);
-    --gradient-surface-accent:
-      radial-gradient(circle at top right, rgb(var(--color-brand-500-rgb) / 0.12), transparent 56%),
-      var(--color-surface-base);
-    --gradient-panel-accent:
-      linear-gradient(180deg, rgb(var(--color-brand-500-rgb) / 0.1), transparent 64%),
-      var(--color-surface-muted);
-
     --code-comment: #8b949e;
     --code-keyword: #ff7b72;
     --code-string: #7ee787;
     --code-constant: #79c0ff;
     --code-entity: #d2a8ff;
     --code-variable: #ffa657;
+
+    --color-brand-400-rgb: 251 146 60;
+    --color-brand-500-rgb: 249 115 22;
+    --color-brand-600-rgb: 234 88 12;
+    --color-brand-700-rgb: 253 186 116;
+    --color-success-500-rgb: 74 222 128;
+    --color-info-500-rgb: 96 165 250;
+    --color-warning-500-rgb: 251 191 36;
+    --color-danger-500-rgb: 248 113 113;
   }
+}
+
+/* ④ Derived ─────────────────────────────────────────────────────────────── */
+:root,
+[data-theme] {
+  /* 「着色不铺色」：组件内部的一切填充都是墨色或强调色的半透明叠层，
+     压在纸面与霜面上都不会打断材质的整体性。 */
+  --fill-subtle: rgb(var(--ink-rgb) / 0.04);
+  --fill-default: rgb(var(--ink-rgb) / 0.07);
+  --fill-strong: rgb(var(--ink-rgb) / 0.11);
+  --fill-selected: color-mix(in srgb, var(--accent) 13%, transparent);
+  --fill-selected-hover: color-mix(in srgb, var(--accent) 19%, transparent);
+
+  --border-subtle: rgb(var(--ink-rgb) / 0.08);
+  --border-default: rgb(var(--ink-rgb) / 0.13);
+  --border-strong: rgb(var(--ink-rgb) / 0.22);
+
+  --accent-subtle: color-mix(in srgb, var(--accent) 12%, transparent);
+  --accent-subtle-hover: color-mix(in srgb, var(--accent) 18%, transparent);
+  --accent-border: color-mix(in srgb, var(--accent) 45%, transparent);
+
+  --danger-subtle: color-mix(in srgb, var(--danger) 11%, transparent);
+  --danger-border: color-mix(in srgb, var(--danger) 35%, transparent);
+  --success-subtle: color-mix(in srgb, var(--success) 11%, transparent);
+  --success-border: color-mix(in srgb, var(--success) 35%, transparent);
+  --warning-subtle: color-mix(in srgb, var(--warning) 14%, transparent);
+  --warning-border: color-mix(in srgb, var(--warning) 40%, transparent);
+  --info-subtle: color-mix(in srgb, var(--info) 11%, transparent);
+  --info-border: color-mix(in srgb, var(--info) 35%, transparent);
+
+  --control-border: var(--border-default);
+  --control-border-hover: var(--border-strong);
+  --control-bg-disabled: var(--fill-subtle);
+  --control-bg-readonly: var(--fill-subtle);
+
+  --frost-border: rgb(var(--ink-rgb) / 0.1);
+
+  --focus-color: var(--accent);
+  --focus-halo: color-mix(in srgb, var(--accent) 24%, transparent);
+  --focus-halo-danger: color-mix(in srgb, var(--danger) 24%, transparent);
+  --focus-shadow: 0 0 0 3px var(--focus-halo);
+  --focus-shadow-danger: 0 0 0 3px var(--focus-halo-danger);
+  --selection-bg: color-mix(in srgb, var(--accent) 22%, transparent);
+
+  --shell-canvas: var(--bg-canvas);
+  --shell-sheet-bg: var(--bg-surface);
+  --shell-sheet-border: var(--border-subtle);
+  --shell-sheet-shadow: var(--shadow-raised);
+}
+
+/* ⑤ Domain ──────────────────────────────────────────────────────────────── */
+:root,
+[data-theme] {
+  /* 批注 = 人对内容的意见，归品牌色；划线 = 个人阅读标记；原文高亮 = 原文自带内容。 */
+  --color-annotation-500: var(--accent-hover);
+  --color-annotation-500-rgb: var(--color-brand-400-rgb);
+  --color-annotation-surface: rgb(var(--color-annotation-500-rgb) / 0.2);
+  --color-annotation-border: rgb(var(--color-annotation-500-rgb) / 0.6);
+  --color-mark-yellow-surface: rgb(var(--color-mark-yellow-rgb) / 0.4);
+  --color-mark-yellow-border: rgb(var(--color-mark-yellow-rgb) / 0.85);
+  --color-mark-green-surface: rgb(var(--color-mark-green-rgb) / 0.4);
+  --color-mark-green-border: rgb(var(--color-mark-green-rgb) / 0.85);
+  --color-mark-blue-surface: rgb(var(--color-mark-blue-rgb) / 0.4);
+  --color-mark-blue-border: rgb(var(--color-mark-blue-rgb) / 0.85);
+  --color-mark-pink-surface: rgb(var(--color-mark-pink-rgb) / 0.4);
+  --color-mark-pink-border: rgb(var(--color-mark-pink-rgb) / 0.85);
+  --color-mark-purple-surface: rgb(var(--color-mark-purple-rgb) / 0.4);
+  --color-mark-purple-border: rgb(var(--color-mark-purple-rgb) / 0.85);
+
+  /* 固定暗场：灯箱与营销深色舞台不随主题翻转。 */
+  --lightbox-scrim: rgb(15 15 15 / 0.86);
+  --lightbox-toolbar: rgb(38 38 38 / 0.82);
+  --lightbox-text: rgb(229 229 229);
+  --lightbox-text-muted: rgb(212 212 212);
+  --lightbox-hover: rgb(255 255 255 / 0.14);
+  --lightbox-divider: rgb(255 255 255 / 0.18);
+  --site-ink: #1a1714;
+  --site-ink-raised: #24201c;
+  --site-ink-line: #3a352f;
+  --site-on-ink: #f7f3ee;
+  --site-on-ink-muted: #b8aea3;
+  --site-radius-panel: 40px;
+  --site-radius-card: 28px;
+  --site-radius-icon: 24px;
+}
+
+/* ⑥ Legacy ─────────────────────────────────────────────────────────────────
+   旧名 → 新语义的单向映射，只为存量 app 不断裂。packages/ui 内禁止引用（lint 强制）；
+   app 迁走一个就删一个，清空后删除本节。 */
+:root,
+[data-theme] {
+  /* @legacy-start */
+  --color-brand-50: var(--accent-subtle);
+  --color-brand-100: var(--accent-subtle-hover);
+  --color-brand-200: var(--accent-border);
+  --color-brand-300: var(--palette-mango-300);
+  --color-brand-400: var(--accent-hover);
+  --color-brand-500: var(--accent);
+  --color-brand-600: var(--accent-pressed);
+  --color-brand-700: var(--text-accent);
+  --color-brand-800: var(--palette-mango-800);
+  --color-brand-900: var(--palette-mango-900);
+  --color-brand-950: var(--palette-mango-950);
+  --brand-grad-from: var(--accent-hover);
+  --brand-grad-to: var(--accent);
+
+  --color-bg: var(--bg-surface);
+  --color-bg-soft: var(--bg-sunken);
+  --color-bg-hover: var(--fill-default);
+  --color-surface-base: var(--bg-raised);
+  --color-surface-muted: var(--bg-sunken);
+  --color-surface-canvas: var(--bg-canvas);
+  --color-surface-elevated: var(--frost-bg-thick);
+  --color-surface-glass: var(--frost-bg);
+  --color-surface-overlay: var(--bg-raised);
+  --canvas-base: var(--bg-canvas);
+  --canvas-backdrop: var(--bg-canvas);
+  --canvas-gutter: var(--shell-gutter);
+  --canvas-island-radius: var(--radius-sheet);
+  --island-scrim: var(--shell-sheet-bg);
+  --island-specular: none;
+  --island-lens: inset 0 0 0 1px var(--shell-sheet-border);
+  --island-paper: var(--bg-surface);
+  --island-paper-lens: inset 0 0 0 1px var(--shell-sheet-border);
+  --island-shadow: var(--shell-sheet-shadow);
+
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-tertiary);
+  --color-text-quaternary: var(--text-disabled);
+  --color-text-on-brand: var(--text-on-accent);
+
+  --color-border-subtle: var(--border-subtle);
+  --color-border-strong: var(--border-strong);
+  --color-border-soft: var(--border-subtle);
+  --color-border-inverse-soft: var(--border-subtle);
+
+  --color-success-500: var(--success);
+  --color-success-600: var(--success-text);
+  --color-info-500: var(--info);
+  --color-warning-500: var(--warning);
+  --color-warning-600: var(--warning-text);
+  --color-danger-500: var(--danger);
+  --color-danger-700: var(--danger-text);
+  --color-success-surface: var(--success-subtle);
+  --color-info-surface: var(--info-subtle);
+  --color-warning-surface: var(--warning-subtle);
+  --color-danger-surface: var(--danger-subtle);
+  --color-success-border: var(--success-border);
+  --color-info-border: var(--info-border);
+  --color-warning-border: var(--warning-border);
+  --color-danger-border: var(--danger-border);
+
+  --font-family-sans: var(--font-sans);
+  --font-family-serif: var(--font-serif);
+  --font-family-mono: var(--font-mono);
+  --font-body: var(--font-sans);
+  --font-display: var(--font-serif);
+  --font-size-caption: var(--type-caption-size);
+  --font-size-body-sm: var(--type-body-sm-size);
+  --font-size-body: var(--type-body-size);
+  --font-size-title-sm: var(--type-title-size);
+  --font-size-title-md: var(--type-title-lg-size);
+  --font-size-display: clamp(var(--type-display-size), 2.6vw, var(--type-display-lg-size));
+  --line-height-tight: var(--leading-tight);
+  --line-height-body: var(--leading-normal);
+  --line-height-relaxed: var(--leading-relaxed);
+  --line-height-display: 1.1;
+
+  --control-height-compact: var(--size-sm-h);
+  --control-height-default: var(--size-md-h);
+  --control-height-large: var(--size-lg-h);
+  --control-target-min: var(--hit-min);
+
+  --radius: var(--radius-md);
+  --radius-pill: var(--radius-full);
+  --radius-control: var(--size-sm-radius);
+  --radius-control-group: var(--radius-md);
+
+  --shadow-xs: var(--shadow-raised);
+  --shadow: var(--shadow-raised);
+  --shadow-md: var(--shadow-floating);
+  --shadow-lg: var(--shadow-overlay);
+  --shadow-brand-md: 0 6px 16px -6px color-mix(in srgb, var(--accent) 45%, transparent);
+  --shadow-brand-lg: 0 14px 30px -10px color-mix(in srgb, var(--accent) 45%, transparent);
+
+  --motion-duration-fast: var(--duration-fast);
+  --motion-duration-base: var(--duration-base);
+  --motion-duration-slow: var(--duration-slow);
+  --motion-duration-spatial: var(--duration-slower);
+  --motion-ease-standard: var(--ease-standard);
+  --motion-ease-emphasized: var(--ease-emphasized);
+  --motion-ease-exit: var(--ease-exit);
+  --motion-spring-snap: var(--ease-spring-snap);
+  --motion-spring-pop: var(--ease-spring-pop);
+  --motion-lift-hover: translateY(-1px);
+  --opacity-disabled-strong: 0.35;
+
+  --layout-topbar-height: var(--shell-topbar-h);
+  --layout-desktop-strip-height: 48px;
+  --layout-max-width-content: var(--container-content);
+  --layout-max-width-page: var(--container-page);
+  --layout-sidebar-width: var(--shell-sidebar-w);
+  --layout-rail-width: var(--shell-rail-w);
+  --layout-aside-width: var(--shell-aside-w);
+  --layout-card-padding: var(--space-5);
+  --layout-card-padding-compact: var(--space-4);
+  --layout-card-padding-lg: var(--space-6);
+  --layout-section-spacing: var(--space-16);
+  --layout-section-spacing-compact: var(--space-12);
+  --layout-footer-height: 120px;
+  --site-footer-height: var(--layout-footer-height);
+
+  --z-floating: var(--z-tooltip);
+  --z-scrim: var(--z-overlay);
+
+  --effect-focus-ring: 0 0 0 3px var(--focus-halo);
+  --effect-glow-brand-soft: 0 0 0 4px var(--accent-subtle);
+  --effect-blur-overlay: 12px;
+  --effect-blur-panel: 14px;
+  --effect-blur-hero: 64px;
+
+  --gradient-page-background: var(--bg-surface);
+  --gradient-brand-accent: linear-gradient(135deg, var(--accent-hover) 0%, var(--accent-pressed) 100%);
+  --gradient-surface-accent: var(--bg-raised);
+  --gradient-panel-accent: var(--bg-sunken);
+
+  --elevation-0-surface: var(--bg-surface);
+  --elevation-0-shadow: none;
+  --elevation-1-surface: var(--bg-sunken);
+  --elevation-1-shadow: none;
+  --elevation-2-surface: var(--bg-raised);
+  --elevation-2-shadow: var(--shadow-raised);
+  --elevation-3-surface: var(--bg-raised);
+  --elevation-3-shadow: var(--shadow-overlay);
+
+  --material-blur: var(--frost-blur);
+  --material-blur-strong: var(--frost-blur-thick);
+  --material-scrim: var(--frost-bg);
+  --material-scrim-strong: var(--frost-bg-thick);
+  --material-hairline: var(--frost-border);
+  --material-specular: none;
+  --material-lens: var(--frost-highlight);
+  --material-glass-shadow: var(--shadow-floating);
+  --material-mask: var(--scrim);
+  --material-mask-blur: none;
+  --material-control-face: var(--control-bg);
+  --material-control-inset: inset 0 0 0 0 transparent;
+  --material-inlay: var(--fill-subtle);
+  --material-inlay-border: var(--border-subtle);
+  --material-hover: var(--fill-default);
+
+  --bg: var(--bg-surface);
+  --bg-soft: var(--bg-sunken);
+  --surface: var(--bg-raised);
+  --surface-2: var(--bg-sunken);
+  --border: var(--border-subtle);
+  --text-1: var(--text-primary);
+  --text-2: var(--text-secondary);
+  --text-3: var(--text-tertiary);
+  --text-4: var(--text-disabled);
+  --mango-color-primary: var(--accent);
+  --mango-color-primary-active: var(--accent-pressed);
+  --mango-color-primary-active-rgb: var(--color-brand-600-rgb);
+  --mango-color-primary-deep: var(--text-accent);
+  --mango-color-primary-deep-rgb: var(--color-brand-700-rgb);
+  --mango-color-primary-hover: var(--accent-hover);
+  --mango-color-primary-hover-rgb: var(--color-brand-400-rgb);
+  --mango-color-primary-rgb: var(--color-brand-500-rgb);
+  --mango-color-primary-soft: var(--accent-subtle-hover);
+  --mango-color-primary-subtle: var(--accent-subtle);
+  --background: var(--bg-canvas);
+  --brand: var(--accent);
+  --brand-deep: var(--text-accent);
+  --card: var(--bg-raised);
+  --foreground: var(--text-primary);
+  --muted: var(--text-secondary);
+  /* @legacy-end */
 }

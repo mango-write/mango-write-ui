@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, ref, useId, watch } from "vue";
+import { ChevronDown, LoaderCircle, X } from "lucide-vue-next";
 import { useI18n } from "vue-i18n";
 import { useComboPanel } from "../lib/useComboPanel";
 import type { AsyncSearchOption } from "./async-search-select";
@@ -353,18 +354,11 @@ const showClearButton = computed(
       @keydown="onKeydown"
     />
 
-    <svg
+    <LoaderCircle
       v-if="loading"
-      class="p-autocomplete-loader pi pi-spinner"
-      viewBox="0 0 16 16"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="1.75"
-      stroke-linecap="round"
+      class="p-autocomplete-loader mw-icon--spin"
       aria-hidden="true"
-    >
-      <path d="M8 2a6 6 0 1 1-4.24 1.76" />
-    </svg>
+    />
 
     <button
       v-if="showClearButton"
@@ -374,17 +368,7 @@ const showClearButton = computed(
       @mousedown.stop.prevent
       @click.stop="onClearClick"
     >
-      <svg
-        class="pi pi-times"
-        viewBox="0 0 16 16"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.75"
-        stroke-linecap="round"
-        aria-hidden="true"
-      >
-        <path d="M4 4l8 8M12 4l-8 8" />
-      </svg>
+      <X aria-hidden="true" />
     </button>
 
     <button
@@ -396,25 +380,14 @@ const showClearButton = computed(
       @mousedown.stop.prevent
       @click.stop="onDropdownClick"
     >
-      <svg
-        class="pi pi-chevron-down"
-        viewBox="0 0 16 16"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.75"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        aria-hidden="true"
-      >
-        <path d="M4 6l4 4 4-4" />
-      </svg>
+      <ChevronDown aria-hidden="true" />
     </button>
 
     <Teleport to="body">
       <div
         v-if="open"
         ref="panelRef"
-        class="mw-ass-overlay p-autocomplete-overlay p-component mw-glass"
+        class="mw-ass-overlay p-autocomplete-overlay p-component mw-frost mw-glass"
         :style="panelStyle"
         @mousedown.prevent
       >
@@ -467,12 +440,14 @@ const showClearButton = computed(
 
 <style>
 .mw-ass {
+  --_ass-min-w: calc(var(--size-lg-h) * 4);
+  --_ass-max-h: calc(var(--size-lg-h) * 6);
   position: relative;
   display: inline-flex;
   align-items: center;
-  min-width: 10rem;
+  min-width: var(--_ass-min-w);
   max-width: 100%;
-  min-height: var(--control-height-compact);
+  min-height: var(--control-h);
 }
 
 .mw-ass--fluid,
@@ -485,27 +460,27 @@ const showClearButton = computed(
   flex: 1 1 auto;
   min-width: 0;
   width: 100%;
-  padding: 0.375rem 0 0.375rem 0.625rem;
+  padding: var(--space-1) 0 var(--space-1) var(--control-px);
   border: 0;
   outline: none;
   background: transparent;
-  color: var(--color-text-primary);
+  color: var(--text-primary);
   font-family: inherit;
-  font-size: 0.875rem;
-  line-height: 1.25;
+  font-size: var(--control-font);
+  line-height: var(--type-body-sm-line);
 }
 
 .mw-ass-input::placeholder {
-  color: var(--color-text-tertiary);
+  color: var(--text-tertiary);
   opacity: 1;
 }
 
 .p-autocomplete-loader {
   flex-shrink: 0;
-  width: 0.875rem;
-  height: 0.875rem;
-  margin-inline: 0.25rem;
-  color: var(--color-text-tertiary);
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  margin-inline: var(--space-1);
+  color: var(--text-tertiary);
 }
 
 .p-autocomplete-clear-icon {
@@ -513,24 +488,24 @@ const showClearButton = computed(
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.25rem;
-  height: 1.25rem;
+  width: var(--icon-lg);
+  height: var(--icon-lg);
   padding: 0;
   border: none;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-full);
   background: transparent;
-  color: var(--color-text-tertiary);
+  color: var(--text-tertiary);
   cursor: pointer;
 }
 
 .p-autocomplete-clear-icon:hover {
-  background: var(--color-surface-muted);
-  color: var(--color-text-primary);
+  background-color: var(--fill-default);
+  color: var(--text-primary);
 }
 
-.p-autocomplete-clear-icon .pi {
-  width: 0.6875rem;
-  height: 0.6875rem;
+.p-autocomplete-clear-icon svg {
+  width: var(--icon-xs);
+  height: var(--icon-xs);
 }
 
 .p-autocomplete-dropdown {
@@ -538,75 +513,78 @@ const showClearButton = computed(
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2rem;
+  width: var(--size-md-h);
   height: 100%;
   padding: 0;
   border: 0;
   background: transparent;
-  color: var(--color-text-tertiary);
+  color: var(--text-tertiary);
   cursor: pointer;
 }
 
-.p-autocomplete-dropdown .pi {
-  width: 0.75rem;
-  height: 0.75rem;
+.p-autocomplete-dropdown svg {
+  width: var(--icon-xs);
+  height: var(--icon-xs);
 }
 
 .mw-ass-overlay {
-  border-radius: var(--radius);
+  border-radius: var(--radius-float);
+  box-shadow: var(--shadow-floating);
   overflow: hidden;
 }
 
 .p-autocomplete-list-container {
-  max-height: 15rem;
+  max-height: calc(var(--size-lg-h) * 6);
   overflow-y: auto;
 }
 
 .p-autocomplete-list {
   margin: 0;
-  padding: 0.25rem;
+  padding: var(--space-1);
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--space-0-5);
 }
 
 .p-autocomplete-option {
-  padding: 0.375rem 0.625rem;
-  border-radius: var(--radius-sm);
-  color: var(--color-text-primary);
-  font-size: 0.875rem;
-  line-height: 1.25;
+  padding: var(--space-1-5) var(--space-2-5);
+  border-radius: var(--radius-item);
+  color: var(--text-primary);
+  font-size: var(--type-body-sm-size);
+  line-height: var(--type-body-sm-line);
   cursor: pointer;
 }
 
 .p-autocomplete-option[data-highlighted]:not(.p-autocomplete-option-selected),
 .p-autocomplete-option.p-focus:not(.p-autocomplete-option-selected) {
-  background: var(--material-hover);
+  background-color: var(--fill-default);
 }
 
 .p-autocomplete-option-selected {
-  background: rgb(var(--color-brand-500-rgb) / 0.16);
-  color: var(--color-brand-700);
+  background-color: var(--fill-selected);
+  color: var(--text-accent);
+  font-weight: var(--weight-medium);
 }
 
 .p-autocomplete-empty-message {
-  padding: 0.375rem 0.625rem;
-  color: var(--color-text-tertiary);
-  font-size: 0.875rem;
+  padding: var(--space-2) var(--space-2-5);
+  color: var(--text-tertiary);
+  font-size: var(--type-body-sm-size);
+  line-height: var(--type-body-sm-line);
 }
 
 .mw-ass-option-body {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-2);
   min-width: 0;
 }
 
 .mw-ass-avatar {
-  width: 1.5rem;
-  height: 1.5rem;
-  border-radius: var(--radius-pill);
+  width: var(--size-xs-h);
+  height: var(--size-xs-h);
+  border-radius: var(--radius-full);
   object-fit: cover;
   flex-shrink: 0;
 }
@@ -624,14 +602,15 @@ const showClearButton = computed(
 }
 
 .mw-ass-option-desc {
-  color: var(--color-text-tertiary);
-  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .mw-ass-note {
-  color: var(--color-text-tertiary);
+  color: var(--text-tertiary);
 }
 </style>

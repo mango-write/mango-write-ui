@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { defineComponent, h, markRaw } from "vue";
+import { Info } from "lucide-vue-next";
 import { mountUiComponent } from "../test-utils/mount.js";
 import Tag from "./Tag.vue";
 
@@ -28,7 +29,7 @@ describe("Tag", () => {
     expect(warnWrapper.get(".mw-tag").text()).toBe("Custom Slot");
   });
 
-  it("支持字符串图标、组件图标与 #icon 插槽，并转发 click 事件", async () => {
+  it("支持 Lucide 图标组件、自定义图标组件与 #icon 插槽，并转发 click 事件", async () => {
     const CustomIcon = markRaw(
       defineComponent({
         render() {
@@ -37,10 +38,10 @@ describe("Tag", () => {
       }),
     );
 
-    const strIcon = mountUiComponent(Tag, {
-      props: { value: "Info", icon: "pi pi-info-circle" },
+    const lucideIcon = mountUiComponent(Tag, {
+      props: { value: "Info", icon: Info },
     });
-    expect(strIcon.find("i.mw-tag__icon.pi-info-circle").exists()).toBe(true);
+    expect(lucideIcon.find("svg.mw-tag__icon").exists()).toBe(true);
 
     const compIcon = mountUiComponent(Tag, {
       props: { value: "Comp", icon: CustomIcon },

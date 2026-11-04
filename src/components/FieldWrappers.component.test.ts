@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { Search } from "lucide-vue-next";
 import { mountUiComponent } from "../test-utils/mount.js";
 import IconField from "./IconField.vue";
 import InputGroup from "./InputGroup.vue";
@@ -8,10 +9,10 @@ import InputIcon from "./InputIcon.vue";
 describe("FieldWrappers (IconField, InputIcon, InputGroup, InputGroupAddon)", () => {
   it("renders IconField and InputIcon with class forwarding", () => {
     const wrapper = mountUiComponent({
-      components: { IconField, InputIcon },
+      components: { IconField, InputIcon, Search },
       template: `
         <IconField>
-          <InputIcon class="pi pi-search">S</InputIcon>
+          <InputIcon class="custom-icon-slot"><Search /></InputIcon>
           <input class="p-inputtext" placeholder="Search" />
         </IconField>
       `,
@@ -22,9 +23,8 @@ describe("FieldWrappers (IconField, InputIcon, InputGroup, InputGroupAddon)", ()
 
     const icon = wrapper.find(".mw-input-icon.p-inputicon");
     expect(icon.exists()).toBe(true);
-    expect(icon.classes()).toContain("pi");
-    expect(icon.classes()).toContain("pi-search");
-    expect(icon.text()).toBe("S");
+    expect(icon.classes()).toContain("custom-icon-slot");
+    expect(icon.find("svg").exists()).toBe(true);
   });
 
   it("renders InputGroup and InputGroupAddon slots", () => {

@@ -7,7 +7,7 @@
 //
 //   1. 期望方向放不下且对侧更宽裕 → 翻转（top↔bottom / left↔right）；
 //   2. 交叉轴夹进视口（贴边时 panel 不溢出）。
-// 面板不带箭头（玻璃材质上 CSS 三角是实心补丁），指向由 GAP 悬浮偏移表达。
+// 面板不带箭头（霜面上 CSS 三角是实心补丁），指向由 GAP 悬浮偏移表达。
 
 export type HoverCardPlacement = "top" | "bottom" | "left" | "right";
 

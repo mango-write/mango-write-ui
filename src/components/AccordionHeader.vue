@@ -8,6 +8,7 @@ import {
   useAttrs,
   type StyleValue,
 } from "vue";
+import { ChevronDown } from "lucide-vue-next";
 import {
   ACCORDION_INJECTION_KEY,
   ACCORDION_PANEL_INJECTION_KEY,
@@ -101,18 +102,10 @@ const rootAttrs = computed(() => {
     @keydown="onKeydown"
   >
     <slot :active="isOpen" />
-    <svg
+    <ChevronDown
       class="mw-accordion__chevron p-accordionheader-toggle-icon"
-      viewBox="0 0 16 16"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="1.75"
-      stroke-linecap="round"
-      stroke-linejoin="round"
       aria-hidden="true"
-    >
-      <path d="M4 6l4 4 4-4" />
-    </svg>
+    />
   </button>
 </template>
 
@@ -121,47 +114,61 @@ const rootAttrs = computed(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-2);
+  gap: var(--control-gap);
   width: 100%;
+  min-height: calc(var(--control-h) + var(--space-2));
   box-sizing: border-box;
-  padding: var(--space-3);
+  margin-block: var(--space-0-5);
+  padding-block: var(--space-1);
+  padding-inline: var(--control-px);
   border: 0;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-item);
   background: transparent;
-  color: var(--color-text-primary);
-  font-family: var(--font-family-sans);
-  font-size: var(--font-size-body-sm);
-  font-weight: 600;
-  line-height: 1.4;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--control-font);
+  font-weight: var(--weight-medium);
+  line-height: var(--type-body-sm-line);
   text-align: start;
   cursor: pointer;
   transition:
-    background-color var(--motion-duration-fast) var(--motion-ease-standard),
-    color var(--motion-duration-fast) var(--motion-ease-standard);
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
 }
 
 .mw-accordion__header:hover:not(:disabled):not([data-disabled]) {
-  background-color: var(--material-hover);
+  background-color: var(--fill-subtle);
+}
+
+.mw-accordion__header:active:not(:disabled):not([data-disabled]) {
+  background-color: var(--fill-default);
 }
 
 .mw-accordion__header:focus-visible {
-  outline: none;
-  box-shadow: var(--effect-focus-ring);
+  outline: var(--focus-width) solid var(--focus-color);
+  outline-offset: calc(-1 * var(--focus-width));
 }
 
 .mw-accordion__header:disabled,
 .mw-accordion__header[data-disabled] {
-  opacity: var(--opacity-disabled);
+  color: var(--text-disabled);
   cursor: not-allowed;
+}
+
+.mw-accordion__header > svg:not(.mw-accordion__chevron) {
+  flex: none;
+  width: var(--control-icon);
+  height: var(--control-icon);
+  color: var(--text-secondary);
 }
 
 .mw-accordion__chevron {
   flex-shrink: 0;
-  width: 1rem;
-  height: 1rem;
+  width: var(--control-icon);
+  height: var(--control-icon);
   margin-inline-start: auto;
-  color: var(--color-text-tertiary);
-  transition: transform var(--motion-duration-base) var(--motion-ease-standard);
+  color: var(--text-tertiary);
+  transition: transform var(--duration-base) var(--ease-standard);
 }
 
 .mw-accordion__header[data-state="open"] .mw-accordion__chevron {

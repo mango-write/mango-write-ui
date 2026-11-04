@@ -15,7 +15,7 @@ export interface TagProps {
   value?: string | number | null;
   severity?: TagSeverity | (string & {});
   rounded?: boolean;
-  icon?: string | Component;
+  icon?: Component;
 }
 
 defineOptions({
@@ -42,12 +42,7 @@ const emit = defineEmits<{
     @click="emit('click', $event)"
   >
     <slot name="icon">
-      <i
-        v-if="typeof icon === 'string' && icon"
-        :class="['mw-tag__icon', icon]"
-        aria-hidden="true"
-      />
-      <component :is="icon" v-else-if="icon" class="mw-tag__icon" aria-hidden="true" />
+      <component :is="icon" v-if="icon" class="mw-tag__icon" aria-hidden="true" />
     </slot>
     <slot>
       <span v-if="value !== undefined && value !== null" class="mw-tag__label">{{ value }}</span>
@@ -60,68 +55,60 @@ const emit = defineEmits<{
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.25rem;
-  padding: 0.125rem 0.5rem;
-  border-radius: var(--radius-sm);
-  font-size: 0.75rem;
-  font-weight: 500;
-  line-height: 1.5;
+  box-sizing: border-box;
+  gap: var(--space-1);
+  min-height: calc(var(--control-h) - var(--space-2));
+  padding-inline: calc(var(--control-px) * 0.5 + var(--space-0-5));
+  border-radius: calc(var(--control-radius) - var(--space-0-5));
+  background-color: var(--fill-default);
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: calc(var(--control-font) - var(--space-px));
+  font-weight: var(--weight-medium);
+  line-height: var(--type-caption-line);
   white-space: nowrap;
-  box-shadow: var(--material-control-inset);
 }
 
 .mw-tag--rounded {
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-full);
 }
 
 .mw-tag--primary {
-  background-color: var(--color-brand-50);
-  color: var(--color-brand-700);
-  border: 1px solid var(--color-brand-200);
-}
-
-.mw-tag--secondary {
-  background-color: var(--color-surface-muted);
-  background-image: var(--material-control-face);
-  color: var(--color-text-secondary);
-  border: 1px solid var(--color-border-subtle);
+  background-color: var(--accent-subtle);
+  color: var(--text-accent);
 }
 
 .mw-tag--success {
-  background-color: var(--color-success-surface);
-  color: var(--color-success-600);
-  border: 1px solid var(--color-success-border);
+  background-color: var(--success-subtle);
+  color: var(--success-text);
 }
 
 .mw-tag--info {
-  background-color: var(--color-info-surface);
-  color: var(--color-info-500);
-  border: 1px solid var(--color-info-border);
+  background-color: var(--info-subtle);
+  color: var(--info-text);
 }
 
 .mw-tag--warn,
 .mw-tag--warning {
-  background-color: var(--color-warning-surface);
-  color: var(--color-warning-600);
-  border: 1px solid var(--color-warning-border);
+  background-color: var(--warning-subtle);
+  color: var(--warning-text);
 }
 
 .mw-tag--danger {
-  background-color: var(--color-danger-surface);
-  color: var(--color-danger-700);
-  border: 1px solid var(--color-danger-border);
+  background-color: var(--danger-subtle);
+  color: var(--danger-text);
 }
 
 .mw-tag--contrast {
-  background-color: var(--color-text-primary);
-  color: var(--color-surface-base);
-  border: 1px solid var(--color-text-primary);
+  background-color: var(--bg-inverse);
+  color: var(--text-inverse);
 }
 
-.mw-tag__icon {
-  flex-shrink: 0;
-  font-size: 0.75rem;
-  width: 0.75rem;
-  height: 0.75rem;
+.mw-tag__icon,
+.mw-tag > svg {
+  flex: none;
+  width: calc(var(--control-icon) - var(--space-0-5));
+  height: calc(var(--control-icon) - var(--space-0-5));
+  font-size: calc(var(--control-icon) - var(--space-0-5));
 }
 </style>

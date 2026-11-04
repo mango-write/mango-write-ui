@@ -359,16 +359,16 @@ function optionKey(option: any, index: number): string {
 .mw-listbox {
   display: flex;
   flex-direction: column;
-  border-radius: var(--radius);
+  border-radius: var(--radius-card);
   overflow: hidden;
 }
 
 .mw-listbox__header {
   display: flex;
   flex-direction: column;
-  gap: 0.375rem;
-  padding: 0.375rem 0.5rem;
-  border-bottom: 1px solid var(--color-border-subtle);
+  gap: var(--space-1-5);
+  padding: var(--space-1-5) var(--space-2);
+  border-bottom: var(--border-width) solid var(--border-subtle);
 }
 
 .mw-listbox__filter-container {
@@ -378,8 +378,10 @@ function optionKey(option: any, index: number): string {
 
 .mw-listbox__filter {
   width: 100%;
-  padding: 0.3125rem 0.5rem;
-  font-size: 0.875rem;
+  min-height: var(--size-sm-h);
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--type-body-sm-size);
+  line-height: var(--type-body-sm-line);
 }
 
 .mw-listbox__list-container {
@@ -388,34 +390,46 @@ function optionKey(option: any, index: number): string {
 
 .mw-listbox__list {
   margin: 0;
-  padding: 0.25rem;
+  padding: var(--space-1);
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--space-0-5);
   outline: none;
 }
 
 .mw-listbox__option {
-  padding: 0.375rem 0.625rem;
-  border-radius: var(--radius-sm);
-  color: var(--color-text-primary);
-  font-size: 0.875rem;
-  line-height: 1.25;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  min-height: var(--size-sm-h);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-item);
+  color: var(--text-primary);
+  font-size: var(--type-body-sm-size);
+  line-height: var(--type-body-sm-line);
   cursor: pointer;
   user-select: none;
+  transition: background-color var(--duration-fast) var(--ease-standard);
 }
 
 .mw-listbox__option[data-highlighted]:not(.mw-listbox__option--selected),
 .mw-listbox__option.p-focus:not(.mw-listbox__option--selected),
 .mw-listbox__option:hover:not(.mw-listbox__option--selected):not(.mw-listbox__option--disabled) {
-  background: var(--material-hover);
+  background-color: var(--fill-default);
 }
 
 .mw-listbox__option--selected,
 .p-listbox-option-selected {
-  background: rgb(var(--color-brand-500-rgb) / 0.16);
-  color: var(--color-brand-700);
+  background-color: var(--fill-selected);
+  color: var(--text-accent);
+  font-weight: var(--weight-medium);
+}
+
+.mw-listbox__option--selected[data-highlighted],
+.mw-listbox__option--selected:hover:not(.mw-listbox__option--disabled) {
+  background-color: var(--fill-selected-hover);
 }
 
 .mw-listbox__option--disabled {
@@ -424,13 +438,21 @@ function optionKey(option: any, index: number): string {
 }
 
 .mw-listbox__empty {
-  padding: 0.375rem 0.625rem;
-  color: var(--color-text-tertiary);
-  font-size: 0.875rem;
+  padding: var(--space-2) var(--space-2-5);
+  color: var(--text-tertiary);
+  font-size: var(--type-body-sm-size);
+  line-height: var(--type-body-sm-line);
+  text-align: center;
 }
 
 .mw-listbox__footer {
-  padding: 0.375rem 0.5rem;
-  border-top: 1px solid var(--color-border-subtle);
+  padding: var(--space-1-5) var(--space-2);
+  border-top: var(--border-width) solid var(--border-subtle);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mw-listbox__option {
+    transition: none;
+  }
 }
 </style>

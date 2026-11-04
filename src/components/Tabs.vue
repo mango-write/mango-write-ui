@@ -87,7 +87,7 @@ const rootAttrs = computed(() => {
   display: flex;
   flex-direction: column;
   width: 100%;
-  font-family: var(--font-family-sans);
+  font-family: var(--font-sans);
 }
 
 .mw-tabs--vertical {

@@ -50,21 +50,22 @@ const describedBy = computed(() =>
 .mw-form-field {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--space-1-5);
+  min-width: 0;
 }
 
 .mw-form-field__label {
   display: inline-flex;
   align-items: baseline;
-  gap: var(--space-1);
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-caption);
-  font-weight: 500;
+  gap: var(--space-0-5);
+  color: var(--text-secondary);
+  font-size: var(--type-body-sm-size);
+  line-height: var(--type-body-sm-line);
+  font-weight: var(--weight-medium);
 }
 
-.mw-form-field__required,
-.mw-form-field__message--error {
-  color: var(--color-danger-700);
+.mw-form-field__required {
+  color: var(--danger-text);
 }
 
 .mw-form-field__control {
@@ -75,8 +76,17 @@ const describedBy = computed(() =>
 
 .mw-form-field__message {
   margin: 0;
-  color: var(--color-text-tertiary);
-  font-size: var(--font-size-caption);
-  line-height: var(--line-height-body);
+  color: var(--text-tertiary);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+}
+
+.mw-form-field__message--error {
+  color: var(--danger-text);
+}
+
+.mw-form-field__control + .mw-form-field__message,
+.mw-form-field__message + .mw-form-field__message {
+  margin-top: calc(var(--space-1) - var(--space-1-5));
 }
 </style>

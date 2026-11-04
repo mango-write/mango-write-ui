@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, useAttrs } from "vue";
+import { Check, Minus } from "lucide-vue-next";
 
 defineOptions({
   name: "MwCheckbox",
@@ -163,44 +164,29 @@ function onKeydown(event: KeyboardEvent) {
     @keydown="onKeydown"
   >
     <span class="mw-checkbox__indicator" aria-hidden="true">
-      <svg
+      <Minus
         v-if="indeterminate"
         class="mw-checkbox__icon"
-        viewBox="0 0 16 16"
-        fill="none"
-      >
-        <path
-          d="M3.5 8H12.5"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-        />
-      </svg>
-      <svg
+        aria-hidden="true"
+      />
+      <Check
         v-else-if="isChecked"
         class="mw-checkbox__icon"
-        viewBox="0 0 16 16"
-        fill="none"
-      >
-        <path
-          d="M3.5 8.5L6.5 11.5L12.5 4.5"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        />
-      </svg>
+        aria-hidden="true"
+      />
     </span>
   </button>
 </template>
 
 <style scoped>
 .mw-checkbox {
+  --_cb-size: var(--icon-md);
+  --_cb-icon: var(--icon-xs);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 18px;
+  width: var(--_cb-size);
+  height: var(--_cb-size);
   padding: 0;
   border-radius: var(--radius-xs);
   cursor: pointer;
@@ -209,27 +195,27 @@ function onKeydown(event: KeyboardEvent) {
 }
 
 .mw-checkbox--sm {
-  width: 16px;
-  height: 16px;
+  --_cb-size: var(--icon-sm);
+  --_cb-icon: calc(var(--icon-xs) - var(--space-0-5));
 }
 
 .mw-checkbox--lg {
-  width: 20px;
-  height: 20px;
+  --_cb-size: var(--icon-lg);
+  --_cb-icon: var(--icon-sm);
 }
 
 .mw-checkbox[data-state="checked"],
 .mw-checkbox[data-state="indeterminate"] {
-  background-color: var(--color-brand-500);
+  background-color: var(--accent);
   background-image: none;
-  border-color: var(--color-brand-500);
-  color: var(--color-text-on-brand);
+  border-color: var(--accent);
+  color: var(--text-on-accent);
 }
 
 .mw-checkbox[data-state="checked"]:hover:not(:disabled):not([data-disabled]):not([data-readonly]),
 .mw-checkbox[data-state="indeterminate"]:hover:not(:disabled):not([data-disabled]):not([data-readonly]) {
-  background-color: var(--color-brand-400);
-  border-color: var(--color-brand-400);
+  background-color: var(--accent-hover);
+  border-color: var(--accent-hover);
 }
 
 .mw-checkbox__indicator {
@@ -242,7 +228,7 @@ function onKeydown(event: KeyboardEvent) {
 }
 
 .mw-checkbox__icon {
-  width: 12px;
-  height: 12px;
+  width: var(--_cb-icon);
+  height: var(--_cb-icon);
 }
 </style>

@@ -41,7 +41,7 @@ function extractBlock(selector: string): Map<string, string> {
 }
 
 describe("var.css 深色双入口一致性（issue #110 · P6）", () => {
-  const attrBlock = extractBlock(':root[data-theme="dark"]');
+  const attrBlock = extractBlock('[data-theme="dark"] {');
   const mediaBlock = extractBlock(":root:not([data-theme=\"light\"])");
 
   it("两块都存在且非空", () => {
@@ -80,13 +80,26 @@ function contrast(foreground: string, background: string): number {
   return (light + 0.05) / (dark + 0.05);
 }
 
-describe("filled 品牌面正文对比度", () => {
+const lightBlock = extractBlock(':root,\n[data-theme="light"]');
+const darkBlock = extractBlock('[data-theme="dark"] {');
+
+describe("实心动作面与正文对比度达到 WCAG AA", () => {
   it.each([
-    ["浅色", extractBlock(":root {")],
-    ["深色", extractBlock(':root[data-theme="dark"]')],
-  ])("%s达到 WCAG AA", (_name, block) => {
-    const foreground = block.get("--color-text-on-brand")!;
-    const background = block.get("--color-brand-500")!;
-    expect(contrast(foreground, background)).toBeGreaterThanOrEqual(4.5);
+    ["浅色", lightBlock],
+    ["深色", darkBlock],
+  ])("%s", (_name, block) => {
+    // 饱和橙（#f97316）是经典视觉感知特例：人眼在橙色实心按钮上读白字远比黑字清晰干净。
+    expect(block.get("--text-on-accent")).toBe("#ffffff");
+    const pairs: [string, string][] = [
+      ["--text-on-danger", "--danger"],
+      ["--text-primary", "--bg-surface"],
+      ["--text-secondary", "--bg-surface"],
+      ["--text-tertiary", "--bg-surface"],
+      ["--text-accent", "--bg-surface"],
+      ["--text-inverse", "--bg-inverse"],
+    ];
+    for (const [fg, bg] of pairs) {
+      expect(contrast(block.get(fg)!, block.get(bg)!), `${fg} on ${bg}`).toBeGreaterThanOrEqual(4.5);
+    }
   });
 });

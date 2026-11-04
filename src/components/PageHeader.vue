@@ -6,14 +6,11 @@ defineProps<{ title: string }>();
 
 <template>
   <header class="mw-page-header">
-    <span
-      v-if="$slots.icon"
-      class="mw-page-header__icon tw:grid tw:h-8 tw:w-8 tw:shrink-0 tw:place-items-center tw:rounded-lg tw:bg-primary-50 tw:text-primary-600"
-    >
+    <span v-if="$slots.icon" class="mw-page-header__icon">
       <slot name="icon" />
     </span>
-    <h1 class="tw:m-0 tw:min-w-0 tw:text-lg tw:font-semibold tw:leading-tight">{{ title }}</h1>
-    <div v-if="$slots.actions" class="tw:ml-auto tw:flex tw:shrink-0 tw:items-center tw:gap-2">
+    <h1 class="mw-page-header__title">{{ title }}</h1>
+    <div v-if="$slots.actions" class="mw-page-header__actions">
       <slot name="actions" />
     </div>
   </header>
@@ -23,9 +20,48 @@ defineProps<{ title: string }>();
 .mw-page-header {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-3);
   flex-shrink: 0;
-  padding: 8px var(--layout-card-padding-compact);
-  border-bottom: 1px solid var(--color-border-subtle);
+  min-height: calc(var(--size-lg-h) + var(--space-2) * 2);
+  padding: var(--space-2) var(--space-4);
+  border-bottom: var(--border-width) solid var(--border-subtle);
+}
+
+.mw-page-header__icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: var(--size-md-h);
+  height: var(--size-md-h);
+  border-radius: var(--radius-md);
+  background: var(--accent-subtle);
+  color: var(--text-accent);
+  font-size: var(--icon-md);
+}
+
+.mw-page-header__icon > :deep(svg) {
+  width: var(--icon-md);
+  height: var(--icon-md);
+}
+
+.mw-page-header__title {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  color: var(--text-primary);
+  font-size: var(--type-title-lg-size);
+  font-weight: var(--weight-semibold);
+  line-height: var(--type-title-lg-line);
+  letter-spacing: var(--tracking-title);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mw-page-header__actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--space-2);
+  margin-inline-start: auto;
 }
 </style>

@@ -40,3 +40,55 @@ withDefaults(
     </svg>
   </div>
 </template>
+
+<style>
+.mw-progress-spinner {
+  position: relative;
+  display: inline-block;
+  width: var(--mw-progress-spinner-size, var(--space-10));
+  height: var(--mw-progress-spinner-size, var(--space-10));
+  color: var(--accent);
+}
+
+.mw-progress-spinner__svg {
+  width: 100%;
+  height: 100%;
+  transform-origin: center center;
+  animation: mw-progress-spinner-rotate calc(var(--duration-slower) * 5) linear infinite;
+}
+
+.mw-progress-spinner__circle {
+  stroke: currentColor;
+  stroke-dasharray: 89, 200;
+  stroke-dashoffset: 0;
+  stroke-linecap: round;
+  animation: mw-progress-spinner-dash calc(var(--duration-slower) * 4) var(--ease-standard) infinite;
+}
+
+@keyframes mw-progress-spinner-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes mw-progress-spinner-dash {
+  0% {
+    stroke-dasharray: 1, 200;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 89, 200;
+    stroke-dashoffset: -35px;
+  }
+  100% {
+    stroke-dasharray: 89, 200;
+    stroke-dashoffset: -124px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mw-progress-spinner__circle {
+    animation: none;
+  }
+}
+</style>

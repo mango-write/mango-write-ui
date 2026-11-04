@@ -86,7 +86,7 @@ const copyright = computed(() =>
                 <path :d="item.icon" />
               </svg>
             </button>
-            <div class="mw-site-footer__qr" role="tooltip">
+            <div class="mw-site-footer__qr mw-frost" role="tooltip">
               <img :src="item.qr" :alt="item.label" loading="lazy" />
               <span>{{ item.label }}</span>
             </div>
@@ -120,40 +120,38 @@ const copyright = computed(() =>
 
 <style scoped>
 .mw-site-footer {
-  border-top: 1px solid var(--color-border-subtle);
-  background: var(--color-surface-base);
-  padding: 24px 24px 30px;
+  padding: var(--space-6) var(--space-6) var(--space-8);
+  border-top: var(--border-width) solid var(--border-subtle);
+  background: var(--bg-surface);
 }
 
 .mw-site-footer__inner {
-  max-width: var(--site-chrome, 1240px);
-  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  color: var(--color-text-secondary);
+  gap: var(--space-3);
+  max-width: var(--site-chrome);
+  margin: 0 auto;
+  color: var(--text-secondary);
 }
 
 .mw-site-footer__top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: var(--space-4);
 }
 
 .mw-site-footer__brand {
   display: inline-flex;
   align-items: center;
-  text-decoration: none;
   width: fit-content;
+  text-decoration: none;
 }
 
-/* 官方号：圆形图标按钮 + hover/聚焦展开的二维码卡片。默认 MangoWrite 官方
- * 三号，可经 socials prop 整组覆盖。 */
 .mw-site-footer__social {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--space-2-5);
 }
 
 .mw-site-footer__social-item {
@@ -164,129 +162,141 @@ const copyright = computed(() =>
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  border: 1px solid var(--color-border-subtle);
-  border-radius: 50%;
-  background: var(--color-surface-overlay);
-  color: var(--color-brand-600);
+  width: var(--size-lg-h);
+  height: var(--size-lg-h);
+  border: var(--border-width) solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  background: var(--control-bg);
+  color: var(--text-accent);
   cursor: pointer;
-  transition: border-color 0.15s ease-out, background-color 0.15s ease-out, transform 0.15s ease-out;
+  transition:
+    border-color var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
 }
 
 .mw-site-footer__social-icon {
-  width: 18px;
-  height: 18px;
+  width: var(--icon-lg);
+  height: var(--icon-lg);
   fill: currentColor;
 }
 
 .mw-site-footer__social-btn:hover,
 .mw-site-footer__social-item:focus-within .mw-site-footer__social-btn {
-  border-color: var(--color-brand-500);
-  background: rgb(var(--color-brand-500-rgb) / 0.1);
+  border-color: var(--accent-border);
+  background: var(--accent-subtle);
   transform: translateY(-1px);
 }
 
+/* 二维码卡是浮层：霜面；进入 = 淡入 + 位移 + 缩放，退出只淡出。 */
 .mw-site-footer__qr {
   position: absolute;
   right: 0;
-  bottom: calc(100% + 10px);
-  z-index: 20;
+  bottom: calc(100% + var(--space-2-5));
+  z-index: var(--z-dropdown);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-1-5);
   width: 148px;
-  padding: 10px;
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-md);
-  background: var(--color-surface-overlay);
-  box-shadow: var(--shadow-md);
+  padding: var(--space-2);
+  border-radius: var(--radius-float);
   opacity: 0;
   pointer-events: none;
-  transform: translateY(4px);
-  transition: opacity 0.16s ease-out, transform 0.16s ease-out;
+  transform: translateY(var(--motion-enter-offset)) scale(var(--motion-enter-scale));
+  transform-origin: bottom right;
+  transition: opacity var(--duration-fast) var(--ease-exit);
 }
 
 .mw-site-footer__social-item:hover .mw-site-footer__qr,
 .mw-site-footer__social-item:focus-within .mw-site-footer__qr {
   opacity: 1;
   pointer-events: auto;
-  transform: translateY(0);
+  transform: none;
+  transition:
+    opacity var(--duration-base) var(--ease-enter),
+    transform var(--duration-base) var(--ease-enter);
 }
 
 .mw-site-footer__qr img {
   width: 128px;
   height: 128px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-xs);
   object-fit: cover;
-  background: var(--color-surface-base);
 }
 
 .mw-site-footer__qr span {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--color-text-primary);
+  color: var(--text-primary);
+  font-size: var(--type-caption-size);
+  font-weight: var(--weight-semibold);
+  line-height: var(--type-caption-line);
 }
 
 .mw-site-footer__links {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  font-size: 0.75rem;
+  gap: var(--space-3);
+  font-size: var(--type-caption-size);
 }
 
 .mw-site-footer__links :slotted(a) {
-  color: var(--color-text-secondary);
+  color: var(--text-secondary);
   text-decoration: none;
 }
 
 .mw-site-footer__links :slotted(a:hover) {
-  color: var(--color-text-primary);
+  color: var(--text-primary);
 }
 
 .mw-site-footer__legal {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 10px;
-  font-size: 0.6875rem;
-  color: var(--color-text-tertiary);
+  gap: var(--space-2-5);
+  color: var(--text-tertiary);
+  font-size: var(--type-micro-size);
+  line-height: var(--type-micro-line);
 }
 
-.mw-site-footer__legal a {
-  color: inherit;
-  text-decoration: none;
-}
-
-.mw-site-footer__legal a:hover {
-  color: var(--color-text-primary);
-}
-
+.mw-site-footer__legal a,
 .mw-site-footer__legal :slotted(a) {
   color: inherit;
   text-decoration: none;
 }
 
+.mw-site-footer__legal a:hover,
 .mw-site-footer__legal :slotted(a:hover) {
-  color: var(--color-text-primary);
+  color: var(--text-primary);
 }
 
 .mw-site-footer__beian {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-1-5);
 }
 
 .mw-site-footer__beian-icon {
-  width: 16px;
-  height: 16px;
+  width: var(--icon-md);
+  height: var(--icon-md);
 }
 
 @media (max-width: 560px) {
   .mw-site-footer__top {
     flex-direction: column;
     align-items: flex-start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mw-site-footer__social-btn,
+  .mw-site-footer__qr,
+  .mw-site-footer__social-item:hover .mw-site-footer__qr,
+  .mw-site-footer__social-item:focus-within .mw-site-footer__qr {
+    transition: opacity var(--duration-fast) var(--ease-standard);
+  }
+
+  .mw-site-footer__qr {
+    transform: none;
   }
 }
 </style>

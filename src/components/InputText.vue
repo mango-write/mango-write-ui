@@ -6,7 +6,7 @@ defineOptions({
   inheritAttrs: false,
 });
 
-export type InputTextSize = "sm" | "md" | "lg" | "small" | "large";
+export type InputTextSize = "xs" | "sm" | "md" | "lg" | "small" | "large";
 
 export interface InputTextProps {
   modelValue?: string | null;
@@ -42,7 +42,7 @@ const props = withDefaults(defineProps<InputTextProps>(), {
   invalid: false,
   required: false,
   fluid: false,
-  size: "md",
+  size: undefined,
   maxlength: undefined,
   min: undefined,
   step: undefined,
@@ -70,14 +70,15 @@ const isComposing = ref(false);
 const resolvedSize = computed(() => {
   if (props.size === "small" || props.size === "sm") return "sm";
   if (props.size === "large" || props.size === "lg") return "lg";
-  return "md";
+  if (props.size === "xs" || props.size === "md") return props.size;
+  return undefined;
 });
 
 const rootClass = computed(() => [
   "mw-input-text",
   "mw-control",
   "mw-input",
-  `mw-input-text--${resolvedSize.value}`,
+  resolvedSize.value ? [`mw-input-text--${resolvedSize.value}`, `mw-size-${resolvedSize.value}`] : undefined,
   {
     "mw-input-text--fluid": props.fluid,
   },
@@ -157,32 +158,8 @@ defineExpose({
 <style scoped>
 .mw-input-text {
   display: inline-block;
-  min-height: var(--control-height-default);
-  padding-inline: var(--space-3);
-  padding-block: var(--space-2);
-  border-radius: var(--radius);
-  font-family: var(--font-family-sans);
-  font-size: var(--font-size-body-sm);
-  line-height: var(--line-height-body);
-  color: var(--color-text-primary);
-}
-
-.mw-input-text::placeholder {
-  color: var(--color-text-tertiary);
-}
-
-.mw-input-text--sm {
-  min-height: var(--control-height-compact);
-  padding-inline: var(--space-2);
-  padding-block: var(--space-1);
-  font-size: var(--font-size-caption);
-}
-
-.mw-input-text--lg {
-  min-height: var(--control-height-large);
-  padding-inline: var(--space-4);
-  padding-block: var(--space-3);
-  font-size: var(--font-size-body);
+  height: var(--control-h);
+  padding-inline: var(--control-px);
 }
 
 .mw-input-text--fluid {

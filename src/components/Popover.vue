@@ -162,7 +162,7 @@ const portalTo = computed(() =>
   props.appendTo && props.appendTo !== "self" ? props.appendTo : "body",
 );
 
-const contentClass = computed(() => ["mw-popover", "mw-glass", attrs.class]);
+const contentClass = computed(() => ["mw-popover", "mw-frost", attrs.class]);
 const contentStyle = computed<StyleValue>(() => attrs.style as StyleValue);
 const contentAttrs = computed(() => {
   const { class: _class, style: _style, ...rest } = attrs;
@@ -276,25 +276,68 @@ defineExpose({
 
 <style scoped>
 .mw-popover {
-  z-index: var(--z-floating);
+  --mw-popover-enter-x: 0;
+  --mw-popover-enter-y: 0;
+  z-index: var(--z-dropdown);
   min-width: 10rem;
-  max-width: min(24rem, calc(100vw - 1.5rem));
+  max-width: min(24rem, calc(100vw - var(--space-6)));
   padding: var(--space-3);
-  border: 1px solid var(--material-hairline);
-  border-radius: var(--radius-lg);
-  color: var(--color-text-primary);
-  font-family: var(--font-family-sans);
-  font-size: var(--font-size-body-sm);
-  line-height: var(--line-height-body);
+  border-radius: var(--radius-float);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--type-body-sm-size);
+  line-height: var(--type-body-sm-line);
   outline: none;
-  transition:
-    opacity var(--motion-duration-fast) var(--motion-ease-standard),
-    transform var(--motion-duration-fast) var(--motion-ease-standard);
+  transform-origin: var(--reka-popover-content-transform-origin);
+}
+
+.mw-popover[data-side="bottom"] {
+  --mw-popover-enter-y: calc(var(--motion-enter-offset) * -1);
+}
+
+.mw-popover[data-side="top"] {
+  --mw-popover-enter-y: var(--motion-enter-offset);
+}
+
+.mw-popover[data-side="right"] {
+  --mw-popover-enter-x: calc(var(--motion-enter-offset) * -1);
+}
+
+.mw-popover[data-side="left"] {
+  --mw-popover-enter-x: var(--motion-enter-offset);
+}
+
+.mw-popover[data-state="open"] {
+  animation: mw-popover-enter var(--duration-base) var(--ease-enter);
+}
+
+.mw-popover[data-state="closed"] {
+  animation: mw-popover-exit var(--duration-instant) var(--ease-exit);
+}
+
+@keyframes mw-popover-enter {
+  from {
+    opacity: 0;
+    translate: var(--mw-popover-enter-x) var(--mw-popover-enter-y);
+    scale: var(--motion-enter-scale);
+  }
+}
+
+@keyframes mw-popover-exit {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes mw-popover-fade-in {
+  from {
+    opacity: 0;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .mw-popover {
-    transition: none;
+  .mw-popover[data-state="open"] {
+    animation-name: mw-popover-fade-in;
   }
 }
 </style>

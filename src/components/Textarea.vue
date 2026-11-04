@@ -159,18 +159,10 @@ defineExpose({
 .mw-textarea {
   display: block;
   width: 100%;
-  padding-inline: var(--space-3);
-  padding-block: var(--space-2);
-  border-radius: var(--radius);
-  font-family: var(--font-family-sans);
-  font-size: var(--font-size-body-sm);
-  line-height: var(--line-height-relaxed);
-  color: var(--color-text-primary);
+  min-height: var(--control-h);
+  padding-inline: var(--control-px);
+  padding-block: calc((var(--control-h) - var(--type-body-sm-line)) / 2 - var(--border-width));
   resize: vertical;
-}
-
-.mw-textarea::placeholder {
-  color: var(--color-text-tertiary);
 }
 
 .mw-textarea--autoresize {

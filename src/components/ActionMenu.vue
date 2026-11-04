@@ -9,6 +9,7 @@ import {
   type Directive,
   type StyleValue,
 } from "vue";
+import { ChevronRight } from "lucide-vue-next";
 import { vTooltip as vMwTooltip } from "../lib/tooltip";
 import type { ActionMenuItem } from "./action-menu";
 
@@ -97,7 +98,7 @@ const isOpen = computed<boolean>(() =>
   props.open !== undefined ? props.open : internalOpen.value,
 );
 
-const rootClass = computed(() => ["mw-action-menu", "mw-glass", attrs.class]);
+const rootClass = computed(() => ["mw-action-menu", "mw-frost", attrs.class]);
 const rootAttrs = computed(() => {
   const { class: _class, style: _style, ...rest } = attrs;
   return rest;
@@ -570,6 +571,7 @@ defineExpose({
 
 <template>
   <Teleport to="body">
+    <Transition name="mw-action-menu">
     <div
       v-if="isOpen"
       ref="menuRef"
@@ -622,9 +624,10 @@ defineExpose({
             @click="onItemClick($event, index, item)"
           >
             <slot name="icon" :item="item">
-              <span
+              <component
+                :is="item.icon"
                 v-if="item.icon"
-                :class="['mw-action-menu__icon', item.icon]"
+                class="mw-action-menu__icon"
                 aria-hidden="true"
               />
             </slot>
@@ -635,23 +638,14 @@ defineExpose({
               class="mw-action-menu__submenu-caret"
               aria-hidden="true"
             >
-              <svg
-                viewBox="0 0 16 16"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.75"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="M6 4l4 4-4 4" />
-              </svg>
+              <ChevronRight aria-hidden="true" />
             </span>
           </button>
 
           <div
             v-if="activeSubmenuIndex === index && hasSubmenu(item)"
             role="menu"
-            class="mw-action-menu mw-action-menu__submenu mw-glass"
+            class="mw-action-menu mw-action-menu__submenu mw-frost"
             tabindex="-1"
           >
             <template
@@ -692,9 +686,10 @@ defineExpose({
                   @click="onSubItemClick($event, subItem)"
                 >
                   <slot name="icon" :item="subItem">
-                    <span
+                    <component
+                      :is="subItem.icon"
                       v-if="subItem.icon"
-                      :class="['mw-action-menu__icon', subItem.icon]"
+                      class="mw-action-menu__icon"
                       aria-hidden="true"
                     />
                   </slot>
@@ -709,65 +704,78 @@ defineExpose({
         </div>
       </template>
     </div>
+    </Transition>
   </Teleport>
 </template>
 
 <style scoped>
 .mw-action-menu {
   position: fixed;
-  z-index: var(--z-floating);
+  z-index: var(--z-dropdown);
+  box-sizing: border-box;
   min-width: 200px;
   max-width: 320px;
-  padding: var(--space-1);
-  border: 1px solid var(--material-hairline);
-  border-radius: var(--radius-md);
-  color: var(--color-text-primary);
-  font-family: var(--font-family-sans);
-  font-size: var(--font-size-body-sm);
-  line-height: var(--line-height-body);
+  padding: var(--float-padding);
+  border-radius: var(--radius-float);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--type-body-sm-size);
+  line-height: var(--type-body-sm-line);
   outline: none;
   user-select: none;
+  transform-origin: top left;
 }
 
 .mw-action-menu__submenu {
   position: absolute;
-  top: calc(-1 * var(--space-1));
+  top: calc((var(--float-padding) + var(--border-width)) * -1);
   inset-inline-start: calc(100% + var(--space-1));
 }
 
 .mw-action-menu__separator {
-  height: 1px;
-  margin: var(--space-1) var(--space-2);
-  background: var(--material-inlay-border);
+  height: var(--border-width);
+  margin: var(--space-1) 0;
+  background: var(--border-subtle);
 }
 
 .mw-action-menu__row {
   position: relative;
 }
 
+.mw-action-menu__row + .mw-action-menu__row {
+  margin-top: var(--space-px);
+}
+
 .mw-action-menu__item {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-2);
+  box-sizing: border-box;
   width: 100%;
-  padding: 6px 10px;
+  min-height: var(--size-sm-h);
+  padding: var(--space-1) var(--space-2);
   border: 0;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-item);
   background: transparent;
-  color: var(--color-text-primary);
+  color: var(--text-primary);
   font: inherit;
   text-align: start;
   cursor: pointer;
   outline: none;
   transition:
-    background-color var(--motion-duration-fast) var(--motion-ease-standard),
-    color var(--motion-duration-fast) var(--motion-ease-standard);
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
 }
 
 .mw-action-menu__item:not([data-disabled]):hover,
 .mw-action-menu__item:not([data-disabled])[data-highlighted],
-.mw-action-menu__item:not([data-disabled]):focus-visible {
-  background: var(--material-hover);
+.mw-action-menu__item:not([data-disabled]):focus-visible,
+.mw-action-menu__row--expanded > .mw-action-menu__item:not([data-disabled]) {
+  background: var(--fill-default);
+}
+
+.mw-action-menu__item:not([data-disabled]):active {
+  background: var(--fill-strong);
 }
 
 .mw-action-menu__item--disabled,
@@ -787,19 +795,23 @@ defineExpose({
 
 .mw-action-menu__shortcut {
   flex: 0 0 auto;
-  margin-inline-start: 1.5rem;
-  color: var(--color-text-quaternary);
-  font-family: var(--font-family-mono);
-  font-size: 11px;
-  line-height: 1;
+  margin-inline-start: var(--space-4);
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
 }
 
-.mw-action-menu__icon {
+.mw-action-menu__icon,
+.mw-action-menu__item > :deep(svg) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  color: var(--color-text-tertiary);
+  width: var(--control-icon);
+  height: var(--control-icon);
+  font-size: var(--control-icon);
+  color: var(--text-secondary);
 }
 
 .mw-action-menu__submenu-caret {
@@ -807,31 +819,59 @@ defineExpose({
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 14px;
-  height: 14px;
+  width: var(--icon-sm);
+  height: var(--icon-sm);
   margin-inline-start: var(--space-2);
-  color: var(--color-text-tertiary);
+  color: var(--text-tertiary);
 }
 
 .mw-action-menu__submenu-caret svg {
-  width: 12px;
-  height: 12px;
+  width: var(--icon-xs);
+  height: var(--icon-xs);
 }
 
 .mw-action-menu__item--danger,
-.mw-action-menu__item--danger :deep(.mw-action-menu__icon) {
-  color: var(--color-danger-700);
+.mw-action-menu__item--danger :deep(.mw-action-menu__icon),
+.mw-action-menu__item--danger > :deep(svg) {
+  color: var(--danger-text);
 }
 
 .mw-action-menu__item--danger:not([data-disabled]):hover,
 .mw-action-menu__item--danger:not([data-disabled])[data-highlighted],
 .mw-action-menu__item--danger:not([data-disabled]):focus-visible {
-  background: var(--color-danger-surface);
+  background: var(--danger-subtle);
+}
+
+.mw-action-menu-enter-active {
+  transition:
+    opacity var(--duration-base) var(--ease-enter),
+    transform var(--duration-base) var(--ease-enter);
+}
+
+.mw-action-menu-leave-active {
+  transition: opacity var(--duration-instant) var(--ease-exit);
+}
+
+.mw-action-menu-enter-from {
+  opacity: 0;
+  transform: translateY(calc(var(--motion-enter-offset) * -1)) scale(var(--motion-enter-scale));
+}
+
+.mw-action-menu-leave-to {
+  opacity: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .mw-action-menu__item {
     transition: none;
+  }
+
+  .mw-action-menu-enter-active {
+    transition: opacity var(--duration-base) var(--ease-enter);
+  }
+
+  .mw-action-menu-enter-from {
+    transform: none;
   }
 }
 </style>

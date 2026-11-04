@@ -221,7 +221,7 @@ onBeforeUnmount(() => {
     <div
       v-for="msg in groupMessages"
       :key="msg.announceKey"
-      class="mw-toast mw-glass"
+      class="mw-toast mw-frost"
       :class="`mw-toast--${msg.severity}`"
       :data-toast-id="msg.id"
       :data-announce-key="msg.announceKey"
@@ -236,7 +236,7 @@ onBeforeUnmount(() => {
     >
       <slot name="message" :message="msg" :close="() => closeToast(msg.id)">
         <span class="mw-toast__icon" aria-hidden="true">
-          <component :is="severityIconMap[msg.severity]" :size="18" />
+          <component :is="severityIconMap[msg.severity]" :size="16" />
         </span>
         <div class="mw-toast__body">
           <div v-if="msg.summary" class="mw-toast__summary">
@@ -272,12 +272,12 @@ onBeforeUnmount(() => {
 <style scoped>
 .mw-toast-host {
   position: fixed;
-  z-index: var(--z-scrim);
+  z-index: var(--z-toast);
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  max-width: min(380px, calc(100vw - 32px));
   width: 100%;
+  max-width: min(23.75rem, calc(100vw - var(--space-8)));
   pointer-events: none;
 }
 
@@ -314,38 +314,24 @@ onBeforeUnmount(() => {
 }
 
 .mw-toast {
+  --mw-toast-enter-y: calc(var(--motion-enter-offset) * -1);
   pointer-events: auto;
   display: flex;
   align-items: flex-start;
-  gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--material-hairline);
-  background-color: var(--elevation-3-surface);
-  box-shadow: var(--elevation-3-shadow);
-  color: var(--color-text-primary);
-  font-family: var(--font-family-sans);
-  font-size: var(--font-size-body-sm);
-  line-height: var(--line-height-body);
-  transition:
-    opacity var(--motion-duration-base) var(--motion-ease-standard),
-    transform var(--motion-duration-base) var(--motion-ease-standard);
+  gap: var(--space-2-5);
+  padding: var(--space-3);
+  border-radius: var(--radius-float);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--type-body-sm-size);
+  line-height: var(--type-body-sm-line);
+  animation: mw-toast-enter var(--duration-base) var(--ease-enter);
 }
 
-.mw-toast--success {
-  border-color: var(--color-success-border);
-}
-
-.mw-toast--info {
-  border-color: var(--color-info-border);
-}
-
-.mw-toast--warn {
-  border-color: var(--color-warning-border);
-}
-
-.mw-toast--error {
-  border-color: var(--color-danger-border);
+.mw-toast-host--bottom-right .mw-toast,
+.mw-toast-host--bottom-left .mw-toast,
+.mw-toast-host--bottom-center .mw-toast {
+  --mw-toast-enter-y: var(--motion-enter-offset);
 }
 
 .mw-toast__icon {
@@ -353,23 +339,28 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  margin-top: 2px;
+  height: var(--type-body-sm-line);
+}
+
+.mw-toast__icon :deep(svg) {
+  width: var(--icon-md);
+  height: var(--icon-md);
 }
 
 .mw-toast--success .mw-toast__icon {
-  color: var(--color-success-500);
+  color: var(--success);
 }
 
 .mw-toast--info .mw-toast__icon {
-  color: var(--color-info-500);
+  color: var(--info);
 }
 
 .mw-toast--warn .mw-toast__icon {
-  color: var(--color-warning-500);
+  color: var(--warning);
 }
 
 .mw-toast--error .mw-toast__icon {
-  color: var(--color-danger-500);
+  color: var(--danger);
 }
 
 .mw-toast__body {
@@ -377,45 +368,56 @@ onBeforeUnmount(() => {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: var(--space-0-5);
 }
 
 .mw-toast__summary {
-  font-weight: 600;
-  color: var(--color-text-primary);
+  color: var(--text-primary);
+  font-weight: var(--weight-semibold);
 }
 
 .mw-toast__detail {
-  color: var(--color-text-secondary);
+  color: var(--text-secondary);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
 }
 
 .mw-toast__actions {
-  margin-top: var(--space-1);
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-1);
+  margin-top: var(--space-1);
+  margin-inline-start: calc(var(--size-xs-px) * -1);
 }
 
 .mw-toast__action-btn {
   display: inline-flex;
   align-items: center;
-  padding: 2px var(--space-2);
-  border-radius: var(--radius-xs);
-  border: 1px solid var(--color-border-strong);
-  background-color: var(--color-surface-base);
-  color: var(--color-text-primary);
-  font-size: var(--font-size-caption);
-  font-weight: 500;
+  height: var(--size-xs-h);
+  padding-inline: var(--size-xs-px);
+  border: 0;
+  border-radius: var(--size-xs-radius);
+  background-color: transparent;
+  color: var(--text-accent);
+  font-family: inherit;
+  font-size: var(--type-caption-size);
+  font-weight: var(--weight-medium);
   cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-standard);
 }
 
 .mw-toast__action-btn:hover {
-  background-color: var(--color-bg-hover);
+  background-color: var(--accent-subtle);
 }
 
-.mw-toast__action-btn:focus-visible {
-  outline: none;
-  box-shadow: var(--effect-focus-ring);
+.mw-toast__action-btn:active {
+  background-color: var(--accent-subtle-hover);
+}
+
+.mw-toast__action-btn:focus-visible,
+.mw-toast__close:focus-visible {
+  outline: var(--focus-width) solid var(--focus-color);
+  outline-offset: var(--focus-offset);
 }
 
 .mw-toast__close {
@@ -423,29 +425,51 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 24px;
-  height: 24px;
+  width: var(--size-xs-h);
+  height: var(--size-xs-h);
   padding: 0;
-  margin: -2px -4px -2px 0;
+  margin-block: calc((var(--type-body-sm-line) - var(--size-xs-h)) / 2);
+  margin-inline-end: calc(var(--space-1) * -1);
   border: none;
-  border-radius: var(--radius-xs);
+  border-radius: var(--size-xs-radius);
   background: transparent;
-  color: var(--color-text-tertiary);
+  color: var(--text-tertiary);
   cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+
+.mw-toast__close :deep(svg) {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
 }
 
 .mw-toast__close:hover {
-  color: var(--color-text-primary);
-  background-color: var(--material-hover);
+  background-color: var(--fill-default);
+  color: var(--text-primary);
 }
 
-.mw-toast__close:focus-visible {
-  outline: none;
-  box-shadow: var(--effect-focus-ring);
+@keyframes mw-toast-enter {
+  from {
+    opacity: 0;
+    transform: translateY(var(--mw-toast-enter-y)) scale(var(--motion-enter-scale));
+  }
+}
+
+@keyframes mw-toast-fade-in {
+  from {
+    opacity: 0;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .mw-toast {
+    animation-name: mw-toast-fade-in;
+  }
+
+  .mw-toast__action-btn,
+  .mw-toast__close {
     transition: none;
   }
 }

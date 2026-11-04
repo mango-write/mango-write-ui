@@ -49,13 +49,13 @@ withDefaults(defineProps<{ markOnly?: boolean }>(), { markOnly: false });
 <style scoped>
 .mw-logo {
   display: block;
-  height: 26px;
+  height: var(--size-sm-h);
   width: auto;
 }
 .mw-logo :is(.word, .mark) path {
-  fill: var(--color-brand-500);
+  fill: var(--accent);
 }
 .mw-logo .mark .hi {
-  fill: var(--elevation-2-surface);
+  fill: var(--bg-raised);
 }
 </style>

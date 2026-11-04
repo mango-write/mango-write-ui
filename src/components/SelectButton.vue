@@ -33,7 +33,7 @@ const props = withDefaults(defineProps<SelectButtonProps>(), {
   disabled: false,
   readonly: false,
   invalid: false,
-  size: "md",
+  size: undefined,
   ariaLabel: undefined,
   ariaLabelledby: undefined,
   dataKey: undefined,
@@ -44,10 +44,11 @@ const emit = defineEmits<SelectButtonEmits>();
 const attrs = useAttrs();
 const groupEl = ref<HTMLElement | null>(null);
 
-const resolvedSize = computed<"sm" | "md" | "lg">(() => {
+const resolvedSize = computed(() => {
   if (props.size === "small" || props.size === "sm") return "sm";
   if (props.size === "large" || props.size === "lg") return "lg";
-  return "md";
+  if (props.size === "xs" || props.size === "md") return props.size;
+  return undefined;
 });
 
 const canEmpty = computed(() => props.allowEmpty !== false && props.unselectable !== false);
@@ -134,7 +135,7 @@ function optionKey(option: any, index: number): string {
 const rootClass = computed(() => [
   "mw-select-button",
   "p-selectbutton",
-  `mw-select-button--${resolvedSize.value}`,
+  resolvedSize.value ? [`mw-select-button--${resolvedSize.value}`, `mw-size-${resolvedSize.value}`] : undefined,
   {
     "mw-select-button--disabled": props.disabled,
     "mw-select-button--readonly": props.readonly,
@@ -273,19 +274,22 @@ function onOptionKeydown(index: number, event: KeyboardEvent) {
 
 <style scoped>
 .mw-select-button {
+  --mw-select-button-inset: var(--space-0-5);
+
   display: inline-flex;
   align-items: center;
-  gap: 2px;
-  padding: 2px;
-  border-radius: var(--radius);
-  background-color: var(--color-bg-soft);
-  border: 1px solid var(--color-border-subtle);
+  gap: var(--space-0-5);
+  height: var(--control-h);
+  padding: calc(var(--mw-select-button-inset) - var(--border-width));
+  border: var(--border-width) solid transparent;
+  border-radius: var(--control-radius);
+  background-color: var(--fill-default);
   vertical-align: middle;
 }
 
 .mw-select-button--invalid,
 .mw-select-button[data-invalid] {
-  border-color: var(--color-danger-500);
+  border-color: var(--danger);
 }
 
 .mw-select-button--disabled,
@@ -299,77 +303,91 @@ function onOptionKeydown(index: number, event: KeyboardEvent) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-1);
-  min-height: 28px;
-  padding-inline: var(--space-3);
-  padding-block: var(--space-1);
+  gap: var(--control-gap);
+  height: 100%;
+  padding-block: 0;
+  padding-inline: calc(var(--control-px) - var(--mw-select-button-inset));
   border: 0;
-  border-radius: var(--radius-sm);
+  border-radius: calc(var(--control-radius) - var(--mw-select-button-inset));
   background: transparent;
-  color: var(--color-text-secondary);
-  font-family: var(--font-family-sans);
-  font-size: 0.875rem;
-  font-weight: 500;
-  line-height: 1.25;
-  cursor: pointer;
-  user-select: none;
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: var(--control-font);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-tight);
   white-space: nowrap;
+  user-select: none;
+  cursor: pointer;
   transition:
-    background-color var(--motion-duration-base) var(--motion-ease-standard),
-    color var(--motion-duration-base) var(--motion-ease-standard),
-    box-shadow var(--motion-duration-base) var(--motion-ease-standard),
-    transform var(--motion-duration-fast) var(--motion-spring-snap);
+    background-color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
 }
 
-.mw-select-button--sm .mw-select-button__item {
-  min-height: 24px;
-  padding-inline: var(--space-2);
-  font-size: var(--font-size-caption);
-}
-
-.mw-select-button--lg .mw-select-button__item {
-  min-height: 36px;
-  padding-inline: var(--space-4);
-  font-size: var(--font-size-body);
-}
-
-.mw-select-button__item:hover:not(:disabled):not([data-state="checked"]) {
-  color: var(--color-text-primary);
-  background-color: var(--color-bg-hover);
+.mw-select-button__item:hover:not(:disabled) {
+  color: var(--text-primary);
 }
 
 .mw-select-button__item--active,
 .mw-select-button__item[data-state="checked"] {
-  background-color: var(--color-surface-base);
-  color: var(--color-text-primary);
-  box-shadow: var(--shadow-xs);
+  background-color: var(--mw-select-button-thumb);
+  box-shadow: var(--shadow-raised);
+  color: var(--text-primary);
 }
 
 .mw-select-button__item:focus-visible {
-  outline: none;
-  box-shadow: var(--effect-focus-ring);
-}
-
-.mw-select-button__item:active:not(:disabled) {
-  transform: scale(0.97);
+  outline: var(--focus-width) solid var(--focus-color);
+  outline-offset: 0;
+  z-index: var(--z-raised);
 }
 
 .mw-select-button__item:disabled,
 .mw-select-button__item[data-disabled] {
-  opacity: var(--opacity-disabled);
+  color: var(--text-disabled);
   cursor: not-allowed;
+}
+
+.mw-select-button--disabled .mw-select-button__item {
+  color: var(--text-secondary);
+}
+
+.mw-select-button--readonly .mw-select-button__item {
+  cursor: default;
 }
 
 .mw-select-button__content {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: var(--space-1);
+  gap: var(--control-gap);
+}
+
+.mw-select-button__content :deep(svg) {
+  flex: none;
+  width: var(--control-icon);
+  height: var(--control-icon);
 }
 
 @media (prefers-reduced-motion: reduce) {
   .mw-select-button__item {
     transition: none;
+  }
+}
+</style>
+
+<style>
+/* 深色下 --control-bg-hover 近乎透明，选中段改用 --fill-strong；按主题作用域取值，支持深浅并排。 */
+:root,
+[data-theme="light"] {
+  --mw-select-button-thumb: var(--control-bg-hover);
+}
+
+[data-theme="dark"] {
+  --mw-select-button-thumb: var(--fill-strong);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --mw-select-button-thumb: var(--fill-strong);
   }
 }
 </style>

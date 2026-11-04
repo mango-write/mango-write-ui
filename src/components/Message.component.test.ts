@@ -1,5 +1,6 @@
 import { defineComponent, h, markRaw } from "vue";
 import { describe, expect, it } from "vitest";
+import { Check } from "lucide-vue-next";
 import { mountUiComponent } from "../test-utils/mount.js";
 import Message from "./Message.vue";
 
@@ -50,12 +51,12 @@ describe("Message", () => {
     }
   });
 
-  it("支持字符串 icon、组件 icon 与 #icon 插槽", () => {
-    const strWrapper = mountUiComponent(Message, {
-      props: { icon: "pi pi-check" },
+  it("支持 Lucide icon、自定义组件 icon 与 #icon 插槽", () => {
+    const lucideWrapper = mountUiComponent(Message, {
+      props: { icon: Check },
       slots: { default: "完成" },
     });
-    expect(strWrapper.find(".mw-message__icon i.pi.pi-check").exists()).toBe(true);
+    expect(lucideWrapper.find(".mw-message__icon svg").exists()).toBe(true);
 
     const CustomIcon = markRaw(
       defineComponent({

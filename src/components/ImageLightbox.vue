@@ -1,9 +1,6 @@
 <script setup lang="ts">
-// Shared image lightbox: a full-screen viewer for inspecting a single image at
-// large size with zoom / rotate / pan. Used by the Reader figure renderer and
-// available to any other surface (e.g. the Writer figure node view) that wants
-// "click to enlarge" without re-implementing the overlay. Intentionally
-// self-contained (no PrimeVue Dialog) — it's a media viewer, not a form dialog.
+// 图片灯箱：全屏查看单张图片（缩放 / 旋转 / 拖动）。是媒体查看器而不是表单对话框，
+// 固定暗场（--lightbox-*），不随主题翻转。
 import { computed, nextTick, onBeforeUnmount, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { RotateCw, RotateCcw, X, ZoomIn, ZoomOut, Maximize } from "lucide-vue-next";
@@ -156,23 +153,23 @@ onBeforeUnmount(closeViewer);
       >
         <div class="mw-lightbox__toolbar" @click.stop>
           <button type="button" @click="zoomBy(1.2)" :aria-label="t('common.lightbox.zoomIn')">
-            <ZoomIn :size="18" />
+            <ZoomIn :size="18" aria-hidden="true" />
           </button>
           <button type="button" @click="zoomBy(1 / 1.2)" :aria-label="t('common.lightbox.zoomOut')">
-            <ZoomOut :size="18" />
+            <ZoomOut :size="18" aria-hidden="true" />
           </button>
           <button type="button" @click="rotate(-90)" :aria-label="t('common.lightbox.rotateLeft')">
-            <RotateCcw :size="18" />
+            <RotateCcw :size="18" aria-hidden="true" />
           </button>
           <button type="button" @click="rotate(90)" :aria-label="t('common.lightbox.rotateRight')">
-            <RotateCw :size="18" />
+            <RotateCw :size="18" aria-hidden="true" />
           </button>
           <button type="button" @click="reset" :aria-label="t('common.lightbox.reset')">
-            <Maximize :size="18" />
+            <Maximize :size="18" aria-hidden="true" />
           </button>
           <span class="mw-lightbox__divider" aria-hidden="true" />
           <button ref="closeButtonRef" type="button" @click="close" :aria-label="t('common.action.close')">
-            <X :size="18" />
+            <X :size="18" aria-hidden="true" />
           </button>
         </div>
 
@@ -202,41 +199,47 @@ onBeforeUnmount(closeViewer);
 .mw-lightbox {
   position: fixed;
   inset: 0;
-  z-index: var(--z-scrim);
+  z-index: var(--z-overlay);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   background: var(--lightbox-scrim);
-  backdrop-filter: blur(4px);
 }
 
 .mw-lightbox__toolbar {
   position: absolute;
-  top: 18px;
+  top: var(--space-4);
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   align-items: center;
   gap: var(--space-1);
-  padding: 6px;
-  border-radius: var(--radius-pill, 999px);
+  padding: var(--space-1);
+  border: var(--border-width) solid var(--lightbox-divider);
+  border-radius: var(--radius-full);
   background: var(--lightbox-toolbar);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-overlay);
 }
 
 .mw-lightbox__toolbar button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: var(--size-lg-h);
+  height: var(--size-lg-h);
+  padding: 0;
   border: 0;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--lightbox-text);
   cursor: pointer;
-  transition: background var(--motion-duration-fast) var(--motion-ease-standard);
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+
+.mw-lightbox__toolbar button :deep(svg) {
+  width: var(--icon-lg);
+  height: var(--icon-lg);
 }
 
 .mw-lightbox__toolbar button:hover {
@@ -244,13 +247,13 @@ onBeforeUnmount(closeViewer);
 }
 
 .mw-lightbox__toolbar button:focus-visible {
-  outline: 2px solid var(--lightbox-text);
-  outline-offset: 2px;
+  outline: var(--focus-width) solid var(--lightbox-text);
+  outline-offset: var(--focus-offset);
 }
 
 .mw-lightbox__divider {
-  width: 1px;
-  height: 20px;
+  width: var(--border-width);
+  height: var(--icon-xl);
   margin: 0 var(--space-1);
   background: var(--lightbox-divider);
 }
@@ -269,7 +272,7 @@ onBeforeUnmount(closeViewer);
   max-height: 82vh;
   object-fit: contain;
   cursor: grab;
-  transition: transform var(--motion-duration-fast) var(--motion-ease-standard);
+  transition: transform var(--duration-fast) var(--ease-standard);
   user-select: none;
   -webkit-user-drag: none;
 }
@@ -279,20 +282,24 @@ onBeforeUnmount(closeViewer);
 }
 
 .mw-lightbox__caption {
-  max-width: min(92vw, 720px);
+  max-width: min(92vw, var(--container-prose));
   margin: 0 0 var(--space-6);
   padding: var(--space-2) var(--space-4);
   color: var(--lightbox-text-muted);
-  font-family: var(--font-family-sans);
-  font-size: var(--font-size-body-sm);
-  line-height: var(--line-height-body);
+  font-family: var(--font-sans);
+  font-size: var(--type-body-sm-size);
+  line-height: var(--type-body-sm-line);
   text-align: center;
 }
 
-.mw-lightbox-enter-active,
-.mw-lightbox-leave-active {
-  transition: opacity var(--motion-duration-base) var(--motion-ease-standard);
+.mw-lightbox-enter-active {
+  transition: opacity var(--duration-base) var(--ease-enter);
 }
+
+.mw-lightbox-leave-active {
+  transition: opacity var(--duration-fast) var(--ease-exit);
+}
+
 .mw-lightbox-enter-from,
 .mw-lightbox-leave-to {
   opacity: 0;
@@ -300,8 +307,7 @@ onBeforeUnmount(closeViewer);
 
 @media (prefers-reduced-motion: reduce) {
   .mw-lightbox__img,
-  .mw-lightbox-enter-active,
-  .mw-lightbox-leave-active {
+  .mw-lightbox__toolbar button {
     transition: none;
   }
 }

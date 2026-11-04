@@ -1,16 +1,17 @@
 import { describe, expect, it } from "vitest";
+import { Tag } from "lucide-vue-next";
 import { mountUiComponent } from "../test-utils/mount.js";
 import Chip from "./Chip.vue";
 
 describe("Chip", () => {
   it("renders label, icon, or image", () => {
     const wrapper = mountUiComponent(Chip, {
-      props: { label: "Biology", icon: "pi pi-tag" },
+      props: { label: "Biology", icon: Tag },
     });
 
     expect(wrapper.find(".mw-chip.p-chip").exists()).toBe(true);
     expect(wrapper.find(".mw-chip__label.p-chip-label").text()).toBe("Biology");
-    expect(wrapper.find(".mw-chip__icon.p-chip-icon").classes()).toContain("pi-tag");
+    expect(wrapper.find("svg.mw-chip__icon.p-chip-icon").exists()).toBe(true);
     expect(wrapper.find(".mw-chip__remove.p-chip-remove-icon").exists()).toBe(false);
   });
 

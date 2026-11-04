@@ -43,7 +43,7 @@ describe("Dialog", () => {
     await nextTick();
     const dialog = wrapper.get('[role="dialog"]');
     expect(dialog.classes()).toContain("mw-dialog");
-    expect(dialog.classes()).toContain("mw-glass");
+    expect(dialog.classes()).toContain("mw-frost");
     expect(dialog.attributes("data-testid")).toBe("project-dialog");
     expect(dialog.attributes("style")).toContain("width: 28rem");
 

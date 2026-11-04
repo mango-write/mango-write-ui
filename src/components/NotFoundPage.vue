@@ -1,8 +1,7 @@
 <script setup lang="ts">
 // 全屏 404 的展示壳：品牌 + 大号状态码 + 文案 + 出错路径 + 两个动作。
 // 文案与跳转全部由宿主注入——两站的鉴权模型和首页落点不同（write 走空间/登录，
-// rewrite 走 locale 裸根），包内不感知路由与 store。样式复用 theme.css 的
-// 玻璃配方（.mw-glass / .mw-inlay），不再自调 blur 数值。
+// rewrite 走 locale 裸根），包内不感知路由与 store。卡片用霜（.mw-frost），不自调 blur。
 import AppLogo from "./AppLogo.vue";
 
 withDefaults(
@@ -33,7 +32,7 @@ const emit = defineEmits<{ (e: "primary"): void; (e: "secondary"): void }>();
     <div class="mw-nf__blob mw-nf__blob--a" aria-hidden="true" />
     <div class="mw-nf__blob mw-nf__blob--b" aria-hidden="true" />
 
-    <div class="mw-nf__card mw-glass">
+    <div class="mw-nf__card mw-frost mw-frost--thick">
       <header class="mw-nf__brand">
         <AppLogo class="mw-nf__logo" />
         <p v-if="tagline" class="mw-nf__tagline">{{ tagline }}</p>
@@ -67,35 +66,36 @@ const emit = defineEmits<{ (e: "primary"): void; (e: "secondary"): void }>();
 
 <style scoped>
 .mw-nf {
+  --mw-nf-drift-a: 22s;
+  --mw-nf-drift-b: 26s;
   position: relative;
   min-height: 100vh;
   display: grid;
   place-items: center;
-  padding: 48px 24px;
+  padding: var(--space-12) var(--space-6);
   overflow: hidden auto;
   background:
-    radial-gradient(1000px 520px at 82% -10%, rgb(var(--color-brand-500-rgb) / 0.12), transparent 62%),
-    radial-gradient(760px 460px at -8% 108%, rgb(var(--color-brand-500-rgb) / 0.08), transparent 58%),
-    var(--color-bg);
+    radial-gradient(1000px 520px at 82% -10%, var(--accent-subtle), transparent 62%),
+    radial-gradient(760px 460px at -8% 108%, color-mix(in srgb, var(--accent) 8%, transparent), transparent 58%),
+    var(--bg-surface);
 }
 
-/* 点阵一直铺到玻璃卡底下——backdrop blur 需要真实的细节才有「霜化」可读。 */
+/* 点阵一直铺到霜卡底下——backdrop blur 需要真实的细节才有「霜化」可读。mask 只取 alpha。 */
 .mw-nf::before {
   content: "";
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(circle at 1px 1px, var(--color-border-strong) 1px, transparent 0);
+  background-image: radial-gradient(circle at 1px 1px, var(--border-strong) 1px, transparent 0);
   background-size: 22px 22px;
   opacity: 0.45;
-  mask-image: radial-gradient(960px 680px at 50% 46%, black, transparent 75%);
-  -webkit-mask-image: radial-gradient(960px 680px at 50% 46%, black, transparent 75%);
+  mask-image: radial-gradient(960px 680px at 50% 46%, currentColor, transparent 75%);
+  -webkit-mask-image: radial-gradient(960px 680px at 50% 46%, currentColor, transparent 75%);
   pointer-events: none;
 }
 
-/* 两块缓慢漂移的暖色光斑：从玻璃卡边缘底下路过，让 blur/saturate 持续可见。 */
 .mw-nf__blob {
   position: absolute;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   pointer-events: none;
 }
 
@@ -104,8 +104,8 @@ const emit = defineEmits<{ (e: "primary"): void; (e: "secondary"): void }>();
   height: 440px;
   left: calc(50% - 340px);
   top: calc(50% - 300px);
-  background: radial-gradient(circle, rgb(var(--color-brand-500-rgb) / 0.3), transparent 68%);
-  animation: mw-nf-drift-a 22s ease-in-out infinite alternate;
+  background: radial-gradient(circle, color-mix(in srgb, var(--accent) 30%, transparent), transparent 68%);
+  animation: mw-nf-drift-a var(--mw-nf-drift-a) var(--ease-standard) infinite alternate;
 }
 
 .mw-nf__blob--b {
@@ -113,8 +113,8 @@ const emit = defineEmits<{ (e: "primary"): void; (e: "secondary"): void }>();
   height: 360px;
   right: calc(50% - 380px);
   bottom: calc(50% - 280px);
-  background: radial-gradient(circle, rgb(var(--color-brand-400-rgb) / 0.26), transparent 68%);
-  animation: mw-nf-drift-b 26s ease-in-out infinite alternate;
+  background: radial-gradient(circle, color-mix(in srgb, var(--accent-hover) 26%, transparent), transparent 68%);
+  animation: mw-nf-drift-b var(--mw-nf-drift-b) var(--ease-standard) infinite alternate;
 }
 
 @keyframes mw-nf-drift-a {
@@ -134,18 +134,18 @@ const emit = defineEmits<{ (e: "primary"): void; (e: "secondary"): void }>();
   display: flex;
   flex-direction: column;
   align-items: center;
-  text-align: center;
   width: 100%;
   max-width: 520px;
-  padding: 40px 44px 36px;
-  border-radius: var(--radius-xl);
-  animation: mw-nf-enter var(--motion-duration-spatial) var(--motion-ease-emphasized) both;
+  padding: var(--space-10) var(--space-10) var(--space-8);
+  border-radius: var(--radius-2xl);
+  text-align: center;
+  animation: mw-nf-enter var(--duration-slower) var(--ease-emphasized) both;
 }
 
 @keyframes mw-nf-enter {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(var(--space-2-5));
   }
   to {
     opacity: 1;
@@ -157,120 +157,120 @@ const emit = defineEmits<{ (e: "primary"): void; (e: "secondary"): void }>();
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .mw-nf__logo {
-  height: 30px;
+  height: var(--space-8);
 }
 
 .mw-nf__tagline {
   margin: 0;
-  font-size: 12px;
-  letter-spacing: 0.04em;
-  color: var(--color-text-tertiary);
+  color: var(--text-tertiary);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  letter-spacing: var(--tracking-caps);
 }
 
 .mw-nf__code {
-  margin: 28px 0 0;
-  font-size: clamp(72px, 12vw, 108px);
+  margin: var(--space-6) 0 0;
+  color: var(--text-primary);
+  font-size: clamp(calc(var(--type-display-lg-size) * 1.6), 12vw, calc(var(--type-display-lg-size) * 2.5));
+  font-weight: var(--weight-bold);
   line-height: 1;
-  font-weight: 700;
-  letter-spacing: -0.04em;
-  color: var(--color-text-primary);
+  letter-spacing: calc(var(--tracking-display) * 2);
+  font-variant-numeric: tabular-nums;
 }
 
 .mw-nf__code-zero {
-  color: var(--color-brand-500);
+  color: var(--accent);
 }
 
 .mw-nf__title {
-  margin: 14px 0 0;
-  font-size: 22px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  color: var(--color-text-primary);
+  margin: var(--space-3) 0 0;
+  color: var(--text-primary);
+  font-size: var(--type-headline-size);
+  font-weight: var(--weight-semibold);
+  line-height: var(--type-headline-line);
+  letter-spacing: var(--tracking-title);
 }
 
 .mw-nf__lead {
-  margin: 10px 0 0;
   max-width: 420px;
-  font-size: 14.5px;
-  line-height: 1.7;
-  color: var(--color-text-secondary);
+  margin: var(--space-2) 0 0;
+  color: var(--text-secondary);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
   text-wrap: balance;
 }
 
 .mw-nf__path {
-  margin-top: 24px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--space-2-5);
   max-width: 100%;
-  padding: 8px 14px;
+  margin-top: var(--space-6);
+  padding: var(--space-2) var(--space-3);
 }
 
 .mw-nf__path-label {
   flex-shrink: 0;
-  font-size: 12px;
-  color: var(--color-text-tertiary);
+  color: var(--text-tertiary);
+  font-size: var(--type-caption-size);
 }
 
 .mw-nf__path-value {
-  font-family: var(--font-family-mono);
-  font-size: 12.5px;
-  color: var(--color-text-secondary);
-  text-align: left;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: var(--type-caption-size);
+  text-align: start;
   word-break: break-all;
 }
 
 .mw-nf__actions {
-  margin-top: 26px;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
 }
 
-/* 主按钮直接用 theme.css 的品牌 CTA 配方，这里只留不需要渐变的文字档。 */
 .mw-nf__btn--text {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 36px;
-  padding: 0 18px;
+  min-height: var(--size-lg-h);
+  padding: 0 var(--space-4);
   border: 0;
   border-radius: var(--radius-md);
   background: transparent;
-  color: var(--color-text-secondary);
-  font-size: 0.86rem;
-  font-weight: 600;
+  color: var(--text-secondary);
+  font-size: var(--type-body-sm-size);
+  font-weight: var(--weight-semibold);
   cursor: pointer;
   transition:
-    background-color 180ms var(--motion-ease-standard),
-    color 180ms var(--motion-ease-standard);
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
 }
 
 .mw-nf__btn--text:hover {
-  background-color: var(--color-surface-muted);
-  color: var(--color-text-primary);
+  background-color: var(--fill-default);
+  color: var(--text-primary);
 }
 
 .mw-nf__btn--text:focus-visible {
-  outline: 2px solid var(--color-brand-500);
-  outline-offset: 2px;
+  outline: var(--focus-width) solid var(--focus-color);
+  outline-offset: var(--focus-offset);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .mw-nf__card {
-    animation: none;
-  }
+  .mw-nf__card,
   .mw-nf__blob--a,
   .mw-nf__blob--b {
     animation: none;
   }
-  .mw-nf__btn {
+  .mw-nf__btn--text {
     transition: none;
   }
 }

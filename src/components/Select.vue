@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Check, ChevronDown, LoaderCircle, X } from "lucide-vue-next";
 import { PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from "reka-ui";
 import { computed, getCurrentInstance, nextTick, ref, useAttrs, useId, watch, type CSSProperties } from "vue";
 import { uiMessages } from "../locale/index.js";
@@ -41,7 +42,7 @@ const props = withDefaults(defineProps<SelectProps>(), {
   invalid: false,
   required: false,
   fluid: false,
-  size: "md",
+  size: undefined,
   inputId: undefined,
   id: undefined,
   ariaLabel: undefined,
@@ -149,10 +150,11 @@ const editableInputRef = ref<HTMLInputElement | null>(null);
 const filterInputRef = ref<HTMLInputElement | null>(null);
 const listboxRef = ref<HTMLElement | null>(null);
 
-const normalizedSize = computed<"sm" | "md" | "lg">(() => {
+const resolvedSize = computed(() => {
   if (props.size === "sm" || props.size === "small") return "sm";
   if (props.size === "lg" || props.size === "large") return "lg";
-  return "md";
+  if (props.size === "xs" || props.size === "md") return props.size;
+  return undefined;
 });
 
 const selectedOption = computed(() => {
@@ -216,7 +218,7 @@ const panelMergedStyle = computed<CSSProperties | string | undefined>(() => {
 const rootClass = computed(() => [
   "mw-select",
   "mw-control",
-  `mw-select--${normalizedSize.value}`,
+  resolvedSize.value ? [`mw-select--${resolvedSize.value}`, `mw-size-${resolvedSize.value}`] : undefined,
   {
     "mw-select--fluid": props.fluid,
     "mw-select--disabled": props.disabled,
@@ -496,6 +498,7 @@ function optionKey(option: any, index: number): string {
         :data-invalid="invalid ? 'true' : undefined"
         :data-loading="loading ? 'true' : undefined"
         :data-placeholder="!hasSelectedDisplay ? '' : undefined"
+        :data-size="resolvedSize"
         @click="onTriggerClick"
         @keydown="onTriggerKeydown"
       >
@@ -544,50 +547,19 @@ function optionKey(option: any, index: number): string {
           @mousedown.stop.prevent
           @click.stop="onClear"
         >
-          <svg
-            class="mw-select__clear-icon"
-            viewBox="0 0 16 16"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.75"
-            stroke-linecap="round"
-            aria-hidden="true"
-          >
-            <path d="M4 4l8 8M12 4l-8 8" />
-          </svg>
+          <X class="mw-select__clear-icon" aria-hidden="true" />
         </button>
 
         <span class="mw-select__dropdown" aria-hidden="true">
-          <svg
-            v-if="loading"
-            class="mw-select__spinner"
-            viewBox="0 0 16 16"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.75"
-            stroke-linecap="round"
-          >
-            <path d="M8 2a6 6 0 1 1-4.24 1.76" />
-          </svg>
-          <svg
-            v-else
-            class="mw-select__chevron"
-            viewBox="0 0 16 16"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.75"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="M4 6l4 4 4-4" />
-          </svg>
+          <LoaderCircle v-if="loading" class="mw-select__spinner" />
+          <ChevronDown v-else class="mw-select__chevron" />
         </span>
       </div>
     </PopoverTrigger>
 
     <PopoverPortal :to="portalTo" :disabled="appendTo === 'self'">
       <PopoverContent
-        class="mw-select__panel mw-glass mw-scroll-scope"
+        class="mw-select__panel mw-frost mw-scroll-scope"
         :style="panelMergedStyle"
         :side-offset="4"
         align="start"
@@ -646,14 +618,17 @@ function optionKey(option: any, index: number): string {
             @mousedown.prevent
             @click="onOptionClick(option, $event)"
           >
-            <slot
-              name="option"
-              :option="option"
-              :index="index"
-              :selected="isOptionSelected(option)"
-            >
-              {{ resolveOptionLabel(option) }}
-            </slot>
+            <span class="mw-select__option-label">
+              <slot
+                name="option"
+                :option="option"
+                :index="index"
+                :selected="isOptionSelected(option)"
+              >
+                {{ resolveOptionLabel(option) }}
+              </slot>
+            </span>
+            <Check v-if="isOptionSelected(option)" class="mw-select__check" aria-hidden="true" />
           </li>
 
           <li v-if="filteredOptions.length === 0" class="mw-select__empty" role="presentation">
@@ -672,9 +647,11 @@ function optionKey(option: any, index: number): string {
   position: relative;
   display: inline-flex;
   align-items: center;
-  min-width: 7rem;
+  gap: var(--space-1);
+  min-width: calc(var(--control-h) * 4);
   max-width: 100%;
-  min-height: var(--control-height-compact);
+  height: var(--control-h);
+  padding-inline: var(--control-px) calc(var(--control-px) - var(--space-1));
   cursor: pointer;
   user-select: none;
 }
@@ -697,108 +674,82 @@ function optionKey(option: any, index: number): string {
 .mw-select__label {
   flex: 1 1 auto;
   min-width: 0;
-  padding: 0.375rem 0 0.375rem 0.625rem;
-  font-size: 0.875rem;
-  line-height: 1.25;
-  color: var(--color-text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .mw-select__label--placeholder {
-  color: var(--color-text-tertiary);
+  color: var(--text-tertiary);
 }
 
 .mw-select__input {
   flex: 1 1 auto;
   min-width: 0;
   width: 100%;
-  padding: 0.375rem 0 0.375rem 0.625rem;
+  height: 100%;
+  padding: 0;
   border: 0;
   outline: none;
   background: transparent;
-  font-family: inherit;
-  font-size: 0.875rem;
-  line-height: 1.25;
-  color: var(--color-text-primary);
+  color: inherit;
+  font: inherit;
 }
 
 .mw-select__input::placeholder {
-  color: var(--color-text-tertiary);
+  color: var(--text-tertiary);
   opacity: 1;
 }
 
-.mw-select--sm {
-  min-height: 1.5rem;
-}
-
-.mw-select--sm .mw-select__label,
-.mw-select--sm .mw-select__input {
-  padding: 0.25rem 0 0.25rem 0.5rem;
-  font-size: 0.75rem;
-}
-
-.mw-select--sm .mw-select__dropdown {
-  width: 1.75rem;
-}
-
-.mw-select--lg {
-  min-height: 2.5rem;
-}
-
-.mw-select--lg .mw-select__label,
-.mw-select--lg .mw-select__input {
-  padding: 0.5rem 0 0.5rem 0.75rem;
-  font-size: 1rem;
+.mw-select__clear,
+.mw-select__dropdown {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-icon);
+  height: var(--control-icon);
+  color: var(--text-tertiary);
 }
 
 .mw-select__clear {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  padding: 3px;
-  margin-inline: 6px 2px;
+  padding: 0;
   border: 0;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-full);
   background: transparent;
-  color: var(--color-text-tertiary);
   cursor: pointer;
   transition:
-    color var(--motion-duration-fast) var(--motion-ease-standard),
-    background-color var(--motion-duration-fast) var(--motion-ease-standard);
+    color var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard);
 }
 
 .mw-select__clear:hover {
-  color: var(--color-brand-600);
-  background-color: rgb(var(--color-brand-500-rgb) / 0.14);
+  background-color: var(--fill-default);
+  color: var(--text-secondary);
 }
 
-.mw-select__clear-icon {
-  width: 10px;
-  height: 10px;
+.mw-select__clear:focus-visible {
+  outline: var(--focus-width) solid var(--focus-color);
+  outline-offset: var(--focus-offset);
 }
 
-.mw-select__dropdown {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  color: var(--color-text-tertiary);
-}
-
+.mw-select__clear-icon,
 .mw-select__chevron,
 .mw-select__spinner {
-  width: 0.75rem;
-  height: 0.75rem;
+  width: 100%;
+  height: 100%;
+}
+
+.mw-select__chevron {
+  transition: transform var(--duration-fast) var(--ease-standard);
+}
+
+.mw-select--open .mw-select__chevron {
+  transform: rotate(180deg);
 }
 
 .mw-select__spinner {
-  animation: mw-select-spin 0.8s linear infinite;
+  animation: mw-select-spin calc(var(--duration-slower) * 2) linear infinite;
 }
 
 @keyframes mw-select-spin {
@@ -808,85 +759,142 @@ function optionKey(option: any, index: number): string {
 }
 
 .mw-select__panel {
-  z-index: var(--z-floating, 900);
-  min-width: var(--reka-popover-trigger-width, 8rem);
-  border: 1px solid var(--material-hairline);
-  border-radius: var(--radius);
+  z-index: var(--z-tooltip);
+  display: flex;
+  flex-direction: column;
+  gap: var(--float-padding);
+  min-width: var(--reka-popover-trigger-width);
+  padding: var(--float-padding);
+  border-radius: var(--radius-float);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--type-body-sm-size);
+  line-height: var(--type-body-sm-line);
   overflow: hidden;
-  transition:
-    opacity var(--motion-duration-base) var(--motion-ease-standard),
-    transform var(--motion-duration-base) var(--motion-ease-standard);
+  transform-origin: var(--reka-popover-content-transform-origin);
+}
+
+.mw-select__panel[data-state="open"] {
+  animation: mw-select-enter var(--duration-base) var(--ease-enter);
+}
+
+.mw-select__panel[data-state="closed"] {
+  animation: mw-select-exit var(--duration-instant) var(--ease-exit);
+}
+
+.mw-select__panel[data-side="top"] {
+  --mw-select-enter-y: var(--motion-enter-offset);
+}
+
+@keyframes mw-select-enter {
+  from {
+    opacity: 0;
+    transform: translateY(var(--mw-select-enter-y, calc(var(--motion-enter-offset) * -1))) scale(var(--motion-enter-scale));
+  }
+}
+
+@keyframes mw-select-exit {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes mw-select-fade {
+  from {
+    opacity: 0;
+  }
 }
 
 .mw-select__header {
-  padding: 0.375rem 0.625rem;
-  border-bottom: 1px solid var(--material-inlay-border);
+  padding: var(--space-1) var(--space-2) 0;
+  color: var(--text-tertiary);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  font-weight: var(--weight-medium);
 }
 
-.mw-select__filter-wrap {
-  padding: 0.375rem;
-  border-bottom: 1px solid var(--material-inlay-border);
-}
-
-.mw-select__filter-input {
+.mw-select__panel .mw-select__filter-input {
+  --control-bg: var(--fill-subtle);
+  --control-bg-hover: var(--fill-default);
   width: 100%;
-  height: 2rem;
-  padding: 0.25rem 0.5rem;
-  font-size: 0.8125rem;
+  height: var(--size-sm-h);
+  padding-inline: var(--space-2);
+  border-radius: var(--radius-item);
+  font-size: var(--type-body-sm-size);
 }
 
 .mw-select__list {
-  margin: 0;
-  padding: 0.25rem;
-  list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--space-px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
   overflow-y: auto;
 }
 
 .mw-select__option {
   display: flex;
   align-items: center;
-  padding: 0.375rem 0.625rem;
-  border-radius: var(--radius-sm);
-  font-size: 0.875rem;
-  line-height: 1.25;
-  color: var(--color-text-primary);
+  gap: var(--space-2);
+  min-height: var(--size-sm-h);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-item);
+  color: var(--text-primary);
   cursor: pointer;
   user-select: none;
-  transition: background-color var(--motion-duration-fast) var(--motion-ease-standard);
+  transition: background-color var(--duration-fast) var(--ease-standard);
 }
 
-.mw-select__option[data-highlighted]:not([data-state="checked"]):not([data-disabled]),
-.mw-select__option:hover:not([data-state="checked"]):not([data-disabled]) {
-  background-color: var(--material-hover);
+.mw-select__option[data-highlighted]:not([data-disabled]) {
+  background-color: var(--fill-default);
 }
 
-.mw-select__option[data-state="checked"],
-.mw-select__option--selected {
-  background-color: rgb(var(--color-brand-500-rgb) / 0.16);
-  color: var(--color-brand-700);
-  font-weight: 500;
+.mw-select__option[data-state="checked"] {
+  background-color: var(--fill-selected);
 }
 
-.mw-select__option[data-disabled],
-.mw-select__option--disabled {
-  opacity: var(--opacity-disabled);
+.mw-select__option[data-state="checked"][data-highlighted] {
+  background-color: var(--fill-selected-hover);
+}
+
+.mw-select__option[data-disabled] {
+  color: var(--text-disabled);
   cursor: not-allowed;
 }
 
+.mw-select__option-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mw-select__check {
+  flex: none;
+  width: var(--icon-md);
+  height: var(--icon-md);
+  color: var(--text-accent);
+}
+
 .mw-select__empty {
-  padding: 0.375rem 0.625rem;
-  font-size: 0.875rem;
-  color: var(--color-text-tertiary);
+  padding: var(--space-3) var(--space-2);
+  color: var(--text-tertiary);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  text-align: center;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .mw-select__clear,
-  .mw-select__panel,
+  .mw-select__chevron,
   .mw-select__option {
     transition: none;
+  }
+
+  .mw-select__panel[data-state="open"] {
+    animation-name: mw-select-fade;
   }
 
   .mw-select__spinner {
