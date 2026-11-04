@@ -1,6 +1,6 @@
 @import "tailwindcss" prefix(tw);
-@plugin "tailwindcss-primeui";
-@import "../src/theme.css";
+@import "../src/base.css";
+@import "../src/components.css";
 @source "../src";
 @source "./";
 

@@ -1,6 +1,4 @@
 // 公共组件与主题入口；CSS 通过独立样式入口引入。
-export { MangoPreset } from "./theme";
-export { MangoPresetLite } from "./theme-lite";
 export { default as AppLogo } from "./components/AppLogo.vue";
 export { default as ActionMenu } from "./components/ActionMenu.vue";
 export { type ActionMenuItem } from "./components/action-menu";

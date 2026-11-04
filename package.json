@@ -21,22 +21,6 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
-    "./theme": {
-      "mango-source": {
-        "types": "./src/theme.ts",
-        "default": "./src/theme.ts"
-      },
-      "types": "./dist/theme.d.ts",
-      "default": "./dist/theme.js"
-    },
-    "./theme-lite": {
-      "mango-source": {
-        "types": "./src/theme-lite.ts",
-        "default": "./src/theme-lite.ts"
-      },
-      "types": "./dist/theme-lite.d.ts",
-      "default": "./dist/theme-lite.js"
-    },
     "./locale": {
       "mango-source": {
         "types": "./src/locale/index.ts",
@@ -477,10 +461,6 @@
       "mango-source": "./src/theme.css",
       "default": "./dist/theme.css"
     },
-    "./primevue-theme.css": {
-      "mango-source": "./src/primevue-theme.css",
-      "default": "./dist/primevue-theme.css"
-    },
     "./components/Accordion": {
       "mango-source": {
         "types": "./src/components/Accordion.vue",
@@ -785,16 +765,6 @@
         "import": "./dist/index.js",
         "default": "./dist/index.js"
       },
-      "./theme": {
-        "types": "./dist/theme.d.ts",
-        "import": "./dist/theme.js",
-        "default": "./dist/theme.js"
-      },
-      "./theme-lite": {
-        "types": "./dist/theme-lite.d.ts",
-        "import": "./dist/theme-lite.js",
-        "default": "./dist/theme-lite.js"
-      },
       "./locale": {
         "types": "./dist/locale/index.d.ts",
         "import": "./dist/locale/index.js",
@@ -1064,7 +1034,6 @@
       "./base.css": "./dist/base.css",
       "./components.css": "./dist/components.css",
       "./theme.css": "./dist/theme.css",
-      "./primevue-theme.css": "./dist/primevue-theme.css",
       "./components/Accordion": {
         "types": "./dist/components/Accordion.d.ts",
         "import": "./dist/components/Accordion.js",
@@ -1261,27 +1230,21 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "primeicons": "^7.0.0",
     "reka-ui": "^2.11.0"
   },
   "peerDependencies": {
-    "@primeuix/themes": "^1.0.0",
     "lucide-vue-next": "^1.0.0",
-    "primevue": "^4.4.0",
     "vue": "^3.5.34",
     "vue-i18n": "^11.4.7"
   },
   "devDependencies": {
-    "@primeuix/themes": "^1.0.0",
     "@tailwindcss/vite": "^4.3.3",
     "@types/node": "^24.13.3",
     "@vitejs/plugin-vue": "^6.0.8",
     "@vue/test-utils": "^2.4.11",
     "happy-dom": "^20.11.1",
     "lucide-vue-next": "^1.0.0",
-    "primevue": "^4.4.0",
     "tailwindcss": "^4.0.0",
-    "tailwindcss-primeui": "^0.4.0",
     "typescript": "npm:@typescript/typescript6@^6.0.2",
     "vite": "^8.3.5",
     "vitest": "^4.1.12",

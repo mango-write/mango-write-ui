@@ -7,8 +7,6 @@ import tailwindcss from "@tailwindcss/vite";
 const peers = [
   "vue",
   "vue-i18n",
-  "primevue",
-  "@primeuix/themes",
   "lucide-vue-next",
   "reka-ui",
   "@tanstack/vue-table",
@@ -17,7 +15,7 @@ const peers = [
 export default defineConfig({
   plugins: [vue(), tailwindcss()],
   resolve: {
-    dedupe: ["vue", "vue-router", "vue-i18n", "primevue", "reka-ui"],
+    dedupe: ["vue", "vue-router", "vue-i18n", "reka-ui"],
   },
   server: {
     // 主仓 dev 拓扑把 5173-5175 分给了 web/authWeb/rewriteWeb，展示站让出。

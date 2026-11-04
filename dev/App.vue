@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import ConfirmDialog from "primevue/confirmdialog";
-import ConfirmPopup from "primevue/confirmpopup";
-import DynamicDialog from "primevue/dynamicdialog";
-import SelectButton from "primevue/selectbutton";
-import Toast from "primevue/toast";
-import { AppLogo, useThemePreference, type ThemePreference } from "../src";
+import {
+  AppLogo,
+  ConfirmHost,
+  SelectButton,
+  ToastHost,
+  useThemePreference,
+  type ThemePreference,
+} from "../src";
 
 const { preference, setTheme } = useThemePreference();
 const themeOptions: { label: string; value: ThemePreference }[] = [
@@ -41,9 +43,7 @@ function updateTheme(value: unknown) {
     <main class="dev-main">
       <RouterView />
     </main>
-    <Toast position="top-right" />
-    <ConfirmDialog />
-    <ConfirmPopup />
-    <DynamicDialog />
+    <ToastHost position="top-right" />
+    <ConfirmHost />
   </div>
 </template>

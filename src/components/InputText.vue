@@ -27,7 +27,7 @@ export interface InputTextProps {
   autocomplete?: string;
   autofocus?: boolean;
   inputmode?: string;
-  spellcheck?: boolean;
+  spellcheck?: boolean | "true" | "false";
 }
 
 const props = withDefaults(defineProps<InputTextProps>(), {

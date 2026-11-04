@@ -21,7 +21,7 @@ export interface TextareaProps {
   fluid?: boolean;
   maxlength?: number | string;
   autocomplete?: string;
-  spellcheck?: boolean;
+  spellcheck?: boolean | "true" | "false";
 }
 
 const props = withDefaults(defineProps<TextareaProps>(), {

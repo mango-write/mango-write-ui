@@ -12,8 +12,8 @@ export type TagSeverity =
   | "contrast";
 
 export interface TagProps {
-  value?: string | number;
-  severity?: TagSeverity;
+  value?: string | number | null;
+  severity?: TagSeverity | (string & {});
   rounded?: boolean;
   icon?: string | Component;
 }

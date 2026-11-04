@@ -1,5 +1,3 @@
-/* 兼容入口：包含 Mango 静态基础样式（base.css）、PrimeIcons 字体与 PrimeVue 扩展主题（primevue-theme.css）。
-   不消费 PrimeVue 的静态组件/应用可只引入 @mango-write/ui/base.css 与 @mango-write/ui/components.css。 */
+/* 聚合静态样式入口：包含 Mango 静态基础样式（base.css）与组件样式（components.css）。 */
 @import "./base.css";
-@import "primeicons/primeicons.css";
-@import "./primevue-theme.css";
+@import "./components.css";

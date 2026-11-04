@@ -127,10 +127,11 @@ describe("@mango-write/ui package exports & static CSS isolation (P1)", () => {
     expect(distComponents).toContain(".mw-control");
     expect(distComponents).toContain(".mw-form-field");
 
-    const legacyThemeCss = stripCssComments(readFileSync(path.join(pkgRoot, "dist/theme.css"), "utf8"));
-    expect(legacyThemeCss).toContain("./base.css");
-    expect(legacyThemeCss).toContain("primeicons/primeicons.css");
-    expect(legacyThemeCss).toContain("./primevue-theme.css");
+    const themeCss = stripCssComments(readFileSync(path.join(pkgRoot, "dist/theme.css"), "utf8"));
+    expect(themeCss).toContain("./base.css");
+    expect(themeCss).toContain("./components.css");
+    expect(themeCss).not.toContain("primeicons");
+    expect(themeCss).not.toContain("primevue-theme");
   });
 
   it.each([

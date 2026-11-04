@@ -6,7 +6,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const srcDir = join(root, "src");
 const distDir = join(root, "dist");
 
-for (const cssFile of ["var.css", "base.css", "theme.css", "primevue-theme.css"]) {
+for (const cssFile of ["var.css", "base.css", "theme.css"]) {
   cpSync(join(srcDir, cssFile), join(distDir, cssFile));
 }
 

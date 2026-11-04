@@ -5,18 +5,12 @@
  * Living reference for every PrimeIcon available in the app. Use it to pick
  * the right `pi pi-*` class for components or plain `<i>` elements.
  */
-import Button from "primevue/button";
-import IconField from "primevue/iconfield";
-import InputIcon from "primevue/inputicon";
-import InputText from "primevue/inputtext";
-import Tag from "primevue/tag";
-import { useToast } from "primevue/usetoast";
 import * as LucideIcons from "lucide-vue-next";
 import { Scissors } from "lucide-vue-next";
 import { computed, ref, type Component } from "vue";
-import { AppLogo } from "../../src";
+import { AppLogo, Button, IconField, InputIcon, InputText, Tag, useNotify } from "../../src";
 
-const toast = useToast();
+const toast = useNotify();
 const search = ref("");
 const tab = ref<"primevue" | "lucide">("primevue");
 
