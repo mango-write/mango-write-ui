@@ -12,10 +12,12 @@ interface I18nWithMerge {
 // 覆盖后需重挂。
 export interface UiMessages {
   common: {
-    select: { noMatch: string; clear: string; remove: string; searching: string };
+    select: { noMatch: string; empty: string; clear: string; remove: string; searching: string };
     userSelect: { placeholder: string; empty: string };
     async: { loading: string; errorTitle: string; retry: string };
     action: { close: string };
+    dialog: { maximize: string; restore: string };
+    confirm: { title: string; accept: string; reject: string };
     lightbox: {
       zoomIn: string;
       zoomOut: string;
@@ -32,10 +34,18 @@ export type UiLocaleSource = "zh-CN" | "en-US";
 export const uiMessages: Record<UiLocaleSource, UiMessages> = {
   "zh-CN": {
     common: {
-      select: { noMatch: "无匹配项", clear: "清除选择", remove: "移除 {label}", searching: "正在搜索…" },
+      select: {
+        noMatch: "无匹配项",
+        empty: "暂无可选项",
+        clear: "清除选择",
+        remove: "移除 {label}",
+        searching: "正在搜索…",
+      },
       userSelect: { placeholder: "搜索并选择用户", empty: "没有可选用户" },
       async: { loading: "正在加载", errorTitle: "加载失败", retry: "重试" },
       action: { close: "关闭" },
+      dialog: { maximize: "最大化", restore: "还原" },
+      confirm: { title: "确认操作", accept: "确定", reject: "取消" },
       lightbox: {
         zoomIn: "放大",
         zoomOut: "缩小",
@@ -48,10 +58,18 @@ export const uiMessages: Record<UiLocaleSource, UiMessages> = {
   },
   "en-US": {
     common: {
-      select: { noMatch: "No matches", clear: "Clear selection", remove: "Remove {label}", searching: "Searching…" },
+      select: {
+        noMatch: "No matches",
+        empty: "No options",
+        clear: "Clear selection",
+        remove: "Remove {label}",
+        searching: "Searching…",
+      },
       userSelect: { placeholder: "Search and select users", empty: "No users available" },
       async: { loading: "Loading", errorTitle: "Failed to load", retry: "Retry" },
       action: { close: "Close" },
+      dialog: { maximize: "Maximize", restore: "Restore" },
+      confirm: { title: "Confirm", accept: "Confirm", reject: "Cancel" },
       lightbox: {
         zoomIn: "Zoom in",
         zoomOut: "Zoom out",

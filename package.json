@@ -85,6 +85,22 @@
       "types": "./dist/lib/area-transition.d.ts",
       "default": "./dist/lib/area-transition.js"
     },
+    "./lib/confirm": {
+      "mango-source": {
+        "types": "./src/lib/confirm.ts",
+        "default": "./src/lib/confirm.ts"
+      },
+      "types": "./dist/lib/confirm.d.ts",
+      "default": "./dist/lib/confirm.js"
+    },
+    "./lib/notify": {
+      "mango-source": {
+        "types": "./src/lib/notify.ts",
+        "default": "./src/lib/notify.ts"
+      },
+      "types": "./dist/lib/notify.d.ts",
+      "default": "./dist/lib/notify.js"
+    },
     "./components/AppLogo": {
       "mango-source": {
         "types": "./src/components/AppLogo.vue",
@@ -133,6 +149,70 @@
       "types": "./dist/components/AsyncSlot.d.ts",
       "default": "./dist/components/AsyncSlot.js"
     },
+    "./components/Avatar": {
+      "mango-source": {
+        "types": "./src/components/Avatar.vue",
+        "default": "./src/components/Avatar.vue"
+      },
+      "types": "./dist/components/Avatar.d.ts",
+      "default": "./dist/components/Avatar.js"
+    },
+    "./components/Badge": {
+      "mango-source": {
+        "types": "./src/components/Badge.vue",
+        "default": "./src/components/Badge.vue"
+      },
+      "types": "./dist/components/Badge.d.ts",
+      "default": "./dist/components/Badge.js"
+    },
+    "./components/Button": {
+      "mango-source": {
+        "types": "./src/components/Button.vue",
+        "default": "./src/components/Button.vue"
+      },
+      "types": "./dist/components/Button.d.ts",
+      "default": "./dist/components/Button.js"
+    },
+    "./components/button": {
+      "mango-source": {
+        "types": "./src/components/button.ts",
+        "default": "./src/components/button.ts"
+      },
+      "types": "./dist/components/button.d.ts",
+      "default": "./dist/components/button.js"
+    },
+    "./components/Checkbox": {
+      "mango-source": {
+        "types": "./src/components/Checkbox.vue",
+        "default": "./src/components/Checkbox.vue"
+      },
+      "types": "./dist/components/Checkbox.d.ts",
+      "default": "./dist/components/Checkbox.js"
+    },
+    "./components/ConfirmHost": {
+      "mango-source": {
+        "types": "./src/components/ConfirmHost.vue",
+        "default": "./src/components/ConfirmHost.vue"
+      },
+      "types": "./dist/components/ConfirmHost.d.ts",
+      "default": "./dist/components/ConfirmHost.js"
+    },
+    "./components/Dialog": {
+      "mango-source": {
+        "types": "./src/components/Dialog.vue",
+        "default": "./src/components/Dialog.vue"
+      },
+      "types": "./dist/components/Dialog.d.ts",
+      "default": "./dist/components/Dialog.js"
+    },
+    "./components/dialog": {
+      "mango-source": {
+        "types": "./src/components/dialog.ts",
+        "default": "./src/components/dialog.ts"
+      },
+      "types": "./dist/components/dialog.d.ts",
+      "default": "./dist/components/dialog.js"
+    },
     "./components/FileDropZone": {
       "mango-source": {
         "types": "./src/components/FileDropZone.vue",
@@ -165,6 +245,22 @@
       "types": "./dist/components/ImageLightbox.d.ts",
       "default": "./dist/components/ImageLightbox.js"
     },
+    "./components/InputText": {
+      "mango-source": {
+        "types": "./src/components/InputText.vue",
+        "default": "./src/components/InputText.vue"
+      },
+      "types": "./dist/components/InputText.d.ts",
+      "default": "./dist/components/InputText.js"
+    },
+    "./components/Message": {
+      "mango-source": {
+        "types": "./src/components/Message.vue",
+        "default": "./src/components/Message.vue"
+      },
+      "types": "./dist/components/Message.d.ts",
+      "default": "./dist/components/Message.js"
+    },
     "./components/NotFoundPage": {
       "mango-source": {
         "types": "./src/components/NotFoundPage.vue",
@@ -181,6 +277,22 @@
       "types": "./dist/components/PageHeader.d.ts",
       "default": "./dist/components/PageHeader.js"
     },
+    "./components/Popover": {
+      "mango-source": {
+        "types": "./src/components/Popover.vue",
+        "default": "./src/components/Popover.vue"
+      },
+      "types": "./dist/components/Popover.d.ts",
+      "default": "./dist/components/Popover.js"
+    },
+    "./components/ProgressBar": {
+      "mango-source": {
+        "types": "./src/components/ProgressBar.vue",
+        "default": "./src/components/ProgressBar.vue"
+      },
+      "types": "./dist/components/ProgressBar.d.ts",
+      "default": "./dist/components/ProgressBar.js"
+    },
     "./components/SearchableMultiSelect": {
       "mango-source": {
         "types": "./src/components/SearchableMultiSelect.vue",
@@ -196,6 +308,102 @@
       },
       "types": "./dist/components/SearchableSelect.d.ts",
       "default": "./dist/components/SearchableSelect.js"
+    },
+    "./components/Select": {
+      "mango-source": {
+        "types": "./src/components/Select.vue",
+        "default": "./src/components/Select.vue"
+      },
+      "types": "./dist/components/Select.d.ts",
+      "default": "./dist/components/Select.js"
+    },
+    "./components/select": {
+      "mango-source": {
+        "types": "./src/components/select.ts",
+        "default": "./src/components/select.ts"
+      },
+      "types": "./dist/components/select.d.ts",
+      "default": "./dist/components/select.js"
+    },
+    "./components/Tabs": {
+      "mango-source": {
+        "types": "./src/components/Tabs.vue",
+        "default": "./src/components/Tabs.vue"
+      },
+      "types": "./dist/components/Tabs.d.ts",
+      "default": "./dist/components/Tabs.js"
+    },
+    "./components/TabList": {
+      "mango-source": {
+        "types": "./src/components/TabList.vue",
+        "default": "./src/components/TabList.vue"
+      },
+      "types": "./dist/components/TabList.d.ts",
+      "default": "./dist/components/TabList.js"
+    },
+    "./components/Tab": {
+      "mango-source": {
+        "types": "./src/components/Tab.vue",
+        "default": "./src/components/Tab.vue"
+      },
+      "types": "./dist/components/Tab.d.ts",
+      "default": "./dist/components/Tab.js"
+    },
+    "./components/TabPanels": {
+      "mango-source": {
+        "types": "./src/components/TabPanels.vue",
+        "default": "./src/components/TabPanels.vue"
+      },
+      "types": "./dist/components/TabPanels.d.ts",
+      "default": "./dist/components/TabPanels.js"
+    },
+    "./components/TabPanel": {
+      "mango-source": {
+        "types": "./src/components/TabPanel.vue",
+        "default": "./src/components/TabPanel.vue"
+      },
+      "types": "./dist/components/TabPanel.d.ts",
+      "default": "./dist/components/TabPanel.js"
+    },
+    "./components/tabs": {
+      "mango-source": {
+        "types": "./src/components/tabs.ts",
+        "default": "./src/components/tabs.ts"
+      },
+      "types": "./dist/components/tabs.d.ts",
+      "default": "./dist/components/tabs.js"
+    },
+    "./components/Tag": {
+      "mango-source": {
+        "types": "./src/components/Tag.vue",
+        "default": "./src/components/Tag.vue"
+      },
+      "types": "./dist/components/Tag.d.ts",
+      "default": "./dist/components/Tag.js"
+    },
+    "./components/Textarea": {
+      "mango-source": {
+        "types": "./src/components/Textarea.vue",
+        "default": "./src/components/Textarea.vue"
+      },
+      "types": "./dist/components/Textarea.d.ts",
+      "default": "./dist/components/Textarea.js"
+    },
+    "./components/ToastHost": {
+      "mango-source": {
+        "types": "./src/components/ToastHost.vue",
+        "default": "./src/components/ToastHost.vue"
+      },
+      "types": "./dist/components/ToastHost.d.ts",
+      "default": "./dist/components/ToastHost.js"
+    },
+    "./components/ToggleSwitch": {
+      "mango-source": {
+        "types": "./src/components/ToggleSwitch.vue",
+        "default": "./src/components/ToggleSwitch.vue"
+      },
+      "types": "./dist/components/ToggleSwitch.d.ts",
+      "default": "./dist/components/ToggleSwitch.js"
     },
     "./components/UserCard": {
       "mango-source": {
@@ -245,6 +453,14 @@
       "types": "./dist/components/site/SiteFooter.d.ts",
       "default": "./dist/components/site/SiteFooter.js"
     },
+    "./components/site/social-icons": {
+      "mango-source": {
+        "types": "./src/components/site/social-icons.ts",
+        "default": "./src/components/site/social-icons.ts"
+      },
+      "types": "./dist/components/site/social-icons.d.ts",
+      "default": "./dist/components/site/social-icons.js"
+    },
     "./tokens.css": {
       "mango-source": "./src/var.css",
       "default": "./dist/var.css"
@@ -270,140 +486,289 @@
     "exports": {
       ".": {
         "types": "./dist/index.d.ts",
-        "import": "./dist/index.js"
+        "import": "./dist/index.js",
+        "default": "./dist/index.js"
       },
       "./theme": {
         "types": "./dist/theme.d.ts",
-        "import": "./dist/theme.js"
+        "import": "./dist/theme.js",
+        "default": "./dist/theme.js"
       },
       "./theme-lite": {
         "types": "./dist/theme-lite.d.ts",
-        "import": "./dist/theme-lite.js"
+        "import": "./dist/theme-lite.js",
+        "default": "./dist/theme-lite.js"
       },
       "./locale": {
         "types": "./dist/locale/index.d.ts",
-        "import": "./dist/locale/index.js"
+        "import": "./dist/locale/index.js",
+        "default": "./dist/locale/index.js"
       },
       "./lib/theme": {
         "types": "./dist/lib/theme.d.ts",
-        "import": "./dist/lib/theme.js"
+        "import": "./dist/lib/theme.js",
+        "default": "./dist/lib/theme.js"
       },
       "./lib/tooltip": {
         "types": "./dist/lib/tooltip.d.ts",
-        "import": "./dist/lib/tooltip.js"
+        "import": "./dist/lib/tooltip.js",
+        "default": "./dist/lib/tooltip.js"
       },
       "./lib/hover-card": {
         "types": "./dist/lib/hover-card.d.ts",
-        "import": "./dist/lib/hover-card.js"
+        "import": "./dist/lib/hover-card.js",
+        "default": "./dist/lib/hover-card.js"
       },
       "./lib/useComboPanel": {
         "types": "./dist/lib/useComboPanel.d.ts",
-        "import": "./dist/lib/useComboPanel.js"
+        "import": "./dist/lib/useComboPanel.js",
+        "default": "./dist/lib/useComboPanel.js"
       },
       "./lib/area-transition": {
         "types": "./dist/lib/area-transition.d.ts",
-        "import": "./dist/lib/area-transition.js"
+        "import": "./dist/lib/area-transition.js",
+        "default": "./dist/lib/area-transition.js"
+      },
+      "./lib/confirm": {
+        "types": "./dist/lib/confirm.d.ts",
+        "import": "./dist/lib/confirm.js",
+        "default": "./dist/lib/confirm.js"
+      },
+      "./lib/notify": {
+        "types": "./dist/lib/notify.d.ts",
+        "import": "./dist/lib/notify.js",
+        "default": "./dist/lib/notify.js"
       },
       "./components/AppLogo": {
         "types": "./dist/components/AppLogo.d.ts",
-        "import": "./dist/components/AppLogo.js"
+        "import": "./dist/components/AppLogo.js",
+        "default": "./dist/components/AppLogo.js"
       },
       "./components/ActionMenu": {
         "types": "./dist/components/ActionMenu.d.ts",
-        "import": "./dist/components/ActionMenu.js"
+        "import": "./dist/components/ActionMenu.js",
+        "default": "./dist/components/ActionMenu.js"
       },
       "./components/action-menu": {
         "types": "./dist/components/action-menu.d.ts",
-        "import": "./dist/components/action-menu.js"
+        "import": "./dist/components/action-menu.js",
+        "default": "./dist/components/action-menu.js"
       },
       "./components/AsyncSearchSelect": {
         "types": "./dist/components/AsyncSearchSelect.d.ts",
-        "import": "./dist/components/AsyncSearchSelect.js"
+        "import": "./dist/components/AsyncSearchSelect.js",
+        "default": "./dist/components/AsyncSearchSelect.js"
       },
       "./components/async-search-select": {
         "types": "./dist/components/async-search-select.d.ts",
-        "import": "./dist/components/async-search-select.js"
+        "import": "./dist/components/async-search-select.js",
+        "default": "./dist/components/async-search-select.js"
       },
       "./components/AsyncSlot": {
         "types": "./dist/components/AsyncSlot.d.ts",
-        "import": "./dist/components/AsyncSlot.js"
+        "import": "./dist/components/AsyncSlot.js",
+        "default": "./dist/components/AsyncSlot.js"
+      },
+      "./components/Avatar": {
+        "types": "./dist/components/Avatar.d.ts",
+        "import": "./dist/components/Avatar.js",
+        "default": "./dist/components/Avatar.js"
+      },
+      "./components/Badge": {
+        "types": "./dist/components/Badge.d.ts",
+        "import": "./dist/components/Badge.js",
+        "default": "./dist/components/Badge.js"
+      },
+      "./components/Button": {
+        "types": "./dist/components/Button.d.ts",
+        "import": "./dist/components/Button.js",
+        "default": "./dist/components/Button.js"
+      },
+      "./components/button": {
+        "types": "./dist/components/button.d.ts",
+        "import": "./dist/components/button.js",
+        "default": "./dist/components/button.js"
+      },
+      "./components/Checkbox": {
+        "types": "./dist/components/Checkbox.d.ts",
+        "import": "./dist/components/Checkbox.js",
+        "default": "./dist/components/Checkbox.js"
+      },
+      "./components/ConfirmHost": {
+        "types": "./dist/components/ConfirmHost.d.ts",
+        "import": "./dist/components/ConfirmHost.js",
+        "default": "./dist/components/ConfirmHost.js"
+      },
+      "./components/Dialog": {
+        "types": "./dist/components/Dialog.d.ts",
+        "import": "./dist/components/Dialog.js",
+        "default": "./dist/components/Dialog.js"
+      },
+      "./components/dialog": {
+        "types": "./dist/components/dialog.d.ts",
+        "import": "./dist/components/dialog.js",
+        "default": "./dist/components/dialog.js"
       },
       "./components/FileDropZone": {
         "types": "./dist/components/FileDropZone.d.ts",
-        "import": "./dist/components/FileDropZone.js"
+        "import": "./dist/components/FileDropZone.js",
+        "default": "./dist/components/FileDropZone.js"
       },
       "./components/FormField": {
         "types": "./dist/components/FormField.d.ts",
-        "import": "./dist/components/FormField.js"
+        "import": "./dist/components/FormField.js",
+        "default": "./dist/components/FormField.js"
       },
       "./components/HoverCard": {
         "types": "./dist/components/HoverCard.d.ts",
-        "import": "./dist/components/HoverCard.js"
+        "import": "./dist/components/HoverCard.js",
+        "default": "./dist/components/HoverCard.js"
       },
       "./components/ImageLightbox": {
         "types": "./dist/components/ImageLightbox.d.ts",
-        "import": "./dist/components/ImageLightbox.js"
+        "import": "./dist/components/ImageLightbox.js",
+        "default": "./dist/components/ImageLightbox.js"
+      },
+      "./components/InputText": {
+        "types": "./dist/components/InputText.d.ts",
+        "import": "./dist/components/InputText.js",
+        "default": "./dist/components/InputText.js"
+      },
+      "./components/Message": {
+        "types": "./dist/components/Message.d.ts",
+        "import": "./dist/components/Message.js",
+        "default": "./dist/components/Message.js"
       },
       "./components/NotFoundPage": {
         "types": "./dist/components/NotFoundPage.d.ts",
-        "import": "./dist/components/NotFoundPage.js"
+        "import": "./dist/components/NotFoundPage.js",
+        "default": "./dist/components/NotFoundPage.js"
       },
       "./components/PageHeader": {
         "types": "./dist/components/PageHeader.d.ts",
-        "import": "./dist/components/PageHeader.js"
+        "import": "./dist/components/PageHeader.js",
+        "default": "./dist/components/PageHeader.js"
+      },
+      "./components/Popover": {
+        "types": "./dist/components/Popover.d.ts",
+        "import": "./dist/components/Popover.js",
+        "default": "./dist/components/Popover.js"
+      },
+      "./components/ProgressBar": {
+        "types": "./dist/components/ProgressBar.d.ts",
+        "import": "./dist/components/ProgressBar.js",
+        "default": "./dist/components/ProgressBar.js"
       },
       "./components/SearchableMultiSelect": {
         "types": "./dist/components/SearchableMultiSelect.d.ts",
-        "import": "./dist/components/SearchableMultiSelect.js"
+        "import": "./dist/components/SearchableMultiSelect.js",
+        "default": "./dist/components/SearchableMultiSelect.js"
       },
       "./components/SearchableSelect": {
         "types": "./dist/components/SearchableSelect.d.ts",
-        "import": "./dist/components/SearchableSelect.js"
+        "import": "./dist/components/SearchableSelect.js",
+        "default": "./dist/components/SearchableSelect.js"
+      },
+      "./components/Select": {
+        "types": "./dist/components/Select.d.ts",
+        "import": "./dist/components/Select.js",
+        "default": "./dist/components/Select.js"
+      },
+      "./components/select": {
+        "types": "./dist/components/select.d.ts",
+        "import": "./dist/components/select.js",
+        "default": "./dist/components/select.js"
+      },
+      "./components/Tabs": {
+        "types": "./dist/components/Tabs.d.ts",
+        "import": "./dist/components/Tabs.js",
+        "default": "./dist/components/Tabs.js"
+      },
+      "./components/TabList": {
+        "types": "./dist/components/TabList.d.ts",
+        "import": "./dist/components/TabList.js",
+        "default": "./dist/components/TabList.js"
+      },
+      "./components/Tab": {
+        "types": "./dist/components/Tab.d.ts",
+        "import": "./dist/components/Tab.js",
+        "default": "./dist/components/Tab.js"
+      },
+      "./components/TabPanels": {
+        "types": "./dist/components/TabPanels.d.ts",
+        "import": "./dist/components/TabPanels.js",
+        "default": "./dist/components/TabPanels.js"
+      },
+      "./components/TabPanel": {
+        "types": "./dist/components/TabPanel.d.ts",
+        "import": "./dist/components/TabPanel.js",
+        "default": "./dist/components/TabPanel.js"
+      },
+      "./components/tabs": {
+        "types": "./dist/components/tabs.d.ts",
+        "import": "./dist/components/tabs.js",
+        "default": "./dist/components/tabs.js"
+      },
+      "./components/Tag": {
+        "types": "./dist/components/Tag.d.ts",
+        "import": "./dist/components/Tag.js",
+        "default": "./dist/components/Tag.js"
+      },
+      "./components/Textarea": {
+        "types": "./dist/components/Textarea.d.ts",
+        "import": "./dist/components/Textarea.js",
+        "default": "./dist/components/Textarea.js"
+      },
+      "./components/ToastHost": {
+        "types": "./dist/components/ToastHost.d.ts",
+        "import": "./dist/components/ToastHost.js",
+        "default": "./dist/components/ToastHost.js"
+      },
+      "./components/ToggleSwitch": {
+        "types": "./dist/components/ToggleSwitch.d.ts",
+        "import": "./dist/components/ToggleSwitch.js",
+        "default": "./dist/components/ToggleSwitch.js"
       },
       "./components/UserCard": {
         "types": "./dist/components/UserCard.d.ts",
-        "import": "./dist/components/UserCard.js"
+        "import": "./dist/components/UserCard.js",
+        "default": "./dist/components/UserCard.js"
       },
       "./components/UserChip": {
         "types": "./dist/components/UserChip.d.ts",
-        "import": "./dist/components/UserChip.js"
+        "import": "./dist/components/UserChip.js",
+        "default": "./dist/components/UserChip.js"
       },
       "./components/UserSelect": {
         "types": "./dist/components/UserSelect.d.ts",
-        "import": "./dist/components/UserSelect.js"
+        "import": "./dist/components/UserSelect.js",
+        "default": "./dist/components/UserSelect.js"
       },
       "./components/user-select": {
         "types": "./dist/components/user-select.d.ts",
-        "import": "./dist/components/user-select.js"
+        "import": "./dist/components/user-select.js",
+        "default": "./dist/components/user-select.js"
       },
       "./components/site/SiteHeader": {
         "types": "./dist/components/site/SiteHeader.d.ts",
-        "import": "./dist/components/site/SiteHeader.js"
+        "import": "./dist/components/site/SiteHeader.js",
+        "default": "./dist/components/site/SiteHeader.js"
       },
       "./components/site/SiteFooter": {
         "types": "./dist/components/site/SiteFooter.d.ts",
-        "import": "./dist/components/site/SiteFooter.js"
+        "import": "./dist/components/site/SiteFooter.js",
+        "default": "./dist/components/site/SiteFooter.js"
       },
-      "./tokens.css": {
-        "sideEffects": true,
-        "default": "./dist/var.css"
+      "./components/site/social-icons": {
+        "types": "./dist/components/site/social-icons.d.ts",
+        "import": "./dist/components/site/social-icons.js",
+        "default": "./dist/components/site/social-icons.js"
       },
-      "./base.css": {
-        "sideEffects": true,
-        "default": "./dist/base.css"
-      },
-      "./components.css": {
-        "sideEffects": true,
-        "default": "./dist/components.css"
-      },
-      "./theme.css": {
-        "sideEffects": true,
-        "default": "./dist/theme.css"
-      },
-      "./primevue-theme.css": {
-        "sideEffects": true,
-        "default": "./dist/primevue-theme.css"
-      }
+      "./tokens.css": "./dist/var.css",
+      "./base.css": "./dist/base.css",
+      "./components.css": "./dist/components.css",
+      "./theme.css": "./dist/theme.css",
+      "./primevue-theme.css": "./dist/primevue-theme.css"
     }
   },
   "scripts": {
@@ -415,14 +780,15 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "primeicons": "^7.0.0"
+    "primeicons": "^7.0.0",
+    "reka-ui": "^2.11.0"
   },
   "peerDependencies": {
     "@primeuix/themes": "^1.0.0",
     "lucide-vue-next": "^1.0.0",
+    "primevue": "^4.4.0",
     "vue": "^3.5.34",
-    "vue-i18n": "^11.4.7",
-    "primevue": "^4.4.0"
+    "vue-i18n": "^11.4.7"
   },
   "devDependencies": {
     "@primeuix/themes": "^1.0.0",

@@ -12,7 +12,7 @@
 //     下一步）——空态是邀请不是墓碑；dev 下缺文案给控制台警告；
 //  4. 错误态默认渲染重试按钮（emit retry），#error-action 可覆盖。
 import { useI18n } from "vue-i18n";
-import Button from "primevue/button";
+import Button from "./Button.vue";
 import { useSlots } from "vue";
 
 import { areaDurationMs } from "../lib/area-transition.js";

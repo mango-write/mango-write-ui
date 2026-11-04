@@ -74,6 +74,7 @@ import { useToast } from "primevue/usetoast";
 import { computed, ref } from "vue";
 import { AppLogo, AsyncSlot, FormField, HoverCard, SearchableMultiSelect, SearchableSelect } from "../../src";
 import ExtendedShowcase from "./ExtendedShowcase.vue";
+import MangoP2Matrix from "./MangoP2Matrix.vue";
 
 const toast = useToast();
 const confirm = useConfirm();
@@ -1412,6 +1413,7 @@ function confirmInfo() {
       </div>
     </section>
 
+    <MangoP2Matrix />
     <ExtendedShowcase />
 
     </main>

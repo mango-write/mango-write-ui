@@ -171,4 +171,34 @@ describe("@mango-write/ui package exports & static CSS isolation (P1)", () => {
       expect(cleanCss).not.toContain("--p-");
     }
   });
+
+  it.each([
+    ["mango-source (workspace source mode)", true],
+    ["dist (standalone package mode)", false],
+  ])("bundles P2 Reka + Mango primitives in %s without pulling PrimeVue or global hosts", async (_label, useMangoSource) => {
+    const { js } = await bundleConsumer(
+      `
+        import Button from "@mango-write/ui/components/Button";
+        import InputText from "@mango-write/ui/components/InputText";
+        import Select from "@mango-write/ui/components/Select";
+        import Dialog from "@mango-write/ui/components/Dialog";
+        import { Tabs, TabList, Tab, TabPanels, TabPanel, Tag, Avatar, ProgressBar, Message } from "@mango-write/ui";
+        console.log(Button, InputText, Select, Dialog, Tabs, TabList, Tab, TabPanels, TabPanel, Tag, Avatar, ProgressBar, Message);
+      `,
+      useMangoSource,
+    );
+
+    expect(js).toContain("mw-btn");
+    expect(js).toContain("mw-input-text");
+    expect(js).toContain("mw-select");
+    expect(js).toContain("mw-dialog");
+    expect(js).toContain("mw-tabs");
+    // Must not pull PrimeVue or @primeuix/themes
+    expect(js).not.toContain("@primeuix/themes");
+    expect(js).not.toContain("primevue/");
+    expect(js).not.toContain("definePreset");
+    // Must not implicitly pull ConfirmHost or ToastHost when not imported
+    expect(js).not.toContain("MwConfirmHost");
+    expect(js).not.toContain("MwToastHost");
+  });
 });

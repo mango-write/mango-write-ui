@@ -17,7 +17,7 @@ const peers = [
 export default defineConfig({
   plugins: [vue(), tailwindcss()],
   resolve: {
-    dedupe: ["vue", "vue-router", "vue-i18n", "primevue"],
+    dedupe: ["vue", "vue-router", "vue-i18n", "primevue", "reka-ui"],
   },
   server: {
     // 主仓 dev 拓扑把 5173-5175 分给了 web/authWeb/rewriteWeb，展示站让出。

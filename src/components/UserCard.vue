@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import Avatar from "primevue/avatar";
-import Tag from "primevue/tag";
+import Avatar from "./Avatar.vue";
+import Tag from "./Tag.vue";
 import { computed } from "vue";
 
 export interface UserProfile {
@@ -81,7 +81,7 @@ const displayedId = computed(() => props.user.handle ?? props.user.id ?? null);
   gap: 0.625rem;
 }
 
-:deep(.p-avatar.mw-user-card-avatar) {
+:deep(:is(.mw-avatar, .p-avatar):is(.mw-user-card__avatar, .mw-user-card-avatar)) {
   flex: 0 0 auto;
   width: 2.25rem;
   height: 2.25rem;
@@ -90,7 +90,7 @@ const displayedId = computed(() => props.user.handle ?? props.user.id ?? null);
   font-size: 0.9rem;
 }
 
-.mw-user-card--large :deep(.p-avatar.mw-user-card-avatar) {
+.mw-user-card--large :deep(:is(.mw-avatar, .p-avatar):is(.mw-user-card__avatar, .mw-user-card-avatar)) {
   width: 3.25rem;
   height: 3.25rem;
   font-size: 1.25rem;
@@ -122,7 +122,7 @@ const displayedId = computed(() => props.user.handle ?? props.user.id ?? null);
   font-size: 1rem;
 }
 
-:deep(.p-tag.mw-user-card__badge-tag) {
+:deep(:is(.mw-tag, .p-tag).mw-user-card__badge-tag) {
   flex: 0 0 auto;
   padding: 0.1rem 0.45rem;
   background: var(--color-brand-100);

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import Avatar from "primevue/avatar";
-import Tag from "primevue/tag";
+import Avatar from "./Avatar.vue";
+import Tag from "./Tag.vue";
 import { computed } from "vue";
 import HoverCard from "./HoverCard.vue";
 import UserCard, { type UserProfile } from "./UserCard.vue";
@@ -107,7 +107,7 @@ const sizeClass = computed(() => `mw-user-chip--size-${props.size}`);
   text-underline-offset: 0.16em;
 }
 
-:deep(.p-tag.mw-user-chip__tag) {
+:deep(:is(.mw-tag, .p-tag).mw-user-chip__tag) {
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
@@ -123,7 +123,7 @@ const sizeClass = computed(() => `mw-user-chip--size-${props.size}`);
   line-height: 1;
 }
 
-:deep(.p-avatar.mw-user-chip__avatar) {
+:deep(:is(.mw-avatar, .p-avatar).mw-user-chip__avatar) {
   flex: 0 0 auto;
   width: var(--mw-user-chip-tag-avatar-size, 1.25rem);
   height: var(--mw-user-chip-tag-avatar-size, 1.25rem);
@@ -162,7 +162,7 @@ const sizeClass = computed(() => `mw-user-chip--size-${props.size}`);
 
 /* 纯头像变体用 Tag 的整档高度当圆径，三档尺寸才与 tag 视觉同阶（tag 内嵌头像
    比整档小，是因为 chip 有 padding；独立圆头像没有这层包裹）。 */
-:deep(.p-avatar.mw-user-chip__avatar-only) {
+:deep(:is(.mw-avatar, .p-avatar).mw-user-chip__avatar-only) {
   flex: 0 0 auto;
   width: var(--mw-user-chip-tag-size, 1.75rem);
   height: var(--mw-user-chip-tag-size, 1.75rem);
@@ -181,7 +181,7 @@ const sizeClass = computed(() => `mw-user-chip--size-${props.size}`);
   min-width: 0;
 }
 
-:deep(.p-avatar.mw-user-chip__person-avatar) {
+:deep(:is(.mw-avatar, .p-avatar).mw-user-chip__person-avatar) {
   flex: 0 0 auto;
   width: var(--mw-user-chip-person-avatar-size, 1.25rem);
   height: var(--mw-user-chip-person-avatar-size, 1.25rem);
