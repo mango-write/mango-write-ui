@@ -98,11 +98,12 @@ body {
 }
 
 /* 霜（Frost）· 唯一的浮层材质 ─────────────────────────────────────────────
-   一块均匀的毛玻璃：高不透明度底色保证上层文字可读，模糊只负责「底下有东西」的暗示。
-   不画镜面高光、不画折射。霜面内部只允许半透明填充（--fill-* / *-subtle / --control-bg）。 */
+   高不透明度底色保证上层文字可读，模糊暗示「底下有内容」，配斜向微光与顶缘内高光。
+   霜面内部只允许半透明填充（--fill-* / *-subtle / --control-bg）。 */
 .mw-frost {
   color: var(--text-primary);
   background-color: var(--frost-bg);
+  background-image: var(--frost-specular);
   -webkit-backdrop-filter: var(--frost-blur);
   backdrop-filter: var(--frost-blur);
   border: var(--border-width) solid var(--frost-border);
@@ -111,6 +112,7 @@ body {
 
 .mw-frost--thick {
   background-color: var(--frost-bg-thick);
+  background-image: var(--frost-specular);
   -webkit-backdrop-filter: var(--frost-blur-thick);
   backdrop-filter: var(--frost-blur-thick);
   box-shadow: var(--frost-highlight), var(--shadow-overlay);
@@ -126,6 +128,7 @@ body {
   .mw-frost,
   .mw-frost--thick {
     background-color: var(--frost-fallback);
+    background-image: none;
   }
 }
 
@@ -133,6 +136,7 @@ body {
   .mw-frost,
   .mw-frost--thick {
     background-color: var(--frost-fallback);
+    background-image: none;
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
@@ -141,6 +145,7 @@ body {
 html.mw-lowfx .mw-frost,
 html.mw-lowfx .mw-frost--thick {
   background-color: var(--frost-fallback);
+  background-image: none;
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
@@ -190,12 +195,110 @@ html.mw-lowfx .mw-frost--thick {
   --control-border: var(--border-subtle);
 }
 
-.mw-toolbar .is-active {
+.mw-toolbar .mw-input:focus,
+.mw-toolbar .mw-input:focus-visible {
+  --control-bg: var(--bg-raised);
+  background-color: var(--bg-raised);
+}
+
+.mw-toolbar .mw-select,
+.mw-toolbar .mw-ms {
+  min-width: 0;
+  max-width: 13rem;
+  color: var(--text-secondary);
+}
+
+.mw-toolbar .mw-select {
+  padding-inline: var(--space-2-5) var(--space-1-5);
+}
+
+.mw-toolbar .mw-ms {
+  width: auto;
+}
+
+.mw-toolbar .mw-select__label,
+.mw-toolbar .mw-ms-label {
+  color: inherit;
+  font-size: var(--control-font);
+  line-height: calc(var(--control-h) - 2px);
+}
+
+.mw-toolbar .mw-ms-label {
+  width: auto;
+  flex: 0 1 auto;
+  max-width: 9rem;
+  padding-block: 0;
+  padding-inline: var(--space-2-5) 0;
+}
+
+.mw-toolbar .mw-ms-input {
+  width: 2rem;
+  min-width: 0;
+  flex: 0 1 auto;
+  color: inherit;
+  font-size: var(--control-font);
+  line-height: calc(var(--control-h) - 2px);
+}
+
+.mw-toolbar .mw-ms-input::placeholder {
+  color: inherit;
+}
+
+.mw-toolbar .mw-ms:not(.mw-ms-focus) .mw-ms-chip ~ .mw-ms-input {
+  width: 0;
+}
+
+.mw-toolbar .mw-ms.mw-ms-focus .mw-ms-input {
+  width: 4rem;
+}
+
+.mw-toolbar .mw-select__dropdown {
+  color: inherit;
+}
+
+.mw-toolbar .mw-ms-dropdown {
+  width: var(--size-xs-h);
+  color: inherit;
+}
+
+.mw-toolbar .mw-ms-chip {
+  background-color: var(--accent-subtle);
+  color: var(--text-accent);
+}
+
+.mw-toolbar .is-active,
+.mw-toolbar .is-active .mw-control,
+.mw-toolbar .is-active .mw-ms {
   --control-bg: var(--accent-subtle);
   --control-bg-hover: var(--accent-subtle-hover);
   --control-border: var(--accent-border);
   --control-border-hover: var(--accent-border);
   color: var(--text-accent);
+}
+
+.mw-toolbar .mw-btn.is-active,
+.mw-toolbar .is-active .mw-btn {
+  background-color: var(--accent-subtle);
+  border-color: var(--accent-border);
+  color: var(--text-accent);
+}
+
+.mw-toolbar .mw-btn.is-active:hover:not([data-disabled]),
+.mw-toolbar .is-active .mw-btn:hover:not([data-disabled]) {
+  background-color: var(--accent-subtle-hover);
+  border-color: var(--accent-border);
+  color: var(--text-accent);
+}
+
+.mw-toolbar__group {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.mw-toolbar__spacer {
+  flex: 1 1 auto;
 }
 
 /* 图标 ─────────────────────────────────────────────────────────────────────
@@ -238,6 +341,7 @@ svg.lucide {
   padding: var(--space-1-5) var(--space-2-5);
   border-radius: var(--radius-md);
   background-color: var(--frost-bg-thick);
+  background-image: var(--frost-specular);
   -webkit-backdrop-filter: var(--frost-blur);
   backdrop-filter: var(--frost-blur);
   border: var(--border-width) solid var(--frost-border);
@@ -254,6 +358,7 @@ svg.lucide {
 @media (prefers-reduced-transparency: reduce) {
   .mw-hovercard__panel {
     background-color: var(--frost-fallback);
+    background-image: none;
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
@@ -468,12 +573,13 @@ html.mw-lowfx .mw-source-card {
 .mw-btn-hero--primary {
   background: var(--accent);
   color: var(--text-on-accent);
-  box-shadow: var(--shadow-floating);
+  box-shadow: 0 6px 16px -6px color-mix(in srgb, var(--accent) 45%, transparent);
 }
 
 .mw-btn-hero--primary:hover {
   background: var(--accent-hover);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px -8px color-mix(in srgb, var(--accent) 50%, transparent);
 }
 
 .mw-btn-hero--secondary {
@@ -504,30 +610,33 @@ html.mw-lowfx .mw-source-card {
   align-items: center;
   justify-content: center;
   gap: var(--space-1-5);
-  min-height: var(--size-lg-h);
-  padding: 0 var(--space-4);
+  min-height: 36px;
+  padding: 0 18px;
   border: none;
   border-radius: var(--radius-md);
-  background: var(--accent);
+  background: linear-gradient(135deg, var(--accent-hover), var(--accent));
   color: var(--text-on-accent);
   font-size: var(--type-body-sm-size);
   font-weight: var(--weight-semibold);
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
+  box-shadow: 0 10px 22px color-mix(in srgb, var(--accent) 28%, transparent);
   transition:
-    background-color var(--duration-fast) var(--ease-standard),
-    transform var(--duration-base) var(--ease-standard);
+    transform var(--duration-base) var(--ease-standard),
+    box-shadow var(--duration-base) var(--ease-standard);
 }
 
 .mw-btn-site:hover {
-  background: var(--accent-hover);
+  color: var(--text-on-accent);
   transform: translateY(-1px);
+  box-shadow: 0 14px 28px color-mix(in srgb, var(--accent) 34%, transparent);
 }
 
 /* Legacy 类名（存量 app 仍在用；新代码用 .mw-frost）。 */
 .mw-glass {
   background-color: var(--frost-bg);
+  background-image: var(--frost-specular);
   -webkit-backdrop-filter: var(--frost-blur);
   backdrop-filter: var(--frost-blur);
   border-color: var(--frost-border);
@@ -536,15 +645,33 @@ html.mw-lowfx .mw-source-card {
 
 .mw-glass--strong {
   background-color: var(--frost-bg-thick);
+  background-image: var(--frost-specular);
   -webkit-backdrop-filter: var(--frost-blur-thick);
   backdrop-filter: var(--frost-blur-thick);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .mw-glass,
+  .mw-glass--strong {
+    background-color: var(--frost-fallback);
+    background-image: none;
+  }
 }
 
 @media (prefers-reduced-transparency: reduce) {
   .mw-glass,
   .mw-glass--strong {
     background-color: var(--frost-fallback);
+    background-image: none;
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
+}
+
+html.mw-lowfx .mw-glass,
+html.mw-lowfx .mw-glass--strong {
+  background-color: var(--frost-fallback);
+  background-image: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }

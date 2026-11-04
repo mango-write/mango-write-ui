@@ -112,15 +112,15 @@ primary / secondary / tertiary / accent 在纸面上均 ≥ 4.5:1，由 `var-css
 | 层 | 用途 | 面 | 阴影 |
 |---|---|---|---|
 | 0 平面 | 纸面、页面 | `--bg-surface` | 无 |
-| 1 抬起 | 卡片、分组卡、浮岛 | `--bg-raised` + `--border-subtle` | `--shadow-raised` |
+| 1 抬起 | 卡片、分组卡、浮岛 | `--bg-raised` + `--border-subtle` | `--shadow-raised` / `--shadow-sheet` |
 | 2 浮动 | 菜单、下拉、Popover、Toast、Tooltip | 霜 | `--shadow-floating` |
 | 3 覆盖 | Dialog、确认框 | 厚霜 + `--scrim` 遮罩 | `--shadow-overlay` |
 
 写「第几层」，不写「要多重的阴影」。z 轴秩序只用 `--z-*`：sticky < dropdown < overlay < toast < tooltip。
 
-## 9. 霜（Frost）
+## 9. 霜（Frost）与工作台光影
 
-**我们不做「液态 / 折射玻璃」**：没有镜面高光、没有边缘折射、没有彩色透光。霜是一块均匀的毛玻璃。
+霜是浮层材质：高不透明度的半透明底色配合背景模糊、斜向微光（`--frost-specular`）与顶缘内高光（`--frost-highlight`），不做夸张折射或彩色炫光。
 
 - 配方唯一：`.mw-frost`（浮动层）与 `.mw-frost--thick`（覆盖层）。组件加类，不抄配方。
 - **可读性优先**：霜底色不透明度高（浅色 ≥ 0.8、深色 ≥ 0.78），模糊只负责暗示「底下有内容」。
@@ -129,8 +129,8 @@ primary / secondary / tertiary / accent 在纸面上均 ≥ 4.5:1，由 `var-css
 - **整体性**：霜面内部禁止不透明底色（`--bg-surface / raised / sunken / canvas`），只用 `--fill-*`、`--*-subtle`、`--control-bg`
   这类半透明叠层；分隔线用 `--border-subtle`。由门禁 `opaque-in-frost` 检查浮层组件。
 - 遮罩（`--scrim`）只压暗，不模糊——模糊遮罩会让面板底下变成一片灰，霜就失去了意义。
-- 降级：不支持 backdrop-filter、`prefers-reduced-transparency`、`html.mw-lowfx` 时退为不透明 `--frost-fallback`，读感不变。
-- 工作台浮岛不是霜：它们是 `--bg-surface` 纸面 + 发丝边 + `--shadow-raised`，浮在 `--bg-canvas` 上。
+- 降级：不支持 backdrop-filter、`prefers-reduced-transparency`、`html.mw-lowfx` 时退为不透明 `--frost-fallback` 并移除微光渐变，读感不变。
+- 工作台浮岛（Sheet）：以 `--bg-surface` 纸面为基底，叠加环境柔光渐变（`--gradient-surface`）、镜片边缘内高光（`--effect-lens-edge`）与浮岛阴影（`--shadow-sheet`），浮在带极淡暖芒的画布（`--bg-canvas` + `--gradient-canvas`）之上。
 
 ## 10. 动效
 

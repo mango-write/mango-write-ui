@@ -160,8 +160,18 @@ function clampToViewport(
       ? window.innerHeight
       : 768;
   const rect = el?.getBoundingClientRect();
-  const width = rect && rect.width > 0 ? rect.width : 180;
-  const height = rect && rect.height > 0 ? rect.height : 0;
+  const width =
+    el && el.offsetWidth > 0
+      ? el.offsetWidth
+      : rect && rect.width > 0
+        ? rect.width
+        : 200;
+  const height =
+    el && el.offsetHeight > 0
+      ? el.offsetHeight
+      : rect && rect.height > 0
+        ? rect.height
+        : 0;
   const maxX = Math.max(VIEWPORT_PADDING, vw - width - VIEWPORT_PADDING);
   const maxY = Math.max(VIEWPORT_PADDING, vh - height - VIEWPORT_PADDING);
   return {
@@ -187,7 +197,23 @@ function computePosition(
   const anchor = resolveAnchor(event, target);
   if (anchor) {
     const rect = anchor.getBoundingClientRect();
-    return clampToViewport(rect.left, rect.bottom + 4, menuRef.value);
+    const el = menuRef.value;
+    const menuRect = el?.getBoundingClientRect();
+    const width =
+      el && el.offsetWidth > 0
+        ? el.offsetWidth
+        : menuRect && menuRect.width > 0
+          ? menuRect.width
+          : 200;
+    const vw =
+      typeof window !== "undefined" && window.innerWidth > 0
+        ? window.innerWidth
+        : 1024;
+    const preferredX =
+      rect.left + width > vw - VIEWPORT_PADDING
+        ? rect.right - width
+        : rect.left;
+    return clampToViewport(preferredX, rect.bottom + 6, el);
   }
   if (event instanceof MouseEvent && (event.clientX > 0 || event.clientY > 0)) {
     return clampToViewport(event.clientX, event.clientY, menuRef.value);
@@ -268,7 +294,8 @@ function show(event?: Event, target?: HTMLElement) {
   openingEvent = event ?? null;
   triggerEl.value = resolveAnchor(event, target);
   position.value = computePosition(event, target);
-  focusedIndex.value = findFirstEnabledIndex();
+  focusedIndex.value =
+    event instanceof KeyboardEvent ? findFirstEnabledIndex() : -1;
   const wasOpen = isOpen.value;
   isOpen.value = true;
   addGlobalListeners();
@@ -486,6 +513,7 @@ defineExpose({
         role="menu"
         :aria-label="ariaLabel"
         :aria-labelledby="ariaLabelledby"
+        @mouseleave="focusedIndex = -1"
       >
         <template v-for="entry in flatEntries" :key="entry.key">
           <li
@@ -579,7 +607,7 @@ defineExpose({
   </Teleport>
 </template>
 
-<style>
+<style scoped>
 .mw-menu {
   box-sizing: border-box;
   min-width: 200px;
@@ -615,10 +643,10 @@ defineExpose({
 }
 
 .mw-menu__submenu-label {
-  padding: var(--space-1-5) var(--space-2) var(--space-1);
+  padding: var(--space-1-5) var(--space-2-5) var(--space-1);
   color: var(--text-tertiary);
   font-size: var(--type-caption-size);
-  font-weight: var(--weight-medium);
+  font-weight: var(--weight-semibold);
   line-height: var(--type-caption-line);
 }
 
@@ -657,14 +685,14 @@ defineExpose({
   cursor: not-allowed;
 }
 
-.mw-menu__item-link {
+:deep(:where(.mw-menu__item-link)) {
   display: flex;
   align-items: center;
   gap: var(--space-2);
   box-sizing: border-box;
   width: 100%;
-  min-height: var(--size-sm-h);
-  padding: var(--space-1) var(--space-2);
+  min-height: var(--size-md-h);
+  padding: var(--space-1-5) var(--space-2-5);
   border: 0;
   border-radius: var(--radius-item);
   background: transparent;
@@ -677,12 +705,12 @@ defineExpose({
   outline: none;
 }
 
-.mw-menu__item--disabled .mw-menu__item-link,
-.mw-menu__item[data-disabled] .mw-menu__item-link {
+.mw-menu__item--disabled :deep(.mw-menu__item-link),
+.mw-menu__item[data-disabled] :deep(.mw-menu__item-link) {
   cursor: not-allowed;
 }
 
-.mw-menu__item-icon {
+:deep(:where(.mw-menu__item-icon)) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -693,7 +721,12 @@ defineExpose({
   color: var(--text-secondary);
 }
 
-.mw-menu__item-label {
+:deep(:where(.mw-menu__item-icon > svg)) {
+  width: 100%;
+  height: 100%;
+}
+
+:deep(:where(.mw-menu__item-label)) {
   flex: 1 1 auto;
   min-width: 0;
   overflow: hidden;
@@ -701,7 +734,7 @@ defineExpose({
   white-space: nowrap;
 }
 
-.mw-menu__item-shortcut {
+:deep(:where(.mw-menu__item-shortcut)) {
   flex: none;
   margin-inline-start: var(--space-4);
   color: var(--text-tertiary);
@@ -710,8 +743,8 @@ defineExpose({
   line-height: var(--type-caption-line);
 }
 
-.mw-menu__item--danger .mw-menu__item-link,
-.mw-menu__item--danger .mw-menu__item-icon {
+.mw-menu__item--danger :deep(.mw-menu__item-link),
+.mw-menu__item--danger :deep(.mw-menu__item-icon) {
   color: var(--danger-text);
 }
 

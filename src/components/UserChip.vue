@@ -130,12 +130,16 @@ const sizeClass = computed(() =>
   background-color: var(--accent-subtle-hover);
 }
 
+.mw-user-chip--interactive:hover .mw-user-chip__avatar {
+  background-color: var(--accent-border);
+}
+
 .mw-user-chip__avatar,
 .mw-user-chip__person-avatar,
 .mw-user-chip__avatar-only {
   flex: 0 0 auto;
   --mw-avatar-size: var(--mw-user-chip-avatar);
-  background-color: var(--accent-subtle);
+  background-color: var(--accent-subtle-hover);
   color: var(--text-accent);
   font-size: calc(var(--control-font) * 0.86);
 }

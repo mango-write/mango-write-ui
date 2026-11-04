@@ -11,9 +11,8 @@ defineOptions({ name: "MwIconField" });
 <style>
 .mw-icon-field {
   position: relative;
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  width: 100%;
 }
 
 .mw-icon-field > .mw-input-icon:first-child {

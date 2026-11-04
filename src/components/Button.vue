@@ -477,6 +477,45 @@ function onClick(event: MouseEvent) {
   font-variant-numeric: tabular-nums;
 }
 
+.mw-btn__badge[data-severity="primary"] {
+  background-color: var(--accent);
+  color: var(--text-on-accent);
+}
+
+.mw-btn__badge[data-severity="danger"] {
+  background-color: var(--danger);
+  color: var(--text-on-danger);
+}
+
+.mw-btn__badge[data-severity="success"] {
+  background-color: var(--success-subtle);
+  color: var(--success-text);
+}
+
+.mw-btn__badge[data-severity="warning"],
+.mw-btn__badge[data-severity="warn"] {
+  background-color: var(--warning-subtle);
+  color: var(--warning-text);
+}
+
+.mw-btn__badge[data-severity="info"] {
+  background-color: var(--info-subtle);
+  color: var(--info-text);
+}
+
+.mw-btn:has(> .mw-btn__badge) {
+  overflow: visible;
+}
+
+.mw-btn--icon-only > .mw-btn__badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translate(35%, -35%);
+  z-index: var(--z-raised);
+  pointer-events: none;
+}
+
 @media (pointer: coarse) {
   .mw-btn::after {
     content: "";

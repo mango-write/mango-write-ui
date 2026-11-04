@@ -13,7 +13,7 @@ const q = ref("");
 
 <template>
   <DocPage
-    lead="霜是唯一的浮层材质：一块均匀的毛玻璃。高不透明度的底色保证上层文字可读，模糊只负责暗示「底下还有东西」。没有镜面高光、没有折射。"
+    lead="霜是唯一的浮层材质：高不透明度的底色保证上层文字可读，模糊只负责暗示「底下还有东西」，配以克制的斜向微光与顶缘内高光，不做夸张折射。"
   >
     <DocSection title="霜与厚霜" desc=".mw-frost 给浮动层（菜单、下拉、Popover、Toast）；.mw-frost--thick 给覆盖层（对话框、确认框）。组件加类，不抄配方。">
       <Specimen :surfaces="['frost']" min-height="220px">

@@ -505,9 +505,9 @@ svg.mw-ms-chip-remove {
   color: var(--text-tertiary);
 }
 .mw-ms-dropdown svg {
-  width: var(--icon-xs);
-  height: var(--icon-xs);
-  font-size: var(--icon-xs);
+  width: var(--control-icon);
+  height: var(--control-icon);
+  font-size: var(--control-icon);
 }
 
 .mw-ms-sm {

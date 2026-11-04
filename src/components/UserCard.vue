@@ -82,8 +82,13 @@ const displayedId = computed(() => props.user.handle ?? props.user.id ?? null);
 
 .mw-user-card__avatar {
   flex: 0 0 auto;
-  background-color: var(--accent-subtle);
+  --mw-avatar-size: calc(var(--size-md-h) + var(--space-1));
+  background-color: var(--accent-subtle-hover);
   color: var(--text-accent);
+}
+
+.mw-user-card--large .mw-user-card__avatar {
+  --mw-avatar-size: var(--space-12);
 }
 
 .mw-user-card__identity {

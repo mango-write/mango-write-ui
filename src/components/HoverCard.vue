@@ -326,4 +326,8 @@ function cancelHide() {
   font-size: var(--type-body-sm-size);
   line-height: var(--type-body-sm-line);
 }
+
+.mw-hovercard__panel--card > :deep(.mw-user-card) {
+  padding: 0;
+}
 </style>
