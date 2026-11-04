@@ -1,0 +1,58 @@
+/* Mango 静态组件层公共底座（@mango-write/ui/components.css）。
+   SFC 样式在构建时合并入 dist/components.css；源码消费（mango-source）由 Vite 直接编译 SFC 样式并加载本文件。
+   本文件严禁依赖旧组件库类名、私有变量或图标字体。 */
+
+.mw-control {
+  font-family: var(--font-family-sans);
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--color-text-primary);
+  border-radius: var(--radius);
+  background-color: var(--material-control-face);
+  border: 1px solid var(--color-border-subtle);
+  box-shadow: var(--material-control-inset);
+  transition:
+    border-color var(--motion-duration-fast) var(--motion-ease-standard),
+    background-color var(--motion-duration-fast) var(--motion-ease-standard),
+    box-shadow var(--motion-duration-fast) var(--motion-ease-standard);
+}
+
+.mw-control:hover:not(:disabled):not([data-disabled="true"]):not([data-readonly="true"]) {
+  border-color: var(--color-border-strong);
+}
+
+.mw-control:focus-visible,
+.mw-control[data-focused="true"] {
+  outline: none;
+  border-color: var(--color-brand-500);
+  box-shadow: 0 0 0 2px rgb(var(--color-brand-500-rgb) / 0.2);
+}
+
+.mw-control[data-invalid="true"],
+.mw-control[aria-invalid="true"] {
+  border-color: var(--color-danger-500);
+}
+
+.mw-control[data-invalid="true"]:focus-visible,
+.mw-control[aria-invalid="true"]:focus-visible {
+  box-shadow: 0 0 0 2px rgb(var(--color-danger-500-rgb, 220 38 38) / 0.2);
+}
+
+.mw-control:disabled,
+.mw-control[data-disabled="true"] {
+  opacity: var(--opacity-disabled);
+  cursor: not-allowed;
+}
+
+.mw-control[readonly],
+.mw-control[data-readonly="true"] {
+  background-color: var(--color-bg-soft);
+  box-shadow: none;
+  cursor: default;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mw-control {
+    transition: none;
+  }
+}

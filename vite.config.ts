@@ -4,7 +4,15 @@ import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import tailwindcss from "@tailwindcss/vite";
 
-const peers = ["vue", "vue-i18n", "primevue", "@primeuix/themes", "lucide-vue-next"];
+const peers = [
+  "vue",
+  "vue-i18n",
+  "primevue",
+  "@primeuix/themes",
+  "lucide-vue-next",
+  "reka-ui",
+  "@tanstack/vue-table",
+];
 
 export default defineConfig({
   plugins: [vue(), tailwindcss()],
@@ -16,6 +24,7 @@ export default defineConfig({
     port: 5176,
   },
   build: {
+    minify: false,
     lib: {
       entry: fileURLToPath(new URL("./src/index.ts", import.meta.url)),
       formats: ["es"],
@@ -24,7 +33,9 @@ export default defineConfig({
     rollupOptions: {
       external: (id) => peers.some((p) => id === p || id.startsWith(`${p}/`)),
       output: {
-        entryFileNames: "index.js",
+        preserveModules: true,
+        preserveModulesRoot: fileURLToPath(new URL("./src", import.meta.url)),
+        entryFileNames: "[name].js",
         // SFC scoped 样式的合并产物是本构建唯一资产，固定命名供 "./components.css" 子路径指认。
         assetFileNames: "components.css",
       },

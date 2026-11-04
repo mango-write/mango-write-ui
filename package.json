@@ -21,6 +21,242 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./theme": {
+      "mango-source": {
+        "types": "./src/theme.ts",
+        "default": "./src/theme.ts"
+      },
+      "types": "./dist/theme.d.ts",
+      "default": "./dist/theme.js"
+    },
+    "./theme-lite": {
+      "mango-source": {
+        "types": "./src/theme-lite.ts",
+        "default": "./src/theme-lite.ts"
+      },
+      "types": "./dist/theme-lite.d.ts",
+      "default": "./dist/theme-lite.js"
+    },
+    "./locale": {
+      "mango-source": {
+        "types": "./src/locale/index.ts",
+        "default": "./src/locale/index.ts"
+      },
+      "types": "./dist/locale/index.d.ts",
+      "default": "./dist/locale/index.js"
+    },
+    "./lib/theme": {
+      "mango-source": {
+        "types": "./src/lib/theme.ts",
+        "default": "./src/lib/theme.ts"
+      },
+      "types": "./dist/lib/theme.d.ts",
+      "default": "./dist/lib/theme.js"
+    },
+    "./lib/tooltip": {
+      "mango-source": {
+        "types": "./src/lib/tooltip.ts",
+        "default": "./src/lib/tooltip.ts"
+      },
+      "types": "./dist/lib/tooltip.d.ts",
+      "default": "./dist/lib/tooltip.js"
+    },
+    "./lib/hover-card": {
+      "mango-source": {
+        "types": "./src/lib/hover-card.ts",
+        "default": "./src/lib/hover-card.ts"
+      },
+      "types": "./dist/lib/hover-card.d.ts",
+      "default": "./dist/lib/hover-card.js"
+    },
+    "./lib/useComboPanel": {
+      "mango-source": {
+        "types": "./src/lib/useComboPanel.ts",
+        "default": "./src/lib/useComboPanel.ts"
+      },
+      "types": "./dist/lib/useComboPanel.d.ts",
+      "default": "./dist/lib/useComboPanel.js"
+    },
+    "./lib/area-transition": {
+      "mango-source": {
+        "types": "./src/lib/area-transition.ts",
+        "default": "./src/lib/area-transition.ts"
+      },
+      "types": "./dist/lib/area-transition.d.ts",
+      "default": "./dist/lib/area-transition.js"
+    },
+    "./components/AppLogo": {
+      "mango-source": {
+        "types": "./src/components/AppLogo.vue",
+        "default": "./src/components/AppLogo.vue"
+      },
+      "types": "./dist/components/AppLogo.d.ts",
+      "default": "./dist/components/AppLogo.js"
+    },
+    "./components/ActionMenu": {
+      "mango-source": {
+        "types": "./src/components/ActionMenu.vue",
+        "default": "./src/components/ActionMenu.vue"
+      },
+      "types": "./dist/components/ActionMenu.d.ts",
+      "default": "./dist/components/ActionMenu.js"
+    },
+    "./components/action-menu": {
+      "mango-source": {
+        "types": "./src/components/action-menu.ts",
+        "default": "./src/components/action-menu.ts"
+      },
+      "types": "./dist/components/action-menu.d.ts",
+      "default": "./dist/components/action-menu.js"
+    },
+    "./components/AsyncSearchSelect": {
+      "mango-source": {
+        "types": "./src/components/AsyncSearchSelect.vue",
+        "default": "./src/components/AsyncSearchSelect.vue"
+      },
+      "types": "./dist/components/AsyncSearchSelect.d.ts",
+      "default": "./dist/components/AsyncSearchSelect.js"
+    },
+    "./components/async-search-select": {
+      "mango-source": {
+        "types": "./src/components/async-search-select.ts",
+        "default": "./src/components/async-search-select.ts"
+      },
+      "types": "./dist/components/async-search-select.d.ts",
+      "default": "./dist/components/async-search-select.js"
+    },
+    "./components/AsyncSlot": {
+      "mango-source": {
+        "types": "./src/components/AsyncSlot.vue",
+        "default": "./src/components/AsyncSlot.vue"
+      },
+      "types": "./dist/components/AsyncSlot.d.ts",
+      "default": "./dist/components/AsyncSlot.js"
+    },
+    "./components/FileDropZone": {
+      "mango-source": {
+        "types": "./src/components/FileDropZone.vue",
+        "default": "./src/components/FileDropZone.vue"
+      },
+      "types": "./dist/components/FileDropZone.d.ts",
+      "default": "./dist/components/FileDropZone.js"
+    },
+    "./components/FormField": {
+      "mango-source": {
+        "types": "./src/components/FormField.vue",
+        "default": "./src/components/FormField.vue"
+      },
+      "types": "./dist/components/FormField.d.ts",
+      "default": "./dist/components/FormField.js"
+    },
+    "./components/HoverCard": {
+      "mango-source": {
+        "types": "./src/components/HoverCard.vue",
+        "default": "./src/components/HoverCard.vue"
+      },
+      "types": "./dist/components/HoverCard.d.ts",
+      "default": "./dist/components/HoverCard.js"
+    },
+    "./components/ImageLightbox": {
+      "mango-source": {
+        "types": "./src/components/ImageLightbox.vue",
+        "default": "./src/components/ImageLightbox.vue"
+      },
+      "types": "./dist/components/ImageLightbox.d.ts",
+      "default": "./dist/components/ImageLightbox.js"
+    },
+    "./components/NotFoundPage": {
+      "mango-source": {
+        "types": "./src/components/NotFoundPage.vue",
+        "default": "./src/components/NotFoundPage.vue"
+      },
+      "types": "./dist/components/NotFoundPage.d.ts",
+      "default": "./dist/components/NotFoundPage.js"
+    },
+    "./components/PageHeader": {
+      "mango-source": {
+        "types": "./src/components/PageHeader.vue",
+        "default": "./src/components/PageHeader.vue"
+      },
+      "types": "./dist/components/PageHeader.d.ts",
+      "default": "./dist/components/PageHeader.js"
+    },
+    "./components/SearchableMultiSelect": {
+      "mango-source": {
+        "types": "./src/components/SearchableMultiSelect.vue",
+        "default": "./src/components/SearchableMultiSelect.vue"
+      },
+      "types": "./dist/components/SearchableMultiSelect.d.ts",
+      "default": "./dist/components/SearchableMultiSelect.js"
+    },
+    "./components/SearchableSelect": {
+      "mango-source": {
+        "types": "./src/components/SearchableSelect.vue",
+        "default": "./src/components/SearchableSelect.vue"
+      },
+      "types": "./dist/components/SearchableSelect.d.ts",
+      "default": "./dist/components/SearchableSelect.js"
+    },
+    "./components/UserCard": {
+      "mango-source": {
+        "types": "./src/components/UserCard.vue",
+        "default": "./src/components/UserCard.vue"
+      },
+      "types": "./dist/components/UserCard.d.ts",
+      "default": "./dist/components/UserCard.js"
+    },
+    "./components/UserChip": {
+      "mango-source": {
+        "types": "./src/components/UserChip.vue",
+        "default": "./src/components/UserChip.vue"
+      },
+      "types": "./dist/components/UserChip.d.ts",
+      "default": "./dist/components/UserChip.js"
+    },
+    "./components/UserSelect": {
+      "mango-source": {
+        "types": "./src/components/UserSelect.vue",
+        "default": "./src/components/UserSelect.vue"
+      },
+      "types": "./dist/components/UserSelect.d.ts",
+      "default": "./dist/components/UserSelect.js"
+    },
+    "./components/user-select": {
+      "mango-source": {
+        "types": "./src/components/user-select.ts",
+        "default": "./src/components/user-select.ts"
+      },
+      "types": "./dist/components/user-select.d.ts",
+      "default": "./dist/components/user-select.js"
+    },
+    "./components/site/SiteHeader": {
+      "mango-source": {
+        "types": "./src/components/site/SiteHeader.vue",
+        "default": "./src/components/site/SiteHeader.vue"
+      },
+      "types": "./dist/components/site/SiteHeader.d.ts",
+      "default": "./dist/components/site/SiteHeader.js"
+    },
+    "./components/site/SiteFooter": {
+      "mango-source": {
+        "types": "./src/components/site/SiteFooter.vue",
+        "default": "./src/components/site/SiteFooter.vue"
+      },
+      "types": "./dist/components/site/SiteFooter.d.ts",
+      "default": "./dist/components/site/SiteFooter.js"
+    },
+    "./tokens.css": {
+      "mango-source": "./src/var.css",
+      "default": "./dist/var.css"
+    },
+    "./base.css": {
+      "mango-source": "./src/base.css",
+      "default": "./dist/base.css"
+    },
+    "./components.css": {
+      "mango-source": "./src/components.css",
+      "default": "./dist/components.css"
+    },
     "./theme.css": {
       "mango-source": "./src/theme.css",
       "default": "./dist/theme.css"
@@ -28,13 +264,6 @@
     "./primevue-theme.css": {
       "mango-source": "./src/primevue-theme.css",
       "default": "./dist/primevue-theme.css"
-    },
-    "./tokens.css": {
-      "mango-source": "./src/var.css",
-      "default": "./dist/var.css"
-    },
-    "./components.css": {
-      "default": "./dist/components.css"
     }
   },
   "publishConfig": {
@@ -43,6 +272,130 @@
         "types": "./dist/index.d.ts",
         "import": "./dist/index.js"
       },
+      "./theme": {
+        "types": "./dist/theme.d.ts",
+        "import": "./dist/theme.js"
+      },
+      "./theme-lite": {
+        "types": "./dist/theme-lite.d.ts",
+        "import": "./dist/theme-lite.js"
+      },
+      "./locale": {
+        "types": "./dist/locale/index.d.ts",
+        "import": "./dist/locale/index.js"
+      },
+      "./lib/theme": {
+        "types": "./dist/lib/theme.d.ts",
+        "import": "./dist/lib/theme.js"
+      },
+      "./lib/tooltip": {
+        "types": "./dist/lib/tooltip.d.ts",
+        "import": "./dist/lib/tooltip.js"
+      },
+      "./lib/hover-card": {
+        "types": "./dist/lib/hover-card.d.ts",
+        "import": "./dist/lib/hover-card.js"
+      },
+      "./lib/useComboPanel": {
+        "types": "./dist/lib/useComboPanel.d.ts",
+        "import": "./dist/lib/useComboPanel.js"
+      },
+      "./lib/area-transition": {
+        "types": "./dist/lib/area-transition.d.ts",
+        "import": "./dist/lib/area-transition.js"
+      },
+      "./components/AppLogo": {
+        "types": "./dist/components/AppLogo.d.ts",
+        "import": "./dist/components/AppLogo.js"
+      },
+      "./components/ActionMenu": {
+        "types": "./dist/components/ActionMenu.d.ts",
+        "import": "./dist/components/ActionMenu.js"
+      },
+      "./components/action-menu": {
+        "types": "./dist/components/action-menu.d.ts",
+        "import": "./dist/components/action-menu.js"
+      },
+      "./components/AsyncSearchSelect": {
+        "types": "./dist/components/AsyncSearchSelect.d.ts",
+        "import": "./dist/components/AsyncSearchSelect.js"
+      },
+      "./components/async-search-select": {
+        "types": "./dist/components/async-search-select.d.ts",
+        "import": "./dist/components/async-search-select.js"
+      },
+      "./components/AsyncSlot": {
+        "types": "./dist/components/AsyncSlot.d.ts",
+        "import": "./dist/components/AsyncSlot.js"
+      },
+      "./components/FileDropZone": {
+        "types": "./dist/components/FileDropZone.d.ts",
+        "import": "./dist/components/FileDropZone.js"
+      },
+      "./components/FormField": {
+        "types": "./dist/components/FormField.d.ts",
+        "import": "./dist/components/FormField.js"
+      },
+      "./components/HoverCard": {
+        "types": "./dist/components/HoverCard.d.ts",
+        "import": "./dist/components/HoverCard.js"
+      },
+      "./components/ImageLightbox": {
+        "types": "./dist/components/ImageLightbox.d.ts",
+        "import": "./dist/components/ImageLightbox.js"
+      },
+      "./components/NotFoundPage": {
+        "types": "./dist/components/NotFoundPage.d.ts",
+        "import": "./dist/components/NotFoundPage.js"
+      },
+      "./components/PageHeader": {
+        "types": "./dist/components/PageHeader.d.ts",
+        "import": "./dist/components/PageHeader.js"
+      },
+      "./components/SearchableMultiSelect": {
+        "types": "./dist/components/SearchableMultiSelect.d.ts",
+        "import": "./dist/components/SearchableMultiSelect.js"
+      },
+      "./components/SearchableSelect": {
+        "types": "./dist/components/SearchableSelect.d.ts",
+        "import": "./dist/components/SearchableSelect.js"
+      },
+      "./components/UserCard": {
+        "types": "./dist/components/UserCard.d.ts",
+        "import": "./dist/components/UserCard.js"
+      },
+      "./components/UserChip": {
+        "types": "./dist/components/UserChip.d.ts",
+        "import": "./dist/components/UserChip.js"
+      },
+      "./components/UserSelect": {
+        "types": "./dist/components/UserSelect.d.ts",
+        "import": "./dist/components/UserSelect.js"
+      },
+      "./components/user-select": {
+        "types": "./dist/components/user-select.d.ts",
+        "import": "./dist/components/user-select.js"
+      },
+      "./components/site/SiteHeader": {
+        "types": "./dist/components/site/SiteHeader.d.ts",
+        "import": "./dist/components/site/SiteHeader.js"
+      },
+      "./components/site/SiteFooter": {
+        "types": "./dist/components/site/SiteFooter.d.ts",
+        "import": "./dist/components/site/SiteFooter.js"
+      },
+      "./tokens.css": {
+        "sideEffects": true,
+        "default": "./dist/var.css"
+      },
+      "./base.css": {
+        "sideEffects": true,
+        "default": "./dist/base.css"
+      },
+      "./components.css": {
+        "sideEffects": true,
+        "default": "./dist/components.css"
+      },
       "./theme.css": {
         "sideEffects": true,
         "default": "./dist/theme.css"
@@ -50,19 +403,11 @@
       "./primevue-theme.css": {
         "sideEffects": true,
         "default": "./dist/primevue-theme.css"
-      },
-      "./tokens.css": {
-        "sideEffects": true,
-        "default": "./dist/var.css"
-      },
-      "./components.css": {
-        "sideEffects": true,
-        "default": "./dist/components.css"
       }
     }
   },
   "scripts": {
-    "build": "vite build && vue-tsc --declaration --emitDeclarationOnly -p tsconfig.build.json && node -e \"const{cpSync}=require('node:fs');for(const f of['theme.css','primevue-theme.css','var.css'])cpSync('src/'+f,'dist/'+f)\"",
+    "build": "vite build && vue-tsc --declaration --emitDeclarationOnly -p tsconfig.build.json && node scripts/postbuild.mjs",
     "prepare": "pnpm build",
     "dev": "vite",
     "build:playground": "vite build --config vite.playground.config.ts",
