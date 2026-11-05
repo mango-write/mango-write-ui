@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { nextTick } from "vue";
 
 import { mountUiComponent } from "../test-utils/mount.js";
 import SearchableMultiSelect from "./SearchableMultiSelect.vue";
@@ -44,6 +45,37 @@ function mountMulti(props: Record<string, unknown> = {}) {
 }
 
 describe("SearchableMultiSelect", () => {
+  it("fit 宽度按最宽候选与 placeholder 量出，选择增减不变化，options 变化才重算", async () => {
+    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue({
+      measureText: (text: string) => ({ width: text.length * 10 }),
+      letterSpacing: "0px",
+    } as unknown as CanvasRenderingContext2D);
+
+    const wrapper = mountMulti({
+      modelValue: [],
+      placeholder: "Quartile",
+      options: [
+        { label: "Alpha", value: "a" },
+        { label: "Widest Option Value", value: "w" },
+      ],
+    });
+    await nextTick();
+
+    const fitOf = () => (wrapper.get(".mw-ms").element as HTMLElement).style.getPropertyValue("--mw-ms-fit-text");
+    // 最宽候选 19 字 × 10px = 190 → ceil + 2 slack（placeholder 更短不取）
+    expect(fitOf()).toBe("192px");
+
+    await wrapper.get(".mw-ms input").setValue("Q"); // 打字过滤不影响锁定宽
+    await nextTick();
+    expect(fitOf()).toBe("192px");
+
+    await wrapper.setProps({ options, placeholder: undefined });
+    await nextTick();
+    await nextTick();
+    // Alpha/Beta/Gamma 最宽 5 字 → 52px
+    expect(fitOf()).toBe("52px");
+  });
+
   it("暴露多选 combobox 语义，方向键与 Enter 切换选项", async () => {
     const wrapper = mountMulti({
       inputId: "topics",

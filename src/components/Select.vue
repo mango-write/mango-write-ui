@@ -3,6 +3,7 @@ import { Check, ChevronDown, LoaderCircle, X } from "lucide-vue-next";
 import { PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from "reka-ui";
 import { computed, getCurrentInstance, nextTick, onMounted, ref, useAttrs, useId, watch, type CSSProperties } from "vue";
 import { uiMessages } from "../locale/index.js";
+import { measureMaxTextWidth } from "../lib/text-fit.js";
 import type {
   SelectChangeEvent,
   SelectFilterEvent,
@@ -191,32 +192,16 @@ const showClearButton = computed(
 );
 
 // 触发器宽度必须与「当前选中项」解耦，否则切换选择会拉动整行 reflow（页面漂移）。
-// 用 canvas 量最宽候选文本，经 --mw-select-fit-text 交给 CSS 锁 min-width；不常驻镜像节点。
+// 量最宽可选候选文本，经 --mw-select-fit-text 交给 CSS 定死 width；不常驻镜像节点。
 const fitTextWidth = ref(0);
-let fitMeasureCtx: CanvasRenderingContext2D | null | undefined;
 
 const selectFitStyle = computed(() => ({ "--mw-select-fit-text": `${fitTextWidth.value}px` }));
 
 function measureFitTextWidth() {
-  const el = triggerRef.value;
-  if (!el || typeof document === "undefined" || !props.options?.length) {
-    fitTextWidth.value = 0;
-    return;
-  }
-  if (fitMeasureCtx === undefined) {
-    fitMeasureCtx = document.createElement("canvas").getContext("2d");
-  }
-  if (!fitMeasureCtx) return;
-  const cs = getComputedStyle(el);
-  fitMeasureCtx.font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
-  fitMeasureCtx.letterSpacing = cs.letterSpacing === "normal" ? "0px" : cs.letterSpacing;
-  let max = 0;
-  for (const opt of props.options) {
-    if (isOptionDisabled(opt)) continue;
-    max = Math.max(max, fitMeasureCtx.measureText(resolveOptionLabel(opt)).width);
-  }
-  // +2px 吸收字形微差：即便选中恰好是最宽候选，min-width 也要压住实际 max-content。
-  fitTextWidth.value = Math.ceil(max) + 2;
+  const texts = (props.options ?? [])
+    .filter((opt) => !isOptionDisabled(opt))
+    .map((opt) => resolveOptionLabel(opt));
+  fitTextWidth.value = measureMaxTextWidth(triggerRef.value, texts);
 }
 
 watch(

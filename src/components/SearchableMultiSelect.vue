@@ -16,6 +16,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, useId, watch } fro
 import { ChevronDown, X } from "lucide-vue-next";
 import { useI18n } from "vue-i18n";
 import { useComboPanel } from "../lib/useComboPanel";
+import { measureMaxTextWidth } from "../lib/text-fit.js";
 
 const { t } = useI18n();
 
@@ -94,6 +95,24 @@ const selectedOptions = computed(() => props.options.filter((o) => isSelected(o)
 const selectedLabels = computed(() => selectedOptions.value.map((o) => labelOf(o)));
 const hasSelection = computed(() => selectedLabels.value.length > 0);
 
+// 工具条档（base.css 的 .mw-toolbar）按 --mw-ms-fit-text 定死宽度：多选的 chip
+// 数随选择增减，内容自适应会让整条工具栏反复 reflow。量最长候选（含 placeholder）
+// 交给 CSS；默认上下文仍是 width:100%，不受影响。
+const fitTextWidth = ref(0);
+const fitStyle = computed(() => ({ "--mw-ms-fit-text": `${fitTextWidth.value}px` }));
+
+function measureFitTextWidth() {
+  const texts = props.options.map((o) => labelOf(o));
+  if (props.placeholder) texts.push(props.placeholder);
+  fitTextWidth.value = measureMaxTextWidth(inputRef.value, texts);
+}
+
+watch(
+  () => [props.options, props.optionLabel, props.placeholder] as const,
+  () => nextTick(measureFitTextWidth),
+  { immediate: true },
+);
+
 const visibleLabels = computed(() => selectedLabels.value.slice(0, visibleCount.value));
 // 供 chip 插槽使用的可见项（与 visibleLabels 同序同长）
 const visibleOptions = computed(() => selectedOptions.value.slice(0, visibleCount.value));
@@ -150,6 +169,8 @@ function recalc() {
 
 let ro: ResizeObserver | null = null;
 onMounted(() => {
+  measureFitTextWidth();
+  document.fonts?.ready.then(measureFitTextWidth).catch(() => {});
   ro = new ResizeObserver(() => recalc());
   if (rootRef.value) ro.observe(rootRef.value);
   nextTick(recalc);
@@ -254,6 +275,7 @@ function onKeydown(event: KeyboardEvent) {
     ref="rootRef"
     class="mw-ms"
     :class="[sizeClass, { 'mw-ms-focus': open, 'mw-ms-disabled': disabled, 'mw-ms-invalid': invalid }]"
+    :style="fitStyle"
     @mousedown="onFieldMousedown"
     @click="!open && inputRef?.focus()"
   >

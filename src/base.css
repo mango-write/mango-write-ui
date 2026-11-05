@@ -212,8 +212,13 @@ html.mw-lowfx .mw-frost--thick {
   padding-inline: var(--space-2-5) var(--space-1-5);
 }
 
+/* ms 宽度按组件量出的最宽候选（--mw-ms-fit-text）定死，随选择/清除保持不变；
+   超出仍受上面的 max-width: 13rem 约束，chip 由组件自身的折叠逻辑收进 +N。 */
 .mw-toolbar .mw-ms {
-  width: auto;
+  width: max(
+    calc(var(--control-h) * 3),
+    calc(var(--mw-ms-fit-text, 0px) + var(--space-1-5) * 2 + var(--size-md-h) + var(--border-width) * 2)
+  );
 }
 
 .mw-toolbar .mw-select__label,
@@ -225,8 +230,8 @@ html.mw-lowfx .mw-frost--thick {
 
 .mw-toolbar .mw-ms-label {
   width: auto;
-  flex: 0 1 auto;
-  max-width: 9rem;
+  /* 字段已定宽（见 .mw-toolbar .mw-ms）：label 撑满吸收富余，不留空洞；富余给输入光标。 */
+  flex: 1 1 auto;
   padding-block: 0;
   padding-inline: var(--space-2-5) 0;
 }
@@ -234,7 +239,7 @@ html.mw-lowfx .mw-frost--thick {
 .mw-toolbar .mw-ms-input {
   width: 2rem;
   min-width: 0;
-  flex: 0 1 auto;
+  flex: 1 1 auto;
   color: inherit;
   font-size: var(--control-font);
   line-height: calc(var(--control-h) - 2px);
