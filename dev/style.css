@@ -62,6 +62,21 @@ body {
   color: var(--text-primary);
 }
 
+.dev-topbar__gh {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--size-sm-h);
+  height: var(--size-sm-h);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+}
+
+.dev-topbar__gh:hover {
+  background: var(--fill-default);
+  color: var(--text-primary);
+}
+
 .dev-body {
   flex: 1;
   min-height: 0;

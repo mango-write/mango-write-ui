@@ -3,8 +3,30 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="robots" content="noindex" />
-    <title>MangoWrite UI</title>
+    <!-- 图标 .ico 放第一位：Bing/百度抓的是站根 /favicon.ico，缺失或被
+         SPA fallback 用 text/html 冒充时，搜索结果表现为「没有图标」。 -->
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <title>MangoWrite UI · 纸与霜设计语言</title>
+    <meta
+      name="description"
+      content="MangoWrite 开源 UI 组件库与「纸与霜」设计语言的文档站：设计原则、颜色、文字、圆角、动效等设计规范，以及全部 Vue 组件的用法与接口参考。"
+    />
+    <!-- 站点只收录首页，canonical / og:url 静态写死即可。 -->
+    <link rel="canonical" href="https://ui.mangowrite.com/" />
+    <meta property="og:site_name" content="MangoWrite UI" />
+    <meta property="og:title" content="MangoWrite UI · 纸与霜设计语言" />
+    <meta
+      property="og:description"
+      content="MangoWrite 开源 UI 组件库与「纸与霜」设计语言的文档站：设计规范与全部 Vue 组件的用法与接口参考。"
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://ui.mangowrite.com/" />
+    <meta property="og:image" content="https://ui.mangowrite.com/apple-touch-icon.png" />
   </head>
   <body>
     <div id="app"></div>
