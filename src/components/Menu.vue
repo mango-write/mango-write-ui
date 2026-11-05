@@ -9,6 +9,7 @@ import {
   type StyleValue,
 } from "vue";
 import type { MenuItem, MenuItemSlotProps, MenuProps } from "./menu.js";
+import { useOverlayLayer } from "../lib/overlay-layer.js";
 
 defineOptions({
   name: "MwMenu",
@@ -34,6 +35,8 @@ const attrs = useAttrs();
 const VIEWPORT_PADDING = 8;
 
 const isOpen = ref<boolean>(!props.popup);
+// 仅 popup 参与浮层取层；非 popup 是页面内联结构，不占浮层栈。
+const layer = useOverlayLayer(() => props.popup && isOpen.value);
 const menuRef = ref<HTMLElement | null>(null);
 const triggerEl = ref<HTMLElement | null>(null);
 const position = ref<{ x: number; y: number }>({
@@ -465,6 +468,7 @@ const rootStyle = computed<StyleValue>(() => {
       left: `${position.value.x}px`,
       top: `${position.value.y}px`,
     },
+    layer.layerZ.value ? { zIndex: layer.layerZ.value } : undefined,
     attrs.style as StyleValue,
   ];
 });

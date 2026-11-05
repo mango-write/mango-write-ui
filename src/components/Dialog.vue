@@ -21,6 +21,7 @@ import {
 } from "reka-ui";
 import { Maximize2, Minimize2, X } from "lucide-vue-next";
 import { uiMessages } from "../locale/index.js";
+import { useOverlayLayer } from "../lib/overlay-layer.js";
 import type { DialogEmits, DialogProps } from "./dialog.js";
 
 defineOptions({
@@ -78,6 +79,7 @@ const restoreLabel = computed(() =>
 const isOpen = computed(() => props.open ?? props.visible ?? false);
 const resolvedTitle = computed(() => props.title ?? props.header ?? "");
 const maximized = ref(false);
+const { layerZ, scrimZ } = useOverlayLayer(() => isOpen.value);
 
 const portalDisabled = computed(() => props.appendTo === "self");
 const portalTo = computed(() =>
@@ -96,6 +98,7 @@ const dialogClass = computed(() => [
 ]);
 
 const dialogStyle = computed<StyleValue>(() => [
+  layerZ.value ? { zIndex: layerZ.value } : undefined,
   props.width && !maximized.value ? { width: props.width } : undefined,
   attrs.style as StyleValue,
 ]);
@@ -217,6 +220,7 @@ onBeforeUnmount(() => {
       <DialogOverlay
         v-if="modal"
         class="mw-dialog__overlay"
+        :style="scrimZ ? { zIndex: scrimZ } : undefined"
         @pointerdown="onOverlayPointerDown"
         @click="onOverlayClick"
       />

@@ -24,6 +24,7 @@ import {
   type ConfirmRequest,
   type ConfirmStore,
 } from "../lib/confirm.js";
+import { useOverlayLayer } from "../lib/overlay-layer.js";
 import { uiMessages } from "../locale/index.js";
 
 defineOptions({
@@ -91,6 +92,7 @@ const activeEntry = computed(() =>
 
 const activeRequest = computed(() => activeEntry.value?.request ?? null);
 const isOpen = computed(() => activeRequest.value !== null);
+const { layerZ, scrimZ } = useOverlayLayer(() => isOpen.value);
 
 const fallbackRequest: ConfirmRequest = {
   id: "",
@@ -246,11 +248,13 @@ onBeforeUnmount(() => {
       <DialogOverlay
         class="mw-confirm-overlay"
         data-confirm-overlay
+        :style="scrimZ ? { zIndex: scrimZ } : undefined"
         @click.self="onOverlayClick"
       />
       <DialogContent
         class="mw-confirm mw-frost mw-frost--thick"
         :class="{ 'mw-confirm--danger': renderRequest.danger }"
+        :style="layerZ ? { zIndex: layerZ } : undefined"
         :data-danger="renderRequest.danger ? 'true' : undefined"
         :data-group="group"
         :trap-focus="true"

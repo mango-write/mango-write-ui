@@ -11,6 +11,7 @@ import {
 } from "vue";
 import { ChevronRight } from "lucide-vue-next";
 import { vTooltip as vMwTooltip } from "../lib/tooltip";
+import { useOverlayLayer } from "../lib/overlay-layer.js";
 import type { ActionMenuItem } from "./action-menu";
 
 defineOptions({
@@ -97,6 +98,7 @@ const visibleItems = computed<ActionMenuItem[]>(() =>
 const isOpen = computed<boolean>(() =>
   props.open !== undefined ? props.open : internalOpen.value,
 );
+const layer = useOverlayLayer(() => isOpen.value);
 
 const rootClass = computed(() => ["mw-action-menu", "mw-frost", attrs.class]);
 const rootAttrs = computed(() => {
@@ -109,6 +111,7 @@ const floatingStyle = computed<StyleValue>(() => [
     left: `${position.value.x}px`,
     top: `${position.value.y}px`,
   },
+  layer.layerZ.value ? { zIndex: layer.layerZ.value } : undefined,
   attrs.style as StyleValue,
 ]);
 

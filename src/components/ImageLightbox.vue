@@ -4,6 +4,7 @@
 import { computed, nextTick, onBeforeUnmount, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { RotateCw, RotateCcw, X, ZoomIn, ZoomOut, Maximize } from "lucide-vue-next";
+import { useOverlayLayer } from "../lib/overlay-layer.js";
 
 const { t } = useI18n();
 
@@ -15,6 +16,11 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{ (event: "update:visible", value: boolean): void }>();
+
+const layer = useOverlayLayer(() => props.visible);
+const lightboxStyle = computed(() =>
+  layer.layerZ.value ? { zIndex: layer.layerZ.value } : undefined,
+);
 
 const MIN_SCALE = 0.2;
 const MAX_SCALE = 8;
@@ -148,6 +154,7 @@ onBeforeUnmount(closeViewer);
         role="dialog"
         aria-modal="true"
         :aria-label="caption ?? alt ?? t('common.lightbox.imageAlt')"
+        :style="lightboxStyle"
         tabindex="-1"
         @click.self="close"
       >

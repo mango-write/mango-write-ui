@@ -14,6 +14,7 @@ import {
   PopoverRoot,
   PopoverTrigger,
 } from "reka-ui";
+import { useOverlayLayer } from "../lib/overlay-layer.js";
 
 defineOptions({
   name: "MwPopover",
@@ -87,6 +88,7 @@ watch(
 const isOpen = computed(() =>
   props.open !== undefined ? props.open : internalOpen.value,
 );
+const layer = useOverlayLayer(() => isOpen.value);
 
 watch(
   isOpen,
@@ -163,7 +165,10 @@ const portalTo = computed(() =>
 );
 
 const contentClass = computed(() => ["mw-popover", "mw-frost", attrs.class]);
-const contentStyle = computed<StyleValue>(() => attrs.style as StyleValue);
+const contentStyle = computed<StyleValue>(() => [
+  layer.layerZ.value ? { zIndex: layer.layerZ.value } : undefined,
+  attrs.style as StyleValue,
+]);
 const contentAttrs = computed(() => {
   const { class: _class, style: _style, ...rest } = attrs;
   return rest;
