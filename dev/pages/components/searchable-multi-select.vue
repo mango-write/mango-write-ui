@@ -31,6 +31,7 @@ function filterByLabelOrCode(option: Record<string, unknown>, query: string): bo
     <DocSection title="何时使用">
       <ul class="doc-rules">
         <li data-kind="do">需要高频输入检索并多选（如文献标签、关键词、分类），且工具栏或表单列宽有限。</li>
+        <li data-kind="do">工具条档（mw-toolbar）宽度按最宽候选定死（封顶 13rem），chip 增减只折叠进 +N 不改变宽度；表单/面板档仍是撑满容器。</li>
         <li data-kind="do">通过 <code>optionFilter</code> 自定义多字段匹配（如同时匹配名称、拼音或缩写码）。</li>
         <li data-kind="dont">需要远程异步搜索时用 <code>AsyncSearchSelect</code>；选人场景直接用封装好头像的 <code>UserSelect</code>。</li>
       </ul>
