@@ -22,7 +22,6 @@ import {
   Popover,
   ProgressBar,
   Select,
-  SelectButton,
   Skeleton,
   Slider,
   Tab,
@@ -33,32 +32,22 @@ import {
   Tag,
   ToggleSwitch,
   useNotify,
-  useThemePreference,
-  type ThemePreference,
 } from "../../src";
 import CodeBlock from "../kit/CodeBlock.vue";
+import TopBar from "../kit/TopBar.vue";
 import { docGroups } from "../registry";
 import { apiEntries } from "../api";
 
 const githubUrl = "https://github.com/mango-write/mango-write-ui";
 const changelogUrl = `${githubUrl}/blob/main/CHANGELOG.md`;
 
-const { preference, setTheme } = useThemePreference();
-const themeOptions: { label: string; value: ThemePreference }[] = [
-  { label: "浅色", value: "light" },
-  { label: "深色", value: "dark" },
-  { label: "系统", value: "system" },
-];
-
-function updateTheme(value: unknown) {
-  if (value === "light" || value === "dark" || value === "system") setTheme(value);
-}
-
 /* 数字不手写:组件数、接口行数、规范篇数都从单一真相源统计,元数据更新即跟随。 */
 const inventory = docGroups
-  .filter((group) => group.base === "/dev/ui/components")
+  .filter((group) => group.base === "/components")
   .flatMap((group) => group.entries);
 const componentCount = inventory.length;
+/* 按 i % 3 轮转分作三行;中行反向滚动,与上下两行错开 */
+const marqueeRows = [0, 1, 2].map((row) => inventory.filter((_, i) => i % 3 === row));
 const apiRowCount = Object.values(apiEntries).reduce((sum, entry) => sum + entry.rows.length, 0);
 const foundationCount = docGroups.find((group) => group.id === "foundations")?.entries.length ?? 0;
 
@@ -144,55 +133,7 @@ const quickstartCode = [
 
 <template>
   <div class="landing">
-    <header class="landing-topbar mw-frost">
-      <div class="landing-brand">
-        <AppLogo />
-        <span class="landing-brand__name">MangoWrite UI</span>
-      </div>
-      <span class="landing-topbar__spacer" />
-      <SelectButton
-        class="landing-theme"
-        :model-value="preference"
-        :options="themeOptions"
-        option-label="label"
-        option-value="value"
-        :allow-empty="false"
-        size="sm"
-        aria-label="颜色主题"
-        @update:model-value="updateTheme"
-      />
-      <Button
-        class="landing-topbar__product"
-        href="https://rewrite.mangowrite.com"
-        target="_blank"
-        rel="noreferrer"
-        size="sm"
-        variant="outlined"
-        severity="secondary"
-        label="降 AI"
-      />
-      <Button
-        class="landing-topbar__product"
-        href="https://mangowrite.com"
-        target="_blank"
-        rel="noreferrer"
-        size="sm"
-        label="科研平台"
-      />
-      <a
-        class="landing-gh"
-        :href="githubUrl"
-        target="_blank"
-        rel="noreferrer"
-        aria-label="GitHub 仓库"
-      >
-        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true">
-          <path
-            d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"
-          />
-        </svg>
-      </a>
-    </header>
+    <TopBar />
 
     <main class="landing-main">
       <div class="landing-container">
@@ -217,17 +158,17 @@ const quickstartCode = [
               <span class="hero__title-ink">纸与霜</span>设计语言
             </h1>
             <p class="hero__lede anim-rise" style="--rise-delay: 200ms">
-              MangoWrite 全线产品共用的设计语言与 Vue 3
-              组件库:六层 token 单一真相源,纸面与霜面双材质,浅色深色双主题——为长时间阅读与写作而生。
+              MangoWrite 全线产品共用的设计语言与 Vue 3组件库：
+              <br />
+              纸面与霜面双材质，浅色深色双主题，为长时间阅读与写作而生。
             </p>
             <div class="hero__cta anim-rise" style="--rise-delay: 280ms">
-              <RouterLink class="hero__cta-primary" to="/dev/ui/getting-started/installation">
+              <RouterLink class="hero__cta-primary" to="/getting-started/installation">
                 快速上手
               </RouterLink>
               <a class="hero__cta-ghost" :href="githubUrl" target="_blank" rel="noreferrer">
                 GitHub
               </a>
-              <span class="hero__cta-note">旁边三张霜卡都是真组件,现在就能拖</span>
             </div>
             <dl class="hero__stats anim-rise" style="--rise-delay: 360ms">
               <div v-for="stat in stats" :key="stat.label" class="hero__stats-item">
@@ -238,12 +179,18 @@ const quickstartCode = [
           </div>
 
           <div class="collage" role="group" aria-label="真组件拼贴:三张霜卡,可交互">
+            <i class="collage__under" aria-hidden="true">
+              <i class="collage__blob collage__blob--a" />
+              <i class="collage__blob collage__blob--b" />
+              <i class="collage__blob collage__blob--c" />
+              <i class="collage__blob collage__blob--d" />
+            </i>
             <div
-              class="collage-card collage-card--a anim-rise"
+              class="collage-card collage-card--a mw-frost anim-rise"
               data-theme="dark"
               style="--rise-delay: 300ms; --bob-delay: 0s; --bob-dur: 8s"
             >
-              <span class="collage-card__label">深色 · 同一套 Token</span>
+              <span class="collage-card__label">深色模式</span>
               <FormField v-slot="{ inputId }" input-id="collage-title" label="论文标题" required>
                 <InputText
                   v-model="demoTitle"
@@ -264,7 +211,7 @@ const quickstartCode = [
             </div>
 
             <div
-              class="collage-card collage-card--b anim-rise"
+              class="collage-card collage-card--b mw-frost anim-rise"
               style="--rise-delay: 420ms; --bob-delay: -2.5s; --bob-dur: 7s"
             >
               <span class="collage-card__label">实时联动 · 拖动滑块</span>
@@ -280,7 +227,7 @@ const quickstartCode = [
             </div>
 
             <div
-              class="collage-card collage-card--c anim-rise"
+              class="collage-card collage-card--c mw-frost anim-rise"
               style="--rise-delay: 540ms; --bob-delay: -5s; --bob-dur: 9s"
             >
               <span class="collage-card__label">状态与反馈</span>
@@ -300,25 +247,33 @@ const quickstartCode = [
         </section>
       </div>
 
-      <!-- 组件清单:真实目录跑马灯,每一枚都链到对应文档 -->
-      <div class="mq" aria-label="组件清单">
-        <div class="mq__track">
-          <ul class="mq__list">
-            <li v-for="entry in inventory" :key="entry.slug">
-              <RouterLink :to="`/dev/ui/components/${entry.slug}`" class="mq__item">
-                <b>{{ entry.en }}</b>
-                <span>{{ entry.title }}</span>
-              </RouterLink>
-            </li>
-          </ul>
-          <ul class="mq__list" aria-hidden="true">
-            <li v-for="entry in inventory" :key="'dup-' + entry.slug">
-              <RouterLink :to="`/dev/ui/components/${entry.slug}`" class="mq__item" tabindex="-1">
-                <b>{{ entry.en }}</b>
-                <span>{{ entry.title }}</span>
-              </RouterLink>
-            </li>
-          </ul>
+      <!-- 组件清单:一条霜带里的三行真实目录跑马灯,每一枚都链到对应文档 -->
+      <div class="mq mw-frost" aria-label="组件清单">
+        <div
+          v-for="(row, i) in marqueeRows"
+          :key="'mq-row-' + i"
+          class="mq__row"
+          :class="{ 'mq__row--reverse': i === 1 }"
+          :style="i === 1 ? { '--mq-delay': '-30s' } : undefined"
+        >
+          <div class="mq__track">
+            <ul class="mq__list">
+              <li v-for="entry in row" :key="entry.slug">
+                <RouterLink :to="`/components/${entry.slug}`" class="mq__item">
+                  <b>{{ entry.en }}</b>
+                  <span>{{ entry.title }}</span>
+                </RouterLink>
+              </li>
+            </ul>
+            <ul class="mq__list" aria-hidden="true">
+              <li v-for="entry in row" :key="'dup-' + entry.slug">
+                <RouterLink :to="`/components/${entry.slug}`" class="mq__item" tabindex="-1">
+                  <b>{{ entry.en }}</b>
+                  <span>{{ entry.title }}</span>
+                </RouterLink>
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
 
@@ -328,11 +283,7 @@ const quickstartCode = [
         <header class="sec__head">
           <div>
             <p class="sec__eyebrow">试驾</p>
-            <h2 class="sec__title">真组件,不是截图</h2>
-            <p class="sec__desc">
-              下面每一处都是这个库真实渲染的东西——点、拖、展开都可以,Tab
-              键能到达每个控件,焦点环会告诉你它在哪。
-            </p>
+            <h2 class="sec__title">亲手试试我们的组件</h2>
           </div>
           <span class="pg-hint"><MousePointerClick :size="14" aria-hidden="true" />全部可交互</span>
         </header>
@@ -508,7 +459,7 @@ const quickstartCode = [
               </TabPanel>
 
               <TabPanel value="structure">
-                <div class="pg__grid">
+                <div class="pg__grid pg__grid--two">
                   <div class="pg-cell pg-cell--wide">
                     <h3 class="pg-cell__label">数据表格</h3>
                     <DataTable :value="papers" data-key="id" striped-rows row-hover>
@@ -543,7 +494,7 @@ const quickstartCode = [
                       :total-records="87"
                       aria-label="文献分页"
                     />
-                    <p class="pg-note">共 87 条 · 当前从第 {{ paginatorFirst + 1 }} 条开始</p>
+                    <p class="pg-note" style="text-align: center;">共 87 条 · 当前从第 {{ paginatorFirst + 1 }} 条开始</p>
                   </div>
                 </div>
               </TabPanel>
@@ -573,7 +524,7 @@ const quickstartCode = [
             <p class="llm__eyebrow">LLM 友好</p>
             <h2 class="llm__title">把整库文档喂给任何模型</h2>
             <p class="llm__desc">
-              文档在构建期从接口元数据生成,与页面表格、站内搜索共用同一份真相源——模型读到什么,页面就是什么。
+              让 Agent 一键接入，快速使用 MangoWrite UI 开发优美应用。
             </p>
             <ul class="llm__files">
               <li>
@@ -610,9 +561,9 @@ Vue 3 组件库 · {{ componentCount }} 组件 · Apache-2.0
       <section class="sec">
         <header class="sec__head">
           <div>
-            <p class="sec__eyebrow">为什么是纸与霜</p>
-            <h2 class="sec__title">设计决策有据可查</h2>
-            <p class="sec__desc">六层 token、双材质、双主题,以及一套机械门禁——下面每一张卡里都是真的在生效。</p>
+            <p class="sec__eyebrow">纸与霜</p>
+            <h2 class="sec__title">我们的设计语言</h2>
+            <p class="sec__desc">六层 token、双材质、双主题</p>
           </div>
         </header>
         <div class="feat__grid">
@@ -672,7 +623,7 @@ Vue 3 组件库 · {{ componentCount }} 组件 · Apache-2.0
                 <span>按需取用,想用哪个 import 哪个</span>
               </li>
             </ol>
-            <RouterLink class="hero__cta-primary" to="/dev/ui/getting-started/installation">
+            <RouterLink class="hero__cta-primary" to="/getting-started/installation">
               阅读完整指引
             </RouterLink>
           </div>
@@ -733,49 +684,6 @@ Vue 3 组件库 · {{ componentCount }} 组件 · Apache-2.0
   display: flex;
   flex-direction: column;
   background: var(--bg-canvas);
-  color: var(--text-primary);
-}
-
-/* ── 顶栏 ─────────────────────────────────────────── */
-.landing-topbar {
-  position: sticky;
-  top: 0;
-  z-index: var(--z-sticky);
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-3) var(--space-6);
-  border-radius: 0;
-  border-width: 0 0 var(--border-width);
-}
-
-.landing-brand {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-.landing-brand__name {
-  font-size: var(--type-title-size);
-  font-weight: var(--weight-semibold);
-}
-
-.landing-topbar__spacer {
-  flex: 1;
-}
-
-.landing-gh {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--size-sm-h);
-  height: var(--size-sm-h);
-  border-radius: var(--radius-sm);
-  color: var(--text-secondary);
-}
-
-.landing-gh:hover {
-  background: var(--fill-default);
   color: var(--text-primary);
 }
 
@@ -953,11 +861,6 @@ a.hero__chip:hover {
   background: var(--fill-default);
 }
 
-.hero__cta-note {
-  font-size: var(--type-caption-size);
-  color: var(--text-tertiary);
-}
-
 .hero__stats {
   display: flex;
   flex-wrap: wrap;
@@ -1001,9 +904,66 @@ a.hero__chip:hover {
     bob var(--bob-dur, 8s) ease-in-out infinite alternate var(--bob-delay, 0s);
 }
 
-.mw-frost.collage-card,
-.collage-card.mw-frost {
-  border-radius: var(--radius-card);
+.collage__under {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* 霜下要有鲜艳内容,半透明才看得见——配方同 foundations/frost 的「鲜艳图片」底 */
+.collage__blob {
+  position: absolute;
+  aspect-ratio: 1;
+  border-radius: var(--radius-full);
+  animation: collage-drift var(--drift-dur, 26s) ease-in-out infinite alternate var(--drift-delay, 0s);
+}
+
+.collage__blob--a {
+  left: 0;
+  top: 28%;
+  width: 42%;
+  background: radial-gradient(closest-side, var(--palette-mango-400), transparent 72%);
+  --drift-x: 5%;
+  --drift-y: 6%;
+}
+
+.collage__blob--b {
+  right: 2%;
+  top: 26%;
+  width: 40%;
+  background: radial-gradient(closest-side, var(--palette-blue-400), transparent 70%);
+  --drift-x: -6%;
+  --drift-y: 4%;
+  --drift-delay: -9s;
+}
+
+.collage__blob--c {
+  left: 16%;
+  bottom: 0;
+  width: 44%;
+  background: radial-gradient(closest-side, var(--palette-green-400), transparent 70%);
+  --drift-x: 4%;
+  --drift-y: -5%;
+  --drift-delay: -17s;
+}
+
+.collage__blob--d {
+  right: 14%;
+  top: 0;
+  width: 34%;
+  background: radial-gradient(closest-side, var(--palette-amber-300), transparent 66%);
+  --drift-x: -4%;
+  --drift-y: 7%;
+  --drift-delay: -5s;
+}
+
+@keyframes collage-drift {
+  from {
+    translate: 0 0;
+  }
+  to {
+    translate: var(--drift-x, 4%) var(--drift-y, -4%);
+  }
 }
 
 .collage-card--a {
@@ -1028,22 +988,6 @@ a.hero__chip:hover {
   width: 66%;
   max-width: calc(var(--space-12) * 7);
   rotate: -1.2deg;
-}
-
-.collage-card--a,
-.collage-card--b,
-.collage-card--c {
-  box-shadow: var(--shadow-floating);
-}
-
-.collage-card:not([data-theme="dark"]) {
-  background: var(--bg-surface);
-  border: var(--border-width) solid var(--border-subtle);
-}
-
-.collage-card--a {
-  background: var(--bg-surface);
-  border: var(--border-width) solid var(--border-subtle);
 }
 
 .collage-card__label {
@@ -1085,23 +1029,29 @@ a.hero__chip:hover {
   gap: var(--space-2);
 }
 
-/* ── 组件清单跑马灯(真实目录) ─────────────────────── */
+/* ── 组件清单跑马灯(真实目录,一条霜带三行) ─────────── */
 .mq {
-  overflow: hidden;
-  border-top: var(--border-width) solid var(--border-subtle);
-  border-bottom: var(--border-width) solid var(--border-subtle);
-  background: var(--bg-surface);
+  display: grid;
+  gap: var(--space-2);
   padding: var(--space-3) 0;
   margin: var(--space-6) 0 0;
+}
+
+.mq__row {
+  overflow: hidden;
 }
 
 .mq__track {
   display: flex;
   width: max-content;
-  animation: marquee 72s linear infinite;
+  animation: marquee 72s linear infinite var(--mq-delay, 0s);
 }
 
-.mq:hover .mq__track {
+.mq__row--reverse .mq__track {
+  animation-direction: reverse;
+}
+
+.mq__row:hover .mq__track {
   animation-play-state: paused;
 }
 
@@ -1114,6 +1064,7 @@ a.hero__chip:hover {
   list-style: none;
 }
 
+/* 霜面内部只用半透明叠层,chip 不铺不透明底 */
 .mq__item {
   display: inline-flex;
   align-items: baseline;
@@ -1122,7 +1073,6 @@ a.hero__chip:hover {
   padding: var(--space-1) var(--space-3);
   border: var(--border-width) solid var(--border-subtle);
   border-radius: var(--radius-full);
-  background: var(--bg-canvas);
   font-size: var(--type-caption-size);
   line-height: var(--type-caption-line);
   text-decoration: none;
@@ -1210,6 +1160,11 @@ a.hero__chip:hover {
   grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
   gap: var(--space-4);
   padding-top: var(--space-4);
+}
+
+/* 结构页只有「折叠 + 分页」一对半宽单元；300px 档会把分页挤到换行并空出第三列 */
+.pg__grid--two {
+  grid-template-columns: repeat(auto-fit, minmax(min(420px, 100%), 1fr));
 }
 
 .pg-cell {
@@ -1491,9 +1446,12 @@ a.hero__chip:hover {
 }
 
 .feat-mats {
+  flex: 1;
+  align-self: stretch;
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  justify-content: center;
+  gap: var(--space-5);
 }
 
 .feat-mats__paper,
@@ -1734,6 +1692,7 @@ a.hero__chip:hover {
 @media (prefers-reduced-motion: reduce) {
   .anim-rise,
   .collage-card,
+  .collage__blob,
   .mq__track {
     animation: none;
   }
@@ -1752,7 +1711,7 @@ a.hero__chip:hover {
   }
 
   .collage-card {
-    position: static;
+    position: relative;
     width: 100%;
     max-width: calc(var(--space-12) * 11);
   }
@@ -1770,15 +1729,6 @@ a.hero__chip:hover {
 }
 
 @media (max-width: 720px) {
-  .landing-topbar {
-    gap: var(--space-2);
-    padding: var(--space-3) var(--space-3);
-  }
-
-  .landing-topbar__product {
-    display: none;
-  }
-
   .landing-container {
     padding: 0 var(--space-4);
   }
@@ -1809,9 +1759,4 @@ a.hero__chip:hover {
   }
 }
 
-@media (max-width: 480px) {
-  .landing-brand__name {
-    display: none;
-  }
-}
 </style>

@@ -13,8 +13,8 @@ pnpm typecheck
 pnpm test
 ```
 
-Run `pnpm dev` to open the component catalog at `http://localhost:5176/dev/ui`
-and the icon catalog at `http://localhost:5176/dev/icon`. These routes belong to
+Run `pnpm dev` to open the showcase site; the icon catalog lives at
+`/foundations/icon`. These routes belong to
 this repository's standalone Vite app; host applications do not register them.
 
 Include focused regression coverage for behavior changes. Check component

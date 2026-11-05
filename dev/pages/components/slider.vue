@@ -11,12 +11,14 @@ import StateRow from "../../kit/StateRow.vue";
 
 const fontSize = ref(16);
 const yearRange = ref<[number, number]>([2019, 2026]);
+const continuousValue = ref(50);
 const similarity = ref(75);
+const ticked = ref(50);
 const zoomLevel = ref(100);
 </script>
 
 <template>
-  <DocPage lead="滑动条：在连续或定步长的数值区间内拖拽取值。轨道用 --fill-strong，已填充段与手柄描边用品牌色，手柄本身为抬起实体面。">
+  <DocPage lead="滑动条：缺省无级连续拖动，显式传入 step 后按刻度吸附并可开启刻度标记。轨道用 --fill-strong，已填充段与手柄描边用品牌色，手柄本身为抬起实体面。">
     <DocSection title="何时使用">
       <ul class="doc-rules">
         <li data-kind="do">调节即时预览的相对量或区间：字号缩放、发表年份范围、检索相似度阈值。</li>
@@ -44,15 +46,25 @@ const zoomLevel = ref(100);
       </Specimen>
     </DocSection>
 
-    <DocSection title="方向与步长" desc="支持水平（默认）与垂直（vertical）方向，方向键按 step 增减，PageUp/PageDown 按 10 倍步长移动。">
-      <Specimen themes="single">
-        <div style="flex: 1; min-width: 200px" class="doc-stack">
-          <span class="doc-note">步长 step=5（当前 {{ similarity }}%）</span>
-          <Slider v-model="similarity" :min="0" :max="100" :step="5" aria-label="相似度阈值" />
+    <DocSection title="连续、步长与刻度" desc="缺省无级连续拖动（值为连续浮点）；显式传入 step 后拖动按刻度吸附，方向键按 step 增减，PageUp/PageDown 按 10 倍步长移动。showTicks 在轨道上渲染每个刻度的小节点（需显式 step），刻度数量 = 范围 / step + 1，max 端点必含——注意短轨道上的刻度密度。">
+      <Specimen themes="single" layout="stack">
+        <div class="doc-row" style="align-items: stretch; gap: var(--space-5)">
+          <div style="flex: 1; min-width: 200px" class="doc-stack">
+            <span class="doc-note">连续（缺省无 step，当前 {{ continuousValue.toFixed(1) }}）</span>
+            <Slider v-model="continuousValue" :min="0" :max="100" aria-label="连续模式" />
+          </div>
+          <div style="flex: 1; min-width: 200px" class="doc-stack">
+            <span class="doc-note">步长 step=5（当前 {{ similarity }}%）</span>
+            <Slider v-model="similarity" :min="0" :max="100" :step="5" aria-label="相似度阈值" />
+          </div>
         </div>
-        <div class="doc-row" style="gap: var(--space-3); padding-inline: var(--space-4)">
-          <Slider v-model="zoomLevel" orientation="vertical" :min="50" :max="150" :step="10" aria-label="垂直缩放" />
-          <span class="doc-note">垂直 {{ zoomLevel }}%</span>
+        <div style="flex: 1; min-width: 200px" class="doc-stack">
+          <span class="doc-note">刻度标记 step=25 + showTicks（当前 {{ ticked }}）</span>
+          <Slider v-model="ticked" :min="0" :max="100" :step="25" show-ticks aria-label="刻度标记" />
+        </div>
+        <div class="doc-row" style="gap: var(--space-3); padding-block: var(--space-2); padding-inline: var(--space-4)">
+          <Slider v-model="zoomLevel" orientation="vertical" :min="50" :max="150" :step="25" show-ticks aria-label="垂直缩放" />
+          <span class="doc-note">垂直 step=25 + showTicks（{{ zoomLevel }}%）</span>
         </div>
       </Specimen>
     </DocSection>

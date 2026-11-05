@@ -78,7 +78,7 @@ function toMd(html, { cell = false } = {}) {
   s = s.replace(/&(lt|gt|quot|#39|nbsp);/g, (_, e) => ENT[e]).replace(/&amp;/g, "&");
   return cell ? s.replace(/\|/g, "\\|") : s;
 }
-const pageUrl = (entry) => `${SITE}/dev/ui/components/${entry.slug}`;
+const pageUrl = (entry) => `${SITE}/components/${entry.slug}`;
 
 function componentSection(e, { heading }) {
   const lead = pageLead("components", e.slug);
@@ -111,13 +111,13 @@ llms.push(
 );
 llms.push(`# 上手`, "");
 llms.push(
-  `- [安装与上手](${SITE}/dev/ui/getting-started/installation):依赖安装、样式引入、主题初始化与第一个组件`,
+  `- [安装与上手](${SITE}/getting-started/installation):依赖安装、样式引入、主题初始化与第一个组件`,
   "",
 );
 llms.push(`# 设计规范`, "");
 for (const f of foundations.entries) {
   const anchor = f.slug === "installation" ? "getting-started/installation" : `foundations/${f.slug}`;
-  llms.push(`- [${f.title} ${f.en}](${SITE}/dev/ui/${anchor}):${pageLead("foundations", f.slug)}`);
+  llms.push(`- [${f.title} ${f.en}](${SITE}/${anchor}):${pageLead("foundations", f.slug)}`);
 }
 llms.push("", `# 组件(${entrySlugs.length} 个)`, "");
 for (const g of componentGroups) {
@@ -155,7 +155,7 @@ for (const step of installSteps) {
 }
 full.push(`## 设计规范`, "");
 for (const f of foundations.entries) {
-  full.push(`- [${f.title} ${f.en}](${SITE}/dev/ui/foundations/${f.slug}):${pageLead("foundations", f.slug)}`);
+  full.push(`- [${f.title} ${f.en}](${SITE}/foundations/${f.slug}):${pageLead("foundations", f.slug)}`);
 }
 for (const g of componentGroups) {
   full.push("", `## 组件 · ${g.title}`, "");

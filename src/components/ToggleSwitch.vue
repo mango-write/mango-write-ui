@@ -102,7 +102,7 @@ function onKeydownCapture(event: KeyboardEvent) {
   --_ts-w: calc(var(--size-md-h) + var(--space-1-5));
   --_ts-h: calc(var(--icon-md) + var(--space-1));
   --_ts-thumb: var(--icon-sm);
-  --_ts-shift: var(--icon-sm);
+  --_ts-shift: calc(var(--_ts-w) - 2 * var(--border-width) - 2 * var(--space-0-5) - var(--_ts-thumb));
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -126,12 +126,24 @@ function onKeydownCapture(event: KeyboardEvent) {
   border-color: var(--accent);
 }
 
+/* 根节点带 .mw-control，全局 hover 会以更高优先级把轨道刷成近白、吞掉白片旋钮；
+   这里用 data-state + :not 链压过它（同 Checkbox）。 */
+.mw-toggle-switch[data-state="unchecked"]:hover:not(:disabled):not([data-disabled]):not([data-readonly]) {
+  background-color: var(--fill-strong);
+}
+
+.mw-toggle-switch[data-state="checked"]:hover:not(:disabled):not([data-disabled]):not([data-readonly]) {
+  background-color: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
 .mw-toggle-switch__thumb {
   display: block;
   width: var(--_ts-thumb);
   height: var(--_ts-thumb);
   border-radius: var(--radius-full);
-  background-color: var(--bg-raised); /* opaque-ok: physical switch thumb */
+  /* 旋钮恒为「纸」粒，开合语义由轨道色表达。 */
+  background-color: var(--control-knob); /* opaque-ok: physical switch thumb */
   box-shadow: var(--shadow-raised);
   transition: transform var(--duration-base) var(--ease-spring-pop);
   transform: translateX(0);
@@ -139,7 +151,6 @@ function onKeydownCapture(event: KeyboardEvent) {
 
 .mw-toggle-switch[data-state="checked"] .mw-toggle-switch__thumb {
   transform: translateX(var(--_ts-shift));
-  background-color: var(--text-on-accent);
 }
 
 @media (prefers-reduced-motion: reduce) {

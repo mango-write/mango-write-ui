@@ -34,7 +34,7 @@ const fullAccess = ref(true);
       </ul>
     </DocSection>
 
-    <DocSection title="底面" desc="纸面与霜面并排。滑块（Thumb）使用 --bg-raised 实体底与 --shadow-raised，不随霜面变透明。">
+    <DocSection title="底面" desc="纸面与霜面并排。滑块（Thumb）恒用 --text-on-accent 实体底与 --shadow-raised，不随霜面或深色主题变暗。">
       <Specimen :surfaces="['paper', 'frost']" layout="stack">
         <label class="doc-row" style="justify-content: space-between; cursor: pointer">
           <span>粘贴 DOI 时自动解析题录</span>

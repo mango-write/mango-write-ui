@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, useAttrs, type CSSProperties } from "vue";
+import { computed, ref, useAttrs, type CSSProperties } from "vue";
 import type {
   SliderEmits,
   SliderOrientation,
@@ -25,7 +25,7 @@ const props = withDefaults(defineProps<SliderProps>(), {
   modelValue: 0,
   min: 0,
   max: 100,
-  step: 1,
+  step: undefined,
   range: false,
   orientation: "horizontal",
   disabled: false,
@@ -36,12 +36,18 @@ const props = withDefaults(defineProps<SliderProps>(), {
   ariaLabel: undefined,
   ariaLabelledby: undefined,
   ariaDescribedby: undefined,
+  showTicks: false,
 });
 
 const emit = defineEmits<SliderEmits>();
 
 const attrs = useAttrs();
 let emittedInCurrentTurn = false;
+
+const rootRef = ref<HTMLElement | null>(null);
+let activePointerId: number | null = null;
+let activeHandle: 0 | 1 = 0;
+let lastPointerValue: SliderValue | null = null;
 
 function countDecimals(num: number): number {
   if (!Number.isFinite(num)) return 0;
@@ -55,6 +61,37 @@ function clamp(val: number): number {
   const maxVal = props.max ?? 100;
   if (!Number.isFinite(val)) return minVal;
   return Math.min(maxVal, Math.max(minVal, val));
+}
+
+const validStep = computed<number | null>(() =>
+  props.step && props.step > 0 && Number.isFinite(props.step) ? props.step : null,
+);
+
+// 原生 input 的 step：显式刻度走吸附，否则 "any" 让拖动 1:1 跟手
+const nativeStep = computed<number | "any">(() => validStep.value ?? "any");
+
+const tickPositions = computed<number[]>(() => {
+  const step = validStep.value;
+  if (!props.showTicks || !step) return [];
+  const minVal = props.min ?? 0;
+  const maxVal = props.max ?? 100;
+  const span = maxVal - minVal;
+  if (span <= 0) return [toPercent(minVal)];
+  const positions: number[] = [];
+  for (let i = 0; i <= Math.floor(span / step); i += 1) {
+    positions.push(toPercent(minVal + i * step));
+  }
+  const maxPercent = toPercent(maxVal);
+  const lastTick = positions[positions.length - 1] ?? 0;
+  if (Math.abs(lastTick - maxPercent) > 1e-6) positions.push(maxPercent);
+  return positions;
+});
+
+function tickStyle(percent: number): CSSProperties {
+  if (props.orientation === "vertical") {
+    return { bottom: `${percent}%` };
+  }
+  return { left: `${percent}%` };
 }
 
 const singleValue = computed<number>(() => {
@@ -165,9 +202,79 @@ function onRangeChange(handleIndex: 0 | 1, event: Event) {
   commitValue(nextVal, event);
 }
 
+// 原生 range 是横向控件、只映射横坐标，竖向（vertical）拖动天然无效，且 range 双 input
+// 重叠导致 start 手柄不可拖——指针交互必须收归根元素按轴取值，input 只留键盘/AT 面
+function valueFromPointer(event: PointerEvent): number {
+  const el = rootRef.value;
+  const minVal = props.min ?? 0;
+  const maxVal = props.max ?? 100;
+  if (!el) return minVal;
+  const rect = el.getBoundingClientRect();
+  const span = props.orientation === "vertical" ? rect.bottom - rect.top : rect.right - rect.left;
+  if (span <= 0) return minVal;
+  const distance = props.orientation === "vertical"
+    ? rect.bottom - event.clientY
+    : event.clientX - rect.left;
+  const ratio = Math.min(1, Math.max(0, distance / span));
+  return minVal + ratio * (maxVal - minVal);
+}
+
+function nearestHandleIndex(raw: number): 0 | 1 {
+  if (!props.range) return 0;
+  const [start, end] = rangeValues.value;
+  return Math.abs(raw - start) <= Math.abs(raw - end) ? 0 : 1;
+}
+
+function applyPointer(raw: number) {
+  const nextVal = computeNextValue(raw, props.range ? activeHandle : 0);
+  lastPointerValue = nextVal;
+  commitValue(nextVal);
+}
+
+function onPointerDown(event: PointerEvent) {
+  if (props.disabled || props.readonly) return;
+  if (event.pointerType === "mouse" && event.button !== 0) return;
+  const el = rootRef.value;
+  if (!el || activePointerId !== null) return;
+  const raw = valueFromPointer(event);
+  activeHandle = nearestHandleIndex(raw);
+  activePointerId = event.pointerId;
+  try {
+    el.setPointerCapture(event.pointerId);
+  } catch {
+    // Pointer Capture 未实现的环境（测试 DOM）降级为元素内监听
+  }
+  const inputs = el.querySelectorAll<HTMLInputElement>('input[type="range"]');
+  inputs[props.range ? activeHandle : 0]?.focus();
+  event.preventDefault();
+  applyPointer(raw);
+}
+
+function onPointerMove(event: PointerEvent) {
+  if (activePointerId === null) return;
+  applyPointer(valueFromPointer(event));
+}
+
+function onPointerUp(event: PointerEvent) {
+  const el = rootRef.value;
+  if (activePointerId === null || event.pointerId !== activePointerId) return;
+  activePointerId = null;
+  if (el?.hasPointerCapture?.(event.pointerId)) {
+    try {
+      el.releasePointerCapture(event.pointerId);
+    } catch {
+      // Pointer Capture 未实现的环境（测试 DOM）降级为元素内监听
+    }
+  }
+  if (lastPointerValue !== null) {
+    emit("slideend", { originalEvent: event, value: lastPointerValue });
+  }
+  lastPointerValue = null;
+}
+
 function onKeydown(handleIndex: 0 | 1, event: KeyboardEvent) {
   if (props.disabled || props.readonly) return;
-  const stepAmount = props.step && props.step > 0 ? props.step : 1;
+  const stepAmount = validStep.value ?? 1;
   const current = props.range ? rangeValues.value[handleIndex] : singleValue.value;
   const precision = Math.max(countDecimals(current), countDecimals(stepAmount));
 
@@ -201,15 +308,29 @@ function onKeydown(handleIndex: 0 | 1, event: KeyboardEvent) {
 
 <template>
   <div
+    ref="rootRef"
     :class="rootClass"
     :style="($attrs.style as CSSProperties)"
     :data-orientation="orientation"
     :data-disabled="disabled ? '' : undefined"
     :data-readonly="readonly ? '' : undefined"
     :data-invalid="invalid ? '' : undefined"
+    @pointerdown="onPointerDown"
+    @pointermove="onPointerMove"
+    @pointerup="onPointerUp"
+    @pointercancel="onPointerUp"
   >
     <div class="mw-slider__track">
       <div class="mw-slider__range" :style="rangeStyle" />
+    </div>
+
+    <div v-if="tickPositions.length > 0" class="mw-slider__ticks" aria-hidden="true">
+      <span
+        v-for="(percent, index) in tickPositions"
+        :key="index"
+        class="mw-slider__tick"
+        :style="tickStyle(percent)"
+      />
     </div>
 
     <template v-if="range">
@@ -220,7 +341,7 @@ function onKeydown(handleIndex: 0 | 1, event: KeyboardEvent) {
         :id="inputId ?? id"
         :min="min"
         :max="max"
-        :step="step"
+        :step="nativeStep"
         :value="rangeValues[0]"
         :disabled="disabled"
         :aria-orientation="orientation"
@@ -242,7 +363,7 @@ function onKeydown(handleIndex: 0 | 1, event: KeyboardEvent) {
         class="mw-slider__input mw-slider__input--end"
         :min="min"
         :max="max"
-        :step="step"
+        :step="nativeStep"
         :value="rangeValues[1]"
         :disabled="disabled"
         :aria-orientation="orientation"
@@ -279,7 +400,7 @@ function onKeydown(handleIndex: 0 | 1, event: KeyboardEvent) {
         :id="inputId ?? id"
         :min="min"
         :max="max"
-        :step="step"
+        :step="nativeStep"
         :value="singleValue"
         :disabled="disabled"
         :aria-orientation="orientation"
@@ -311,6 +432,7 @@ function onKeydown(handleIndex: 0 | 1, event: KeyboardEvent) {
   --_sl-hit: var(--icon-lg);
   --_sl-track: var(--space-1-5);
   --_sl-thumb: var(--icon-sm);
+  --_sl-tick: var(--space-1);
   --_sl-v-len: calc(var(--size-lg-h) * 3.5);
   position: relative;
   display: inline-flex;
@@ -352,6 +474,43 @@ function onKeydown(handleIndex: 0 | 1, event: KeyboardEvent) {
   height: 100%;
 }
 
+.mw-slider__ticks {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: var(--_sl-track);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.mw-slider--vertical .mw-slider__ticks {
+  top: auto;
+  bottom: 0;
+  left: 50%;
+  width: var(--_sl-track);
+  height: 100%;
+  transform: translateX(-50%);
+}
+
+.mw-slider__tick {
+  position: absolute;
+  top: 50%;
+  width: var(--_sl-tick);
+  height: var(--_sl-tick);
+  border-radius: var(--radius-full);
+  /* 实体点 + 品牌色描边：填充段上描边隐去靠点体对比，未填充段靠描边对比 */
+  background-color: var(--bg-raised); /* opaque-ok: tick dot on filled track */
+  box-shadow: 0 0 0 calc(var(--border-width)) var(--accent);
+  transform: translate(-50%, -50%);
+}
+
+.mw-slider--vertical .mw-slider__tick {
+  top: auto;
+  left: 50%;
+  transform: translate(-50%, 50%);
+}
+
 .mw-slider__range {
   position: absolute;
   top: 0;
@@ -373,12 +532,10 @@ function onKeydown(handleIndex: 0 | 1, event: KeyboardEvent) {
   height: 100%;
   margin: 0;
   opacity: 0;
+  /* 指针交互归根元素（见 valueFromPointer），input 只承担键盘与 AT */
+  pointer-events: none;
   cursor: inherit;
   z-index: 2;
-}
-
-.mw-slider--range .mw-slider__input {
-  pointer-events: auto;
 }
 
 .mw-slider__handle {
@@ -387,7 +544,7 @@ function onKeydown(handleIndex: 0 | 1, event: KeyboardEvent) {
   width: var(--_sl-thumb);
   height: var(--_sl-thumb);
   border-radius: var(--radius-full);
-  background-color: var(--bg-raised); /* opaque-ok: physical slider thumb */
+  background-color: var(--control-knob); /* opaque-ok: physical slider thumb */
   border: calc(var(--border-width) * 2) solid var(--accent);
   box-shadow: var(--shadow-raised);
   transform: translate(-50%, -50%);

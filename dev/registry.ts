@@ -29,13 +29,13 @@ export const docGroups: DocGroup[] = [
   {
     id: "getting-started",
     title: "上手",
-    base: "/dev/ui/getting-started",
+    base: "/getting-started",
     entries: [foundation("installation", "安装与上手", "Installation")],
   },
   {
     id: "foundations",
     title: "基础",
-    base: "/dev/ui/foundations",
+    base: "/foundations",
     entries: [
       foundation("overview", "设计原则", "Principles"),
       foundation("color", "颜色", "Color"),
@@ -52,7 +52,7 @@ export const docGroups: DocGroup[] = [
   {
     id: "actions",
     title: "操作",
-    base: "/dev/ui/components",
+    base: "/components",
     entries: [
       component("button", "按钮", "Button"),
       component("select-button", "分段选择", "SelectButton"),
@@ -63,7 +63,7 @@ export const docGroups: DocGroup[] = [
   {
     id: "inputs",
     title: "输入",
-    base: "/dev/ui/components",
+    base: "/components",
     entries: [
       component("input-text", "文本框", "InputText"),
       component("textarea", "多行文本", "Textarea"),
@@ -82,7 +82,7 @@ export const docGroups: DocGroup[] = [
   {
     id: "selection",
     title: "选择",
-    base: "/dev/ui/components",
+    base: "/components",
     entries: [
       component("select", "下拉选择", "Select"),
       component("multi-select", "多选", "MultiSelect"),
@@ -97,7 +97,7 @@ export const docGroups: DocGroup[] = [
   {
     id: "display",
     title: "展示",
-    base: "/dev/ui/components",
+    base: "/components",
     entries: [
       component("badge", "徽标", "Badge"),
       component("tag", "标签", "Tag"),
@@ -115,7 +115,7 @@ export const docGroups: DocGroup[] = [
   {
     id: "overlays",
     title: "浮层",
-    base: "/dev/ui/components",
+    base: "/components",
     entries: [
       component("dialog", "对话框", "Dialog"),
       component("confirm", "确认框", "Confirm"),
@@ -129,7 +129,7 @@ export const docGroups: DocGroup[] = [
   {
     id: "structure",
     title: "结构",
-    base: "/dev/ui/components",
+    base: "/components",
     entries: [
       component("tabs", "标签页", "Tabs"),
       component("accordion", "折叠面板", "Accordion"),

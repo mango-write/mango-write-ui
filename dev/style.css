@@ -16,92 +16,28 @@ body {
   background: var(--bg-canvas);
 }
 
-/* 壳：画布 + 顶栏 + 目录 + 一张纸（与产品工作台同构） */
+/* 壳：首页同款纸面画布 + 统一顶栏（kit/TopBar.vue）+ 霜面目录栏 + 一张纸卡 */
 .dev-app {
   height: 100dvh;
   display: flex;
   flex-direction: column;
   overflow: clip;
-  background: var(--shell-canvas);
-}
-
-.dev-topbar {
-  flex: none;
-  height: var(--shell-topbar-h);
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: 0 var(--space-4);
-}
-
-.dev-topbar__brand {
-  display: inline-flex;
-}
-
-.dev-topbar__title {
-  color: var(--text-secondary);
-  font-size: var(--type-body-sm-size);
-  font-weight: var(--weight-medium);
-  padding-left: var(--space-3);
-  border-left: var(--border-width) solid var(--border-default);
-}
-
-.dev-topbar__spacer {
-  flex: 1;
-}
-
-.dev-topbar__link {
-  color: var(--text-secondary);
-  font-size: var(--type-body-sm-size);
-  padding: var(--space-1) var(--space-2);
-  border-radius: var(--radius-sm);
-}
-
-.dev-topbar__link:hover {
-  background: var(--fill-default);
-  color: var(--text-primary);
-}
-
-.dev-topbar__gh {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--size-sm-h);
-  height: var(--size-sm-h);
-  border-radius: var(--radius-sm);
-  color: var(--text-secondary);
-}
-
-.dev-topbar__gh:hover {
-  background: var(--fill-default);
-  color: var(--text-primary);
-}
-
-.dev-topbar__version {
-  padding: 0 var(--space-2);
-  border-radius: var(--radius-sm);
-  font-size: var(--type-caption-size);
-  line-height: var(--size-sm-h);
-  color: var(--text-tertiary);
-}
-
-.dev-topbar__version:hover {
-  background: var(--fill-default);
-  color: var(--text-primary);
+  background: var(--bg-canvas);
 }
 
 .dev-body {
   flex: 1;
   min-height: 0;
   display: flex;
-  gap: var(--shell-gutter);
-  padding: 0 var(--shell-gutter) var(--shell-gutter);
+  gap: var(--space-3);
+  padding: var(--space-3);
 }
 
 .dev-nav {
   flex: none;
   width: 232px;
-  padding: var(--space-2) var(--space-2) var(--space-6);
+  padding: var(--space-3) var(--space-2) var(--space-6);
+  border-radius: var(--radius-card);
 }
 
 .dev-nav__group + .dev-nav__group {
@@ -119,15 +55,15 @@ body {
 
 .dev-nav__item {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: var(--space-2);
   height: var(--size-sm-h);
-  align-items: center;
-  padding: 0 var(--space-2);
-  border-radius: var(--radius-sm);
+  padding: 0 var(--space-2-5);
+  border-radius: var(--radius-full);
   color: var(--text-secondary);
   font-size: var(--type-body-sm-size);
+  text-decoration: none;
 }
 
 .dev-nav__item:hover {
@@ -150,10 +86,10 @@ body {
 .dev-sheet {
   flex: 1;
   min-width: 0;
-  background: var(--shell-sheet-bg);
-  border: var(--border-width) solid var(--shell-sheet-border);
-  border-radius: var(--radius-sheet);
-  box-shadow: var(--shell-sheet-shadow);
+  background: var(--bg-raised);
+  border: var(--border-width) solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-raised);
 }
 
 /* 文档排版 */

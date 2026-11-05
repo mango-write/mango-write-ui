@@ -1,5 +1,5 @@
 /* Mango 设计语言「纸与霜」· Token 唯一真相源
-   规范正文见 ../DESIGN.md；数值只在本文件，展示站 /dev/ui 的 Foundations 直接读取这里。
+   规范正文见 ../DESIGN.md；数值只在本文件，展示站 Foundations 直接读取这里。
 
    分层（组件只许读 ② ③ ④，不许读 ① 与 ⑥，由 scripts/check-tokens.mjs 强制）：
      ① Palette   原料色板，与主题无关
@@ -301,6 +301,8 @@
   --control-bg-hover: rgb(255 255 255 / 0.92);
   --control-face: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.55));
   --control-inset: inset 0 1px 0 rgba(255, 255, 255, 0.95), inset 0 -1px 0 rgba(20, 14, 8, 0.04);
+  /* 物理旋钮（开关圆片 / 滑块手柄）＝一颗纸粒：浅色取纸面白，深色取暖纸白——纯白会在暖棕面板里发光。 */
+  --control-knob: var(--bg-raised);
 
   --frost-bg: rgb(252 250 247 / 0.8);
   --frost-bg-thick: rgb(252 250 247 / 0.9);
@@ -416,6 +418,7 @@
   --control-bg-hover: rgb(255 250 244 / 0.08);
   --control-face: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02));
   --control-inset: inset 0 1px 0 rgba(255, 255, 255, 0.08), inset 0 -1px 0 rgba(0, 0, 0, 0.25);
+  --control-knob: var(--bg-inverse);
 
   --frost-bg: rgb(34 32 30 / 0.78);
   --frost-bg-thick: rgb(34 32 30 / 0.88);
@@ -523,6 +526,7 @@
     --control-bg-hover: rgb(255 250 244 / 0.08);
     --control-face: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02));
     --control-inset: inset 0 1px 0 rgba(255, 255, 255, 0.08), inset 0 -1px 0 rgba(0, 0, 0, 0.25);
+    --control-knob: var(--bg-inverse);
 
     --frost-bg: rgb(34 32 30 / 0.78);
     --frost-bg-thick: rgb(34 32 30 / 0.88);

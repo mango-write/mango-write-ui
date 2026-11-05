@@ -20,11 +20,11 @@ import { installSteps, libraryIntro } from "../../content";
     <DocSection title="下一步">
       <ul class="doc-links">
         <li>
-          <RouterLink to="/dev/ui/foundations/overview">设计原则</RouterLink>
+          <RouterLink to="/foundations/overview">设计原则</RouterLink>
           <span>— 先读懂纸与霜的取舍,再动手。</span>
         </li>
         <li>
-          <RouterLink to="/dev/ui/components/button">按钮 Button</RouterLink>
+          <RouterLink to="/components/button">按钮 Button</RouterLink>
           <span>— 50+ 组件从它开始,每页附可复制的示例代码。</span>
         </li>
         <li>

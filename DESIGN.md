@@ -1,7 +1,7 @@
 # Mango 设计语言 ·「纸与霜」
 
 > 本文是 `@mango-write/ui` 的设计规范正文：原则、结构、规则与理由。
-> **数值只在 [`src/var.css`](src/var.css)**，可视化的活规格在展示站 `/dev/ui`（`pnpm dev`，端口 5176）。
+> **数值只在 [`src/var.css`](src/var.css)**，可视化的活规格在展示站文档页（`pnpm dev`）。
 > 文中出现的 token 名就是代码里的变量名。
 
 ## 1. 一句话
