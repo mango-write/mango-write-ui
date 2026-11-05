@@ -1258,6 +1258,7 @@
     "@vitejs/plugin-vue": "^6.0.8",
     "@vue/test-utils": "^2.4.11",
     "happy-dom": "^20.11.1",
+    "jsdom": "^30.0.1",
     "lucide-vue-next": "^1.0.0",
     "tailwindcss": "^4.0.0",
     "typescript": "npm:@typescript/typescript6@^6.0.2",
