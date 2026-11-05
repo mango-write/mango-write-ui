@@ -23,7 +23,7 @@ import { Maximize2, Minimize2, X } from "lucide-vue-next";
 import { uiMessages } from "../locale/index.js";
 import { useOverlayLayer } from "../lib/overlay-layer.js";
 import { vScrollFade } from "../lib/scroll-fade";
-import type { DialogEmits, DialogProps } from "./dialog.js";
+import type { DialogEmits, DialogProps } from "./dialog-defs.js";
 
 defineOptions({
   name: "MwDialog",

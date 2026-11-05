@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, useAttrs, type StyleValue } from "vue";
-import type { TabPanelsProps } from "./tabs.js";
+import type { TabPanelsProps } from "./tabs-defs.js";
 
 defineOptions({
   name: "MwTabPanels",

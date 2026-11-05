@@ -2,7 +2,7 @@
 import { computed, useAttrs, type StyleValue } from "vue";
 import { TabsList } from "reka-ui";
 import { vScrollFade } from "../lib/scroll-fade";
-import type { TabListProps } from "./tabs.js";
+import type { TabListProps } from "./tabs-defs.js";
 
 defineOptions({
   name: "MwTabList",

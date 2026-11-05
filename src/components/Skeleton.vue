@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, type CSSProperties } from "vue";
-import type { SkeletonAnimation, SkeletonShape } from "./skeleton";
+import type { SkeletonAnimation, SkeletonShape } from "./skeleton-defs";
 
 defineOptions({ name: "MwSkeleton" });
 

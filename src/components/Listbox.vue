@@ -6,7 +6,7 @@ import type {
   ListboxChangeEvent,
   ListboxOptionAccessor,
   ListboxProps,
-} from "./listbox";
+} from "./listbox-defs";
 
 export type {
   ListboxChangeEvent,

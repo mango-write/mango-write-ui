@@ -3,7 +3,7 @@ import { computed, inject, useAttrs, type StyleValue } from "vue";
 import {
   ACCORDION_PANEL_INJECTION_KEY,
   type AccordionContentProps,
-} from "./accordion-context.js";
+} from "./accordion-defs.js";
 
 defineOptions({
   name: "MwAccordionContent",

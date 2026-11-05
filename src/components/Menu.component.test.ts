@@ -3,7 +3,7 @@ import { nextTick } from "vue";
 import { Settings, User } from "lucide-vue-next";
 import { mountUiComponent } from "../test-utils/mount.js";
 import Menu from "./Menu.vue";
-import type { MenuItem } from "./menu";
+import type { MenuItem } from "./menu-defs";
 
 describe("Menu", () => {
   it("renders inline menu items, submenus, and separators", () => {

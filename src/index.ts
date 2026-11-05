@@ -12,11 +12,11 @@ export {
   type ButtonSize,
   type ButtonVariant,
   type NativeButtonType,
-} from "./components/button";
+} from "./components/button-defs";
 export { default as Checkbox } from "./components/Checkbox.vue";
 export { default as ConfirmHost } from "./components/ConfirmHost.vue";
 export { default as Dialog } from "./components/Dialog.vue";
-export { type DialogEmits, type DialogProps } from "./components/dialog";
+export { type DialogEmits, type DialogProps } from "./components/dialog-defs";
 export { default as FileDropZone } from "./components/FileDropZone.vue";
 export { default as PageHeader } from "./components/PageHeader.vue";
 export { default as NotFoundPage } from "./components/NotFoundPage.vue";
@@ -36,7 +36,7 @@ export {
   type SelectOptionAccessor,
   type SelectProps,
   type SelectSize,
-} from "./components/select";
+} from "./components/select-defs";
 export { default as SiteHeader } from "./components/site/SiteHeader.vue";
 export { default as SiteFooter } from "./components/site/SiteFooter.vue";
 export { default as Tabs } from "./components/Tabs.vue";
@@ -52,7 +52,7 @@ export {
   type TabsEmits,
   type TabsProps,
   type TabValue,
-} from "./components/tabs";
+} from "./components/tabs-defs";
 export { default as Tag } from "./components/Tag.vue";
 export { default as Textarea } from "./components/Textarea.vue";
 export { default as ToastHost } from "./components/ToastHost.vue";
@@ -139,7 +139,7 @@ export { default as InputGroupAddon } from "./components/InputGroupAddon.vue";
 export { default as InputNumber } from "./components/InputNumber.vue";
 export { default as Listbox } from "./components/Listbox.vue";
 export { default as Menu } from "./components/Menu.vue";
-export { type MenuItem } from "./components/menu";
+export { type MenuItem } from "./components/menu-defs";
 export { default as MultiSelect } from "./components/MultiSelect.vue";
 export { default as Paginator } from "./components/Paginator.vue";
 export { default as ProgressSpinner } from "./components/ProgressSpinner.vue";

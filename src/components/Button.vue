@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, useAttrs, useSlots } from "vue";
 import { LoaderCircle } from "lucide-vue-next";
-import type { ButtonProps } from "./button.js";
+import type { ButtonProps } from "./button-defs.js";
 
 defineOptions({
   name: "MwButton",
@@ -15,7 +15,7 @@ export type {
   ButtonSize,
   ButtonVariant,
   NativeButtonType,
-} from "./button.js";
+} from "./button-defs.js";
 
 const props = withDefaults(defineProps<ButtonProps>(), {
   label: undefined,

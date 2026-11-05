@@ -493,13 +493,13 @@
       "types": "./dist/components/UserSelect.d.ts",
       "default": "./dist/components/UserSelect.js"
     },
-    "./components/accordion-context": {
+    "./components/accordion": {
       "mango-source": {
-        "types": "./src/components/accordion-context.ts",
-        "default": "./src/components/accordion-context.ts"
+        "types": "./src/components/accordion-defs.ts",
+        "default": "./src/components/accordion-defs.ts"
       },
-      "types": "./dist/components/accordion-context.d.ts",
-      "default": "./dist/components/accordion-context.js"
+      "types": "./dist/components/accordion-defs.d.ts",
+      "default": "./dist/components/accordion-defs.js"
     },
     "./components/action-menu": {
       "mango-source": {
@@ -519,19 +519,19 @@
     },
     "./components/button": {
       "mango-source": {
-        "types": "./src/components/button.ts",
-        "default": "./src/components/button.ts"
+        "types": "./src/components/button-defs.ts",
+        "default": "./src/components/button-defs.ts"
       },
-      "types": "./dist/components/button.d.ts",
-      "default": "./dist/components/button.js"
+      "types": "./dist/components/button-defs.d.ts",
+      "default": "./dist/components/button-defs.js"
     },
     "./components/chip": {
       "mango-source": {
-        "types": "./src/components/chip.ts",
-        "default": "./src/components/chip.ts"
+        "types": "./src/components/chip-defs.ts",
+        "default": "./src/components/chip-defs.ts"
       },
-      "types": "./dist/components/chip.d.ts",
-      "default": "./dist/components/chip.js"
+      "types": "./dist/components/chip-defs.d.ts",
+      "default": "./dist/components/chip-defs.js"
     },
     "./components/color-picker": {
       "mango-source": {
@@ -559,11 +559,11 @@
     },
     "./components/dialog": {
       "mango-source": {
-        "types": "./src/components/dialog.ts",
-        "default": "./src/components/dialog.ts"
+        "types": "./src/components/dialog-defs.ts",
+        "default": "./src/components/dialog-defs.ts"
       },
-      "types": "./dist/components/dialog.d.ts",
-      "default": "./dist/components/dialog.js"
+      "types": "./dist/components/dialog-defs.d.ts",
+      "default": "./dist/components/dialog-defs.js"
     },
     "./components/input-number": {
       "mango-source": {
@@ -575,19 +575,19 @@
     },
     "./components/listbox": {
       "mango-source": {
-        "types": "./src/components/listbox.ts",
-        "default": "./src/components/listbox.ts"
+        "types": "./src/components/listbox-defs.ts",
+        "default": "./src/components/listbox-defs.ts"
       },
-      "types": "./dist/components/listbox.d.ts",
-      "default": "./dist/components/listbox.js"
+      "types": "./dist/components/listbox-defs.d.ts",
+      "default": "./dist/components/listbox-defs.js"
     },
     "./components/menu": {
       "mango-source": {
-        "types": "./src/components/menu.ts",
-        "default": "./src/components/menu.ts"
+        "types": "./src/components/menu-defs.ts",
+        "default": "./src/components/menu-defs.ts"
       },
-      "types": "./dist/components/menu.d.ts",
-      "default": "./dist/components/menu.js"
+      "types": "./dist/components/menu-defs.d.ts",
+      "default": "./dist/components/menu-defs.js"
     },
     "./components/multi-select": {
       "mango-source": {
@@ -615,11 +615,11 @@
     },
     "./components/select": {
       "mango-source": {
-        "types": "./src/components/select.ts",
-        "default": "./src/components/select.ts"
+        "types": "./src/components/select-defs.ts",
+        "default": "./src/components/select-defs.ts"
       },
-      "types": "./dist/components/select.d.ts",
-      "default": "./dist/components/select.js"
+      "types": "./dist/components/select-defs.d.ts",
+      "default": "./dist/components/select-defs.js"
     },
     "./components/select-button": {
       "mango-source": {
@@ -655,27 +655,27 @@
     },
     "./components/skeleton": {
       "mango-source": {
-        "types": "./src/components/skeleton.ts",
-        "default": "./src/components/skeleton.ts"
+        "types": "./src/components/skeleton-defs.ts",
+        "default": "./src/components/skeleton-defs.ts"
       },
-      "types": "./dist/components/skeleton.d.ts",
-      "default": "./dist/components/skeleton.js"
+      "types": "./dist/components/skeleton-defs.d.ts",
+      "default": "./dist/components/skeleton-defs.js"
     },
     "./components/slider": {
       "mango-source": {
-        "types": "./src/components/slider.ts",
-        "default": "./src/components/slider.ts"
+        "types": "./src/components/slider-defs.ts",
+        "default": "./src/components/slider-defs.ts"
       },
-      "types": "./dist/components/slider.d.ts",
-      "default": "./dist/components/slider.js"
+      "types": "./dist/components/slider-defs.d.ts",
+      "default": "./dist/components/slider-defs.js"
     },
     "./components/tabs": {
       "mango-source": {
-        "types": "./src/components/tabs.ts",
-        "default": "./src/components/tabs.ts"
+        "types": "./src/components/tabs-defs.ts",
+        "default": "./src/components/tabs-defs.ts"
       },
-      "types": "./dist/components/tabs.d.ts",
-      "default": "./dist/components/tabs.js"
+      "types": "./dist/components/tabs-defs.d.ts",
+      "default": "./dist/components/tabs-defs.js"
     },
     "./components/user-select": {
       "mango-source": {
@@ -1065,10 +1065,10 @@
         "import": "./dist/components/UserSelect.js",
         "default": "./dist/components/UserSelect.js"
       },
-      "./components/accordion-context": {
-        "types": "./dist/components/accordion-context.d.ts",
-        "import": "./dist/components/accordion-context.js",
-        "default": "./dist/components/accordion-context.js"
+      "./components/accordion": {
+        "types": "./dist/components/accordion-defs.d.ts",
+        "import": "./dist/components/accordion-defs.js",
+        "default": "./dist/components/accordion-defs.js"
       },
       "./components/action-menu": {
         "types": "./dist/components/action-menu.d.ts",
@@ -1081,14 +1081,14 @@
         "default": "./dist/components/async-search-select.js"
       },
       "./components/button": {
-        "types": "./dist/components/button.d.ts",
-        "import": "./dist/components/button.js",
-        "default": "./dist/components/button.js"
+        "types": "./dist/components/button-defs.d.ts",
+        "import": "./dist/components/button-defs.js",
+        "default": "./dist/components/button-defs.js"
       },
       "./components/chip": {
-        "types": "./dist/components/chip.d.ts",
-        "import": "./dist/components/chip.js",
-        "default": "./dist/components/chip.js"
+        "types": "./dist/components/chip-defs.d.ts",
+        "import": "./dist/components/chip-defs.js",
+        "default": "./dist/components/chip-defs.js"
       },
       "./components/color-picker": {
         "types": "./dist/components/color-picker.d.ts",
@@ -1106,9 +1106,9 @@
         "default": "./dist/components/date-picker.js"
       },
       "./components/dialog": {
-        "types": "./dist/components/dialog.d.ts",
-        "import": "./dist/components/dialog.js",
-        "default": "./dist/components/dialog.js"
+        "types": "./dist/components/dialog-defs.d.ts",
+        "import": "./dist/components/dialog-defs.js",
+        "default": "./dist/components/dialog-defs.js"
       },
       "./components/input-number": {
         "types": "./dist/components/input-number.d.ts",
@@ -1116,14 +1116,14 @@
         "default": "./dist/components/input-number.js"
       },
       "./components/listbox": {
-        "types": "./dist/components/listbox.d.ts",
-        "import": "./dist/components/listbox.js",
-        "default": "./dist/components/listbox.js"
+        "types": "./dist/components/listbox-defs.d.ts",
+        "import": "./dist/components/listbox-defs.js",
+        "default": "./dist/components/listbox-defs.js"
       },
       "./components/menu": {
-        "types": "./dist/components/menu.d.ts",
-        "import": "./dist/components/menu.js",
-        "default": "./dist/components/menu.js"
+        "types": "./dist/components/menu-defs.d.ts",
+        "import": "./dist/components/menu-defs.js",
+        "default": "./dist/components/menu-defs.js"
       },
       "./components/multi-select": {
         "types": "./dist/components/multi-select.d.ts",
@@ -1141,9 +1141,9 @@
         "default": "./dist/components/radio-button.js"
       },
       "./components/select": {
-        "types": "./dist/components/select.d.ts",
-        "import": "./dist/components/select.js",
-        "default": "./dist/components/select.js"
+        "types": "./dist/components/select-defs.d.ts",
+        "import": "./dist/components/select-defs.js",
+        "default": "./dist/components/select-defs.js"
       },
       "./components/select-button": {
         "types": "./dist/components/select-button.d.ts",
@@ -1166,19 +1166,19 @@
         "default": "./dist/components/site/social-icons.js"
       },
       "./components/skeleton": {
-        "types": "./dist/components/skeleton.d.ts",
-        "import": "./dist/components/skeleton.js",
-        "default": "./dist/components/skeleton.js"
+        "types": "./dist/components/skeleton-defs.d.ts",
+        "import": "./dist/components/skeleton-defs.js",
+        "default": "./dist/components/skeleton-defs.js"
       },
       "./components/slider": {
-        "types": "./dist/components/slider.d.ts",
-        "import": "./dist/components/slider.js",
-        "default": "./dist/components/slider.js"
+        "types": "./dist/components/slider-defs.d.ts",
+        "import": "./dist/components/slider-defs.js",
+        "default": "./dist/components/slider-defs.js"
       },
       "./components/tabs": {
-        "types": "./dist/components/tabs.d.ts",
-        "import": "./dist/components/tabs.js",
-        "default": "./dist/components/tabs.js"
+        "types": "./dist/components/tabs-defs.d.ts",
+        "import": "./dist/components/tabs-defs.js",
+        "default": "./dist/components/tabs-defs.js"
       },
       "./components/user-select": {
         "types": "./dist/components/user-select.d.ts",

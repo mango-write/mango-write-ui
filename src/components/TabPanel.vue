@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, useAttrs, type StyleValue } from "vue";
 import { TabsContent } from "reka-ui";
-import type { TabPanelProps } from "./tabs.js";
+import type { TabPanelProps } from "./tabs-defs.js";
 
 defineOptions({
   name: "MwTabPanel",

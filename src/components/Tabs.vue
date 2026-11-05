@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, useAttrs, watch, type StyleValue } from "vue";
 import { TabsRoot } from "reka-ui";
-import type { TabsEmits, TabsProps, TabValue } from "./tabs.js";
+import type { TabsEmits, TabsProps, TabValue } from "./tabs-defs.js";
 
 defineOptions({
   name: "MwTabs",

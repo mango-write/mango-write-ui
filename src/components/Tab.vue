@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, useAttrs, type StyleValue } from "vue";
 import { TabsTrigger } from "reka-ui";
-import type { TabProps } from "./tabs.js";
+import type { TabProps } from "./tabs-defs.js";
 
 defineOptions({
   name: "MwTab",

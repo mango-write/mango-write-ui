@@ -8,7 +8,7 @@ import {
   watch,
   type StyleValue,
 } from "vue";
-import type { MenuItem, MenuItemSlotProps, MenuProps } from "./menu.js";
+import type { MenuItem, MenuItemSlotProps, MenuProps } from "./menu-defs.js";
 import { useOverlayLayer } from "../lib/overlay-layer.js";
 
 defineOptions({

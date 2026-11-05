@@ -11,7 +11,7 @@ import type {
   SelectOptionAccessor,
   SelectProps,
   SelectSize,
-} from "./select";
+} from "./select-defs";
 
 export type {
   SelectChangeEvent,

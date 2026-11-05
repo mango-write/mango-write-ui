@@ -6,7 +6,7 @@ import type {
   SliderProps,
   SliderSlideEndEvent,
   SliderValue,
-} from "./slider.js";
+} from "./slider-defs.js";
 
 export type {
   SliderEmits,
