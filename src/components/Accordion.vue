@@ -6,7 +6,7 @@ import {
   type AccordionPanelValue,
   type AccordionProps,
   type AccordionValue,
-} from "./accordion.js";
+} from "./accordion-context.js";
 
 defineOptions({
   name: "MwAccordion",

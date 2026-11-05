@@ -11,7 +11,7 @@ import {
   ACCORDION_INJECTION_KEY,
   ACCORDION_PANEL_INJECTION_KEY,
   type AccordionPanelProps,
-} from "./accordion.js";
+} from "./accordion-context.js";
 
 defineOptions({
   name: "MwAccordionPanel",
