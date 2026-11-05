@@ -34,6 +34,7 @@ const customVenue = ref<string | null>("arXiv:2611.00421");
       <ul class="doc-rules">
         <li data-kind="do">候选项在 5 个以上，或表单空间不足以平铺展示。</li>
         <li data-kind="do">开启 <code>filter</code> 在弹出面板顶部提供筛选框；开启 <code>editable</code> 允许既可选预设又可手填。</li>
+        <li data-kind="do">触发器宽度按最宽候选锁定（封顶 <code>--mw-select-fit-max</code>，默认 24rem），切换选择不漂移；覆写 <code>--mw-select-fit-text</code> 可关闭，或用 <code>fluid</code> 撑满容器。</li>
         <li data-kind="dont">若核心交互是「聚焦直接在框内打字过滤」，用更紧凑的 <code>SearchableSelect</code>。</li>
         <li data-kind="dont">仅 2–4 个短选项且用于视图/范围切换时，用 <code>SelectButton</code>。</li>
       </ul>

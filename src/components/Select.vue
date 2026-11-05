@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Check, ChevronDown, LoaderCircle, X } from "lucide-vue-next";
 import { PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from "reka-ui";
-import { computed, getCurrentInstance, nextTick, ref, useAttrs, useId, watch, type CSSProperties } from "vue";
+import { computed, getCurrentInstance, nextTick, onMounted, ref, useAttrs, useId, watch, type CSSProperties } from "vue";
 import { uiMessages } from "../locale/index.js";
 import type {
   SelectChangeEvent,
@@ -190,6 +190,46 @@ const showClearButton = computed(
     !props.loading,
 );
 
+// 触发器宽度必须与「当前选中项」解耦，否则切换选择会拉动整行 reflow（页面漂移）。
+// 用 canvas 量最宽候选文本，经 --mw-select-fit-text 交给 CSS 锁 min-width；不常驻镜像节点。
+const fitTextWidth = ref(0);
+let fitMeasureCtx: CanvasRenderingContext2D | null | undefined;
+
+const selectFitStyle = computed(() => ({ "--mw-select-fit-text": `${fitTextWidth.value}px` }));
+
+function measureFitTextWidth() {
+  const el = triggerRef.value;
+  if (!el || typeof document === "undefined" || !props.options?.length) {
+    fitTextWidth.value = 0;
+    return;
+  }
+  if (fitMeasureCtx === undefined) {
+    fitMeasureCtx = document.createElement("canvas").getContext("2d");
+  }
+  if (!fitMeasureCtx) return;
+  const cs = getComputedStyle(el);
+  fitMeasureCtx.font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+  fitMeasureCtx.letterSpacing = cs.letterSpacing === "normal" ? "0px" : cs.letterSpacing;
+  let max = 0;
+  for (const opt of props.options) {
+    if (isOptionDisabled(opt)) continue;
+    max = Math.max(max, fitMeasureCtx.measureText(resolveOptionLabel(opt)).width);
+  }
+  // +2px 吸收字形微差：即便选中恰好是最宽候选，min-width 也要压住实际 max-content。
+  fitTextWidth.value = Math.ceil(max) + 2;
+}
+
+watch(
+  () => [props.options, props.optionLabel] as const,
+  () => nextTick(measureFitTextWidth),
+  { immediate: true },
+);
+
+onMounted(() => {
+  measureFitTextWidth();
+  document.fonts?.ready.then(measureFitTextWidth).catch(() => {});
+});
+
 const filteredOptions = computed(() => {
   const list = props.options ?? [];
   if (!props.filter) return list;
@@ -227,6 +267,7 @@ const rootClass = computed(() => [
     "mw-select--loading": props.loading,
     "mw-select--open": isOpen.value,
     "mw-select--editable": props.editable,
+    "mw-select--clearable": props.showClear && props.allowEmpty !== false,
   },
   attrs.class,
 ]);
@@ -478,7 +519,7 @@ function optionKey(option: any, index: number): string {
         v-bind="triggerAttrs"
         :id="triggerId"
         :class="rootClass"
-        :style="($attrs.style as any)"
+        :style="[($attrs.style as any), selectFitStyle]"
         :role="editable ? undefined : 'combobox'"
         :aria-haspopup="editable ? undefined : 'listbox'"
         :aria-expanded="editable ? undefined : isOpen"
@@ -648,12 +689,28 @@ function optionKey(option: any, index: number): string {
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
+  /* 宽度必须定死为「最宽候选文本 + 控件铬」：min-width 只兜下限，拦不住清除按钮等
+     内容把 max-content 推高，切换选择仍会漂移。覆盖 --mw-select-fit-text 可整体关闭。 */
+  --mw-select-clear-room: 0px;
+  --mw-select-fit-max: 24rem;
   min-width: calc(var(--control-h) * 4);
+  width: max(
+    calc(var(--control-h) * 4),
+    min(
+      calc(var(--mw-select-fit-text, 0px) + var(--control-px) * 2 + var(--control-icon) + var(--border-width) * 2 + var(--mw-select-clear-room)),
+      var(--mw-select-fit-max)
+    )
+  );
   max-width: 100%;
   height: var(--control-h);
   padding-inline: var(--control-px) calc(var(--control-px) - var(--space-1));
   cursor: pointer;
   user-select: none;
+}
+
+/* 清除按钮按 showClear 恒定预留房间，不随「当前是否有值」出现/消失而改变宽度。 */
+.mw-select--clearable {
+  --mw-select-clear-room: calc(var(--control-icon) + var(--space-1));
 }
 
 .mw-select--fluid {

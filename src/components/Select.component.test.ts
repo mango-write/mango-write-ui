@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { defineComponent, h, nextTick, ref } from "vue";
 import { mountUiComponent } from "../test-utils/mount.js";
 import Select from "./Select.vue";
@@ -241,5 +241,48 @@ describe("Select", () => {
 
     await input.setValue("Custom Value");
     expect((input.element as HTMLInputElement).value).toBe("Custom Value");
+  });
+
+  it("fit 宽度按最宽候选项锁定，切换选择不变化，options 变化才重算", async () => {
+    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue({
+      measureText: (text: string) => ({ width: text.length * 10 }),
+      letterSpacing: "0px",
+    } as unknown as CanvasRenderingContext2D);
+
+    const wrapper = mountSelect({
+      modelValue: "a",
+      options: [
+        { label: "Alpha", value: "a" },
+        { label: "Beta", value: "b" },
+        { label: "Widest Option Value", value: "w" },
+      ],
+    });
+
+    const fitOf = () =>
+      (wrapper.get('[role="combobox"]').element as HTMLElement).style.getPropertyValue("--mw-select-fit-text");
+    await nextTick();
+    // 最宽候选 19 字 × 10px = 190 → ceil + 2 slack
+    expect(fitOf()).toBe("192px");
+
+    await wrapper.get('[role="combobox"]').trigger("click");
+    await nextTick();
+    document.body.querySelector<HTMLElement>('[role="option"][aria-selected="true"]')?.click();
+    await nextTick();
+    expect(fitOf()).toBe("192px");
+
+    await wrapper.setProps({ options: [{ label: "Alpha", value: "a" }, { label: "Beta", value: "b" }] });
+    await nextTick();
+    await nextTick();
+    expect(fitOf()).toBe("52px");
+  });
+
+  it("无 canvas 环境降级为不锁定 fit 宽度且不报错", async () => {
+    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(null);
+
+    const wrapper = mountSelect({ modelValue: "a" });
+    await nextTick();
+    expect(
+      (wrapper.get('[role="combobox"]').element as HTMLElement).style.getPropertyValue("--mw-select-fit-text"),
+    ).toBe("0px");
   });
 });
