@@ -2,6 +2,9 @@
 import { AlertCircle, CheckCircle2, X } from "lucide-vue-next";
 import { ref } from "vue";
 import { Button, ToastHost, useNotify } from "../../../src";
+import { api } from "../../api/entries/toast";
+import ApiTable from "../../kit/ApiTable.vue";
+import CodeBlock from "../../kit/CodeBlock.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -51,6 +54,14 @@ function triggerBottomRight() {
   <DocPage
     lead="非阻塞轻提示：操作完成或后台状态变更后在视口角落短暂浮现，不打断当前焦点。采用霜材质（.mw-frost），支持四级语义、行内动作按钮、同 ID 原位更新与指针悬停暂停倒计时。"
   >
+    <DocSection title="示例">
+      <CodeBlock
+        v-for="ex in api.examples"
+        :key="ex.title"
+        :code="ex.code"
+        :title="ex.title"
+      />
+    </DocSection>
     <DocSection title="何时使用">
       <ul class="doc-rules">
         <li data-kind="do">轻量操作反馈：「已复制 BibTeX」「草稿已保存」「PDF 解析已完成」。</li>
@@ -142,20 +153,7 @@ function triggerBottomRight() {
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>属性 / 方法</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>useNotify()</code></td><td><code>NotifyStore</code></td><td>返回通知存储实例：<code>success / info / warn / error / add / remove / removeGroup / removeAllGroups</code></td></tr>
-          <tr><td><code>severity</code></td><td><code>success · info · warn · error</code></td><td>语义级别；<code>error</code> 使用 <code>role="alert"</code>，其余使用 <code>role="status"</code></td></tr>
-          <tr><td><code>summary</code> / <code>detail</code></td><td><code>string</code></td><td>主标题与辅助详情说明</td></tr>
-          <tr><td><code>life</code></td><td><code>number</code></td><td>自动关闭毫秒数；传 <code>0</code> 常驻不自动消失，悬停或聚焦期间计时器自动暂停</td></tr>
-          <tr><td><code>id</code></td><td><code>string</code></td><td>指定稳定 ID 时原位更新现有提示并保持 <code>announceKey</code>，不重复挂载 DOM</td></tr>
-          <tr><td><code>action</code></td><td><code>{ label: string, onClick: () =&gt; void }</code></td><td>底部行内操作按钮（如「撤销」「查看」）</td></tr>
-          <tr><td><code>ToastHost: position / group</code></td><td><code>top-right · top-left · bottom-right · bottom-left · top-center · bottom-center</code></td><td>挂载方位（默认 <code>top-right</code>）与消费分组名</td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

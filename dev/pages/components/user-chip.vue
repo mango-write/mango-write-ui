@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { Copy } from "lucide-vue-next";
 import { Button, UserChip, type UserProfile } from "../../../src";
+import { api } from "../../api/entries/user-chip";
+import ApiTable from "../../kit/ApiTable.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -104,19 +106,7 @@ const sizes = ["xs", "sm", "md", "lg"] as const;
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>属性 / 插槽</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>user</code></td><td><code>UserProfile</code></td><td>必填，用户资料对象（含 <code>name</code>、<code>avatar</code>、<code>handle</code>、<code>badge</code>、<code>role</code>、<code>email</code>、<code>description</code>）</td></tr>
-          <tr><td><code>variant</code></td><td><code>text · tag · avatar · person</code></td><td>展示形态；默认 <code>text</code></td></tr>
-          <tr><td><code>size</code></td><td><code>xs · sm · md · lg · small · medium · large</code></td><td>尺寸档位；不传则跟随密度上下文（<code>text</code> 除外）</td></tr>
-          <tr><td><code>showCard</code></td><td><code>boolean</code></td><td>悬停或聚焦时是否展示 <code>UserCard</code> 浮层；默认 <code>true</code></td></tr>
-          <tr><td><code>href</code></td><td><code>string | null</code></td><td>传入时根节点渲染为 <code>&lt;a&gt;</code> 链接</td></tr>
-          <tr><td><code>#id-actions</code> / <code>#card</code></td><td><code>{ user }</code></td><td>透传至内部 <code>UserCard</code> 的 ID 旁操作区与底部扩展区</td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

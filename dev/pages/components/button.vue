@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ArrowRight, Download, Filter, Plus, Settings, Sparkles, Trash2 } from "lucide-vue-next";
 import { Button } from "../../../src";
+import { api } from "../../api/entries/button";
+import ApiTable from "../../kit/ApiTable.vue";
+import CodeBlock from "../../kit/CodeBlock.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -21,6 +24,14 @@ const variants = [
 
 <template>
   <DocPage lead="触发一个动作。按钮的视觉重量表达动作的重要性：一个区块只有一个实心主按钮，其余逐级降权。">
+    <DocSection title="示例">
+      <CodeBlock
+        v-for="ex in api.examples"
+        :key="ex.title"
+        :code="ex.code"
+        :title="ex.title"
+      />
+    </DocSection>
     <DocSection title="何时使用">
       <ul class="doc-rules">
         <li data-kind="do"><strong>主操作</strong>（primary）：本区块唯一最重要的动作，例如「保存修改」「导入」。</li>
@@ -140,19 +151,7 @@ const variants = [
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>属性</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>variant</code></td><td><code>filled · tinted · outlined · text · link</code></td><td>视觉重量；默认 filled</td></tr>
-          <tr><td><code>severity</code></td><td><code>primary · secondary · danger · contrast · success · info · warning</code></td><td>语义；默认 primary</td></tr>
-          <tr><td><code>size</code></td><td><code>xs · sm · md · lg</code></td><td>不传则跟随密度上下文</td></tr>
-          <tr><td><code>rounded</code></td><td><code>boolean</code></td><td>胶囊形（<code>--radius-full</code>），文字内距自动放宽，icon-only 为正圆</td></tr>
-          <tr><td><code>icon</code></td><td><code>Component</code></td><td>Lucide 图标组件，尺寸取 <code>--control-icon</code></td></tr>
-          <tr><td><code>loading</code> / <code>disabled</code></td><td><code>boolean</code></td><td>加载时阻断点击并显示指示</td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

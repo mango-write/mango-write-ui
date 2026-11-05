@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from "../../../src";
+import { api } from "../../api/entries/tabs";
+import ApiTable from "../../kit/ApiTable.vue";
+import CodeBlock from "../../kit/CodeBlock.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -11,6 +14,14 @@ const frostTab = ref("notes");
 
 <template>
   <DocPage lead="标签页：在同一容器内切换不同内容分区。底栏下划线指示当前激活页签，方向键可在页签间巡航。">
+    <DocSection title="示例">
+      <CodeBlock
+        v-for="ex in api.examples"
+        :key="ex.title"
+        :code="ex.code"
+        :title="ex.title"
+      />
+    </DocSection>
     <DocSection title="何时使用">
       <ul class="doc-rules">
         <li data-kind="do">切换并列的内容子视图（如「大纲 / 批注 / 引用」），且各页签结构独立。</li>
@@ -65,17 +76,7 @@ const frostTab = ref("notes");
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>组件 / 属性</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>Tabs v-model:value</code></td><td><code>string | number</code></td><td>当前激活的页签值（亦兼容 <code>v-model</code>）</td></tr>
-          <tr><td><code>Tabs orientation</code></td><td><code>horizontal · vertical</code></td><td>排列方向，默认 <code>horizontal</code></td></tr>
-          <tr><td><code>Tab value</code></td><td><code>string | number</code></td><td>页签唯一标识，与对应 <code>TabPanel</code> 配对</td></tr>
-          <tr><td><code>Tab disabled</code></td><td><code>boolean</code></td><td>禁用该页签，键盘导航自动跳过</td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

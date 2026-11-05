@@ -2,6 +2,8 @@
 import { BookOpen, ChevronRight, Copy, Folder, MoreHorizontal, RotateCw, Trash2 } from "lucide-vue-next";
 import { ref } from "vue";
 import { ActionMenu, Badge, Button, useNotify, type ActionMenuItem } from "../../../src";
+import { api } from "../../api/entries/action-menu";
+import ApiTable from "../../kit/ApiTable.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -203,19 +205,7 @@ const items: ActionMenuItem[] = [
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>属性 / 字段 / 方法</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>items</code></td><td><code>ActionMenuItem[]</code></td><td>菜单项数组；支持动态 <code>visible</code> 与 <code>disabled</code> 布尔值或函数</td></tr>
-          <tr><td><code>v-model:open</code></td><td><code>boolean</code></td><td>可选受控打开状态</td></tr>
-          <tr><td><code>children</code> / <code>items</code></td><td><code>ActionMenuItem[]</code></td><td>二级子菜单项列表；悬停或按 <code>ArrowRight</code> 展开</td></tr>
-          <tr><td><code>shortcut</code> / <code>tooltip</code> / <code>danger</code></td><td><code>string / boolean</code></td><td>右侧等宽快捷键提示、悬停气泡说明（禁用项同样生效）、危险红语义</td></tr>
-          <tr><td><code>#icon</code></td><td><code>{ item }</code></td><td>自定义菜单项前置图标插槽</td></tr>
-          <tr><td><code>toggle(event, target)</code> / <code>show(event, target)</code> / <code>hide()</code></td><td>暴露方法</td><td><code>contextmenu</code> 事件自动取鼠标坐标，常规点击优先取锚点元素</td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

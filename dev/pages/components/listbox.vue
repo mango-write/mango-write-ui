@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { Listbox } from "../../../src";
+import { api } from "../../api/entries/listbox";
+import ApiTable from "../../kit/ApiTable.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -85,17 +87,7 @@ const selectedMulti = ref<string[]>(["dl", "bio"]);
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>属性</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>options</code> / <code>optionLabel</code> / <code>optionValue</code> / <code>optionDisabled</code></td><td>—</td><td>选项数组与字段映射</td></tr>
-          <tr><td><code>multiple</code></td><td><code>boolean</code></td><td>启用多选模式</td></tr>
-          <tr><td><code>filter</code> / <code>filterPlaceholder</code></td><td><code>boolean · string</code></td><td>显示顶部过滤输入框</td></tr>
-          <tr><td><code>disabled</code> / <code>invalid</code></td><td><code>boolean</code></td><td>禁用态与错误态</td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

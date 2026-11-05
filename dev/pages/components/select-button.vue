@@ -2,6 +2,8 @@
 import { AlignLeft, Columns2, LayoutList } from "lucide-vue-next";
 import { ref } from "vue";
 import { SelectButton } from "../../../src";
+import { api } from "../../api/entries/select-button";
+import ApiTable from "../../kit/ApiTable.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -81,18 +83,7 @@ const status = ref("draft");
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>属性</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>options</code> / <code>optionLabel</code> / <code>optionValue</code> / <code>optionDisabled</code></td><td>—</td><td>选项与取值方式</td></tr>
-          <tr><td><code>multiple</code></td><td><code>boolean</code></td><td>多选时 v-model 为数组</td></tr>
-          <tr><td><code>allowEmpty</code></td><td><code>boolean</code></td><td>再次点击选中段是否取消选择；视图切换应设为 false</td></tr>
-          <tr><td><code>size</code></td><td><code>xs · sm · md · lg</code></td><td>不传则跟随密度上下文</td></tr>
-          <tr><td><code>#option</code></td><td><code>{ option, index }</code></td><td>自定义段内容；图标取 <code>--control-icon</code></td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { NotFoundPage } from "../../../src";
+import { api } from "../../api/entries/not-found-page";
+import ApiTable from "../../kit/ApiTable.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 </script>
@@ -37,17 +39,7 @@ import DocSection from "../../kit/DocSection.vue";
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>属性 / 事件</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>title</code> / <code>lead</code></td><td><code>string</code></td><td>主标题与说明文案</td></tr>
-          <tr><td><code>path</code> / <code>pathLabel</code></td><td><code>string</code></td><td>可选的出错路径展示块</td></tr>
-          <tr><td><code>primaryLabel</code> / <code>secondaryLabel</code></td><td><code>string</code></td><td>主按钮与次按钮文案</td></tr>
-          <tr><td><code>@primary</code> / <code>@secondary</code></td><td><code>() =&gt; void</code></td><td>点击主/次按钮触发的跳转回调</td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

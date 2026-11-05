@@ -2,6 +2,9 @@
 import { ref } from "vue";
 import { Plus } from "lucide-vue-next";
 import { Button, Column, DataTable } from "../../../src";
+import { api } from "../../api/entries/data-table";
+import ApiTable from "../../kit/ApiTable.vue";
+import CodeBlock from "../../kit/CodeBlock.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -32,6 +35,14 @@ const expanded = ref<Paper[]>([]);
 
 <template>
   <DocPage lead="展示同构的结构化记录：文献、成员、用量明细。表格外框是一张分组卡，行用发丝线分隔，数字列等宽对齐。">
+    <DocSection title="示例">
+      <CodeBlock
+        v-for="ex in api.examples"
+        :key="ex.title"
+        :code="ex.code"
+        :title="ex.title"
+      />
+    </DocSection>
     <DocSection title="何时使用">
       <ul class="doc-rules">
         <li data-kind="do">记录有多个可比较的字段，用户需要扫读、排序或批量选择：文献清单、团队成员、审计日志。</li>
@@ -153,20 +164,7 @@ const expanded = ref<Paper[]>([]);
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>属性</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>size</code></td><td><code>xs · sm · md · lg</code></td><td>行高档；不传则行高 40px、字号跟随密度上下文</td></tr>
-          <tr><td><code>rowHover</code></td><td><code>boolean</code></td><td>行 hover 叠层；有选择模式时自动开启</td></tr>
-          <tr><td><code>stripedRows</code></td><td><code>boolean</code></td><td>斑马纹（极浅墨色）</td></tr>
-          <tr><td><code>selection</code> / <code>selectionMode</code></td><td><code>single · multiple</code></td><td>行选择；勾选列用 <code>Column selection-mode</code></td></tr>
-          <tr><td><code>loading</code></td><td><code>boolean</code></td><td>半透明蒙层 + 指示器，<code>#loading</code> 可覆盖</td></tr>
-          <tr><td><code>#empty</code></td><td>插槽</td><td>空态：说明 + 下一步动作</td></tr>
-          <tr><td><code>--mw-datatable-bg / -border / -radius</code></td><td>CSS 变量</td><td>外框定制钩子（嵌入已有卡片时去框）</td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

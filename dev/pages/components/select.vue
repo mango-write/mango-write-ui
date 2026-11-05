@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { Select } from "../../../src";
+import { api } from "../../api/entries/select";
+import ApiTable from "../../kit/ApiTable.vue";
+import CodeBlock from "../../kit/CodeBlock.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -30,6 +33,14 @@ const customVenue = ref<string | null>("arXiv:2611.00421");
 
 <template>
   <DocPage lead="下拉单选：从收起的候选列表中择一。触发器遵循控件面规范，展开面板为霜面浮层（mw-frost），选中项右侧带勾号。">
+    <DocSection title="示例">
+      <CodeBlock
+        v-for="ex in api.examples"
+        :key="ex.title"
+        :code="ex.code"
+        :title="ex.title"
+      />
+    </DocSection>
     <DocSection title="何时使用">
       <ul class="doc-rules">
         <li data-kind="do">候选项在 5 个以上，或表单空间不足以平铺展示。</li>
@@ -128,20 +139,7 @@ const customVenue = ref<string | null>("arXiv:2611.00421");
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>属性 / 插槽</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>options</code> / <code>optionLabel</code> / <code>optionValue</code> / <code>optionDisabled</code></td><td><code>string | ((opt) =&gt; any)</code></td><td>候选数组与字段取值访问器</td></tr>
-          <tr><td><code>filter</code> / <code>filterPlaceholder</code></td><td><code>boolean / string</code></td><td>在浮层面板顶部开启过滤输入框</td></tr>
-          <tr><td><code>showClear</code> / <code>allowEmpty</code></td><td><code>boolean</code></td><td>显示清空按钮；<code>allowEmpty=false</code> 时禁止清空</td></tr>
-          <tr><td><code>editable</code></td><td><code>boolean</code></td><td>触发器变为文本输入框，既可选列表项也可自由输入</td></tr>
-          <tr><td><code>size</code> / <code>fluid</code></td><td><code>xs · sm · md · lg</code> / <code>boolean</code></td><td>尺寸档位与是否撑满父容器宽度</td></tr>
-          <tr><td><code>loading</code> / <code>disabled</code> / <code>readonly</code> / <code>invalid</code></td><td><code>boolean</code></td><td>加载旋转指示、禁用、只读与错误态</td></tr>
-          <tr><td><code>#value</code> / <code>#option</code> / <code>#header</code> / <code>#empty</code></td><td>插槽</td><td>自定义已选展示、选项行、面板头部与空态文案</td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

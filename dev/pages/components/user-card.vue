@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { Copy, Mail, ShieldCheck } from "lucide-vue-next";
 import { Button, UserCard, type UserProfile } from "../../../src";
+import { api } from "../../api/entries/user-card";
+import ApiTable from "../../kit/ApiTable.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -111,18 +113,7 @@ const minimalUser: UserProfile = {
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>属性 / 插槽</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>user</code></td><td><code>UserProfile</code></td><td>用户资料对象：<code>{ name, id?, handle?, avatar?, email?, badge?, role?, description? }</code></td></tr>
-          <tr><td><code>size</code></td><td><code>medium · large</code></td><td>尺寸档位；默认 <code>medium</code></td></tr>
-          <tr><td><code>#name-actions</code></td><td>—</td><td>姓名与角色徽标右侧的紧邻内联插槽</td></tr>
-          <tr><td><code>#id-actions</code></td><td>—</td><td>账号句柄/ID 右侧的内联操作插槽（如复制按钮）</td></tr>
-          <tr><td><code>#card</code></td><td><code>{ user }</code></td><td>名片底部的自定义扩展区域</td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

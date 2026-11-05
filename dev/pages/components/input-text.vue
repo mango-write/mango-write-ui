@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { InputText } from "../../../src";
+import { api } from "../../api/entries/input-text";
+import ApiTable from "../../kit/ApiTable.vue";
+import CodeBlock from "../../kit/CodeBlock.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -12,6 +15,14 @@ const title = ref("基于检索增强的综述写作流程");
 
 <template>
   <DocPage lead="输入单行文本：标题、关键词、引用键、检索词。可输入面统一用半透明控件面，聚焦时边框转品牌色并带一圈晕。">
+    <DocSection title="示例">
+      <CodeBlock
+        v-for="ex in api.examples"
+        :key="ex.title"
+        :code="ex.code"
+        :title="ex.title"
+      />
+    </DocSection>
     <DocSection title="何时使用">
       <ul class="doc-rules">
         <li data-kind="do">短文本、一行能写完的值：草稿标题、团队名称、DOI。</li>
@@ -56,17 +67,7 @@ const title = ref("基于检索增强的综述写作流程");
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>属性</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>v-model</code></td><td><code>string</code></td><td>输入法组合期间不回写，组合结束一次提交</td></tr>
-          <tr><td><code>size</code></td><td><code>xs · sm · md · lg</code></td><td>不传则跟随密度上下文</td></tr>
-          <tr><td><code>invalid</code> / <code>disabled</code> / <code>readonly</code></td><td><code>boolean</code></td><td>状态；错误说明由 <code>FormField</code> 负责</td></tr>
-          <tr><td><code>fluid</code></td><td><code>boolean</code></td><td>撑满父容器宽度</td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

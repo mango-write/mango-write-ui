@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { MultiSelect } from "../../../src";
+import { api } from "../../api/entries/multi-select";
+import ApiTable from "../../kit/ApiTable.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -113,19 +115,7 @@ const dbOptions = [
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>属性 / 插槽</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>options</code> / <code>optionLabel</code> / <code>optionValue</code> / <code>optionDisabled</code></td><td><code>string | ((opt) =&gt; any)</code></td><td>候选数组与字段访问器</td></tr>
-          <tr><td><code>display</code></td><td><code>comma · chip</code></td><td>回显样式：逗号文本或可移除标签，默认 <code>comma</code></td></tr>
-          <tr><td><code>maxSelectedLabels</code> / <code>selectedItemsLabel</code></td><td><code>number / string</code></td><td>超出上限后折叠为计数文案（如 <code>已选 {0} 项</code>），默认 3</td></tr>
-          <tr><td><code>filter</code> / <code>showToggleAll</code> / <code>showClear</code></td><td><code>boolean</code></td><td>面板内过滤、头部全选复选框与触发器清空按钮</td></tr>
-          <tr><td><code>size</code> / <code>fluid</code></td><td><code>sm · md · lg</code> / <code>boolean</code></td><td>尺寸档位与撑满父容器</td></tr>
-          <tr><td><code>#value</code> / <code>#option</code> / <code>#header</code> / <code>#footer</code> / <code>#empty</code></td><td>插槽</td><td>自定义回显、选项行、面板头尾与空状态</td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

@@ -2,6 +2,8 @@
 import { Share2, SlidersHorizontal, Tag as TagIcon } from "lucide-vue-next";
 import { ref } from "vue";
 import { Button, InputText, Popover, SelectButton, ToggleSwitch } from "../../../src";
+import { api } from "../../api/entries/popover";
+import ApiTable from "../../kit/ApiTable.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -175,19 +177,7 @@ function openSharedAt(event: Event, name: string) {
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>属性 / 插槽 / 方法</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>v-model:open</code> / <code>defaultOpen</code></td><td><code>boolean</code></td><td>受控打开状态与非受控初始状态</td></tr>
-          <tr><td><code>side</code> / <code>sideOffset</code></td><td><code>top · right · bottom · left</code> / <code>number</code></td><td>首选弹出方向（默认 <code>bottom</code>）与主轴间距（默认 <code>6</code>）</td></tr>
-          <tr><td><code>align</code> / <code>alignOffset</code></td><td><code>start · center · end</code> / <code>number</code></td><td>交叉轴对齐方式（默认 <code>start</code>）与偏移量</td></tr>
-          <tr><td><code>dismissable</code> / <code>closeOnEscape</code> / <code>modal</code></td><td><code>boolean</code></td><td>点击外部关闭（默认 true）、Esc 关闭（默认 true）、模态锁定（默认 false）</td></tr>
-          <tr><td><code>#trigger</code> / <code>#default</code></td><td><code>{ open, toggle, show, hide }</code> / <code>{ open, close, hide }</code></td><td>触发器插槽（<code>as-child</code>）与浮层内容插槽</td></tr>
-          <tr><td><code>toggle(event, target)</code> / <code>show</code> / <code>hide</code></td><td>暴露方法</td><td>命令式控制开合与动态切换锚点元素</td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

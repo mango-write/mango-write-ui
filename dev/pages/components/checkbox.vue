@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { Checkbox } from "../../../src";
+import { api } from "../../api/entries/checkbox";
+import ApiTable from "../../kit/ApiTable.vue";
+import CodeBlock from "../../kit/CodeBlock.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -28,6 +31,14 @@ function toggleAll(checked: boolean) {
 
 <template>
   <DocPage lead="复选框：在布尔开关或一组互不排斥的选项中勾选。未选态保持控件面与强边框，选中与半选态切换为品牌实心底与反白勾线。">
+    <DocSection title="示例">
+      <CodeBlock
+        v-for="ex in api.examples"
+        :key="ex.title"
+        :code="ex.code"
+        :title="ex.title"
+      />
+    </DocSection>
     <DocSection title="何时使用">
       <ul class="doc-rules">
         <li data-kind="do">在表单或配置面板中勾选一或多个独立选项，或用 <code>binary</code> 表达需点击「保存」才生效的布尔项。</li>
@@ -100,19 +111,7 @@ function toggleAll(checked: boolean) {
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>属性</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>modelValue</code></td><td><code>any | any[]</code></td><td>绑定值；传数组且未开启 <code>binary</code> 时按集合模式增删 <code>value</code></td></tr>
-          <tr><td><code>value</code></td><td><code>any</code></td><td>数组模式下的当前项值</td></tr>
-          <tr><td><code>binary</code></td><td><code>boolean</code></td><td>单一布尔模式，在 <code>trueValue</code> 与 <code>falseValue</code> 间切换</td></tr>
-          <tr><td><code>indeterminate</code></td><td><code>boolean</code></td><td>半选态（<code>aria-checked="mixed"</code>），点击后进入选中态</td></tr>
-          <tr><td><code>size</code></td><td><code>sm · md · lg</code></td><td>尺寸档位，默认 <code>md</code></td></tr>
-          <tr><td><code>disabled</code> / <code>readonly</code> / <code>invalid</code></td><td><code>boolean</code></td><td>禁用、只读与校验失败态</td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

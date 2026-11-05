@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { SearchableMultiSelect } from "../../../src";
+import { api } from "../../api/entries/searchable-multi-select";
+import ApiTable from "../../kit/ApiTable.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -137,19 +139,7 @@ function filterByLabelOrCode(option: Record<string, unknown>, query: string): bo
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>属性 / 插槽</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>modelValue</code></td><td><code>unknown[]</code></td><td>选中值数组（<code>v-model</code>）</td></tr>
-          <tr><td><code>options</code> / <code>optionLabel</code> / <code>optionValue</code></td><td><code>Record[] / string</code></td><td>候选对象列表、展示字段名与取值字段名</td></tr>
-          <tr><td><code>optionFilter</code></td><td><code>(option, query) =&gt; boolean</code></td><td>自定义过滤谓词（<code>query</code> 已转小写）</td></tr>
-          <tr><td><code>size</code></td><td><code>"small" | "large"</code></td><td>尺寸档位，不传为 <code>md</code></td></tr>
-          <tr><td><code>#chip</code></td><td><code>{ option, label, index, remove }</code></td><td>自定义已选 chip 渲染（如 <code>UserSelect</code> 的头像胶囊）</td></tr>
-          <tr><td><code>#option</code></td><td><code>{ option, label, selected }</code></td><td>自定义浮层选项行内容</td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

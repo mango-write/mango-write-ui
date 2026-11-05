@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { Accordion, AccordionContent, AccordionHeader, AccordionPanel } from "../../../src";
+import { api } from "../../api/entries/accordion";
+import ApiTable from "../../kit/ApiTable.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -65,17 +67,7 @@ const multiOpen = ref<string[]>(["abstract", "cite"]);
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>组件 / 属性</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>Accordion v-model:value</code></td><td><code>string | number | array | null</code></td><td>当前展开项（单选为单值，<code>multiple</code> 为数组）</td></tr>
-          <tr><td><code>Accordion multiple</code></td><td><code>boolean</code></td><td>是否允许同时展开多项</td></tr>
-          <tr><td><code>AccordionPanel value</code></td><td><code>string | number</code></td><td>面板唯一标识</td></tr>
-          <tr><td><code>AccordionPanel disabled</code></td><td><code>boolean</code></td><td>禁用展开切换</td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

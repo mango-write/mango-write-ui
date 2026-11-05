@@ -14,6 +14,8 @@ import {
   Trash2,
 } from "lucide-vue-next";
 import { Badge, Button, Menu, useNotify, type MenuItem } from "../../../src";
+import { api } from "../../api/entries/menu";
+import ApiTable from "../../kit/ApiTable.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -157,18 +159,7 @@ const groupedItems: MenuItem[] = [
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>属性 / 插槽 / 方法</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>model</code></td><td><code>MenuItem[]</code></td><td>菜单项数组：支持 <code>label</code>、<code>icon</code>、<code>shortcut</code>、<code>danger</code>、<code>disabled</code>、<code>separator</code>、<code>items</code>、<code>command</code>、<code>url</code></td></tr>
-          <tr><td><code>popup</code> / <code>appendTo</code></td><td><code>boolean / string</code></td><td>是否为弹出式霜面浮层（默认 <code>false</code>）；挂载目标默认 <code>"body"</code></td></tr>
-          <tr><td><code>#start</code> / <code>#end</code></td><td>插槽</td><td>菜单列表上方与下方的固定扩展区域</td></tr>
-          <tr><td><code>#item</code> / <code>#submenulabel</code></td><td><code>{ item, label, props }</code></td><td>自定义单项渲染或分组标题渲染</td></tr>
-          <tr><td><code>toggle(event, target)</code> / <code>show</code> / <code>hide</code></td><td>暴露方法</td><td>在 <code>popup</code> 模式下控制菜单锚定弹出与收起</td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

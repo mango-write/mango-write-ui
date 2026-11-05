@@ -2,6 +2,9 @@
 import { AlertTriangle, Archive, HelpCircle, Trash2 } from "lucide-vue-next";
 import { ref } from "vue";
 import { Badge, Button, ConfirmHost, useConfirm } from "../../../src";
+import { api } from "../../api/entries/confirm";
+import ApiTable from "../../kit/ApiTable.vue";
+import CodeBlock from "../../kit/CodeBlock.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -86,6 +89,14 @@ async function askScopedGroup() {
   <DocPage
     lead="命令式二次确认：通过 useConfirm().ask() 唤起厚霜确认框并返回 Promise<boolean>。破坏性操作自动切换危险视觉并将初始焦点落在「取消」上，防止连按回车误穿。"
   >
+    <DocSection title="示例">
+      <CodeBlock
+        v-for="ex in api.examples"
+        :key="ex.title"
+        :code="ex.code"
+        :title="ex.title"
+      />
+    </DocSection>
     <DocSection title="何时使用">
       <ul class="doc-rules">
         <li data-kind="do">不可逆或高代价动作前的最后一步拦截：删除文献、清空回收站、移除成员、覆盖版本。</li>
@@ -165,20 +176,7 @@ async function askScopedGroup() {
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>属性 / 方法</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>confirm.ask(options)</code></td><td><code>Promise&lt;boolean&gt;</code></td><td>入队一条确认请求，用户点击确认结算为 <code>true</code>，取消/关闭结算为 <code>false</code></td></tr>
-          <tr><td><code>title</code> / <code>message</code> / <code>description</code></td><td><code>string</code></td><td>标题、主消息与次级补充说明（兼容 <code>header</code>）</td></tr>
-          <tr><td><code>danger</code></td><td><code>boolean</code></td><td>破坏性操作：图标切为警告红、确认钮切为 <code>danger</code>、初始焦点移至「取消」且拦截容器回车</td></tr>
-          <tr><td><code>acceptSeverity</code></td><td><code>primary · danger · warn · secondary</code></td><td>确认按钮语义；默认随 <code>danger</code> 派生</td></tr>
-          <tr><td><code>defaultFocus</code></td><td><code>accept · reject · none</code></td><td>打开时的初始焦点；常规默认 <code>accept</code>，危险默认 <code>reject</code></td></tr>
-          <tr><td><code>closeOnEscape</code> / <code>dismissableMask</code> / <code>signal</code></td><td><code>boolean / AbortSignal</code></td><td>按 Esc 取消（默认 true）、点遮罩取消（默认 false）、外部信号中止</td></tr>
-          <tr><td><code>ConfirmHost: group / #default / #message</code></td><td><code>string / 插槽</code></td><td>按 <code>group</code> 隔离消费队列；可通过作用域插槽完全自定义内容结构</td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

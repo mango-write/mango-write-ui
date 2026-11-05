@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { onMounted, onUnmounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
+import { Search } from "lucide-vue-next";
 import {
   AppLogo,
   Button,
@@ -11,6 +12,8 @@ import {
   type ThemePreference,
 } from "../src";
 import { docGroups } from "./registry";
+import SearchDialog from "./kit/SearchDialog.vue";
+import { version as uiVersion } from "../package.json";
 
 const { preference, setTheme } = useThemePreference();
 const themeOptions: { label: string; value: ThemePreference }[] = [
@@ -29,6 +32,16 @@ watch(
   () => route.path,
   () => sheet.value?.scrollTo({ top: 0 }),
 );
+
+const searchOpen = ref(false);
+function onGlobalKeydown(event: KeyboardEvent) {
+  if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+    event.preventDefault();
+    searchOpen.value = !searchOpen.value;
+  }
+}
+onMounted(() => window.addEventListener("keydown", onGlobalKeydown));
+onUnmounted(() => window.removeEventListener("keydown", onGlobalKeydown));
 </script>
 
 <template>
@@ -39,7 +52,21 @@ watch(
         <AppLogo />
       </RouterLink>
       <span class="dev-topbar__title">设计语言 · 纸与霜</span>
+      <a
+        class="dev-topbar__version"
+        href="https://github.com/mango-write/mango-write-ui/blob/main/CHANGELOG.md"
+        target="_blank"
+        rel="noreferrer"
+      >v{{ uiVersion }}</a>
       <span class="dev-topbar__spacer" />
+      <Button
+        variant="text"
+        severity="secondary"
+        size="sm"
+        :icon="Search"
+        aria-label="搜索文档（Ctrl K）"
+        @click="searchOpen = true"
+      />
       <Button
         href="https://rewrite.mangowrite.com"
         target="_blank"
@@ -102,4 +129,5 @@ watch(
   </div>
   <ToastHost position="top-right" />
   <ConfirmHost />
+  <SearchDialog v-model:open="searchOpen" />
 </template>

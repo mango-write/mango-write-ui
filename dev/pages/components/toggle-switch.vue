@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { ToggleSwitch } from "../../../src";
+import { api } from "../../api/entries/toggle-switch";
+import ApiTable from "../../kit/ApiTable.vue";
+import CodeBlock from "../../kit/CodeBlock.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -14,6 +17,14 @@ const fullAccess = ref(true);
 
 <template>
   <DocPage lead="拨动开关：切换即刻生效的二元状态。滑块始终是带抬起阴影的实体圆片，轨道在关闭态用 --fill-strong、开启态用品牌色。">
+    <DocSection title="示例">
+      <CodeBlock
+        v-for="ex in api.examples"
+        :key="ex.title"
+        :code="ex.code"
+        :title="ex.title"
+      />
+    </DocSection>
     <DocSection title="何时使用">
       <ul class="doc-rules">
         <li data-kind="do">切换立即生效的偏好或模式：「开启修订留痕」「实时校对引用」「深色模式」。</li>
@@ -64,17 +75,7 @@ const fullAccess = ref(true);
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>属性</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>modelValue</code></td><td><code>boolean</code></td><td>开关状态（<code>v-model</code>），默认 <code>false</code></td></tr>
-          <tr><td><code>inputId</code> / <code>id</code> / <code>name</code></td><td><code>string</code></td><td>关联 <code>&lt;label&gt;</code> 与表单字段标识</td></tr>
-          <tr><td><code>disabled</code> / <code>readonly</code></td><td><code>boolean</code></td><td>禁用或只读，阻断状态变更</td></tr>
-          <tr><td><code>invalid</code> / <code>required</code></td><td><code>boolean</code></td><td>表单校验状态与必填标记</td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

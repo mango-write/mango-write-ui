@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { UserSelect, type UserSelectOption } from "../../../src";
+import { api } from "../../api/entries/user-select";
+import ApiTable from "../../kit/ApiTable.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -79,18 +81,7 @@ const allPicked = ref<string[]>(["u-lin", "u-chen", "u-zhou", "u-su"]);
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>属性</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>modelValue</code></td><td><code>string[]</code></td><td>选中的用户 ID 数组（<code>v-model</code>）</td></tr>
-          <tr><td><code>users</code></td><td><code>UserSelectOption[]</code></td><td>候选成员列表（含 <code>id</code>、<code>name</code>、可选 <code>avatar</code> 与 <code>email</code>）</td></tr>
-          <tr><td><code>placeholder</code></td><td><code>string</code></td><td>未选时的占位提示语</td></tr>
-          <tr><td><code>emptyMessage</code></td><td><code>string</code></td><td>检索无匹配成员时的提示文案</td></tr>
-          <tr><td><code>disabled</code></td><td><code>boolean</code></td><td>禁用选择与移除操作</td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

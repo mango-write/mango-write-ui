@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { AppLogo } from "../../../src";
+import { api } from "../../api/entries/app-logo";
+import ApiTable from "../../kit/ApiTable.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -36,14 +38,7 @@ import StateRow from "../../kit/StateRow.vue";
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>属性</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>markOnly</code></td><td><code>boolean</code></td><td>仅渲染左侧芒果图形标并收缩 SVG viewBox，默认 <code>false</code></td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

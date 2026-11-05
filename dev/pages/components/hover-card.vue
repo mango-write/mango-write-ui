@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { BookOpen, ExternalLink } from "lucide-vue-next";
 import { Button, HoverCard, Tag, UserCard, UserChip, type UserProfile } from "../../../src";
+import { api } from "../../api/entries/hover-card";
+import ApiTable from "../../kit/ApiTable.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -155,19 +157,7 @@ const authorProfile: UserProfile = {
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>属性 / 插槽</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>placement</code></td><td><code>top · right · bottom · left</code></td><td>期望弹出方向，默认 <code>top</code>；视口放不下时自动翻转并夹紧边距</td></tr>
-          <tr><td><code>showDelay</code> / <code>hideDelay</code></td><td><code>number</code></td><td>悬停进入与离开延迟毫秒数，默认均为 <code>150</code>（兼作移入面板的指针桥）</td></tr>
-          <tr><td><code>interactive</code></td><td><code>boolean</code></td><td>默认 <code>true</code>（允许指针移入与 Tab 聚焦）；<code>false</code> 时退化为 <code>role="tooltip"</code></td></tr>
-          <tr><td><code>focusable</code></td><td><code>boolean</code></td><td>默认 <code>true</code> 为行内文本提供 <code>tabindex="0"</code>；包裹按钮/输入框时应传 <code>false</code></td></tr>
-          <tr><td><code>block</code> / <code>disabled</code> / <code>label</code></td><td><code>boolean / string</code></td><td>块级包裹盒、禁用状态、交互弹层的无障碍名称（<code>aria-label</code>）</td></tr>
-          <tr><td><code>#default</code> / <code>#content</code></td><td>插槽</td><td>锚点触发元素与悬浮卡片内容</td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

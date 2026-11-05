@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { ColorPicker } from "../../../src";
+import { api } from "../../api/entries/color-picker";
+import ApiTable from "../../kit/ApiTable.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -56,17 +58,7 @@ const label = ref("3b82c4");
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>属性</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>v-model</code></td><td><code>string</code></td><td>按 <code>format</code> 输出；hex 默认不带 #（传入带 # 则保留）</td></tr>
-          <tr><td><code>format</code></td><td><code>hex · rgb · hsb</code></td><td>输出格式</td></tr>
-          <tr><td><code>inline</code></td><td><code>boolean</code></td><td>更大的色块</td></tr>
-          <tr><td><code>disabled</code> / <code>readonly</code> / <code>invalid</code></td><td><code>boolean</code></td><td>状态</td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

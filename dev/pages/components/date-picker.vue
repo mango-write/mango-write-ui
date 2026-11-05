@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { DatePicker } from "../../../src";
+import { api } from "../../api/entries/date-picker";
+import ApiTable from "../../kit/ApiTable.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -134,20 +136,7 @@ const maxDate = new Date(2026, 10, 25);
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>属性 / 事件</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>v-model</code></td><td><code>Date | string | Array&lt;Date | null&gt; | null</code></td><td>绑定日期值；<code>range</code> 与 <code>multiple</code> 模式下为数组</td></tr>
-          <tr><td><code>selectionMode</code></td><td><code>single · range · multiple</code></td><td>单日（默认）、起止区间或多日选择</td></tr>
-          <tr><td><code>showTime</code> / <code>timeOnly</code> / <code>hourFormat</code></td><td><code>boolean</code> / <code>"24" · "12"</code></td><td>附加时间步进器、仅选择时间、小时制（默认 <code>"24"</code>）</td></tr>
-          <tr><td><code>dateFormat</code></td><td><code>string</code></td><td>展示格式，默认 <code>"yy-mm-dd"</code>（4 位年-2 位月-2 位日）</td></tr>
-          <tr><td><code>minDate</code> / <code>maxDate</code></td><td><code>Date | null</code></td><td>最小与最大可选日期边界，越界日期置灰禁选</td></tr>
-          <tr><td><code>showIcon</code> / <code>showClear</code> / <code>showButtonBar</code></td><td><code>boolean</code></td><td>右侧日历/时钟触发钮、清空按钮、底部「今天 / 清除」动作栏</td></tr>
-          <tr><td><code>size</code> / <code>fluid</code> / <code>invalid</code> / <code>disabled</code> / <code>readonly</code></td><td><code>sm · md · lg</code> / <code>boolean</code></td><td>尺寸档位、撑满容器宽度与表单状态</td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

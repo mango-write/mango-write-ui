@@ -279,7 +279,9 @@ defineExpose({
   </PopoverRoot>
 </template>
 
-<style scoped>
+<!-- scope id 只会落到 reka 的 popper 定位 wrapper 上，传不到 .mw-popover 根元素
+     （Select 系面板同因用非 scoped 块交付）；选择器均带 mw-popover 前缀，全局安全。 -->
+<style>
 .mw-popover {
   --mw-popover-enter-x: 0;
   --mw-popover-enter-y: 0;

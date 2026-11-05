@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { AtSign, Loader2, Search, X } from "lucide-vue-next";
 import { IconField, InputIcon, InputText } from "../../../src";
+import { api } from "../../api/entries/icon-field";
+import ApiTable from "../../kit/ApiTable.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -67,15 +69,7 @@ import StateRow from "../../kit/StateRow.vue";
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>组件</th><th>插槽 / 属性</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>IconField</code></td><td>默认插槽</td><td>依次放 <code>InputIcon</code>（左）、输入框、<code>InputIcon</code>（右）</td></tr>
-          <tr><td><code>InputIcon</code></td><td>默认插槽 / <code>class</code></td><td>放 Lucide 图标组件，尺寸与颜色由 <code>--control-icon</code> 与 <code>--text-tertiary</code> 统一控制</td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

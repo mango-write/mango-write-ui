@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { Slider } from "../../../src";
+import { api } from "../../api/entries/slider";
+import ApiTable from "../../kit/ApiTable.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -70,19 +72,7 @@ const zoomLevel = ref(100);
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>属性 / 事件</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>modelValue</code></td><td><code>number | [number, number]</code></td><td>当前数值或起止区间（<code>v-model</code>）</td></tr>
-          <tr><td><code>min</code> / <code>max</code> / <code>step</code></td><td><code>number</code></td><td>最小值（默认 0）、最大值（默认 100）与步长（默认 1）</td></tr>
-          <tr><td><code>range</code></td><td><code>boolean</code></td><td>开启双滑块区间选择</td></tr>
-          <tr><td><code>orientation</code></td><td><code>horizontal · vertical</code></td><td>方向，默认 <code>horizontal</code></td></tr>
-          <tr><td><code>disabled</code> / <code>readonly</code> / <code>invalid</code></td><td><code>boolean</code></td><td>禁用、只读与错误态</td></tr>
-          <tr><td><code>@slideend</code></td><td><code>{ originalEvent, value }</code></td><td>拖拽结束或键盘释放时触发</td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

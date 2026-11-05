@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { AsyncSearchSelect, type AsyncSearchOption } from "../../../src";
+import { api } from "../../api/entries/async-search-select";
+import ApiTable from "../../kit/ApiTable.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -102,20 +104,7 @@ const filteredWork = ref<string | null>(null);
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>属性 / 事件 / 插槽</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>modelValue</code></td><td><code>string | null</code></td><td>选中的选项 <code>value</code>（<code>v-model</code>）</td></tr>
-          <tr><td><code>search</code></td><td><code>(query: string) =&gt; Promise&lt;AsyncSearchOption[]&gt;</code></td><td>异步检索函数；组件内部自动处理序号竞态与防抖</td></tr>
-          <tr><td><code>initialOption</code></td><td><code>AsyncSearchOption | null</code></td><td>回显未搜索过的初始 ID 对应的标签与描述</td></tr>
-          <tr><td><code>excludeValues</code></td><td><code>string[]</code></td><td>从下拉结果中实时剔除的 ID 列表</td></tr>
-          <tr><td><code>debounceMs</code> / <code>fluid</code> / <code>showClear</code></td><td><code>number / boolean</code></td><td>防抖毫秒（默认 250）、撑满容器宽度、显示清空按钮</td></tr>
-          <tr><td><code>@select</code></td><td><code>(option: AsyncSearchOption | null) =&gt; void</code></td><td>选中或清空时携带完整选项对象触发</td></tr>
-          <tr><td><code>#option</code></td><td><code>{ option, selected }</code></td><td>自定义下拉选项行内容</td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

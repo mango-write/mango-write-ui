@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { Button, SiteFooter, SiteHeader } from "../../../src";
+import { api } from "../../api/entries/site";
+import ApiTable from "../../kit/ApiTable.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 
@@ -17,6 +19,7 @@ const navItems = [
       <ul class="doc-rules">
         <li data-kind="do">公开营销页、定价页、帮助中心与法务页统一使用 <code>SiteHeader</code> + <code>SiteFooter</code>。</li>
         <li data-kind="do">站点内链接经 <code>items</code> 与默认插槽注入，保持双站视觉与备案合规信息同源。</li>
+        <li data-kind="do">社媒账号经 <code>socials</code>、合规行经 <code>#legal</code>、品牌经 <code>#brand</code> 由宿主站点注入；组件默认值是产品站的运营事实，第三方宿主必须整组覆盖。</li>
         <li data-kind="dont">登录后的工作台应用面使用各自的应用壳，不混用营销站顶栏。</li>
       </ul>
     </DocSection>
@@ -46,7 +49,10 @@ const navItems = [
       </div>
     </DocSection>
 
-    <DocSection title="站点页脚（SiteFooter）" desc="包含品牌标、官方社媒二维码悬浮卡、法务链接插槽与 ICP/网安备案合规行。">
+    <DocSection
+      title="站点页脚（SiteFooter）"
+      desc="品牌标、社媒二维码悬浮卡（默认官方三号，扫码可找到我们；第三方宿主经 socials 整组覆盖）、法务链接插槽与合规行（#legal 插槽）。合规行是各站运营事实，演示页只保留版权行，真实备案行只出现在产品站。上方的假主体占位用于演示二维码悬浮卡的展开环境。"
+    >
       <div class="site-showcase-stack">
         <div
           v-for="theme in (['light', 'dark'] as const)"
@@ -56,10 +62,16 @@ const navItems = [
         >
           <span class="site-showcase-label">{{ theme === "light" ? "浅色 · 站点页脚" : "深色 · 站点页脚" }}</span>
           <div class="site-showcase-frame">
+            <div class="site-showcase-body" aria-hidden="true">
+              <span>页面主体内容</span>
+            </div>
             <SiteFooter locale="zh-CN">
               <a href="#privacy">隐私政策</a>
               <a href="#terms">服务协议</a>
               <a href="#security">数据安全</a>
+              <template #legal>
+                <span>© {{ new Date().getFullYear() }} 芒果写作 MangoWrite 版权所有</span>
+              </template>
             </SiteFooter>
           </div>
         </div>
@@ -67,18 +79,7 @@ const navItems = [
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>组件 / 属性</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>SiteHeader items</code></td><td><code>{ label, href, active? }[]</code></td><td>主导航链接列表</td></tr>
-          <tr><td><code>SiteHeader showLang</code> / <code>langLabel</code></td><td><code>boolean · string</code></td><td>显示语言切换圆钮及其文字</td></tr>
-          <tr><td><code>SiteHeader #actions</code></td><td>slot</td><td>右侧操作区（登录 / 进入工作台按钮）</td></tr>
-          <tr><td><code>SiteFooter locale</code></td><td><code>'zh-CN' · 'en'</code></td><td>页脚文案语言</td></tr>
-          <tr><td><code>SiteFooter #default</code></td><td>slot</td><td>法务与站点导航链接行</td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>
@@ -112,5 +113,19 @@ const navItems = [
   overflow: hidden;
   border-radius: var(--radius-lg);
   border: var(--border-width) solid var(--border-subtle);
+}
+
+/* 假主体占位：给页脚的二维码悬浮卡（向上展开）留出完整的弹出空间 */
+.site-showcase-body {
+  display: grid;
+  place-items: center;
+  padding: calc(var(--space-12) * 2) var(--space-5);
+  background: var(--bg-sunken);
+  border-bottom: var(--border-width) solid var(--border-subtle);
+}
+
+.site-showcase-body span {
+  color: var(--text-tertiary);
+  font-size: var(--type-caption-size);
 }
 </style>

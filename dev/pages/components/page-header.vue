@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { BookOpen, Plus, Upload } from "lucide-vue-next";
 import { Button, PageHeader } from "../../../src";
+import { api } from "../../api/entries/page-header";
+import ApiTable from "../../kit/ApiTable.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -41,16 +43,7 @@ import Specimen from "../../kit/Specimen.vue";
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>属性 / 插槽</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>title</code></td><td><code>string</code></td><td>页面一级标题（必填）</td></tr>
-          <tr><td><code>#icon</code></td><td>slot</td><td>标题左侧 32×32 品牌色淡底图标槽</td></tr>
-          <tr><td><code>#actions</code></td><td>slot</td><td>右侧操作按钮区</td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { Paginator } from "../../../src";
+import { api } from "../../api/entries/paginator";
+import ApiTable from "../../kit/ApiTable.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -45,18 +47,7 @@ const rows = ref(10);
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>属性</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>v-model:first</code></td><td><code>number</code></td><td>当前页首条记录的 0-based 偏移量</td></tr>
-          <tr><td><code>v-model:rows</code></td><td><code>number</code></td><td>每页显示记录数</td></tr>
-          <tr><td><code>totalRecords</code></td><td><code>number</code></td><td>总记录数</td></tr>
-          <tr><td><code>rowsPerPageOptions</code></td><td><code>number[]</code></td><td>每页条数下拉选项</td></tr>
-          <tr><td><code>pageLinkSize</code></td><td><code>number</code></td><td>最多显示的连续页码按钮数，默认 5</td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

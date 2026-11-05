@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { FormField, InputNumber, InputText, Select, Textarea } from "../../../src";
+import { api } from "../../api/entries/form-field";
+import ApiTable from "../../kit/ApiTable.vue";
+import CodeBlock from "../../kit/CodeBlock.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -18,6 +21,14 @@ const venues = [
 
 <template>
   <DocPage lead="给控件配上常驻标签、说明与错误：负责 label 关联、aria-describedby 与错误播报，控件只需接住插槽传下来的状态。">
+    <DocSection title="示例">
+      <CodeBlock
+        v-for="ex in api.examples"
+        :key="ex.title"
+        :code="ex.code"
+        :title="ex.title"
+      />
+    </DocSection>
     <DocSection title="何时使用">
       <ul class="doc-rules">
         <li data-kind="do">所有表单输入都包一层：标签常驻显示，不靠占位符。</li>
@@ -53,17 +64,7 @@ const venues = [
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>属性 / 插槽</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>inputId</code> / <code>label</code></td><td><code>string</code></td><td>必填；标签通过 <code>for</code> 关联控件</td></tr>
-          <tr><td><code>hint</code> / <code>error</code></td><td><code>string</code></td><td>说明与错误；有值时自动拼进 <code>describedBy</code></td></tr>
-          <tr><td><code>required</code></td><td><code>boolean</code></td><td>标签后显示 *，并下发给控件</td></tr>
-          <tr><td>默认插槽</td><td><code>{ inputId, describedBy, invalid, required }</code></td><td>绑定到控件上</td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

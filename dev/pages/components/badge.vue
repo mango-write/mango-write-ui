@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { Badge } from "../../../src";
+import { api } from "../../api/entries/badge";
+import ApiTable from "../../kit/ApiTable.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -70,17 +72,7 @@ const sizes = ["xs", "sm", "md", "lg"] as const;
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>属性 / 插槽</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>value</code></td><td><code>string | number</code></td><td>显示内容；为空且无默认插槽时渲染为状态圆点</td></tr>
-          <tr><td><code>severity</code></td><td><code>primary · secondary · success · info · warn · warning · danger · contrast</code></td><td>语义色彩；默认 <code>primary</code></td></tr>
-          <tr><td><code>size</code></td><td><code>xs · sm · md · lg · small · large</code></td><td>尺寸档位；不传则跟随容器密度上下文</td></tr>
-          <tr><td><code>#default</code></td><td>—</td><td>自定义徽标内部内容，优先级高于 <code>value</code></td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

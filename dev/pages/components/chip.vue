@@ -2,6 +2,8 @@
 import { ref } from "vue";
 import { Bookmark, FileText, Link2 } from "lucide-vue-next";
 import { Button, Chip } from "../../../src";
+import { api } from "../../api/entries/chip";
+import ApiTable from "../../kit/ApiTable.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -66,19 +68,7 @@ const sizes = ["xs", "sm", "md", "lg"] as const;
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>属性 / 事件 / 插槽</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>label</code></td><td><code>string</code></td><td>纸片显示的文本，同时作为根元素的 <code>aria-label</code></td></tr>
-          <tr><td><code>icon</code></td><td><code>Component</code></td><td>前置 Lucide 图标组件</td></tr>
-          <tr><td><code>image</code></td><td><code>string</code></td><td>前置圆形缩略图 URL，优先级高于 <code>icon</code></td></tr>
-          <tr><td><code>removable</code></td><td><code>boolean</code></td><td>是否显示尾部移除按钮；默认 <code>false</code></td></tr>
-          <tr><td><code>@remove</code></td><td><code>(event: Event) =&gt; void</code></td><td>点击移除或键盘触发移除时派发</td></tr>
-          <tr><td><code>#default</code> / <code>#removeicon</code></td><td>—</td><td>自定义内容或自定义移除按钮（暴露 <code>removeCallback</code> 与 <code>keydownCallback</code>）</td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

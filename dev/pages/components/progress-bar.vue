@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { Button, ProgressBar } from "../../../src";
+import { api } from "../../api/entries/progress-bar";
+import ApiTable from "../../kit/ApiTable.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -88,17 +90,7 @@ const progress = ref(64);
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>属性 / 插槽</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>value</code></td><td><code>number</code></td><td>当前进度百分比（0–100，超出范围自动钳制）；默认 <code>0</code></td></tr>
-          <tr><td><code>mode</code></td><td><code>determinate · indeterminate</code></td><td>定量或不确定时长模式；默认 <code>determinate</code></td></tr>
-          <tr><td><code>showValue</code></td><td><code>boolean</code></td><td>是否在指示条内显示百分比文本；默认 <code>true</code></td></tr>
-          <tr><td><code>#default</code></td><td><code>{ value: number }</code></td><td>自定义指示器内的进度文案（仅在 <code>determinate</code> 下渲染）</td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

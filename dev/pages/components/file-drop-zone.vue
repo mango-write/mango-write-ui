@@ -2,6 +2,8 @@
 import { FileUp, Upload } from "lucide-vue-next";
 import { ref } from "vue";
 import { Button, FileDropZone } from "../../../src";
+import { api } from "../../api/entries/file-drop-zone";
+import ApiTable from "../../kit/ApiTable.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -65,17 +67,7 @@ function onFiles(files: File[]) {
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>属性 / 事件</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>accept</code> / <code>multiple</code></td><td>—</td><td>透传给隐藏的 file input</td></tr>
-          <tr><td><code>surface</code></td><td><code>solid · inlay</code></td><td>有框档的底面</td></tr>
-          <tr><td><code>bare</code> / <code>plain</code></td><td><code>boolean</code></td><td>去框档；只保留拖 / 点行为与拖入反馈</td></tr>
-          <tr><td><code>@files</code></td><td><code>File[]</code></td><td>拖入或选择后触发；嵌套放置区不会重复接收</td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

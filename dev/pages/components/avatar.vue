@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { Bot, Building2, User, Users } from "lucide-vue-next";
 import { Avatar } from "../../../src";
+import { api } from "../../api/entries/avatar";
+import ApiTable from "../../kit/ApiTable.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -78,21 +80,7 @@ const sizes = [
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>属性 / 事件 / 插槽</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>shape</code></td><td><code>square · circle</code></td><td>外观形状；默认 <code>square</code></td></tr>
-          <tr><td><code>size</code></td><td><code>xs · sm · md · lg · normal · large · xlarge</code></td><td>尺寸档位；不传则跟随容器密度上下文</td></tr>
-          <tr><td><code>image</code></td><td><code>string</code></td><td>头像图片地址；加载失败时自动回退至 <code>label</code> 或 <code>icon</code></td></tr>
-          <tr><td><code>label</code></td><td><code>string</code></td><td>首字母或短字符缩略文本</td></tr>
-          <tr><td><code>icon</code></td><td><code>Component</code></td><td>Lucide 图标组件（尺寸跟随容器密度）</td></tr>
-          <tr><td><code>ariaLabel</code></td><td><code>string</code></td><td>无障碍名称，同时用于图片 <code>alt</code></td></tr>
-          <tr><td><code>@error</code> / <code>@click</code></td><td><code>Event</code></td><td>图片加载失败事件与点击事件</td></tr>
-          <tr><td><code>#default</code> / <code>#icon</code></td><td>—</td><td>自定义头像主体或图标插槽</td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

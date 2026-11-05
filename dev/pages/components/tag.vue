@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { BookOpen, CheckCircle2, Clock, Sparkles, Tag as TagIcon, TriangleAlert } from "lucide-vue-next";
 import { Tag } from "../../../src";
+import { api } from "../../api/entries/tag";
+import ApiTable from "../../kit/ApiTable.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -70,19 +72,7 @@ const sizes = ["xs", "sm", "md", "lg"] as const;
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>属性 / 事件 / 插槽</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>value</code></td><td><code>string | number | null</code></td><td>标签文本内容</td></tr>
-          <tr><td><code>severity</code></td><td><code>primary · secondary · success · info · warn · warning · danger · contrast</code></td><td>语义色彩；默认 <code>primary</code></td></tr>
-          <tr><td><code>rounded</code></td><td><code>boolean</code></td><td>是否使用胶囊圆角（<code>--radius-full</code>）；默认 <code>false</code></td></tr>
-          <tr><td><code>icon</code></td><td><code>Component</code></td><td>前置 Lucide 图标组件</td></tr>
-          <tr><td><code>@click</code></td><td><code>(event: MouseEvent) =&gt; void</code></td><td>点击标签时触发</td></tr>
-          <tr><td><code>#icon</code> / <code>#default</code></td><td>—</td><td>自定义图标或标签主体内容</td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

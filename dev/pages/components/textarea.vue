@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { Textarea } from "../../../src";
+import { api } from "../../api/entries/textarea";
+import ApiTable from "../../kit/ApiTable.vue";
+import CodeBlock from "../../kit/CodeBlock.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -13,6 +16,14 @@ const abstract = ref("本文提出一种面向长文献的分段摘要方法。"
 
 <template>
   <DocPage lead="输入多行文本：摘要、批注、给 AI 的指令。与单行输入框共享同一控件面与焦点晕，单行高度与同档控件对齐。">
+    <DocSection title="示例">
+      <CodeBlock
+        v-for="ex in api.examples"
+        :key="ex.title"
+        :code="ex.code"
+        :title="ex.title"
+      />
+    </DocSection>
     <DocSection title="何时使用">
       <ul class="doc-rules">
         <li data-kind="do">内容可能超过一行：批注正文、摘要、审稿意见。</li>
@@ -61,17 +72,7 @@ const abstract = ref("本文提出一种面向长文献的分段摘要方法。"
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>属性</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>v-model</code></td><td><code>string</code></td><td>输入法组合期间不回写</td></tr>
-          <tr><td><code>rows</code></td><td><code>number</code></td><td>初始行数，默认 3</td></tr>
-          <tr><td><code>autoResize</code></td><td><code>boolean</code></td><td>随内容增高，关闭手动拖拽</td></tr>
-          <tr><td><code>invalid</code> / <code>disabled</code> / <code>readonly</code></td><td><code>boolean</code></td><td>状态</td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

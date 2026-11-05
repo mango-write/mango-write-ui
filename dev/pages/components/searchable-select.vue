@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { SearchableSelect } from "../../../src";
+import { api } from "../../api/entries/searchable-select";
+import ApiTable from "../../kit/ApiTable.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -111,19 +113,7 @@ const citeOptions = [
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>属性</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>modelValue</code></td><td><code>unknown</code></td><td>当前选中值（<code>v-model</code>）</td></tr>
-          <tr><td><code>options</code></td><td><code>readonly Record&lt;string, unknown&gt;[]</code></td><td>选项对象数组</td></tr>
-          <tr><td><code>optionLabel</code> / <code>optionValue</code></td><td><code>string</code></td><td>展示文字字段名（必填）与值字段名（不传则取整个对象）</td></tr>
-          <tr><td><code>showClear</code></td><td><code>boolean</code></td><td>已选时是否显示右侧清空按钮</td></tr>
-          <tr><td><code>size</code></td><td><code>"small" | "large"</code></td><td>尺寸档位，不传为默认 <code>md</code></td></tr>
-          <tr><td><code>disabled</code> / <code>invalid</code> / <code>emptyMessage</code></td><td><code>boolean / string</code></td><td>禁用、错误态与无匹配提示文案</td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

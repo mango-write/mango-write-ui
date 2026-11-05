@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { Skeleton } from "../../../src";
+import { api } from "../../api/entries/skeleton";
+import ApiTable from "../../kit/ApiTable.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -74,19 +76,7 @@ import StateRow from "../../kit/StateRow.vue";
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>属性</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>shape</code></td><td><code>rectangle · circle</code></td><td>几何形状；默认 <code>rectangle</code></td></tr>
-          <tr><td><code>size</code></td><td><code>string</code></td><td>同时设置宽高（如 <code>"40px"</code>），优先级高于 <code>width</code> 与 <code>height</code></td></tr>
-          <tr><td><code>width</code></td><td><code>string</code></td><td>宽度 CSS 值；默认 <code>"100%"</code></td></tr>
-          <tr><td><code>height</code></td><td><code>string</code></td><td>高度 CSS 值；默认 <code>"1rem"</code></td></tr>
-          <tr><td><code>borderRadius</code></td><td><code>string</code></td><td>自定义圆角半径；默认矩形取 <code>var(--radius-sm)</code>，圆形取 <code>var(--radius-full)</code></td></tr>
-          <tr><td><code>animation</code></td><td><code>wave · none</code></td><td>扫掠动画或静态无动画；默认 <code>wave</code></td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

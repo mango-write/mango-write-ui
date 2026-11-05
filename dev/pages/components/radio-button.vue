@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { RadioButton } from "../../../src";
+import { api } from "../../api/entries/radio-button";
+import ApiTable from "../../kit/ApiTable.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -66,19 +68,7 @@ const citeStyles = [
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>属性</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>modelValue</code></td><td><code>T</code></td><td>当前选中值（<code>v-model</code>）</td></tr>
-          <tr><td><code>value</code></td><td><code>T</code></td><td>当前单选框代表的选项值，支持基本类型与对象比较</td></tr>
-          <tr><td><code>binary</code></td><td><code>boolean</code></td><td>独立布尔模式，点击切换布尔值</td></tr>
-          <tr><td><code>name</code> / <code>inputId</code></td><td><code>string</code></td><td>原生表单分组名与关联标签 ID</td></tr>
-          <tr><td><code>size</code></td><td><code>sm · md · lg</code></td><td>尺寸档位，默认 <code>md</code></td></tr>
-          <tr><td><code>disabled</code> / <code>readonly</code> / <code>invalid</code></td><td><code>boolean</code></td><td>禁用、只读与错误态</td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

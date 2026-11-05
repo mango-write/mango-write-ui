@@ -2,6 +2,8 @@
 import { Maximize, RotateCcw, RotateCw, X, ZoomIn, ZoomOut } from "lucide-vue-next";
 import { ref } from "vue";
 import { Button, ImageLightbox } from "../../../src";
+import { api } from "../../api/entries/image-lightbox";
+import ApiTable from "../../kit/ApiTable.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -155,17 +157,7 @@ function openFigure(src: string, alt: string, caption: string | null) {
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>属性 / 交互</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>v-model:visible</code></td><td><code>boolean</code></td><td>受控显示状态；每次打开时自动将缩放（<code>1×</code>）、旋转（<code>0°</code>）与位移归零</td></tr>
-          <tr><td><code>src</code></td><td><code>string</code></td><td>图片地址（必填）</td></tr>
-          <tr><td><code>alt</code> / <code>caption</code></td><td><code>string / string | null</code></td><td>图片替代文本与底部居中图题说明；同时作为 <code>role="dialog"</code> 的无障碍名称来源</td></tr>
-          <tr><td>缩放 / 旋转 / 平移</td><td>内置手势与键盘</td><td>缩放范围 <code>0.2× – 8×</code>（滚轮、工具栏或键盘 <code>+</code>/<code>-</code>），支持 <code>±90°</code> 旋转与 Pointer Capture 拖拽平移</td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

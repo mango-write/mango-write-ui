@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { Button, Dialog, FormField, InputText, Select, Textarea } from "../../../src";
+import { api } from "../../api/entries/dialog";
+import ApiTable from "../../kit/ApiTable.vue";
+import CodeBlock from "../../kit/CodeBlock.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -40,6 +43,14 @@ function openWithWidth(width: string) {
   <DocPage
     lead="模态覆盖层：打断当前流以完成聚焦的子任务或表单。采用厚霜材质（.mw-frost--thick）配压暗遮罩（--scrim），头部、正文滚动区与底栏动作分区固定。"
   >
+    <DocSection title="示例">
+      <CodeBlock
+        v-for="ex in api.examples"
+        :key="ex.title"
+        :code="ex.code"
+        :title="ex.title"
+      />
+    </DocSection>
     <DocSection title="何时使用">
       <ul class="doc-rules">
         <li data-kind="do">需要用户完成一段完整输入或配置再返回主流程，例如新建草稿、配置导出参数、编辑题录元数据。</li>
@@ -211,19 +222,7 @@ function openWithWidth(width: string) {
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>属性 / 插槽</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>v-model:open</code> / <code>v-model:visible</code></td><td><code>boolean</code></td><td>受控打开状态（主契约 <code>open</code>，兼容 <code>visible</code>）</td></tr>
-          <tr><td><code>title</code> / <code>description</code></td><td><code>string</code></td><td>弹窗标题（兼容 <code>header</code>）与副标题说明文案</td></tr>
-          <tr><td><code>width</code></td><td><code>string</code></td><td>自定义宽度，默认 <code>min(32rem, calc(100vw - var(--space-8)))</code></td></tr>
-          <tr><td><code>maximizable</code> / <code>closable</code> / <code>showHeader</code></td><td><code>boolean</code></td><td>最大化按钮（默认 false）、关闭按钮（默认 true）、头部显隐（默认 true）</td></tr>
-          <tr><td><code>dismissableMask</code> / <code>closeOnEscape</code></td><td><code>boolean</code></td><td>点击遮罩关闭（默认 false）、按 Escape 关闭（默认 true）</td></tr>
-          <tr><td><code>#header</code> / <code>#lead</code> / <code>#default</code> / <code>#footer</code></td><td>插槽</td><td>标题区、正文上方固定引导区、可滚动主体、底栏动作区（默认 md 密度）</td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

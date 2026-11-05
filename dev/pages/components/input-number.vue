@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { InputNumber } from "../../../src";
+import { api } from "../../api/entries/input-number";
+import ApiTable from "../../kit/ApiTable.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -63,18 +65,7 @@ const price = ref<number | null>(199);
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>属性</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>v-model</code></td><td><code>number | null</code></td><td>清空为 null</td></tr>
-          <tr><td><code>min</code> / <code>max</code> / <code>step</code></td><td><code>number</code></td><td>失焦与步进时钳制</td></tr>
-          <tr><td><code>showButtons</code> / <code>buttonLayout</code></td><td><code>stacked · horizontal · vertical</code></td><td>步进按钮与布局</td></tr>
-          <tr><td><code>mode</code> / <code>currency</code> / <code>prefix</code> / <code>suffix</code></td><td>—</td><td>显示格式</td></tr>
-          <tr><td><code>size</code></td><td><code>xs · sm · md · lg</code></td><td>不传则跟随密度上下文</td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

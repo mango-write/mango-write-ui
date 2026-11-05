@@ -2,6 +2,8 @@
 import { Bold, Bookmark, Copy, Download, Italic, Link2, Sparkles } from "lucide-vue-next";
 import { ref } from "vue";
 import { Button, vTooltip } from "../../../src";
+import { api } from "../../api/entries/tooltip";
+import ApiTable from "../../kit/ApiTable.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -96,17 +98,7 @@ function toggleCopyTip() {
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>用法 / 修饰符</th><th>类型</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>v-tooltip="text"</code></td><td><code>string</code></td><td>提示纯文本；为空字符串时不渲染面板</td></tr>
-          <tr><td><code>.top</code> / <code>.right</code> / <code>.bottom</code> / <code>.left</code></td><td>修饰符</td><td>首选弹出方向，不传默认 <code>.top</code></td></tr>
-          <tr><td>触发与收起</td><td>交互约束</td><td><code>mouseenter</code> / <code>focusin</code> 延迟 150ms 展开；<code>mouseleave</code> / <code>focusout</code> / <code>click</code> / <code>Escape</code> 立即收起</td></tr>
-          <tr><td>无障碍关联</td><td>DOM 属性</td><td>展开期间自动为宿主元素挂载 <code>aria-describedby</code> 指向 <code>role="tooltip"</code> 面板</td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

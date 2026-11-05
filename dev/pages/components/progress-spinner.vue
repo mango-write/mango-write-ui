@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { ProgressSpinner } from "../../../src";
+import { api } from "../../api/entries/progress-spinner";
+import ApiTable from "../../kit/ApiTable.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -70,18 +72,7 @@ const sizes = [
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>属性 / CSS 变量</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>strokeWidth</code></td><td><code>string | number</code></td><td>SVG 圆环描边宽度（基于 50×50 viewBox）；默认 <code>"4"</code></td></tr>
-          <tr><td><code>fill</code></td><td><code>string</code></td><td>圆环内部填充色；默认 <code>"none"</code></td></tr>
-          <tr><td><code>animationDuration</code></td><td><code>string</code></td><td>外层旋转周期；默认 <code>"2s"</code></td></tr>
-          <tr><td><code>ariaLabel</code></td><td><code>string</code></td><td>无障碍 <code>progressbar</code> 标签说明</td></tr>
-          <tr><td><code>--mw-progress-spinner-size</code></td><td><code>&lt;length&gt;</code></td><td>控制宽高尺寸的 CSS 变量；默认 <code>var(--space-10)</code></td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

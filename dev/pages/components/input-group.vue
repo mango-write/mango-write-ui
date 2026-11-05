@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { Copy, Link } from "lucide-vue-next";
 import { Button, InputGroup, InputGroupAddon, InputNumber, InputText } from "../../../src";
+import { api } from "../../api/entries/input-group";
+import ApiTable from "../../kit/ApiTable.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -64,15 +66,7 @@ import StateRow from "../../kit/StateRow.vue";
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>组件</th><th>插槽</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>InputGroup</code></td><td>默认插槽</td><td>按顺序放附加段、输入框、按钮；首尾段保留圆角，中间段直角拼接</td></tr>
-          <tr><td><code>InputGroupAddon</code></td><td>默认插槽</td><td>文字或图标；图标取 <code>--control-icon</code></td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

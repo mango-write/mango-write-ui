@@ -27,6 +27,12 @@ function component(slug: string, title: string, en: string): DocEntry {
 
 export const docGroups: DocGroup[] = [
   {
+    id: "getting-started",
+    title: "上手",
+    base: "/dev/ui/getting-started",
+    entries: [foundation("installation", "安装与上手", "Installation")],
+  },
+  {
     id: "foundations",
     title: "基础",
     base: "/dev/ui/foundations",

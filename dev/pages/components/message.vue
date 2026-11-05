@@ -2,6 +2,8 @@
 import { CheckCircle2, Info, ShieldAlert, Sparkles, TriangleAlert } from "lucide-vue-next";
 import { ref } from "vue";
 import { Button, Message } from "../../../src";
+import { api } from "../../api/entries/message";
+import ApiTable from "../../kit/ApiTable.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -79,18 +81,7 @@ const resetKey = ref(0);
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>属性 / 事件 / 插槽</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>severity</code></td><td><code>info · success · warn · warning · error · secondary · contrast</code></td><td>语义等级；默认 <code>info</code></td></tr>
-          <tr><td><code>icon</code></td><td><code>Component</code></td><td>前置 Lucide 图标组件</td></tr>
-          <tr><td><code>closable</code></td><td><code>boolean</code></td><td>是否显示右上角关闭按钮；默认 <code>false</code></td></tr>
-          <tr><td><code>@close</code></td><td><code>(event: MouseEvent) =&gt; void</code></td><td>点击关闭按钮隐藏提示条时触发</td></tr>
-          <tr><td><code>#default</code> / <code>#icon</code></td><td>—</td><td>提示正文内容与自定义前置图标插槽</td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>

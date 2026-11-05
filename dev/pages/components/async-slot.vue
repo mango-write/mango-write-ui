@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { AsyncSlot, Button, SelectButton } from "../../../src";
+import { api } from "../../api/entries/async-slot";
+import ApiTable from "../../kit/ApiTable.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
@@ -73,17 +75,7 @@ const statusOptions = [
     </DocSection>
 
     <DocSection title="接口">
-      <table class="doc-table">
-        <thead>
-          <tr><th>属性 / 事件</th><th>取值</th><th>说明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>status</code></td><td><code>loading · empty · error · ready</code></td><td>当前异步状态（必填）</td></tr>
-          <tr><td><code>skeleton</code></td><td><code>list · card · text · none</code></td><td>加载态内置骨架形状</td></tr>
-          <tr><td><code>emptyTitle</code> / <code>emptyHint</code></td><td><code>string</code></td><td>空态标题与提示的 i18n key</td></tr>
-          <tr><td><code>@retry</code></td><td><code>() =&gt; void</code></td><td>错误态点击重试按钮触发</td></tr>
-        </tbody>
-      </table>
+      <ApiTable :api="api" />
     </DocSection>
   </DocPage>
 </template>
