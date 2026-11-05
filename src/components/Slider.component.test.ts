@@ -23,7 +23,7 @@ describe("Slider", () => {
     });
 
     expect(wrapper.classes()).toEqual(
-      expect.arrayContaining(["mw-slider", "p-slider"]),
+      expect.arrayContaining(["mw-slider"]),
     );
     const input = wrapper.get('input[type="range"]');
     expect(input.attributes("aria-label")).toBe("不透明度");

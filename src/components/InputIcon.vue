@@ -7,7 +7,7 @@ const props = defineProps<{
 </script>
 
 <template>
-  <span class="mw-input-icon p-inputicon" :class="props.class">
+  <span class="mw-input-icon" :class="props.class">
     <slot />
   </span>
 </template>

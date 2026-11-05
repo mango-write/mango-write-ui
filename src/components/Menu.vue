@@ -389,7 +389,7 @@ function getItemSlotProps(item: MenuItem): MenuItemSlotProps {
   const disabled = isItemDisabled(item);
   return {
     action: {
-      class: "mw-menu__item-link p-menu-item-link",
+      class: "mw-menu__item-link",
       href: item.url || undefined,
       target: item.target || undefined,
       role: "menuitem",
@@ -398,11 +398,11 @@ function getItemSlotProps(item: MenuItem): MenuItemSlotProps {
       onClick: (event: MouseEvent) => onItemClick(event, item),
     },
     icon: {
-      class: "mw-menu__item-icon p-menu-item-icon",
+      class: "mw-menu__item-icon",
       "aria-hidden": "true",
     },
     label: {
-      class: "mw-menu__item-label p-menu-item-label",
+      class: "mw-menu__item-label",
     },
   };
 }
@@ -448,10 +448,8 @@ const teleportTarget = computed(() =>
 
 const rootClass = computed(() => [
   "mw-menu",
-  "p-menu",
   {
     "mw-menu--popup": props.popup,
-    "p-menu-overlay": props.popup,
     "mw-frost": props.popup,
   },
   attrs.class,
@@ -504,12 +502,12 @@ defineExpose({
       @focus="emit('focus', $event)"
       @blur="emit('blur', $event)"
     >
-      <div v-if="$slots.start" class="mw-menu__start p-menu-start">
+      <div v-if="$slots.start" class="mw-menu__start">
         <slot name="start" />
       </div>
 
       <ul
-        class="mw-menu__list p-menu-list"
+        class="mw-menu__list"
         role="menu"
         :aria-label="ariaLabel"
         :aria-labelledby="ariaLabelledby"
@@ -518,7 +516,7 @@ defineExpose({
         <template v-for="entry in flatEntries" :key="entry.key">
           <li
             v-if="entry.kind === 'separator'"
-            class="mw-menu__separator p-menu-separator"
+            class="mw-menu__separator"
             :class="entry.item.class"
             :style="entry.item.style"
             role="separator"
@@ -526,7 +524,7 @@ defineExpose({
 
           <li
             v-else-if="entry.kind === 'submenulabel'"
-            class="mw-menu__submenu-label p-menu-submenu-label"
+            class="mw-menu__submenu-label"
             :class="entry.item.class"
             :style="entry.item.style"
             role="presentation"
@@ -542,14 +540,12 @@ defineExpose({
 
           <li
             v-else
-            class="mw-menu__item p-menu-item"
+            class="mw-menu__item"
             :class="[
               {
                 'mw-menu__item--disabled': isItemDisabled(entry.item),
-                'p-disabled': isItemDisabled(entry.item),
                 'mw-menu__item--focused': focusedIndex === entry.navIndex,
                 'mw-menu__item--danger': Boolean(entry.item.danger),
-                'p-focus': focusedIndex === entry.navIndex,
               },
               entry.item.class,
             ]"
@@ -562,7 +558,7 @@ defineExpose({
             @mouseenter="focusedIndex = entry.navIndex"
           >
             <div
-              class="mw-menu__item-content p-menu-item-content"
+              class="mw-menu__item-content"
               @click="onItemClick($event, entry.item)"
             >
               <slot
@@ -576,7 +572,7 @@ defineExpose({
                 v-else
                 :href="entry.item.url || undefined"
                 :target="entry.item.target || undefined"
-                class="mw-menu__item-link p-menu-item-link"
+                class="mw-menu__item-link"
                 tabindex="-1"
                 :aria-disabled="isItemDisabled(entry.item) || undefined"
                 @click="onItemClick($event, entry.item)"
@@ -584,10 +580,10 @@ defineExpose({
                 <component
                   :is="entry.item.icon"
                   v-if="entry.item.icon"
-                  class="mw-menu__item-icon p-menu-item-icon"
+                  class="mw-menu__item-icon"
                   aria-hidden="true"
                 />
-                <span class="mw-menu__item-label p-menu-item-label">
+                <span class="mw-menu__item-label">
                   {{ resolveLabel(entry.item) }}
                 </span>
                 <span v-if="entry.item.shortcut" class="mw-menu__item-shortcut">
@@ -599,7 +595,7 @@ defineExpose({
         </template>
       </ul>
 
-      <div v-if="$slots.end" class="mw-menu__end p-menu-end">
+      <div v-if="$slots.end" class="mw-menu__end">
         <slot name="end" />
       </div>
     </div>

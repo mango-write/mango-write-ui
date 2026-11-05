@@ -73,16 +73,12 @@ const resolvedSize = computed<"sm" | "md" | "lg">(() => {
 
 const rootClass = computed(() => [
   "mw-radio",
-  "p-radiobutton",
   `mw-radio--${resolvedSize.value}`,
   {
     "mw-radio--checked": isChecked.value,
-    "p-radiobutton-checked": isChecked.value,
     "mw-radio--disabled": props.disabled,
-    "p-disabled": props.disabled,
     "mw-radio--readonly": props.readonly,
     "mw-radio--invalid": props.invalid,
-    "p-invalid": props.invalid,
   },
   attrs.class,
 ]);
@@ -166,7 +162,7 @@ defineExpose({
       ref="inputEl"
       v-bind="controlAttrs"
       type="radio"
-      class="mw-radio__input p-radiobutton-input"
+      class="mw-radio__input"
       :id="inputId ?? id"
       :name="name"
       :value="value"
@@ -191,8 +187,8 @@ defineExpose({
       @focus="emit('focus', $event)"
       @blur="emit('blur', $event)"
     />
-    <span class="mw-radio__box mw-control p-radiobutton-box" aria-hidden="true">
-      <span class="mw-radio__icon p-radiobutton-icon" />
+    <span class="mw-radio__box mw-control" aria-hidden="true">
+      <span class="mw-radio__icon" />
     </span>
   </div>
 </template>

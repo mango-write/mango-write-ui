@@ -694,23 +694,15 @@ function onTodayClick(): void {
 
 const rootClasses = computed(() => [
   "mw-date-picker",
-  "p-datepicker",
-  "p-component",
-  "p-inputwrapper",
   "mw-control",
   `mw-date-picker--${normalizedSize.value}`,
   {
-    "p-datepicker-sm": normalizedSize.value === "sm",
-    "p-datepicker-lg": normalizedSize.value === "lg",
     "mw-date-picker--fluid": props.fluid,
-    "p-datepicker-fluid": props.fluid,
     "mw-date-picker--disabled": props.disabled,
-    "p-disabled": props.disabled,
     "mw-date-picker--invalid": props.invalid,
-    "p-invalid": props.invalid,
     "mw-date-picker--open": open.value,
-    "p-inputwrapper-filled": hasValue.value,
-    "p-inputwrapper-focus": focused.value || open.value,
+    "mw-date-picker--filled": hasValue.value,
+    "mw-date-picker--focused": focused.value || open.value,
   },
 ]);
 </script>
@@ -725,7 +717,7 @@ const rootClasses = computed(() => [
     <input
       ref="inputEl"
       type="text"
-      class="mw-date-picker__input mw-input p-inputtext p-datepicker-input"
+      class="mw-date-picker__input mw-input"
       :id="inputId"
       :value="inputText"
       :placeholder="placeholder"
@@ -750,7 +742,7 @@ const rootClasses = computed(() => [
     <button
       v-if="showClear && hasValue && !disabled && !readonly"
       type="button"
-      class="mw-date-picker__clear p-datepicker-clear-icon"
+      class="mw-date-picker__clear"
       :aria-label="uiMessages['zh-CN'].common.select.clear"
       tabindex="-1"
       @click="onClearClick"
@@ -761,7 +753,7 @@ const rootClasses = computed(() => [
     <button
       v-if="showIcon"
       type="button"
-      class="mw-date-picker__dropdown p-datepicker-dropdown"
+      class="mw-date-picker__dropdown"
       :disabled="disabled"
       aria-label="选择日期"
       :aria-expanded="open ? 'true' : 'false'"
@@ -777,30 +769,30 @@ const rootClasses = computed(() => [
         v-if="open"
         :id="panelId"
         ref="panelEl"
-        class="mw-date-picker__panel p-datepicker-panel p-component mw-frost mw-glass"
+        class="mw-date-picker__panel mw-frost mw-glass"
         :style="panelStyle"
         role="dialog"
         :aria-label="ariaLabel || '选择日期'"
       >
         <template v-if="!timeOnly">
-          <div class="mw-date-picker__header p-datepicker-header">
+          <div class="mw-date-picker__header">
             <button
               type="button"
-              class="mw-date-picker__nav-btn p-datepicker-prev-button"
+              class="mw-date-picker__nav-btn"
               aria-label="上个月"
               @click="prevMonth"
             >
               <ChevronLeft :size="14" aria-hidden="true" />
             </button>
 
-            <div class="mw-date-picker__title p-datepicker-title">
-              <span class="mw-date-picker__year p-datepicker-select-year">{{ currentYearLabel }}</span>
-              <span class="mw-date-picker__month p-datepicker-select-month">{{ currentMonthLabel }}</span>
+            <div class="mw-date-picker__title">
+              <span class="mw-date-picker__year">{{ currentYearLabel }}</span>
+              <span class="mw-date-picker__month">{{ currentMonthLabel }}</span>
             </div>
 
             <button
               type="button"
-              class="mw-date-picker__nav-btn p-datepicker-next-button"
+              class="mw-date-picker__nav-btn"
               aria-label="下个月"
               @click="nextMonth"
             >
@@ -808,17 +800,17 @@ const rootClasses = computed(() => [
             </button>
           </div>
 
-          <div class="mw-date-picker__calendar-container p-datepicker-calendar-container">
-            <table class="mw-date-picker__calendar p-datepicker-calendar" role="grid">
+          <div class="mw-date-picker__calendar-container">
+            <table class="mw-date-picker__calendar" role="grid">
               <thead>
                 <tr>
                   <th
                     v-for="weekday in weekdayLabels"
                     :key="weekday"
                     scope="col"
-                    class="mw-date-picker__weekday p-datepicker-weekday-cell"
+                    class="mw-date-picker__weekday"
                   >
-                    <span class="p-datepicker-weekday">{{ weekday }}</span>
+                    <span class="mw-date-picker__weekday-text">{{ weekday }}</span>
                   </th>
                 </tr>
               </thead>
@@ -827,21 +819,21 @@ const rootClasses = computed(() => [
                   <td
                     v-for="cell in week"
                     :key="cell.isoDate"
-                    class="mw-date-picker__day-cell p-datepicker-day-cell"
+                    class="mw-date-picker__day-cell"
                     :class="{
-                      'p-datepicker-other-month': cell.otherMonth,
-                      'p-datepicker-today': cell.today,
+                      'mw-date-picker__day-cell--other-month': cell.otherMonth,
+                      'mw-date-picker__day-cell--today': cell.today,
                     }"
                   >
                     <button
                       type="button"
-                      class="mw-date-picker__day p-datepicker-day"
+                      class="mw-date-picker__day"
                       :class="{
-                        'mw-date-picker__day--selected p-datepicker-day-selected': cell.selected,
+                        'mw-date-picker__day--selected': cell.selected,
                         'mw-date-picker__day--in-range': cell.inRange,
-                        'mw-date-picker__day--today p-datepicker-today': cell.today,
-                        'mw-date-picker__day--other-month p-datepicker-other-month': cell.otherMonth,
-                        'mw-date-picker__day--disabled p-disabled': cell.disabled,
+                        'mw-date-picker__day--today': cell.today,
+                        'mw-date-picker__day--other-month': cell.otherMonth,
+                        'mw-date-picker__day--disabled': cell.disabled,
                       }"
                       :data-date="cell.isoDate"
                       :disabled="cell.disabled"
@@ -860,12 +852,12 @@ const rootClasses = computed(() => [
 
         <div
           v-if="showTime || timeOnly"
-          class="mw-date-picker__time-picker p-datepicker-time-picker"
+          class="mw-date-picker__time-picker"
         >
-          <div class="mw-date-picker__time-unit p-datepicker-hour-picker">
+          <div class="mw-date-picker__time-unit">
             <button
               type="button"
-              class="mw-date-picker__time-btn p-datepicker-increment-button"
+              class="mw-date-picker__time-btn"
               aria-label="Next Hour"
               @click="changeHour(1)"
             >
@@ -874,7 +866,7 @@ const rootClasses = computed(() => [
             <span class="mw-date-picker__time-val" data-time-part="hour">{{ displayHour }}</span>
             <button
               type="button"
-              class="mw-date-picker__time-btn p-datepicker-decrement-button"
+              class="mw-date-picker__time-btn"
               aria-label="Previous Hour"
               @click="changeHour(-1)"
             >
@@ -882,12 +874,12 @@ const rootClasses = computed(() => [
             </button>
           </div>
 
-          <div class="mw-date-picker__time-sep p-datepicker-separator">:</div>
+          <div class="mw-date-picker__time-sep">:</div>
 
-          <div class="mw-date-picker__time-unit p-datepicker-minute-picker">
+          <div class="mw-date-picker__time-unit">
             <button
               type="button"
-              class="mw-date-picker__time-btn p-datepicker-increment-button"
+              class="mw-date-picker__time-btn"
               aria-label="Next Minute"
               @click="changeMinute(1)"
             >
@@ -896,7 +888,7 @@ const rootClasses = computed(() => [
             <span class="mw-date-picker__time-val" data-time-part="minute">{{ displayMinute }}</span>
             <button
               type="button"
-              class="mw-date-picker__time-btn p-datepicker-decrement-button"
+              class="mw-date-picker__time-btn"
               aria-label="Previous Minute"
               @click="changeMinute(-1)"
             >
@@ -906,11 +898,11 @@ const rootClasses = computed(() => [
 
           <div
             v-if="hourFormat === '12'"
-            class="mw-date-picker__time-unit p-datepicker-ampm-picker"
+            class="mw-date-picker__time-unit"
           >
             <button
               type="button"
-              class="mw-date-picker__time-btn p-datepicker-increment-button"
+              class="mw-date-picker__time-btn"
               aria-label="Toggle AM/PM"
               @click="toggleAmPm"
             >
@@ -919,7 +911,7 @@ const rootClasses = computed(() => [
             <span class="mw-date-picker__time-val" data-time-part="ampm">{{ displayAmPm }}</span>
             <button
               type="button"
-              class="mw-date-picker__time-btn p-datepicker-decrement-button"
+              class="mw-date-picker__time-btn"
               aria-label="Toggle AM/PM"
               @click="toggleAmPm"
             >
@@ -930,18 +922,18 @@ const rootClasses = computed(() => [
 
         <div
           v-if="showButtonBar"
-          class="mw-date-picker__buttonbar p-datepicker-buttonbar"
+          class="mw-date-picker__buttonbar"
         >
           <button
             type="button"
-            class="mw-date-picker__bar-btn p-datepicker-today-button"
+            class="mw-date-picker__bar-btn"
             @click="onTodayClick"
           >
             今天
           </button>
           <button
             type="button"
-            class="mw-date-picker__bar-btn p-datepicker-clear-button"
+            class="mw-date-picker__bar-btn"
             @click="onClearClick"
           >
             清除

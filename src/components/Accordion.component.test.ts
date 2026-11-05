@@ -56,7 +56,7 @@ describe("Accordion", () => {
     expect(headers[0]!.attributes("aria-controls")).toBe(contents[0]!.attributes("id"));
     expect(contents[0]!.attributes("aria-labelledby")).toBe(headers[0]!.attributes("id"));
     expect(contents[0]!.attributes("role")).toBe("region");
-    expect(contents[0]!.find(".mw-accordion__content-inner.p-accordioncontent-content").exists()).toBe(
+    expect(contents[0]!.find(".mw-accordion__content-inner").exists()).toBe(
       true,
     );
 
@@ -116,7 +116,7 @@ describe("Accordion", () => {
     });
 
     await nextTick();
-    const headers = wrapper.findAll(".p-accordionheader");
+    const headers = wrapper.findAll(".mw-accordion__header");
     expect(headers[0]!.attributes("aria-expanded")).toBe("true");
     expect(headers[1]!.attributes("aria-expanded")).toBe("false");
 

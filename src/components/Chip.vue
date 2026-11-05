@@ -39,11 +39,11 @@ function keydownCallback(event: KeyboardEvent): void {
 </script>
 
 <template>
-  <div v-if="visible" class="mw-chip p-chip p-component" :aria-label="label">
+  <div v-if="visible" class="mw-chip" :aria-label="label">
     <slot>
-      <img v-if="image" :src="image" class="mw-chip__image p-chip-image" alt="" />
-      <component :is="icon" v-else-if="icon" class="mw-chip__icon p-chip-icon" aria-hidden="true" />
-      <span v-if="label" class="mw-chip__label p-chip-label">{{ label }}</span>
+      <img v-if="image" :src="image" class="mw-chip__image" alt="" />
+      <component :is="icon" v-else-if="icon" class="mw-chip__icon" aria-hidden="true" />
+      <span v-if="label" class="mw-chip__label">{{ label }}</span>
     </slot>
     <slot
       v-if="removable"
@@ -53,7 +53,7 @@ function keydownCallback(event: KeyboardEvent): void {
     >
       <button
         type="button"
-        class="mw-chip__remove p-chip-remove-icon"
+        class="mw-chip__remove"
         aria-label="Remove"
         @click.stop="removeCallback"
         @keydown="keydownCallback"

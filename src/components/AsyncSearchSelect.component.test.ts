@@ -53,7 +53,7 @@ function mountSelect(props: Record<string, unknown> = {}) {
 // 空态/加载文案行同样挂 role="option"（上游 #empty 的容器），断言真实选项时排除。
 function bodyOptions() {
   return document.body.querySelectorAll(
-    '[role="option"]:not(.p-autocomplete-empty-message)',
+    '[role="option"]:not(.mw-ass-empty)',
   );
 }
 
@@ -94,7 +94,7 @@ describe("AsyncSearchSelect", () => {
     expect(bodyOptions()).toHaveLength(1);
     expect(bodyOptions()[0].id).toMatch(/_0$/);
     // 新响应落地后 loading 已收，字段级 spinner 不回闪
-    expect(document.body.querySelector(".p-autocomplete-loader")).toBeNull();
+    expect(document.body.querySelector(".mw-ass-loader")).toBeNull();
   });
 
   it("键盘选择同时发 update:modelValue 与 select，收起时显示所选项", async () => {
@@ -138,7 +138,7 @@ describe("AsyncSearchSelect", () => {
     await wrapper.setProps({ modelValue: "a" });
     await flushPromises();
 
-    const clear = wrapper.get("button.p-autocomplete-clear-icon");
+    const clear = wrapper.get("button.mw-ass-clear");
     expect(clear.attributes("aria-label")).toBe("清除选择");
     await input.setValue("x"); // 触发一次防抖取数，让在途请求存在
     await vi.advanceTimersByTimeAsync(250);
@@ -159,7 +159,7 @@ describe("AsyncSearchSelect", () => {
     const input = wrapper.get("input");
     await input.trigger("focus");
     // 首次取数期间面板未开，字段级 spinner 承担加载指示
-    expect(document.body.querySelector(".p-autocomplete-loader")).not.toBeNull();
+    expect(document.body.querySelector(".mw-ass-loader")).not.toBeNull();
 
     pending[0].resolve([]);
     await flushPromises();

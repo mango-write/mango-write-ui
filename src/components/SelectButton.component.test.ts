@@ -30,14 +30,14 @@ describe("SelectButton", () => {
     expect(wrapper.attributes("role")).toBe("group");
     expect(wrapper.attributes("aria-label")).toBe("切换模式");
     expect(wrapper.classes()).toEqual(
-      expect.arrayContaining(["mw-select-button", "p-selectbutton"]),
+      expect.arrayContaining(["mw-select-button"]),
     );
 
-    const buttons = wrapper.findAll("button.mw-select-button__item.p-togglebutton");
+    const buttons = wrapper.findAll("button.mw-select-button__item");
     expect(buttons).toHaveLength(3);
     expect(buttons[0]!.attributes("aria-pressed")).toBe("true");
     expect(buttons[0]!.classes()).toEqual(
-      expect.arrayContaining(["mw-select-button__item--active", "p-togglebutton-checked"]),
+      expect.arrayContaining(["mw-select-button__item--active"]),
     );
     expect(buttons[1]!.attributes("aria-pressed")).toBe("false");
     expect(buttons[2]!.attributes("disabled")).toBeDefined();

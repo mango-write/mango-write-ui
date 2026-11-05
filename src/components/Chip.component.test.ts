@@ -9,10 +9,10 @@ describe("Chip", () => {
       props: { label: "Biology", icon: Tag },
     });
 
-    expect(wrapper.find(".mw-chip.p-chip").exists()).toBe(true);
-    expect(wrapper.find(".mw-chip__label.p-chip-label").text()).toBe("Biology");
-    expect(wrapper.find("svg.mw-chip__icon.p-chip-icon").exists()).toBe(true);
-    expect(wrapper.find(".mw-chip__remove.p-chip-remove-icon").exists()).toBe(false);
+    expect(wrapper.find(".mw-chip").exists()).toBe(true);
+    expect(wrapper.find(".mw-chip__label").text()).toBe("Biology");
+    expect(wrapper.find("svg.mw-chip__icon").exists()).toBe(true);
+    expect(wrapper.find(".mw-chip__remove").exists()).toBe(false);
   });
 
   it("emits remove when removable icon is clicked", async () => {
@@ -20,7 +20,7 @@ describe("Chip", () => {
       props: { label: "Filter", removable: true },
     });
 
-    const removeBtn = wrapper.find(".mw-chip__remove.p-chip-remove-icon");
+    const removeBtn = wrapper.find(".mw-chip__remove");
     expect(removeBtn.exists()).toBe(true);
 
     await removeBtn.trigger("click");

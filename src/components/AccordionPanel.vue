@@ -51,12 +51,9 @@ provide(ACCORDION_PANEL_INJECTION_KEY, {
 
 const rootClass = computed(() => [
   "mw-accordion__panel",
-  "p-accordionpanel",
   {
     "mw-accordion__panel--active": isOpen.value,
-    "p-accordionpanel-active": isOpen.value,
     "mw-accordion__panel--disabled": isDisabled.value,
-    "p-disabled": isDisabled.value,
   },
   attrs.class,
 ]);

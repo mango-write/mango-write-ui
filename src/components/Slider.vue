@@ -110,13 +110,10 @@ function handleStyle(percent: number): CSSProperties {
 
 const rootClass = computed(() => [
   "mw-slider",
-  "p-slider",
   `mw-slider--${props.orientation}`,
-  `p-slider-${props.orientation}`,
   {
     "mw-slider--range": props.range,
     "mw-slider--disabled": props.disabled,
-    "p-disabled": props.disabled,
     "mw-slider--readonly": props.readonly,
     "mw-slider--invalid": props.invalid,
   },
@@ -212,7 +209,7 @@ function onKeydown(handleIndex: 0 | 1, event: KeyboardEvent) {
     :data-invalid="invalid ? '' : undefined"
   >
     <div class="mw-slider__track">
-      <div class="mw-slider__range p-slider-range" :style="rangeStyle" />
+      <div class="mw-slider__range" :style="rangeStyle" />
     </div>
 
     <template v-if="range">
@@ -263,12 +260,12 @@ function onKeydown(handleIndex: 0 | 1, event: KeyboardEvent) {
         @keydown="onKeydown(1, $event)"
       />
       <span
-        class="mw-slider__handle p-slider-handle"
+        class="mw-slider__handle"
         :style="handleStyle(startPercent)"
         aria-hidden="true"
       />
       <span
-        class="mw-slider__handle p-slider-handle"
+        class="mw-slider__handle"
         :style="handleStyle(endPercent)"
         aria-hidden="true"
       />
@@ -301,7 +298,7 @@ function onKeydown(handleIndex: 0 | 1, event: KeyboardEvent) {
         @keydown="onKeydown(0, $event)"
       />
       <span
-        class="mw-slider__handle p-slider-handle"
+        class="mw-slider__handle"
         :style="handleStyle(endPercent)"
         aria-hidden="true"
       />

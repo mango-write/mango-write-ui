@@ -5,7 +5,7 @@ import Skeleton from "./Skeleton.vue";
 describe("Skeleton", () => {
   it("renders default rectangle wave skeleton with aria-hidden", () => {
     const wrapper = mountUiComponent(Skeleton);
-    const el = wrapper.find(".mw-skeleton.p-skeleton");
+    const el = wrapper.find(".mw-skeleton");
     expect(el.exists()).toBe(true);
     expect(el.attributes("aria-hidden")).toBe("true");
     expect(el.classes()).not.toContain("mw-skeleton--circle");
@@ -26,9 +26,9 @@ describe("Skeleton", () => {
 
     const el = wrapper.find(".mw-skeleton");
     expect(el.classes()).toContain("mw-skeleton--circle");
-    expect(el.classes()).toContain("p-skeleton-circle");
+    expect(el.classes()).toContain("mw-skeleton--circle");
     expect(el.classes()).toContain("mw-skeleton--none");
-    expect(el.classes()).toContain("p-skeleton-animation-none");
+    expect(el.classes()).toContain("mw-skeleton--none");
     expect(el.attributes("style")).toContain("width: 3rem");
     expect(el.attributes("style")).toContain("height: 3rem");
     expect(el.attributes("style")).toContain("border-radius: var(--radius-full)");

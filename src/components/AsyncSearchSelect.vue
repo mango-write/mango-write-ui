@@ -127,7 +127,7 @@ function scrollActiveIntoView() {
   nextTick(() => {
     if (activeIndex.value < 0) return;
     const items = panelRef.value?.querySelectorAll<HTMLElement>(
-      '[role="option"]:not(.p-autocomplete-empty-message)',
+      '[role="option"]:not(.mw-ass-empty)',
     );
     items?.[activeIndex.value]?.scrollIntoView?.({ block: "nearest" });
   });
@@ -204,7 +204,7 @@ function onBlur() {
 function onRootClick(event: MouseEvent) {
   if (props.disabled) return;
   const target = event.target as HTMLElement | null;
-  if (target?.closest(".p-autocomplete-dropdown, .p-autocomplete-clear-icon")) return;
+  if (target?.closest(".mw-ass-dropdown, .mw-ass-clear")) return;
   inputRef.value?.focus();
   if (!open.value && !loading.value) {
     void runSearch("");
@@ -320,12 +320,11 @@ const showClearButton = computed(
 <template>
   <div
     ref="rootRef"
-    class="mw-ass p-autocomplete p-component p-inputwrapper mw-control"
+    class="mw-ass mw-control"
     :class="{
-      'mw-ass--fluid p-autocomplete-fluid': fluid,
-      'mw-ass--disabled p-disabled': disabled,
-      'mw-ass--open p-inputwrapper-focus': open || focused,
-      'p-inputwrapper-filled': Boolean(displayValue),
+      'mw-ass--fluid': fluid,
+      'mw-ass--disabled': disabled,
+      'mw-ass--open': open || focused,
     }"
     :data-state="open ? 'open' : 'closed'"
     :data-disabled="disabled ? 'true' : undefined"
@@ -336,7 +335,7 @@ const showClearButton = computed(
       ref="inputRef"
       type="text"
       role="combobox"
-      class="mw-ass-input p-autocomplete-input p-inputtext p-component mw-input"
+      class="mw-ass-input mw-input"
       :value="displayValue"
       :placeholder="placeholder"
       :disabled="disabled"
@@ -356,14 +355,14 @@ const showClearButton = computed(
 
     <LoaderCircle
       v-if="loading"
-      class="p-autocomplete-loader mw-icon--spin"
+      class="mw-ass-loader mw-icon--spin"
       aria-hidden="true"
     />
 
     <button
       v-if="showClearButton"
       type="button"
-      class="p-autocomplete-clear-icon"
+      class="mw-ass-clear"
       :aria-label="t('common.select.clear')"
       @mousedown.stop.prevent
       @click.stop="onClearClick"
@@ -373,7 +372,7 @@ const showClearButton = computed(
 
     <button
       type="button"
-      class="p-autocomplete-dropdown"
+      class="mw-ass-dropdown"
       :disabled="disabled"
       tabindex="-1"
       aria-hidden="true"
@@ -387,15 +386,15 @@ const showClearButton = computed(
       <div
         v-if="open"
         ref="panelRef"
-        class="mw-ass-overlay p-autocomplete-overlay p-component mw-frost mw-glass"
+        class="mw-ass-overlay mw-frost mw-glass"
         :style="panelStyle"
         @mousedown.prevent
       >
-        <div class="p-autocomplete-list-container">
+        <div class="mw-ass-list-container">
           <ul
             :id="listboxId"
             role="listbox"
-            class="p-autocomplete-list"
+            class="mw-ass-list"
             :aria-label="ariaLabel"
           >
             <li
@@ -403,10 +402,10 @@ const showClearButton = computed(
               :id="optionId(i)"
               :key="option.value"
               role="option"
-              class="p-autocomplete-option"
+              class="mw-ass-option"
               :class="{
-                'p-autocomplete-option-selected': option.value === modelValue,
-                'p-focus': i === activeIndex,
+                'mw-ass-option--selected': option.value === modelValue,
+                'mw-ass-option--highlighted': i === activeIndex,
               }"
               :aria-selected="option.value === modelValue"
               :data-highlighted="i === activeIndex ? '' : undefined"
@@ -427,7 +426,7 @@ const showClearButton = computed(
             <li
               v-if="!suggestions.length"
               role="option"
-              class="p-autocomplete-empty-message"
+              class="mw-ass-empty"
             >
               <span class="mw-ass-note">{{ loading ? loadingMessageText : emptyMessageText }}</span>
             </li>
@@ -450,8 +449,7 @@ const showClearButton = computed(
   min-height: var(--control-h);
 }
 
-.mw-ass--fluid,
-.p-autocomplete-fluid {
+.mw-ass--fluid {
   display: flex;
   width: 100%;
 }
@@ -475,7 +473,7 @@ const showClearButton = computed(
   opacity: 1;
 }
 
-.p-autocomplete-loader {
+.mw-ass-loader {
   flex-shrink: 0;
   width: var(--icon-sm);
   height: var(--icon-sm);
@@ -483,7 +481,7 @@ const showClearButton = computed(
   color: var(--text-tertiary);
 }
 
-.p-autocomplete-clear-icon {
+.mw-ass-clear {
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
@@ -498,17 +496,17 @@ const showClearButton = computed(
   cursor: pointer;
 }
 
-.p-autocomplete-clear-icon:hover {
+.mw-ass-clear:hover {
   background-color: var(--fill-default);
   color: var(--text-primary);
 }
 
-.p-autocomplete-clear-icon svg {
+.mw-ass-clear svg {
   width: var(--icon-xs);
   height: var(--icon-xs);
 }
 
-.p-autocomplete-dropdown {
+.mw-ass-dropdown {
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
@@ -522,7 +520,7 @@ const showClearButton = computed(
   cursor: pointer;
 }
 
-.p-autocomplete-dropdown svg {
+.mw-ass-dropdown svg {
   width: var(--icon-xs);
   height: var(--icon-xs);
 }
@@ -533,12 +531,12 @@ const showClearButton = computed(
   overflow: hidden;
 }
 
-.p-autocomplete-list-container {
+.mw-ass-list-container {
   max-height: calc(var(--size-lg-h) * 6);
   overflow-y: auto;
 }
 
-.p-autocomplete-list {
+.mw-ass-list {
   margin: 0;
   padding: var(--space-1);
   list-style: none;
@@ -547,7 +545,7 @@ const showClearButton = computed(
   gap: var(--space-0-5);
 }
 
-.p-autocomplete-option {
+.mw-ass-option {
   padding: var(--space-1-5) var(--space-2-5);
   border-radius: var(--radius-item);
   color: var(--text-primary);
@@ -556,18 +554,18 @@ const showClearButton = computed(
   cursor: pointer;
 }
 
-.p-autocomplete-option[data-highlighted]:not(.p-autocomplete-option-selected),
-.p-autocomplete-option.p-focus:not(.p-autocomplete-option-selected) {
+.mw-ass-option[data-highlighted]:not(.mw-ass-option--selected),
+.mw-ass-option.mw-ass-option--highlighted:not(.mw-ass-option--selected) {
   background-color: var(--fill-default);
 }
 
-.p-autocomplete-option-selected {
+.mw-ass-option--selected {
   background-color: var(--fill-selected);
   color: var(--text-accent);
   font-weight: var(--weight-medium);
 }
 
-.p-autocomplete-empty-message {
+.mw-ass-empty {
   padding: var(--space-2) var(--space-2-5);
   color: var(--text-tertiary);
   font-size: var(--type-body-sm-size);

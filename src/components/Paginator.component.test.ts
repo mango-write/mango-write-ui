@@ -43,26 +43,26 @@ describe("Paginator", () => {
     const wrapper = mountUiComponent(Host);
     await nextTick();
 
-    const root = wrapper.get(".mw-paginator.p-paginator");
+    const root = wrapper.get(".mw-paginator");
     expect(root.attributes("aria-label")).toBe("Pagination");
     expect(wrapper.get('[data-testid="slot-start"]').text()).toBe("Start");
     expect(wrapper.get('[data-testid="slot-end"]').text()).toBe("End");
 
-    const firstBtn = wrapper.get(".p-paginator-first");
-    const prevBtn = wrapper.get(".p-paginator-prev");
-    const nextBtn = wrapper.get(".p-paginator-next");
-    const lastBtn = wrapper.get(".p-paginator-last");
+    const firstBtn = wrapper.get(".mw-paginator__first");
+    const prevBtn = wrapper.get(".mw-paginator__prev");
+    const nextBtn = wrapper.get(".mw-paginator__next");
+    const lastBtn = wrapper.get(".mw-paginator__last");
 
     // 初始在第 1 页（page=0），首页/上一页禁用
     expect(firstBtn.attributes("disabled")).toBeDefined();
     expect(prevBtn.attributes("disabled")).toBeDefined();
     expect(nextBtn.attributes("disabled")).toBeUndefined();
     expect(lastBtn.attributes("disabled")).toBeUndefined();
-    expect(wrapper.get(".p-paginator-current").text()).toBe(
+    expect(wrapper.get(".mw-paginator__current").text()).toBe(
       "1 - 10 / 95 (Page 1/10)",
     );
 
-    const pageBtns = wrapper.findAll(".p-paginator-page");
+    const pageBtns = wrapper.findAll(".mw-paginator__page");
     expect(pageBtns).toHaveLength(5);
     expect(pageBtns[0]!.attributes("aria-current")).toBe("page");
     expect(pageBtns[0]!.attributes("data-state")).toBe("active");
@@ -77,7 +77,7 @@ describe("Paginator", () => {
       rows: 10,
       pageCount: 10,
     });
-    expect(wrapper.get(".p-paginator-current").text()).toBe(
+    expect(wrapper.get(".mw-paginator__current").text()).toBe(
       "21 - 30 / 95 (Page 3/10)",
     );
     expect(firstBtn.attributes("disabled")).toBeUndefined();
@@ -93,14 +93,14 @@ describe("Paginator", () => {
       rows: 10,
       pageCount: 10,
     });
-    expect(wrapper.get(".p-paginator-current").text()).toBe(
+    expect(wrapper.get(".mw-paginator__current").text()).toBe(
       "91 - 95 / 95 (Page 10/10)",
     );
     expect(nextBtn.attributes("disabled")).toBeDefined();
     expect(lastBtn.attributes("disabled")).toBeDefined();
 
     // 切换每页条数为 50，自动回到第一页
-    const selectTrigger = wrapper.get(".p-paginator-rpp-options");
+    const selectTrigger = wrapper.get(".mw-paginator__rpp");
     expect(selectTrigger.classes()).toContain("mw-select");
     await selectTrigger.trigger("click");
     await nextTick();
@@ -116,7 +116,7 @@ describe("Paginator", () => {
       rows: 50,
       pageCount: 2,
     });
-    expect(wrapper.get(".p-paginator-current").text()).toBe(
+    expect(wrapper.get(".mw-paginator__current").text()).toBe(
       "1 - 50 / 95 (Page 1/2)",
     );
   });
@@ -138,7 +138,7 @@ describe("Paginator", () => {
     await wrapper.setProps({ totalRecords: 45, disabled: true });
     expect(wrapper.find(".mw-paginator").exists()).toBe(true);
 
-    const nextBtn = wrapper.get(".p-paginator-next");
+    const nextBtn = wrapper.get(".mw-paginator__next");
     expect(nextBtn.attributes("disabled")).toBeDefined();
     await nextBtn.trigger("click");
     expect(pageEvents).toHaveLength(0);

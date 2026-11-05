@@ -245,15 +245,12 @@ const resolvedInputId = computed(() => props.inputId ?? props.id);
 
 const rootClass = computed(() => [
   "mw-input-number",
-  "p-inputnumber",
   resolvedSize.value ? [`mw-input-number--${resolvedSize.value}`, `mw-size-${resolvedSize.value}`] : undefined,
   {
     "mw-input-number--fluid": props.fluid,
-    "p-inputnumber-fluid": props.fluid,
     "mw-input-number--buttons": props.showButtons,
     [`mw-input-number--${props.buttonLayout}`]: props.showButtons,
-    [`p-inputnumber-${props.buttonLayout}`]: props.showButtons,
-    [`p-inputnumber-buttons-${props.buttonLayout}`]: props.showButtons,
+    [`mw-input-number--buttons-${props.buttonLayout}`]: props.showButtons,
     "mw-input-number--disabled": props.disabled,
     "mw-input-number--readonly": props.readonly,
     "mw-input-number--invalid": props.invalid,
@@ -265,8 +262,6 @@ const inputClasses = computed(() => [
   "mw-input-number__input",
   "mw-control",
   "mw-input",
-  "p-inputtext",
-  "p-inputnumber-input",
   resolvedSize.value ? `mw-input-number__input--${resolvedSize.value}` : undefined,
   props.inputClass,
 ]);
@@ -476,7 +471,7 @@ defineExpose({
     <button
       v-if="showButtons && buttonLayout === 'horizontal'"
       type="button"
-      class="mw-input-number__button mw-input-number__button--down p-inputnumber-button p-inputnumber-decrement-button"
+      class="mw-input-number__button mw-input-number__button--down"
       :disabled="disabled || readonly || isAtMin"
       tabindex="-1"
       aria-label="Decrement"
@@ -488,7 +483,7 @@ defineExpose({
     <button
       v-if="showButtons && buttonLayout === 'vertical'"
       type="button"
-      class="mw-input-number__button mw-input-number__button--up p-inputnumber-button p-inputnumber-increment-button"
+      class="mw-input-number__button mw-input-number__button--up"
       :disabled="disabled || readonly || isAtMax"
       tabindex="-1"
       aria-label="Increment"
@@ -547,11 +542,11 @@ defineExpose({
 
     <span
       v-if="showButtons && buttonLayout === 'stacked'"
-      class="mw-input-number__button-group p-inputnumber-button-group"
+      class="mw-input-number__button-group"
     >
       <button
         type="button"
-        class="mw-input-number__button mw-input-number__button--up p-inputnumber-button p-inputnumber-increment-button"
+        class="mw-input-number__button mw-input-number__button--up"
         :disabled="disabled || readonly || isAtMax"
         tabindex="-1"
         aria-label="Increment"
@@ -561,7 +556,7 @@ defineExpose({
       </button>
       <button
         type="button"
-        class="mw-input-number__button mw-input-number__button--down p-inputnumber-button p-inputnumber-decrement-button"
+        class="mw-input-number__button mw-input-number__button--down"
         :disabled="disabled || readonly || isAtMin"
         tabindex="-1"
         aria-label="Decrement"
@@ -574,7 +569,7 @@ defineExpose({
     <button
       v-if="showButtons && buttonLayout === 'horizontal'"
       type="button"
-      class="mw-input-number__button mw-input-number__button--up p-inputnumber-button p-inputnumber-increment-button"
+      class="mw-input-number__button mw-input-number__button--up"
       :disabled="disabled || readonly || isAtMax"
       tabindex="-1"
       aria-label="Increment"
@@ -586,7 +581,7 @@ defineExpose({
     <button
       v-if="showButtons && buttonLayout === 'vertical'"
       type="button"
-      class="mw-input-number__button mw-input-number__button--down p-inputnumber-button p-inputnumber-decrement-button"
+      class="mw-input-number__button mw-input-number__button--down"
       :disabled="disabled || readonly || isAtMin"
       tabindex="-1"
       aria-label="Decrement"

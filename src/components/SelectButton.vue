@@ -134,7 +134,6 @@ function optionKey(option: any, index: number): string {
 
 const rootClass = computed(() => [
   "mw-select-button",
-  "p-selectbutton",
   resolvedSize.value ? [`mw-select-button--${resolvedSize.value}`, `mw-size-${resolvedSize.value}`] : undefined,
   {
     "mw-select-button--disabled": props.disabled,
@@ -246,10 +245,9 @@ function onOptionKeydown(index: number, event: KeyboardEvent) {
       v-for="(option, index) in options"
       :key="optionKey(option, index)"
       type="button"
-      class="mw-select-button__item p-togglebutton"
+      class="mw-select-button__item"
       :class="{
         'mw-select-button__item--active': isOptionSelected(option),
-        'p-togglebutton-checked': isOptionSelected(option),
         'mw-select-button__item--disabled': isOptionDisabled(option),
       }"
       :disabled="isOptionDisabled(option)"
@@ -259,10 +257,10 @@ function onOptionKeydown(index: number, event: KeyboardEvent) {
       @click="onOptionClick(option, $event)"
       @keydown="onOptionKeydown(index, $event)"
     >
-      <span class="mw-select-button__content p-togglebutton-content">
+      <span class="mw-select-button__content">
         <slot name="option" :option="option" :index="index">
           <slot :option="option" :index="index">
-            <span class="mw-select-button__label p-togglebutton-label">
+            <span class="mw-select-button__label">
               {{ resolveOptionLabel(option) }}
             </span>
           </slot>

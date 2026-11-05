@@ -3,7 +3,7 @@ defineOptions({ name: "MwInputGroup" });
 </script>
 
 <template>
-  <div class="mw-input-group p-inputgroup">
+  <div class="mw-input-group">
     <slot />
   </div>
 </template>

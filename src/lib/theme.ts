@@ -3,9 +3,9 @@
 // 三档：跟随系统 / 浅色 / 深色。
 //
 // 落地方式只有一件事：维护 <html data-theme="light|dark">。
-// - var.css 的深色 token 与 PrimeVue 的 darkModeSelector 都认这个属性；
-// - 「跟随系统」= 监听 prefers-color-scheme 实时解析成显式属性（PrimeVue 的
-//   属性开关不认 media，只能由我们把系统状态翻译成属性）；
+// - var.css 的深色 token 与组件层的深色选择器都认这个属性；
+// - 「跟随系统」= 监听 prefers-color-scheme 实时解析成显式属性（media
+//   查询只在落定前读一次，动态翻深浅只能由我们把系统状态翻译成属性）；
 // - var.css 另有 @media (prefers-color-scheme: dark) 块兜「JS 落定属性之前的
 //   首帧」——深色系统用户不会闪白；属性一旦落定，两处选择器结论一致。
 import { ref } from "vue";

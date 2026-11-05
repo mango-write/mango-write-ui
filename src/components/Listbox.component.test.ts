@@ -42,14 +42,14 @@ describe("Listbox", () => {
       listStyle: "max-height: 240px",
     });
 
-    const root = wrapper.get(".mw-listbox.p-listbox");
+    const root = wrapper.get(".mw-listbox");
     expect(root.attributes("data-invalid")).toBe("true");
 
     const list = wrapper.get('[role="listbox"]');
     expect(list.attributes("aria-label")).toBe("选择草稿");
     expect(list.attributes("aria-invalid")).toBe("true");
 
-    const items = wrapper.findAll(".mw-listbox__option.p-listbox-option");
+    const items = wrapper.findAll(".mw-listbox__option");
     expect(items).toHaveLength(4);
     expect(items[2]?.attributes("aria-disabled")).toBe("true");
 
@@ -66,7 +66,7 @@ describe("Listbox", () => {
     expect(wrapper.emitted("change")?.at(-1)?.[0]).toMatchObject({ value: "d-4" });
 
     await wrapper.setProps({ modelValue: "d-4" });
-    expect(items[3]?.classes()).toContain("p-listbox-option-selected");
+    expect(items[3]?.classes()).toContain("mw-listbox__option--selected");
     expect(items[3]?.attributes("aria-selected")).toBe("true");
   });
 
@@ -82,18 +82,18 @@ describe("Listbox", () => {
     const list = wrapper.get('[role="listbox"]');
     expect(list.attributes("aria-multiselectable")).toBe("true");
 
-    const items = wrapper.findAll(".p-listbox-option");
+    const items = wrapper.findAll(".mw-listbox__option");
     await items[1]!.trigger("click");
     expect(wrapper.emitted("update:modelValue")?.at(-1)).toEqual([["d-1", "d-2"]]);
 
-    const filterInput = wrapper.get(".p-listbox-filter");
+    const filterInput = wrapper.get(".mw-listbox__filter");
     await filterInput.setValue("草稿 B");
-    expect(wrapper.findAll(".p-listbox-option")).toHaveLength(1);
-    expect(wrapper.get(".p-listbox-option").text()).toBe("草稿 B");
+    expect(wrapper.findAll(".mw-listbox__option")).toHaveLength(1);
+    expect(wrapper.get(".mw-listbox__option").text()).toBe("草稿 B");
 
     await filterInput.setValue("不存在");
-    expect(wrapper.findAll(".p-listbox-option")).toHaveLength(0);
-    expect(wrapper.get(".p-listbox-empty-message").text()).toBe("没有找到草稿");
+    expect(wrapper.findAll(".mw-listbox__option")).toHaveLength(0);
+    expect(wrapper.get(".mw-listbox__empty").text()).toBe("没有找到草稿");
   });
 
   it("禁用与只读态不响应点击与键盘选择", async () => {
@@ -103,7 +103,7 @@ describe("Listbox", () => {
     });
 
     expect(wrapper.get(".mw-listbox").attributes("data-disabled")).toBe("true");
-    await wrapper.findAll(".p-listbox-option")[1]!.trigger("click");
+    await wrapper.findAll(".mw-listbox__option")[1]!.trigger("click");
     expect(wrapper.emitted("update:modelValue")).toBeUndefined();
   });
 });

@@ -25,11 +25,9 @@ const props = withDefaults(
 
 const classes = computed(() => [
   "mw-skeleton",
-  "p-skeleton",
-  "p-component",
   {
-    "mw-skeleton--circle p-skeleton-circle": props.shape === "circle",
-    "mw-skeleton--none p-skeleton-animation-none": props.animation === "none",
+    "mw-skeleton--circle": props.shape === "circle",
+    "mw-skeleton--none": props.animation === "none",
   },
 ]);
 

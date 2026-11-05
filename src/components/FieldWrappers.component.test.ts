@@ -13,15 +13,15 @@ describe("FieldWrappers (IconField, InputIcon, InputGroup, InputGroupAddon)", ()
       template: `
         <IconField>
           <InputIcon class="custom-icon-slot"><Search /></InputIcon>
-          <input class="p-inputtext" placeholder="Search" />
+          <input class="mw-input-text" placeholder="Search" />
         </IconField>
       `,
     });
 
-    const field = wrapper.find(".mw-icon-field.p-iconfield");
+    const field = wrapper.find(".mw-icon-field");
     expect(field.exists()).toBe(true);
 
-    const icon = wrapper.find(".mw-input-icon.p-inputicon");
+    const icon = wrapper.find(".mw-input-icon");
     expect(icon.exists()).toBe(true);
     expect(icon.classes()).toContain("custom-icon-slot");
     expect(icon.find("svg").exists()).toBe(true);
@@ -33,16 +33,16 @@ describe("FieldWrappers (IconField, InputIcon, InputGroup, InputGroupAddon)", ()
       template: `
         <InputGroup>
           <InputGroupAddon>https://</InputGroupAddon>
-          <input class="p-inputtext" />
+          <input class="mw-input-text" />
           <InputGroupAddon>.com</InputGroupAddon>
         </InputGroup>
       `,
     });
 
-    const group = wrapper.find(".mw-input-group.p-inputgroup");
+    const group = wrapper.find(".mw-input-group");
     expect(group.exists()).toBe(true);
 
-    const addons = wrapper.findAll(".mw-input-group-addon.p-inputgroupaddon");
+    const addons = wrapper.findAll(".mw-input-group-addon");
     expect(addons).toHaveLength(2);
     expect(addons[0]!.text()).toBe("https://");
     expect(addons[1]!.text()).toBe(".com");

@@ -159,7 +159,7 @@ const currentPageReportText = computed(() => {
     .replace(/\{totalPages\}/g, String(pageCount.value));
 });
 
-const rootClass = computed(() => ["mw-paginator", "p-paginator", attrs.class]);
+const rootClass = computed(() => ["mw-paginator", attrs.class]);
 const rootStyle = computed<StyleValue>(() => attrs.style as StyleValue);
 const rootAttrs = computed(() => {
   const { class: _class, style: _style, ...rest } = attrs;
@@ -222,7 +222,7 @@ function onRowsValueChange(nextValue: unknown) {
   >
     <div
       v-if="$slots.start"
-      class="mw-paginator__start p-paginator-left-content"
+      class="mw-paginator__start"
     >
       <slot
         name="start"
@@ -234,11 +234,11 @@ function onRowsValueChange(nextValue: unknown) {
       />
     </div>
 
-    <div class="mw-paginator__content p-paginator-content">
+    <div class="mw-paginator__content">
       <button
         v-if="showFirstBtn"
         type="button"
-        class="mw-paginator__btn mw-paginator__first p-paginator-first"
+        class="mw-paginator__btn mw-paginator__first"
         :disabled="isFirstDisabled"
         :data-disabled="isFirstDisabled ? '' : undefined"
         aria-label="First Page"
@@ -250,7 +250,7 @@ function onRowsValueChange(nextValue: unknown) {
       <button
         v-if="showPrevBtn"
         type="button"
-        class="mw-paginator__btn mw-paginator__prev p-paginator-prev"
+        class="mw-paginator__btn mw-paginator__prev"
         :disabled="isFirstDisabled"
         :data-disabled="isFirstDisabled ? '' : undefined"
         aria-label="Previous Page"
@@ -261,7 +261,7 @@ function onRowsValueChange(nextValue: unknown) {
 
       <span
         v-if="showPageLinks"
-        class="mw-paginator__pages p-paginator-pages"
+        class="mw-paginator__pages"
       >
         <button
           v-for="pageIdx in pageLinks"
@@ -270,10 +270,8 @@ function onRowsValueChange(nextValue: unknown) {
           :class="[
             'mw-paginator__btn',
             'mw-paginator__page',
-            'p-paginator-page',
             {
               'mw-paginator__page--active': pageIdx === currentPage,
-              'p-paginator-page-selected': pageIdx === currentPage,
             },
           ]"
           :disabled="disabled"
@@ -290,7 +288,7 @@ function onRowsValueChange(nextValue: unknown) {
       <button
         v-if="showNextBtn"
         type="button"
-        class="mw-paginator__btn mw-paginator__next p-paginator-next"
+        class="mw-paginator__btn mw-paginator__next"
         :disabled="isLastDisabled"
         :data-disabled="isLastDisabled ? '' : undefined"
         aria-label="Next Page"
@@ -302,7 +300,7 @@ function onRowsValueChange(nextValue: unknown) {
       <button
         v-if="showLastBtn"
         type="button"
-        class="mw-paginator__btn mw-paginator__last p-paginator-last"
+        class="mw-paginator__btn mw-paginator__last"
         :disabled="isLastDisabled"
         :data-disabled="isLastDisabled ? '' : undefined"
         aria-label="Last Page"
@@ -313,7 +311,7 @@ function onRowsValueChange(nextValue: unknown) {
 
       <Select
         v-if="showRowsPerPage"
-        class="mw-paginator__rpp p-paginator-rpp-options"
+        class="mw-paginator__rpp"
         :model-value="effectiveRows"
         :options="rowsPerPageOptions"
         :disabled="disabled"
@@ -323,7 +321,7 @@ function onRowsValueChange(nextValue: unknown) {
 
       <span
         v-if="showCurrentPageReport"
-        class="mw-paginator__current p-paginator-current"
+        class="mw-paginator__current"
         aria-live="polite"
       >
         {{ currentPageReportText }}
@@ -332,7 +330,7 @@ function onRowsValueChange(nextValue: unknown) {
 
     <div
       v-if="$slots.end"
-      class="mw-paginator__end p-paginator-right-content"
+      class="mw-paginator__end"
     >
       <slot
         name="end"

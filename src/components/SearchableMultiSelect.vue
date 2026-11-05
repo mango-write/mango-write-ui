@@ -4,9 +4,9 @@
 // 「全选」）。
 //
 // 三个关键点：
-// 1）外形与原生 MultiSelect 逐像素对齐——不自造 token，直接引用全局 --p-multiselect-*
-//    变量（styled 模式下挂在 :root），chip 复用 .p-chip 的几何，箭头列/边框/圆角
-//    /聚焦光环全部一致。
+// 1）外形与原生 MultiSelect 逐像素对齐——不自造 token，几何读 var.css 语义变量
+//    （--control-h/px/radius/font、--focus-*），chip 用 mw-ms-chip 的几何，箭头列
+//    /边框/圆角/聚焦光环全部一致。
 // 2）chip 折叠是「按可用宽度动态计算」（参考 element-plus el-select 的 calcCollapse
 //    思路）：用一层隐藏的量算行测每个 chip 的真实宽度，再按容器宽度决定显示几个，
 //    放不下的收进 "+N"，而不是固定只显示 1 个、后面留大片空白。

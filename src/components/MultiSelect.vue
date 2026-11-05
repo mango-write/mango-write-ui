@@ -218,21 +218,16 @@ const showClearButton = computed(
 
 const rootClass = computed(() => [
   "mw-multiselect",
-  "p-multiselect",
-  "p-component",
-  "p-inputwrapper",
   "mw-control",
   "mw-select",
   `mw-multiselect--${normalizedSize.value}`,
   {
-    "mw-multiselect--fluid p-multiselect-fluid": props.fluid,
-    "mw-multiselect--disabled p-disabled": props.disabled,
+    "mw-multiselect--fluid": props.fluid,
+    "mw-multiselect--disabled": props.disabled,
     "mw-multiselect--readonly": props.readonly,
-    "mw-multiselect--invalid p-invalid": props.invalid,
-    "mw-multiselect--open p-multiselect-open p-focus": open.value,
-    "mw-multiselect--chip p-multiselect-chip": props.display === "chip",
-    "p-inputwrapper-filled": hasSelection.value,
-    "p-inputwrapper-focus": open.value,
+    "mw-multiselect--invalid": props.invalid,
+    "mw-multiselect--open": open.value,
+    "mw-multiselect--chip": props.display === "chip",
   },
   attrs.class,
 ]);
@@ -310,7 +305,7 @@ function dismiss(restoreFocus = false) {
 function onRootClick(event: MouseEvent) {
   if (props.disabled || props.readonly) return;
   const target = event.target as HTMLElement | null;
-  if (target?.closest(".p-multiselect-clear-icon, .p-multiselect-chip-icon")) return;
+  if (target?.closest(".mw-multiselect__clear, .mw-multiselect__chip-remove")) return;
   if (open.value) {
     dismiss(false);
   } else {
@@ -461,12 +456,12 @@ function optionKey(option: any, index: number): string {
     @click="onRootClick"
     @keydown="onKeydown($event, false)"
   >
-    <div class="mw-multiselect__label-container p-multiselect-label-container">
+    <div class="mw-multiselect__label-container">
       <div
-        class="mw-multiselect__label p-multiselect-label"
+        class="mw-multiselect__label"
         :class="{
-          'mw-multiselect__label--placeholder p-placeholder': !hasSelection,
-          'mw-multiselect__label--chip p-multiselect-label-chip':
+          'mw-multiselect__label--placeholder': !hasSelection,
+          'mw-multiselect__label--chip':
             display === 'chip' && hasSelection && !exceedsMaxLabels,
         }"
       >
@@ -478,13 +473,13 @@ function optionKey(option: any, index: number): string {
             <span
               v-for="(item, idx) in selectedItems"
               :key="`chip-${idx}`"
-              class="mw-multiselect__chip p-multiselect-chip-item p-chip"
+              class="mw-multiselect__chip"
             >
-              <span class="mw-multiselect__chip-label p-chip-label">{{ item.label }}</span>
+              <span class="mw-multiselect__chip-label">{{ item.label }}</span>
               <button
                 v-if="!disabled && !readonly"
                 type="button"
-                class="mw-multiselect__chip-remove p-multiselect-chip-icon"
+                class="mw-multiselect__chip-remove"
                 :aria-label="translate('remove', { label: item.label })"
                 @mousedown.stop.prevent
                 @click.stop="removeValue(item.value, $event)"
@@ -503,7 +498,7 @@ function optionKey(option: any, index: number): string {
     <button
       v-if="showClearButton"
       type="button"
-      class="mw-multiselect__clear p-multiselect-clear-icon"
+      class="mw-multiselect__clear"
       :aria-label="translate('clear')"
       tabindex="-1"
       @mousedown.stop.prevent
@@ -512,27 +507,27 @@ function optionKey(option: any, index: number): string {
       <X aria-hidden="true" />
     </button>
 
-    <span class="mw-multiselect__dropdown p-multiselect-dropdown" aria-hidden="true">
-      <ChevronDown class="p-multiselect-dropdown-icon" aria-hidden="true" />
+    <span class="mw-multiselect__dropdown" aria-hidden="true">
+      <ChevronDown class="mw-multiselect__dropdown-icon" aria-hidden="true" />
     </span>
 
     <Teleport to="body">
       <div
         v-if="open"
         ref="panelRef"
-        class="mw-multiselect__overlay p-multiselect-overlay p-component mw-frost mw-glass"
+        class="mw-multiselect__overlay mw-frost mw-glass"
         :style="panelStyle"
       >
         <div
           v-if="$slots.header || showToggleAll || filter"
-          class="mw-multiselect__header p-multiselect-header"
+          class="mw-multiselect__header"
         >
           <slot name="header" />
           <button
             v-if="showToggleAll"
             type="button"
             role="checkbox"
-            class="mw-multiselect__toggle-all p-multiselect-toggle-all"
+            class="mw-multiselect__toggle-all"
             :class="{ 'mw-multiselect__toggle-all--checked': allFilteredSelected }"
             :aria-checked="allFilteredSelected ? 'true' : 'false'"
             :disabled="disabled || readonly || enabledFilteredOptions.length === 0"
@@ -541,11 +536,11 @@ function optionKey(option: any, index: number): string {
           >
             <Check v-if="allFilteredSelected" aria-hidden="true" />
           </button>
-          <div v-if="filter" class="mw-multiselect__filter-container p-multiselect-filter-container">
+          <div v-if="filter" class="mw-multiselect__filter-container">
             <input
               ref="filterInputRef"
               type="text"
-              class="mw-multiselect__filter p-multiselect-filter p-inputtext mw-control mw-input"
+              class="mw-multiselect__filter mw-control mw-input"
               :value="filterQuery"
               :placeholder="filterPlaceholder"
               :aria-label="filterPlaceholder || ariaLabel"
@@ -560,7 +555,7 @@ function optionKey(option: any, index: number): string {
         </div>
 
         <div
-          class="mw-multiselect__list-container p-multiselect-list-container"
+          class="mw-multiselect__list-container"
           :style="{ maxHeight: scrollHeight }"
         >
           <ul
@@ -568,7 +563,7 @@ function optionKey(option: any, index: number): string {
             ref="listRef"
             role="listbox"
             aria-multiselectable="true"
-            class="mw-multiselect__list p-multiselect-list"
+            class="mw-multiselect__list"
             :aria-label="ariaLabel"
             :aria-labelledby="ariaLabelledby"
           >
@@ -577,12 +572,11 @@ function optionKey(option: any, index: number): string {
               :id="optionId(index)"
               :key="optionKey(option, index)"
               role="option"
-              class="mw-multiselect__option p-multiselect-option"
+              class="mw-multiselect__option"
               :class="{
-                'p-multiselect-option-selected mw-multiselect__option--selected':
-                  isOptionSelected(option),
-                'p-focus mw-multiselect__option--highlighted': index === activeIndex,
-                'p-disabled mw-multiselect__option--disabled': isOptionDisabled(option),
+                'mw-multiselect__option--selected': isOptionSelected(option),
+                'mw-multiselect__option--highlighted': index === activeIndex,
+                'mw-multiselect__option--disabled': isOptionDisabled(option),
               }"
               :aria-label="resolveOptionLabel(option)"
               :aria-selected="isOptionSelected(option)"
@@ -594,7 +588,7 @@ function optionKey(option: any, index: number): string {
               @mousemove="onOptionMousemove(index, option)"
               @click="toggleOption(option, $event)"
             >
-              <span class="mw-multiselect__checkbox p-multiselect-option-checkbox" aria-hidden="true">
+              <span class="mw-multiselect__checkbox" aria-hidden="true">
                 <Check v-if="isOptionSelected(option)" aria-hidden="true" />
               </span>
               <slot
@@ -609,14 +603,14 @@ function optionKey(option: any, index: number): string {
             <li
               v-if="filteredOptions.length === 0"
               role="option"
-              class="mw-multiselect__empty p-multiselect-empty-message"
+              class="mw-multiselect__empty"
             >
               <slot name="empty">{{ emptyText }}</slot>
             </li>
           </ul>
         </div>
 
-        <div v-if="$slots.footer" class="mw-multiselect__footer p-multiselect-footer">
+        <div v-if="$slots.footer" class="mw-multiselect__footer">
           <slot name="footer" />
         </div>
       </div>
@@ -637,8 +631,7 @@ function optionKey(option: any, index: number): string {
   user-select: none;
 }
 
-.mw-multiselect--fluid,
-.p-multiselect-fluid {
+.mw-multiselect--fluid {
   display: flex;
   width: 100%;
 }
@@ -851,7 +844,7 @@ function optionKey(option: any, index: number): string {
 }
 
 .mw-multiselect__option[data-highlighted]:not(.mw-multiselect__option--selected),
-.mw-multiselect__option.p-focus:not(.mw-multiselect__option--selected) {
+.mw-multiselect__option.mw-multiselect__option--highlighted:not(.mw-multiselect__option--selected) {
   background-color: var(--fill-default);
 }
 

@@ -8,17 +8,17 @@ describe("ProgressSpinner", () => {
       props: { ariaLabel: "Loading content" },
     });
 
-    const root = wrapper.find(".mw-progress-spinner.p-progressspinner");
+    const root = wrapper.find(".mw-progress-spinner");
     expect(root.exists()).toBe(true);
     expect(root.attributes("role")).toBe("progressbar");
     expect(root.attributes("aria-label")).toBe("Loading content");
 
-    const svg = wrapper.find(".mw-progress-spinner__svg.p-progressspinner-spin");
+    const svg = wrapper.find(".mw-progress-spinner__svg");
     expect(svg.exists()).toBe(true);
     expect(svg.attributes("viewBox")).toBe("25 25 50 50");
     expect(svg.attributes("style")).toContain("animation-duration: 2s");
 
-    const circle = wrapper.find(".mw-progress-spinner__circle.p-progressspinner-circle");
+    const circle = wrapper.find(".mw-progress-spinner__circle");
     expect(circle.exists()).toBe(true);
     expect(circle.attributes("fill")).toBe("none");
     expect(circle.attributes("stroke-width")).toBe("4");

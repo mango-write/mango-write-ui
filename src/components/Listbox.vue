@@ -145,13 +145,11 @@ const emptyText = computed(() => {
 
 const rootClass = computed(() => [
   "mw-listbox",
-  "p-listbox",
-  "p-component",
   "mw-control",
   {
-    "mw-listbox--disabled p-disabled": props.disabled,
+    "mw-listbox--disabled": props.disabled,
     "mw-listbox--readonly": props.readonly,
-    "mw-listbox--invalid p-invalid": props.invalid,
+    "mw-listbox--invalid": props.invalid,
   },
   attrs.class,
 ]);
@@ -271,12 +269,12 @@ function optionKey(option: any, index: number): string {
     :data-readonly="readonly ? 'true' : undefined"
     :data-invalid="invalid ? 'true' : undefined"
   >
-    <div v-if="$slots.header || filter" class="mw-listbox__header p-listbox-header">
+    <div v-if="$slots.header || filter" class="mw-listbox__header">
       <slot name="header" />
-      <div v-if="filter" class="mw-listbox__filter-container p-listbox-filter-container">
+      <div v-if="filter" class="mw-listbox__filter-container">
         <input
           type="text"
-          class="mw-listbox__filter p-listbox-filter p-inputtext mw-control mw-input"
+          class="mw-listbox__filter mw-control mw-input"
           :value="filterQuery"
           :placeholder="filterPlaceholder"
           :disabled="disabled"
@@ -291,13 +289,13 @@ function optionKey(option: any, index: number): string {
       </div>
     </div>
 
-    <div class="mw-listbox__list-container p-listbox-list-container" :style="(listStyle as any)">
+    <div class="mw-listbox__list-container" :style="(listStyle as any)">
       <ul
         :id="listboxId"
         ref="listRef"
         v-bind="controlAttrs"
         role="listbox"
-        class="mw-listbox__list p-listbox-list"
+        class="mw-listbox__list"
         :aria-multiselectable="multiple ? 'true' : undefined"
         :aria-label="ariaLabel"
         :aria-labelledby="ariaLabelledby"
@@ -315,11 +313,11 @@ function optionKey(option: any, index: number): string {
           :id="optionId(index)"
           :key="optionKey(option, index)"
           role="option"
-          class="mw-listbox__option p-listbox-option"
+          class="mw-listbox__option"
           :class="{
-            'p-listbox-option-selected mw-listbox__option--selected': isOptionSelected(option),
-            'p-focus mw-listbox__option--highlighted': index === activeIndex,
-            'p-disabled mw-listbox__option--disabled': isOptionDisabled(option),
+            'mw-listbox__option--selected': isOptionSelected(option),
+            'mw-listbox__option--highlighted': index === activeIndex,
+            'mw-listbox__option--disabled': isOptionDisabled(option),
           }"
           :aria-label="resolveOptionLabel(option)"
           :aria-selected="isOptionSelected(option)"
@@ -342,14 +340,14 @@ function optionKey(option: any, index: number): string {
         <li
           v-if="filteredOptions.length === 0"
           role="option"
-          class="mw-listbox__empty p-listbox-empty-message"
+          class="mw-listbox__empty"
         >
           <slot name="empty">{{ emptyText }}</slot>
         </li>
       </ul>
     </div>
 
-    <div v-if="$slots.footer" class="mw-listbox__footer p-listbox-footer">
+    <div v-if="$slots.footer" class="mw-listbox__footer">
       <slot name="footer" />
     </div>
   </div>
@@ -415,13 +413,12 @@ function optionKey(option: any, index: number): string {
 }
 
 .mw-listbox__option[data-highlighted]:not(.mw-listbox__option--selected),
-.mw-listbox__option.p-focus:not(.mw-listbox__option--selected),
+.mw-listbox__option.mw-listbox__option--highlighted:not(.mw-listbox__option--selected),
 .mw-listbox__option:hover:not(.mw-listbox__option--selected):not(.mw-listbox__option--disabled) {
   background-color: var(--fill-default);
 }
 
-.mw-listbox__option--selected,
-.p-listbox-option-selected {
+.mw-listbox__option--selected {
   background-color: var(--fill-selected);
   color: var(--text-accent);
   font-weight: var(--weight-medium);

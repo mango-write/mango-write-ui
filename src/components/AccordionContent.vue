@@ -19,7 +19,6 @@ const isOpen = computed<boolean>(() => panel?.isOpen.value ?? false);
 
 const rootClass = computed(() => [
   "mw-accordion__content",
-  "p-accordioncontent",
   attrs.class,
 ]);
 const rootStyle = computed<StyleValue>(() => attrs.style as StyleValue);
@@ -40,7 +39,7 @@ const rootAttrs = computed(() => {
     :aria-labelledby="panel?.headerId"
     :data-state="isOpen ? 'open' : 'closed'"
   >
-    <div class="mw-accordion__content-inner p-accordioncontent-content p-accordioncontent-wrapper">
+    <div class="mw-accordion__content-inner">
       <slot />
     </div>
   </div>

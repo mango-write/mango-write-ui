@@ -22,12 +22,12 @@ describe("DatePicker", () => {
       },
     });
 
-    const input = wrapper.find("input.p-datepicker-input");
+    const input = wrapper.find("input.mw-date-picker__input");
     expect(input.attributes("id")).toBe("test-dp");
     expect(input.attributes("aria-label")).toBe("Publish date");
     expect((input.element as HTMLInputElement).value).toBe("2026-05-10");
 
-    await wrapper.find(".p-datepicker-dropdown").trigger("click");
+    await wrapper.find(".mw-date-picker__dropdown").trigger("click");
     await nextTick();
 
     const dayBtn = document.body.querySelector<HTMLButtonElement>('[data-date="2026-05-15"]');
@@ -56,7 +56,7 @@ describe("DatePicker", () => {
       },
     });
 
-    const input = wrapper.find("input.p-datepicker-input");
+    const input = wrapper.find("input.mw-date-picker__input");
     await input.setValue("2026-08-21 14:35");
     await nextTick();
 
@@ -85,7 +85,7 @@ describe("DatePicker", () => {
       },
     });
 
-    await wrapper.find(".p-datepicker-dropdown").trigger("click");
+    await wrapper.find(".mw-date-picker__dropdown").trigger("click");
     await nextTick();
 
     const beforeMin = document.body.querySelector<HTMLButtonElement>('[data-date="2026-05-09"]');
@@ -114,7 +114,7 @@ describe("DatePicker", () => {
       },
     });
 
-    await wrapper.find(".p-datepicker-dropdown").trigger("click");
+    await wrapper.find(".mw-date-picker__dropdown").trigger("click");
     await nextTick();
 
     const endBtn = document.body.querySelector<HTMLButtonElement>('[data-date="2026-05-18"]');
@@ -127,7 +127,7 @@ describe("DatePicker", () => {
     const range = emitted![0]![0] as Array<Date | null>;
     expect(range[0]?.getDate()).toBe(10);
     expect(range[1]?.getDate()).toBe(18);
-    expect(document.body.querySelector(".p-datepicker-panel")).toBeNull();
+    expect(document.body.querySelector(".mw-date-picker__panel")).toBeNull();
 
     wrapper.unmount();
   });
@@ -145,14 +145,14 @@ describe("DatePicker", () => {
       },
     });
 
-    await wrapper.find(".p-datepicker-dropdown").trigger("click");
+    await wrapper.find(".mw-date-picker__dropdown").trigger("click");
     await nextTick();
 
     const incHour = document.body.querySelector<HTMLButtonElement>(
-      ".p-datepicker-hour-picker .p-datepicker-increment-button",
+      'button[aria-label="Next Hour"]',
     );
     const incMin = document.body.querySelector<HTMLButtonElement>(
-      ".p-datepicker-minute-picker .p-datepicker-increment-button",
+      'button[aria-label="Next Minute"]',
     );
     expect(incHour).not.toBeNull();
     expect(incMin).not.toBeNull();
@@ -167,7 +167,7 @@ describe("DatePicker", () => {
     expect(lastDate.getHours()).toBe(10);
     expect(lastDate.getMinutes()).toBe(31);
 
-    const clearBtn = wrapper.find(".p-datepicker-clear-icon");
+    const clearBtn = wrapper.find(".mw-date-picker__clear");
     expect(clearBtn.exists()).toBe(true);
     await clearBtn.trigger("click");
 

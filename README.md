@@ -39,7 +39,6 @@ export default defineConfig({ plugins: [vue(), tailwindcss()] });
 
 ```css
 @import "tailwindcss" prefix(tw);
-@plugin "tailwindcss-primeui";
 @import "@mango-write/ui/theme.css";
 @import "@mango-write/ui/components.css";
 @source "../node_modules/@mango-write/ui/src";
@@ -50,8 +49,7 @@ export default defineConfig({ plugins: [vue(), tailwindcss()] });
 ```ts
 import { createApp } from "vue";
 import { createI18n } from "vue-i18n";
-import PrimeVue from "primevue/config";
-import { initTheme, MangoPreset, mergeUiMessages, vTooltip } from "@mango-write/ui";
+import { initTheme, mergeUiMessages, vTooltip } from "@mango-write/ui";
 import App from "./App.vue";
 import "./style.css";
 
@@ -60,9 +58,6 @@ mergeUiMessages(i18n);
 initTheme();
 
 createApp(App)
-  .use(PrimeVue, {
-    theme: { preset: MangoPreset, options: { darkModeSelector: '[data-theme="dark"]' } },
-  })
   .use(i18n)
   .directive("tooltip", vTooltip)
   .mount("#app");
@@ -111,7 +106,7 @@ const options = [
 
 ## 定制
 
-`MangoPreset` 提供完整组件主题；`MangoPresetLite` 包含 Select 和 ToggleSwitch 的主题。
+组件主题随 CSS 入口携带（深浅色由 `<html data-theme>` 驱动，见 `initTheme`），不经过预设对象。
 
 `initTheme({ storageKey, rootEl })` 配置主题偏好的存储位置和主题属性写入的元素。`useThemePreference()` 提供当前偏好、解析后的主题与 `setTheme()`。
 
@@ -120,19 +115,17 @@ const options = [
 | 样式入口 | 用途 |
 |---|---|
 | `@mango-write/ui/tokens.css` | 纯设计 token（`var.css`，亮/暗语义变量与材质、动效、圆角变量） |
-| `@mango-write/ui/base.css` | Mango 静态基础层（包含 `tokens.css`、Tailwind `@theme` 映射、`.mw-glass*`、`.mw-toolbar*`、`.mw-group-card`、`.mw-scroll*` 等纯静态底座，不含 PrimeIcons 与 PrimeVue 覆盖） |
+| `@mango-write/ui/base.css` | Mango 静态基础层（包含 `tokens.css`、Tailwind `@theme` 映射、`.mw-glass*`、`.mw-toolbar*`、`.mw-group-card`、`.mw-scroll*` 等纯静态底座） |
 | `@mango-write/ui/components.css` | Mango 静态组件层（`.mw-control` 公共控件状态 + 组件样式，源码与 `dist` 双模式可用） |
-| `@mango-write/ui/theme.css` | 兼容过渡入口（`base.css` + `primeicons` + `primevue-theme.css`，供尚未退场 PrimeVue 的宿主过渡期使用） |
-| `@mango-write/ui/primevue-theme.css` | 旧 PrimeVue 样式覆盖层（过渡期保留，P5 退场） |
+| `@mango-write/ui/theme.css` | 聚合入口（= `base.css` + `components.css`，一行引全） |
 
 ### 子路径按需导出
 
-除根入口 `@mango-write/ui` 外，支持按模块子路径独立引用（源码 `mango-source` 与构建产物 `dist` 均严格 Tree-shaking 隔离，不连带 `@primeuix/themes`、PrimeVue 或无关组件）：
+除根入口 `@mango-write/ui` 外，支持按模块子路径独立引用（源码 `mango-source` 与构建产物 `dist` 均严格 Tree-shaking 隔离，不连带无关组件）：
 
 - **组件子路径**：`@mango-write/ui/components/<ComponentName>`（如 `@mango-write/ui/components/FormField`、`@mango-write/ui/components/PageHeader`、`@mango-write/ui/components/site/SiteHeader`）及配套类型子路径（如 `@mango-write/ui/components/action-menu`）
 - **工具子路径**：`@mango-write/ui/lib/theme`、`@mango-write/ui/lib/tooltip`、`@mango-write/ui/lib/hover-card`、`@mango-write/ui/lib/useComboPanel`、`@mango-write/ui/lib/area-transition`
 - **国际化子路径**：`@mango-write/ui/locale`
-- **旧主题预设子路径（过渡期隔离）**：`@mango-write/ui/theme`（`MangoPreset`）、`@mango-write/ui/theme-lite`（`MangoPresetLite`）
 
 ## 开发
 

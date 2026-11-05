@@ -19,13 +19,13 @@ describe("ColorPicker", () => {
     });
 
     expect(wrapper.classes()).toEqual(
-      expect.arrayContaining(["mw-color-picker", "p-colorpicker"]),
+      expect.arrayContaining(["mw-color-picker"]),
     );
 
     const input = wrapper.get("input#watermark-color");
     expect(input.attributes("type")).toBe("color");
     expect(input.classes()).toEqual(
-      expect.arrayContaining(["mw-color-picker__input", "p-colorpicker-preview"]),
+      expect.arrayContaining(["mw-color-picker__input"]),
     );
     expect((input.element as HTMLInputElement).value).toBe("#ff0000");
 

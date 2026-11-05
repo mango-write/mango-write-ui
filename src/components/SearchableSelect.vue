@@ -2,8 +2,8 @@
 // 可搜索单选 — Element Plus 风格：收起态就是一个可输入的框，直接在框里打字
 // 过滤，选中后框内显示所选项文字。不是「面板里另起一行搜索框」。
 //
-// 外形不自造 token，直接引用全局注入的 `--p-select-*` 变量（styled 模式下挂在
-// :root），边框/圆角/聚焦光环/箭头列宽/选项行内边距与原生 Select 逐像素对齐。
+// 外形不自造 token，几何读 var.css 语义变量（--control-h/px/radius/font、--focus-*），
+// 边框/圆角/聚焦光环/箭头列宽/选项行内边距与原生 Select 逐像素对齐。
 // 面板用自管的 Teleport 浮层（见 useComboPanel），避免 PrimeVue Popover 在
 // 「聚焦即输入过滤」场景下中途自我关闭。
 //

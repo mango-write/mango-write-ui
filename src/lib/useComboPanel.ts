@@ -23,7 +23,7 @@ export interface ComboPanelOptions {
    * DOM，恒用它。
    *
    * 默认 1300：低于它的页面内层级（吸顶栏等）压不住面板，高于它的只剩
-   * PrimeVue 浮层——那部分不靠这个常数，见 anchorLayerZ。
+   * 组件浮层——那部分不靠这个常数，见 anchorLayerZ。
    */
   zIndex?: number;
   /**
@@ -55,8 +55,8 @@ export function useComboPanel(
   }
 
   /**
-   * 锚点所在浮层的最小 z-index：祖先链上出现过的最大 z-index。PrimeVue 的浮层
-   * 计数器全站共享、只增不降（跨浮层类型跳变时一次 +1100+），长会话里 Dialog
+   * 锚点所在浮层的最小 z-index：祖先链上出现过的最大 z-index。组件浮层
+   * 层级由浮层栈实际值决定（跨浮层类型跳变可达 +1100+），长会话里 Dialog
    * 遮罩能越过任何固定常数——触发器在 Dialog 里时面板必须贴着遮罩上面落。
    */
   function anchorLayerZ(): number | null {

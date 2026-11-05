@@ -24,7 +24,7 @@ describe("InputNumber", () => {
     });
 
     expect(wrapper.classes()).toEqual(
-      expect.arrayContaining(["mw-input-number", "p-inputnumber"]),
+      expect.arrayContaining(["mw-input-number"]),
     );
     const input = wrapper.get("input#price-input");
     expect(input.classes()).toEqual(
@@ -32,8 +32,8 @@ describe("InputNumber", () => {
         "mw-input-number__input",
         "mw-control",
         "mw-input",
-        "p-inputtext",
-        "p-inputnumber-input",
+        "mw-input",
+        "mw-input-number__input",
       ]),
     );
     expect((input.element as HTMLInputElement).value).toBe("10");
@@ -68,8 +68,8 @@ describe("InputNumber", () => {
       },
     });
 
-    const incBtn = wrapper.get(".p-inputnumber-increment-button");
-    const decBtn = wrapper.get(".p-inputnumber-decrement-button");
+    const incBtn = wrapper.get(".mw-input-number__button--up");
+    const decBtn = wrapper.get(".mw-input-number__button--down");
 
     await incBtn.trigger("click");
     expect(onUpdate).toHaveBeenLastCalledWith(7);
@@ -151,7 +151,7 @@ describe("InputNumber", () => {
     expect(input.attributes("data-disabled")).toBe("");
     expect(input.attributes("aria-describedby")).toBe("seats-input-error");
 
-    await wrapper.get(".p-inputnumber-increment-button").trigger("click");
+    await wrapper.get(".mw-input-number__button--up").trigger("click");
     expect(onUpdate).not.toHaveBeenCalled();
   });
 });

@@ -833,25 +833,16 @@ const isFlexScrollable = computed(
 
 const rootClass = computed(() => [
   "mw-datatable",
-  "p-datatable",
   resolvedSize.value
     ? [`mw-datatable--${resolvedSize.value}`, `mw-size-${resolvedSize.value}`]
     : undefined,
   {
-    "p-datatable-sm": resolvedSize.value === "sm",
-    "p-datatable-lg": resolvedSize.value === "lg",
     "mw-datatable--scrollable": props.scrollable,
-    "p-datatable-scrollable": props.scrollable,
     "mw-datatable--flex-scrollable": isFlexScrollable.value,
-    "p-datatable-flex-scrollable": isFlexScrollable.value,
     "mw-datatable--striped": props.stripedRows,
-    "p-datatable-striped": props.stripedRows,
     "mw-datatable--hoverable":
       props.rowHover || Boolean(effectiveSelectionMode.value),
-    "p-datatable-hoverable":
-      props.rowHover || Boolean(effectiveSelectionMode.value),
     "mw-datatable--resizable": props.resizableColumns,
-    "p-datatable-resizable": props.resizableColumns,
     "mw-datatable--resizable-fit":
       props.resizableColumns && props.columnResizeMode === "fit",
     "mw-datatable--resizable-expand":
@@ -896,14 +887,14 @@ defineExpose({
   >
     <div
       v-if="$slots.header"
-      class="mw-datatable__header p-datatable-header"
+      class="mw-datatable__header"
     >
       <slot name="header" />
     </div>
 
     <div
       v-if="loading"
-      class="mw-datatable__loading-overlay p-datatable-loading-overlay"
+      class="mw-datatable__loading-overlay"
       data-testid="datatable-loading"
     >
       <slot name="loading">
@@ -912,15 +903,15 @@ defineExpose({
     </div>
 
     <div
-      class="mw-datatable__table-container p-datatable-table-container mw-scroll"
+      class="mw-datatable__table-container mw-scroll"
       :style="tableContainerStyle"
     >
       <table
-        :class="['mw-datatable__table', 'p-datatable-table', tableClass]"
+        :class="['mw-datatable__table', tableClass]"
         :style="tableStyle"
         role="table"
       >
-        <thead class="mw-datatable__thead p-datatable-thead">
+        <thead class="mw-datatable__thead">
           <tr class="mw-datatable__header-row">
             <th
               v-for="col in visibleColumns"
@@ -928,14 +919,10 @@ defineExpose({
               scope="col"
               :class="[
                 'mw-datatable__header-cell',
-                'p-datatable-header-cell',
                 {
                   'mw-datatable__header-cell--sortable': col.sortable,
-                  'p-datatable-sortable-column': col.sortable,
                   'mw-datatable__header-cell--sorted': isColumnSorted(col),
-                  'p-datatable-column-sorted': isColumnSorted(col),
                   'mw-datatable__cell--frozen': col.frozen,
-                  'p-datatable-frozen-column': col.frozen,
                   'mw-datatable__cell--frozen-right':
                     col.frozen && col.alignFrozen === 'right',
                 },
@@ -990,7 +977,7 @@ defineExpose({
 
               <div
                 v-else
-                class="mw-datatable__header-content p-datatable-column-header-content"
+                class="mw-datatable__header-content"
               >
                 <ColumnSlotRenderer
                   v-if="col.headerSlot"
@@ -999,14 +986,14 @@ defineExpose({
                 />
                 <span
                   v-else-if="col.header !== undefined"
-                  class="mw-datatable__header-title p-datatable-column-title"
+                  class="mw-datatable__header-title"
                 >
                   {{ col.header }}
                 </span>
 
                 <span
                   v-if="col.sortable"
-                  class="mw-datatable__sort-icon p-sortable-column-icon"
+                  class="mw-datatable__sort-icon"
                   aria-hidden="true"
                 >
                   <ArrowUp
@@ -1029,7 +1016,7 @@ defineExpose({
 
               <span
                 v-if="resizableColumns"
-                class="mw-datatable__resizer p-column-resizer"
+                class="mw-datatable__resizer"
                 data-column-resizer
                 @mousedown.stop="onResizeStart($event, col)"
                 @touchstart.stop="onResizeStart($event, col)"
@@ -1038,7 +1025,7 @@ defineExpose({
           </tr>
         </thead>
 
-        <tbody class="mw-datatable__tbody p-datatable-tbody">
+        <tbody class="mw-datatable__tbody">
           <template v-if="displayedRows.length > 0">
             <template
               v-for="(row, rowIndex) in displayedRows"
@@ -1047,10 +1034,8 @@ defineExpose({
               <tr
                 :class="[
                   'mw-datatable__row',
-                  'p-datatable-row',
                   {
                     'mw-datatable__row--selected': isRowSelected(row),
-                    'p-datatable-row-selected': isRowSelected(row),
                   },
                   rowClass ? rowClass(row) : undefined,
                 ]"
@@ -1071,10 +1056,8 @@ defineExpose({
                   :key="col.key"
                   :class="[
                     'mw-datatable__body-cell',
-                    'p-datatable-body-cell',
                     {
                       'mw-datatable__cell--frozen': col.frozen,
-                      'p-datatable-frozen-column': col.frozen,
                       'mw-datatable__cell--frozen-right':
                         col.frozen && col.alignFrozen === 'right',
                     },
@@ -1129,7 +1112,7 @@ defineExpose({
                   <template v-else-if="col.expander">
                     <button
                       type="button"
-                      class="mw-datatable__expander p-datatable-row-toggle-button"
+                      class="mw-datatable__expander"
                       data-row-action
                       :aria-expanded="isRowExpanded(row) ? 'true' : 'false'"
                       aria-label="Toggle Row"
@@ -1168,7 +1151,7 @@ defineExpose({
 
               <tr
                 v-if="isRowExpanded(row) && $slots.expansion"
-                class="mw-datatable__row mw-datatable__row-expansion p-datatable-row-expansion"
+                class="mw-datatable__row mw-datatable__row-expansion"
                 :data-expanded-row="String(getRowKeyAttr(row, rowIndex))"
               >
                 <td
@@ -1183,7 +1166,7 @@ defineExpose({
 
           <tr
             v-else
-            class="mw-datatable__empty-row p-datatable-empty-message"
+            class="mw-datatable__empty-row"
           >
             <td
               :colspan="Math.max(1, visibleColumns.length)"
@@ -1198,7 +1181,7 @@ defineExpose({
 
         <tfoot
           v-if="hasColumnFooters"
-          class="mw-datatable__tfoot p-datatable-tfoot"
+          class="mw-datatable__tfoot"
         >
           <tr class="mw-datatable__footer-row">
             <td
@@ -1206,10 +1189,8 @@ defineExpose({
               :key="col.key"
               :class="[
                 'mw-datatable__footer-cell',
-                'p-datatable-footer-cell',
                 {
                   'mw-datatable__cell--frozen': col.frozen,
-                  'p-datatable-frozen-column': col.frozen,
                 },
                 col.class,
                 col.footerClass,
@@ -1232,7 +1213,7 @@ defineExpose({
 
     <Paginator
       v-if="paginator"
-      class="mw-datatable__paginator p-paginator-bottom"
+      class="mw-datatable__paginator"
       :first="effectiveFirst"
       :rows="effectiveRows"
       :total-records="effectiveTotalRecords"
@@ -1252,7 +1233,7 @@ defineExpose({
 
     <div
       v-if="$slots.footer"
-      class="mw-datatable__footer p-datatable-footer"
+      class="mw-datatable__footer"
     >
       <slot name="footer" />
     </div>

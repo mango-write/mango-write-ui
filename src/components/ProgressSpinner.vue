@@ -19,17 +19,17 @@ withDefaults(
 
 <template>
   <div
-    class="mw-progress-spinner p-progressspinner p-component"
+    class="mw-progress-spinner"
     role="progressbar"
     :aria-label="ariaLabel"
   >
     <svg
-      class="mw-progress-spinner__svg p-progressspinner-spin"
+      class="mw-progress-spinner__svg"
       viewBox="25 25 50 50"
       :style="{ animationDuration }"
     >
       <circle
-        class="mw-progress-spinner__circle p-progressspinner-circle"
+        class="mw-progress-spinner__circle"
         cx="50"
         cy="50"
         r="20"

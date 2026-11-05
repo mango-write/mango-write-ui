@@ -25,20 +25,20 @@ describe("Menu", () => {
       props: { model, ariaLabel: "Main menu" },
     });
 
-    const root = wrapper.find(".mw-menu.p-menu");
+    const root = wrapper.find(".mw-menu");
     expect(root.exists()).toBe(true);
-    const list = wrapper.find(".mw-menu__list.p-menu-list");
+    const list = wrapper.find(".mw-menu__list");
     expect(list.attributes("aria-label")).toBe("Main menu");
 
-    const links = wrapper.findAll(".mw-menu__item-link.p-menu-item-link");
+    const links = wrapper.findAll(".mw-menu__item-link");
     expect(links).toHaveLength(3);
     expect(links[0]!.text()).toContain("Profile");
     expect(links[1]!.text()).toContain("Settings");
     expect(links[2]!.text()).toContain("Disabled Item");
     expect(links[2]!.attributes("aria-disabled")).toBe("true");
 
-    expect(wrapper.find(".mw-menu__separator.p-menu-separator").exists()).toBe(true);
-    expect(wrapper.find(".mw-menu__submenu-label.p-menu-submenu-label").text()).toBe("Workspace");
+    expect(wrapper.find(".mw-menu__separator").exists()).toBe(true);
+    expect(wrapper.find(".mw-menu__submenu-label").text()).toBe("Workspace");
   });
 
   it("invokes item command on click and respects disabled items", async () => {
@@ -111,7 +111,7 @@ describe("Menu", () => {
       attachTo: document.body,
     });
 
-    expect(wrapper.find(".mw-menu--popup.p-menu-overlay").exists()).toBe(false);
+    expect(wrapper.find(".mw-menu--popup").exists()).toBe(false);
 
     const anchor = document.createElement("button");
     document.body.appendChild(anchor);
@@ -126,20 +126,20 @@ describe("Menu", () => {
 
     vm.toggle(clickEvent);
     await nextTick();
-    expect(wrapper.find(".mw-menu--popup.p-menu-overlay").exists()).toBe(true);
+    expect(wrapper.find(".mw-menu--popup").exists()).toBe(true);
 
     await wrapper.find(".mw-menu__item-link").trigger("click");
     await nextTick();
     expect(commandSpy).toHaveBeenCalledTimes(1);
-    expect(wrapper.find(".mw-menu--popup.p-menu-overlay").exists()).toBe(false);
+    expect(wrapper.find(".mw-menu--popup").exists()).toBe(false);
 
     vm.show(clickEvent);
     await nextTick();
-    expect(wrapper.find(".mw-menu--popup.p-menu-overlay").exists()).toBe(true);
+    expect(wrapper.find(".mw-menu--popup").exists()).toBe(true);
 
     document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
     await nextTick();
-    expect(wrapper.find(".mw-menu--popup.p-menu-overlay").exists()).toBe(false);
+    expect(wrapper.find(".mw-menu--popup").exists()).toBe(false);
 
     anchor.remove();
     wrapper.unmount();

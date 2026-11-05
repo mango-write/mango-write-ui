@@ -38,10 +38,10 @@ describe("RadioButton", () => {
     });
 
     const wrapper = mountUiComponent(Host, { attachTo: document.body });
-    const radios = wrapper.findAll(".mw-radio.p-radiobutton");
+    const radios = wrapper.findAll(".mw-radio");
     expect(radios).toHaveLength(2);
     expect(radios[0]!.classes()).toEqual(
-      expect.arrayContaining(["mw-radio--checked", "p-radiobutton-checked"]),
+      expect.arrayContaining(["mw-radio--checked"]),
     );
     expect(radios[1]!.classes()).not.toContain("mw-radio--checked");
 
@@ -58,7 +58,7 @@ describe("RadioButton", () => {
       expect.objectContaining({ value: "opt-b" }),
     );
     expect(radios[1]!.classes()).toEqual(
-      expect.arrayContaining(["mw-radio--checked", "p-radiobutton-checked"]),
+      expect.arrayContaining(["mw-radio--checked"]),
     );
 
     wrapper.unmount();

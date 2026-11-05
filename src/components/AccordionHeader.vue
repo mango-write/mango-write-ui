@@ -71,7 +71,6 @@ function onKeydown(event: KeyboardEvent) {
 
 const rootClass = computed(() => [
   "mw-accordion__header",
-  "p-accordionheader",
   {
     "mw-accordion__header--active": isOpen.value,
     "mw-accordion__header--disabled": isDisabled.value,
@@ -103,7 +102,7 @@ const rootAttrs = computed(() => {
   >
     <slot :active="isOpen" />
     <ChevronDown
-      class="mw-accordion__chevron p-accordionheader-toggle-icon"
+      class="mw-accordion__chevron"
       aria-hidden="true"
     />
   </button>

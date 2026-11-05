@@ -3,7 +3,7 @@ defineOptions({ name: "MwIconField" });
 </script>
 
 <template>
-  <div class="mw-icon-field p-iconfield">
+  <div class="mw-icon-field">
     <slot />
   </div>
 </template>

@@ -138,7 +138,7 @@ provide(ACCORDION_INJECTION_KEY, {
   moveFocus,
 });
 
-const rootClass = computed(() => ["mw-accordion", "p-accordion", attrs.class]);
+const rootClass = computed(() => ["mw-accordion", attrs.class]);
 const rootStyle = computed<StyleValue>(() => attrs.style as StyleValue);
 const rootAttrs = computed(() => {
   const { class: _class, style: _style, ...rest } = attrs;

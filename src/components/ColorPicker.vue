@@ -119,12 +119,9 @@ const nativeColorValue = computed<string>(() => {
 
 const rootClass = computed(() => [
   "mw-color-picker",
-  "p-colorpicker",
   {
     "mw-color-picker--inline": props.inline,
-    "p-colorpicker-inline": props.inline,
     "mw-color-picker--disabled": props.disabled,
-    "p-disabled": props.disabled,
     "mw-color-picker--readonly": props.readonly,
     "mw-color-picker--invalid": props.invalid,
   },
@@ -164,7 +161,7 @@ function handleColorEvent(event: Event) {
     <input
       v-bind="controlAttrs"
       type="color"
-      class="mw-color-picker__input mw-control p-colorpicker-preview"
+      class="mw-color-picker__input mw-control"
       :id="inputId ?? id"
       :name="name"
       :value="nativeColorValue"

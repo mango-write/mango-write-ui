@@ -53,7 +53,7 @@ describe("MultiSelect", () => {
       required: true,
     });
 
-    const root = wrapper.get(".mw-multiselect.p-multiselect");
+    const root = wrapper.get(".mw-multiselect");
     expect(root.attributes("id")).toBe("ms-field");
     expect(root.attributes("role")).toBe("combobox");
     expect(root.attributes("aria-label")).toBe("多选字段");
@@ -66,7 +66,7 @@ describe("MultiSelect", () => {
     expect(root.attributes("aria-expanded")).toBe("true");
     expect(wrapper.emitted("show")).toHaveLength(1);
 
-    const renderedOptions = document.body.querySelectorAll<HTMLElement>(".p-multiselect-option");
+    const renderedOptions = document.body.querySelectorAll<HTMLElement>(".mw-multiselect__option");
     expect(renderedOptions).toHaveLength(4);
     expect(renderedOptions[0]?.getAttribute("aria-label")).toBe("Alpha");
     expect(renderedOptions[2]?.getAttribute("aria-disabled")).toBe("true");
@@ -100,21 +100,21 @@ describe("MultiSelect", () => {
       showClear: true,
     });
 
-    const chips = wrapper.findAll(".p-multiselect-chip-item");
+    const chips = wrapper.findAll(".mw-multiselect__chip");
     expect(chips).toHaveLength(2);
     expect(chips[0]?.text()).toContain("Alpha");
 
     // Remove first chip
-    await wrapper.get(".p-multiselect-chip-icon").trigger("click");
+    await wrapper.get(".mw-multiselect__chip-remove").trigger("click");
     expect(wrapper.emitted("update:modelValue")?.at(-1)).toEqual([["b"]]);
 
     // Exceed maxSelectedLabels -> summary label
     await wrapper.setProps({ modelValue: ["a", "b", "d"] });
-    expect(wrapper.findAll(".p-multiselect-chip-item")).toHaveLength(0);
-    expect(wrapper.get(".p-multiselect-label").text()).toBe("已选 3 项");
+    expect(wrapper.findAll(".mw-multiselect__chip")).toHaveLength(0);
+    expect(wrapper.get(".mw-multiselect__label").text()).toBe("已选 3 项");
 
     // Clear all
-    const clearBtn = wrapper.get(".p-multiselect-clear-icon");
+    const clearBtn = wrapper.get(".mw-multiselect__clear");
     await clearBtn.trigger("click");
     expect(wrapper.emitted("update:modelValue")?.at(-1)).toEqual([[]]);
   });
@@ -127,24 +127,24 @@ describe("MultiSelect", () => {
     });
 
     await wrapper.get(".mw-multiselect").trigger("click");
-    const toggleAllBtn = document.body.querySelector<HTMLButtonElement>(".p-multiselect-toggle-all")!;
+    const toggleAllBtn = document.body.querySelector<HTMLButtonElement>(".mw-multiselect__toggle-all")!;
     expect(toggleAllBtn).not.toBeNull();
     toggleAllBtn.click();
     await nextTick();
     // Should select enabled options: a, b, d (skipping c which is disabled)
     expect(wrapper.emitted("update:modelValue")?.at(-1)).toEqual([["a", "b", "d"]]);
 
-    const filterInput = document.body.querySelector<HTMLInputElement>(".p-multiselect-filter")!;
+    const filterInput = document.body.querySelector<HTMLInputElement>(".mw-multiselect__filter")!;
     filterInput.value = "be";
     filterInput.dispatchEvent(new Event("input"));
     await nextTick();
-    expect(document.body.querySelectorAll(".p-multiselect-option")).toHaveLength(1);
-    expect(document.body.querySelector(".p-multiselect-option")?.textContent).toContain("Beta");
+    expect(document.body.querySelectorAll(".mw-multiselect__option")).toHaveLength(1);
+    expect(document.body.querySelector(".mw-multiselect__option")?.textContent).toContain("Beta");
 
     filterInput.value = "nonexistent";
     filterInput.dispatchEvent(new Event("input"));
     await nextTick();
-    expect(document.body.querySelector(".p-multiselect-empty-message")?.textContent).toBe("无匹配项");
+    expect(document.body.querySelector(".mw-multiselect__empty")?.textContent).toBe("无匹配项");
   });
 
   it("禁用与只读态不打开面板、不触发清除或删除", async () => {
@@ -157,10 +157,10 @@ describe("MultiSelect", () => {
 
     const root = wrapper.get(".mw-multiselect");
     expect(root.attributes("data-disabled")).toBe("true");
-    expect(wrapper.find(".p-multiselect-clear-icon").exists()).toBe(false);
-    expect(wrapper.find(".p-multiselect-chip-icon").exists()).toBe(false);
+    expect(wrapper.find(".mw-multiselect__clear").exists()).toBe(false);
+    expect(wrapper.find(".mw-multiselect__chip-remove").exists()).toBe(false);
 
     await root.trigger("click");
-    expect(document.body.querySelector(".p-multiselect-overlay")).toBeNull();
+    expect(document.body.querySelector(".mw-multiselect__overlay")).toBeNull();
   });
 });

@@ -77,7 +77,7 @@ describe("DataTable & Column", () => {
     expect(page1Names).toEqual(["Bravo", "Delta"]);
 
     // 切换到第 2 页：应显示 r3(30), r1(40)，且 r1 的复选框应保持勾选状态
-    const nextBtn = wrapper.get(".p-paginator-next");
+    const nextBtn = wrapper.get(".mw-paginator__next");
     await nextBtn.trigger("click");
     await nextTick();
 
@@ -199,7 +199,7 @@ describe("DataTable & Column", () => {
 
     const firstTh = wrapper.findAll<HTMLElement>("thead th")[0]!;
     const resizer = firstTh.get(
-      ".mw-datatable__resizer.p-column-resizer[data-column-resizer]",
+      ".mw-datatable__resizer[data-column-resizer]",
     );
 
     await resizer.trigger("mousedown", { clientX: 100 });
@@ -242,24 +242,24 @@ describe("DataTable & Column", () => {
 
     const ths = wrapper.findAll<HTMLElement>("thead th");
     expect(ths[0]!.classes()).toContain("mw-datatable__cell--frozen");
-    expect(ths[0]!.classes()).toContain("p-datatable-frozen-column");
+    expect(ths[0]!.classes()).toContain("mw-datatable__cell--frozen");
     expect(ths[0]!.element.style.position).toBe("sticky");
     expect(ths[0]!.element.style.insetInlineStart).toBe("0px");
     expect(ths[0]!.element.style.zIndex).toBe("1");
 
     expect(ths[2]!.classes()).toContain("mw-datatable__cell--frozen");
-    expect(ths[2]!.classes()).toContain("p-datatable-frozen-column");
+    expect(ths[2]!.classes()).toContain("mw-datatable__cell--frozen");
     expect(ths[2]!.element.style.position).toBe("sticky");
     expect(ths[2]!.element.style.insetInlineEnd).toBe("0px");
     expect(ths[2]!.element.style.zIndex).toBe("1");
 
     const tds = wrapper.findAll<HTMLElement>("tbody tr:first-child td");
     expect(tds[0]!.classes()).toContain("mw-datatable__cell--frozen");
-    expect(tds[0]!.classes()).toContain("p-datatable-frozen-column");
+    expect(tds[0]!.classes()).toContain("mw-datatable__cell--frozen");
     expect(tds[0]!.element.style.position).toBe("sticky");
     expect(tds[0]!.element.style.insetInlineStart).toBe("0px");
 
-    expect(tds[2]!.classes()).toContain("p-datatable-frozen-column");
+    expect(tds[2]!.classes()).toContain("mw-datatable__cell--frozen");
     expect(tds[2]!.element.style.insetInlineEnd).toBe("0px");
   });
 
@@ -333,7 +333,7 @@ describe("DataTable & Column", () => {
     ).toEqual(["Charlie", "Alpha"]);
 
     // 点击分页器第 1 页按钮，发出 @page 事件携带当前 sortField/sortOrder
-    const page1Btn = wrapper.findAll(".p-paginator-page")[0]!;
+    const page1Btn = wrapper.findAll(".mw-paginator__page")[0]!;
     await page1Btn.trigger("click");
     await nextTick();
 
@@ -398,7 +398,7 @@ describe("DataTable & Column", () => {
     const wrapper = mountUiComponent(Host);
     await nextTick();
 
-    expect(wrapper.find(".p-datatable-row-expansion").exists()).toBe(false);
+    expect(wrapper.find(".mw-datatable__row-expansion").exists()).toBe(false);
 
     const expanderBtns = wrapper.findAll(".mw-datatable__expander");
     expect(expanderBtns).toHaveLength(2);
@@ -409,7 +409,7 @@ describe("DataTable & Column", () => {
     expect(expandedRows.value).toEqual({ r1: true });
     expect(expandedEvents).toEqual(["r1"]);
     const expansionRow = wrapper.get(
-      "tr.mw-datatable__row.p-datatable-row-expansion",
+      "tr.mw-datatable__row.mw-datatable__row-expansion",
     );
     expect(expansionRow.text()).toContain("Expanded: Alpha");
 
@@ -417,7 +417,7 @@ describe("DataTable & Column", () => {
     await nextTick();
     expect(expandedRows.value).toEqual({});
     expect(collapsedEvents).toEqual(["r1"]);
-    expect(wrapper.find(".p-datatable-row-expansion").exists()).toBe(false);
+    expect(wrapper.find(".mw-datatable__row-expansion").exists()).toBe(false);
 
     // 验证 exportCSV 忽略 expander 列并正确解析点路径字段
     const csv = tableRef.value!.exportCSV();
