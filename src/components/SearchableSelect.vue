@@ -12,6 +12,7 @@
 import { computed, nextTick, onMounted, ref, useId, watch } from "vue";
 import { ChevronDown, X } from "lucide-vue-next";
 import { useI18n } from "vue-i18n";
+import { vScrollFade } from "../lib/scroll-fade";
 import { useComboPanel } from "../lib/useComboPanel";
 
 const { t } = useI18n();
@@ -235,34 +236,39 @@ function onKeydown(event: KeyboardEvent) {
     </span>
 
     <Teleport to="body">
-      <ul
+      <div
         v-if="open"
-        :id="listboxId"
         ref="panelRef"
-        class="mw-ss-overlay mw-frost"
+        class="mw-ss-overlay mw-frost mw-scroll-scope"
         :style="panelStyle"
-        :aria-label="ariaLabel"
-        :aria-labelledby="ariaLabelledby"
-        role="listbox"
       >
-        <li
-          v-for="(option, i) in filtered"
-          :id="optionId(i)"
-          :key="`${String(valueOf(option))}-${i}`"
-          class="mw-ss-option"
-          :class="{
-            'mw-ss-option-selected': valueOf(option) === modelValue,
-            'mw-ss-option-active': i === activeIndex,
-          }"
-          :aria-selected="valueOf(option) === modelValue"
-          role="option"
-          @mousedown.prevent="selectOption(option)"
-          @mousemove="activeIndex = i"
+        <ul
+          :id="listboxId"
+          v-scroll-fade.sm
+          class="mw-ss-list mw-scroll"
+          :aria-label="ariaLabel"
+          :aria-labelledby="ariaLabelledby"
+          role="listbox"
         >
-          {{ labelOf(option) }}
-        </li>
-        <li v-if="!filtered.length" class="mw-ss-empty">{{ emptyMessageText }}</li>
-      </ul>
+          <li
+            v-for="(option, i) in filtered"
+            :id="optionId(i)"
+            :key="`${String(valueOf(option))}-${i}`"
+            class="mw-ss-option"
+            :class="{
+              'mw-ss-option-selected': valueOf(option) === modelValue,
+              'mw-ss-option-active': i === activeIndex,
+            }"
+            :aria-selected="valueOf(option) === modelValue"
+            role="option"
+            @mousedown.prevent="selectOption(option)"
+            @mousemove="activeIndex = i"
+          >
+            {{ labelOf(option) }}
+          </li>
+          <li v-if="!filtered.length" class="mw-ss-empty">{{ emptyMessageText }}</li>
+        </ul>
+      </div>
     </Teleport>
   </div>
 </template>
@@ -409,6 +415,11 @@ function onKeydown(event: KeyboardEvent) {
 <style>
 .mw-ss-overlay {
   --_ss-max-h: calc(var(--size-lg-h) * 6);
+  overflow: hidden;
+  border-radius: var(--radius-float);
+  box-shadow: var(--shadow-floating);
+}
+.mw-ss-list {
   margin: 0;
   padding: var(--space-1);
   list-style: none;
@@ -417,8 +428,6 @@ function onKeydown(event: KeyboardEvent) {
   gap: var(--space-0-5);
   max-height: var(--_ss-max-h);
   overflow-y: auto;
-  border-radius: var(--radius-float);
-  box-shadow: var(--shadow-floating);
 }
 .mw-ss-overlay .mw-ss-option {
   padding: var(--space-1-5) var(--space-2-5);

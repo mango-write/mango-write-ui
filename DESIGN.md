@@ -161,12 +161,22 @@ primary / secondary / tertiary / accent 在纸面上均 ≥ 4.5:1，由 `var-css
 - 组件的 `icon` 参数只接受 Vue `Component`（Lucide 图标组件），尺寸由组件上下文 token 决定。
 - 装饰性图标用 `--text-tertiary`；可点击的 icon-only 控件必须有可访问名称。
 
-## 12. 布局
+## 12. 布局与滚动边界
 
 - 断点：`640 / 768 / 1024 / 1280 / 1536`（CSS 变量不能用于媒体查询，这里是唯一约定）。
 - 容器：`--container-prose`（长文）、`--container-content`（内容页）、`--container-page`（整页上限）。
 - 工作台壳：`--shell-topbar-h`、`--shell-sidebar-w`、`--shell-rail-w`、`--shell-aside-w`、浮岛间距 `--shell-gutter`、浮岛圆角 `--radius-sheet`。
 - 1280 宽不出现横向滚动；390 宽主链路可达。
+
+### 滚动边缘渐隐（Scroll Edge Fade）
+
+凡滚动溢出容器窗口的内容，在**内容出口方向**（有内容滚出或待滚入的一侧）必须呈现渐变的淡入淡出效果；已滚到尽头（贴边无溢出）的一侧立即撤去遮罩、恢复清晰边界，向用户明确传达「这一侧还有内容」与「这一侧已到头」。
+
+- **两档过渡带尺度**：
+  - `--scroll-fade-size`（`24px`，默认档）：页面主滚动区、工作台岛内列表、对话框主体（`Dialog`）、数据表格（`DataTable`）。
+  - `--scroll-fade-size-sm`（`12px`，紧凑档）：下拉选择面板（`Select` / `MultiSelect` / `SearchableSelect` / `SearchableMultiSelect` / `AsyncSearchSelect`）、列表框（`Listbox`）、横向标签栏（`TabList`）及小尺寸横向胶囊条。
+- **材质正交（只用 `mask-image`，不用背景色伪元素遮罩）**：通过 `mask-image: linear-gradient(...)` 直接裁切滚动视口边缘的 alpha 通道（横纵双向同时溢出时经 `mask-composite: intersect` 合成），因此同一套渐隐在纸面（`--bg-surface`）、抬起卡（`--bg-raised`）、凹陷井（`--bg-sunken`）、半透明霜面（`.mw-frost`）与深浅色下均自然成立，绝不出现实色雾条穿帮或遮挡鼠标热区。
+- **动态感知与吸顶让位**：由 `v-scroll-fade`（紧凑档 `v-scroll-fade.sm`）或 `attachScrollFade` 监听滚动位置、容器尺寸与子节点变化，动态维护 `data-scroll-fade-y="top|bottom|both"` 与 `data-scroll-fade-x="left|right|both"`；含吸顶表头（如 `DataTable` 的 `.mw-datatable__thead`）时自动将顶部渐隐起点下移 `--mw-scroll-fade-top-offset`，吸顶层保持完整清晰，仅表体行在滑入表头下方时柔和消融。
 
 ## 13. 状态
 

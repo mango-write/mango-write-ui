@@ -1,10 +1,10 @@
 // 构建期生成 LLM 产物(llms.txt 标准流量入口 + 整库单文件 + 单组件 md):
 //   dist-playground/llms.txt      入口索引(站点地图给 agent 用)
-//   dist-playground/llms-full.txt 全部文档与 50 个组件 API/示例,单文件可直接投喂上下文
+//   dist-playground/llms-full.txt 全部文档与 50 个组件 API,单文件可直接投喂上下文
 //   dist-playground/api/<slug>.md 单组件 API
-// 数据源:dev/api/entries(接口元数据)、dev/content.ts(安装步骤)、dev/registry.ts(目录)
-// 与各文档页的 DocPage lead(一句话简介)。由 build:playground 在 vite build 之后调用,
-// 产物随 dist 经 nginx 静态直出。接口事实源在 dev/api/entries,本脚本不承载内容。
+// 数据源:dev/api/entries(接口元数据)、dev/content.ts(安装步骤)、dev/registry-data.ts(目录与 lead)。
+// 由 build:playground 在 vite build 之后调用,产物随 dist 经 nginx 静态直出。
+// 接口事实源在 dev/api/entries,本脚本不承载内容;文案统一取 zh(Bi 单源的 zh 侧)。
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { basename, join } from "node:path";
@@ -43,15 +43,15 @@ for (const f of readdirSync(join(ROOT, "dev/api/entries")).filter((n) => n.endsW
   entries[api.slug] = api;
 }
 
-// 目录(registry.ts)用正则顺序解析:组头与条目调用都是纯字面量,声明处是类型标注不会误匹配。
-const registrySrc = readFileSync(join(ROOT, "dev/registry.ts"), "utf8");
-const groups = [];
-const docRe =
-  /id:\s*"([^"]+)",\s*title:\s*"([^"]+)",\s*base:\s*"([^"]+)"|(?:foundation|component)\(\s*"([^"]+)",\s*"([^"]+)",\s*"([^"]+)"\s*\)/g;
-for (const m of registrySrc.matchAll(docRe)) {
-  if (m[1]) groups.push({ id: m[1], title: m[2], base: m[3], entries: [] });
-  else groups.at(-1)?.entries.push({ slug: m[4], title: m[5], en: m[6] });
-}
+// 目录与 lead 单源在 registry-data(纯字面量,node 可直 import);文案取 zh。
+const zh = (bi) => (bi && typeof bi === "object" ? bi.zh : bi ?? "");
+const { docGroups } = await importTs(join(ROOT, "dev/registry-data.ts"));
+const groups = docGroups.map((g) => ({
+  id: g.id,
+  title: zh(g.title),
+  base: g.base,
+  entries: g.entries.map((e) => ({ slug: e.slug, title: zh(e.title), en: e.title?.en ?? "", lead: zh(e.lead) })),
+}));
 
 const componentGroups = groups.filter((g) => g.id !== "foundations" && g.id !== "getting-started");
 const foundations = groups.find((g) => g.id === "foundations");
@@ -62,12 +62,6 @@ const extra = entrySlugs.filter((s) => !registrySlugs.includes(s));
 if (missing.length || extra.length) {
   console.error(`!! registry 与 api/entries 不同步——registry 缺: ${missing} ;entries 多出: ${extra}`);
   process.exit(1);
-}
-
-// DocPage lead 是页面上的一句话简介,直接取,不在本脚本再写一份。
-function pageLead(dir, slug) {
-  const src = readFileSync(join(ROOT, "dev/pages", dir, `${slug}.vue`), "utf8");
-  return src.match(/<DocPage\s+lead="([^"]*)"/)?.[1] ?? "";
 }
 
 // desc 存的是受限内联 HTML(<code>):转回 markdown 反引号;表格单元转义竖线。
@@ -81,21 +75,18 @@ function toMd(html, { cell = false } = {}) {
 const pageUrl = (entry) => `${SITE}/components/${entry.slug}`;
 
 function componentSection(e, { heading }) {
-  const lead = pageLead("components", e.slug);
+  const lead = e.lead ?? "";
   const names = e.exports ? e.exports.join(", ") : e.component;
   const sub = heading + "#";
   const out = [];
-  out.push(`${heading} ${e.component} ${e.title}`);
+  out.push(`${heading} ${e.component} ${zh(e.title)}`);
   out.push("");
   out.push(`导入:\`import { ${names} } from "${e.importPath}"\``);
   out.push(`文档页:${pageUrl(e)}`);
   if (lead) out.push("", lead);
   out.push("", `${sub} 接口`, "", "| 名称 | 取值 | 说明 |", "|---|---|---|");
   for (const r of e.rows) {
-    out.push(`| ${r.name.replace(/\|/g, "\\|")} | ${toMd(r.type ?? "", { cell: true })} | ${toMd(r.desc, { cell: true })} |`);
-  }
-  for (const ex of e.examples ?? []) {
-    out.push("", `${sub} 示例 · ${ex.title}`, "", "```vue", ex.code, "```");
+    out.push(`| ${zh(r.name).replace(/\|/g, "\\|")} | ${toMd(zh(r.type) ?? "", { cell: true })} | ${toMd(zh(r.desc), { cell: true })} |`);
   }
   out.push("");
   return out.join("\n");
@@ -104,9 +95,9 @@ function componentSection(e, { heading }) {
 // ---- llms.txt:入口索引 ----------------------------------------------------
 const llms = [];
 llms.push(`# MangoWrite UI`, "");
-llms.push(`> ${libraryIntro}`, "");
+llms.push(`> ${zh(libraryIntro)}`, "");
 llms.push(
-  `纸与霜设计语言官方文档站。整库文档(安装、全部 ${entrySlugs.length} 个组件的 API 与示例代码)在单文件 [llms-full.txt](${SITE}/llms-full.txt),可直接投喂上下文;单个组件也可按 [api/<slug>.md](${SITE}/api/button.md) 精取。`,
+  `纸与霜设计语言官方文档站。整库文档(安装、全部 ${entrySlugs.length} 个组件的 API)在单文件 [llms-full.txt](${SITE}/llms-full.txt),可直接投喂上下文;单个组件也可按 [api/<slug>.md](${SITE}/api/button.md) 精取。`,
   "",
 );
 llms.push(`# 上手`, "");
@@ -117,13 +108,13 @@ llms.push(
 llms.push(`# 设计规范`, "");
 for (const f of foundations.entries) {
   const anchor = f.slug === "installation" ? "getting-started/installation" : `foundations/${f.slug}`;
-  llms.push(`- [${f.title} ${f.en}](${SITE}/${anchor}):${pageLead("foundations", f.slug)}`);
+  llms.push(`- [${f.title} ${f.en}](${SITE}/${anchor}):${f.lead}`);
 }
 llms.push("", `# 组件(${entrySlugs.length} 个)`, "");
 for (const g of componentGroups) {
   for (const e of g.entries) {
     const api = entries[e.slug];
-    llms.push(`- [${e.en} ${e.title}](${pageUrl(api)}):${pageLead("components", e.slug)}`);
+    llms.push(`- [${e.en} ${e.title}](${pageUrl(api)}):${e.lead}`);
   }
 }
 llms.push(
@@ -139,7 +130,7 @@ writeFileSync(join(DIST, "llms.txt"), llms.join("\n"));
 // ---- llms-full.txt:整库单文件 ----------------------------------------------
 const full = [];
 full.push(`# MangoWrite UI 完整文档`, "");
-full.push(`> ${libraryIntro}`, "");
+full.push(`> ${zh(libraryIntro)}`, "");
 full.push(`- 站点:${SITE}(设计规范与逐组件页面见 llms.txt 索引)`);
 full.push(`- GitHub:${REPO}(Apache-2.0)`);
 full.push(`- 版本:${pkg.version}`);
@@ -149,13 +140,13 @@ full.push(
 );
 full.push(`## 安装与上手`, "");
 for (const step of installSteps) {
-  full.push(`### ${step.title}`, "");
-  if (step.desc) full.push(step.desc, "");
-  full.push("```" + step.lang, step.code, "```", "");
+  full.push(`### ${zh(step.title)}`, "");
+  if (step.desc) full.push(zh(step.desc), "");
+  full.push("```" + step.lang, zh(step.code), "```", "");
 }
 full.push(`## 设计规范`, "");
 for (const f of foundations.entries) {
-  full.push(`- [${f.title} ${f.en}](${SITE}/foundations/${f.slug}):${pageLead("foundations", f.slug)}`);
+  full.push(`- [${f.title} ${f.en}](${SITE}/foundations/${f.slug}):${f.lead}`);
 }
 for (const g of componentGroups) {
   full.push("", `## 组件 · ${g.title}`, "");

@@ -124,7 +124,7 @@ const options = [
 除根入口 `@mango-write/ui` 外，支持按模块子路径独立引用（源码 `mango-source` 与构建产物 `dist` 均严格 Tree-shaking 隔离，不连带无关组件）：
 
 - **组件子路径**：`@mango-write/ui/components/<ComponentName>`（如 `@mango-write/ui/components/FormField`、`@mango-write/ui/components/PageHeader`、`@mango-write/ui/components/site/SiteHeader`）及配套类型子路径（如 `@mango-write/ui/components/action-menu`）
-- **工具子路径**：`@mango-write/ui/lib/theme`、`@mango-write/ui/lib/tooltip`、`@mango-write/ui/lib/hover-card`、`@mango-write/ui/lib/useComboPanel`、`@mango-write/ui/lib/area-transition`
+- **工具子路径**：`@mango-write/ui/lib/theme`、`@mango-write/ui/lib/tooltip`、`@mango-write/ui/lib/scroll-fade`、`@mango-write/ui/lib/hover-card`、`@mango-write/ui/lib/useComboPanel`、`@mango-write/ui/lib/area-transition`
 - **国际化子路径**：`@mango-write/ui/locale`
 
 ## 开发

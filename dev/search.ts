@@ -1,13 +1,14 @@
 import { docGroups } from "./registry";
 import { apiEntries } from "./api";
+import type { Bi } from "./i18n";
 
 export interface SearchItem {
   url: string;
-  /** 展示标题,如「按钮 Button」 */
+  /** 展示标题,如「按钮 Button」——两种语言都在检索面,不随界面语言切换 */
   title: string;
   en: string;
-  /** 侧栏分组(操作 / 输入 / 选择…) */
-  group: string;
+  /** 侧栏分组(操作 / 输入 / 选择…),SearchDialog 按当前语言渲染 */
+  group: Bi;
   /** 小写检索面:slug、en、导入名、接口行名 */
   keywords: string;
 }
@@ -29,10 +30,10 @@ export function buildSearchIndex(): SearchItem[] {
       const names = api?.exports ?? (api ? [api.component] : []);
       items.push({
         url: `${group.base}/${entry.slug}`,
-        title: `${entry.title} ${entry.en}`,
-        en: entry.en,
+        title: `${entry.title.zh} ${entry.title.en}`,
+        en: entry.title.en,
         group: group.title,
-        keywords: [entry.slug, entry.en, ...names, ...(api?.rows.map((r) => r.name) ?? [])]
+        keywords: [entry.slug, entry.title.en, ...names, ...(api?.rows.map((r) => r.name) ?? [])]
           .join(" ")
           .toLowerCase(),
       });

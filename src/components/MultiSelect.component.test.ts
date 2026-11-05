@@ -100,7 +100,8 @@ describe("MultiSelect", () => {
       showClear: true,
     });
 
-    const chips = wrapper.findAll(".mw-multiselect__chip");
+    const label = wrapper.get(".mw-multiselect__label");
+    const chips = label.findAll(".mw-multiselect__chip");
     expect(chips).toHaveLength(2);
     expect(chips[0]?.text()).toContain("Alpha");
 
@@ -108,15 +109,50 @@ describe("MultiSelect", () => {
     await wrapper.get(".mw-multiselect__chip-remove").trigger("click");
     expect(wrapper.emitted("update:modelValue")?.at(-1)).toEqual([["b"]]);
 
-    // Exceed maxSelectedLabels -> summary label
+    // chip 模式不受 maxSelectedLabels 影响：可见性按容器宽度折叠（jsdom 量不出几何 → 全部可见）
     await wrapper.setProps({ modelValue: ["a", "b", "d"] });
-    expect(wrapper.findAll(".mw-multiselect__chip")).toHaveLength(0);
+    expect(wrapper.get(".mw-multiselect__label").findAll(".mw-multiselect__chip")).toHaveLength(3);
+
+    // comma 模式超出上限仍折叠为计数文案
+    await wrapper.setProps({ display: "comma" });
     expect(wrapper.get(".mw-multiselect__label").text()).toBe("已选 3 项");
 
     // Clear all
     const clearBtn = wrapper.get(".mw-multiselect__clear");
     await clearBtn.trigger("click");
     expect(wrapper.emitted("update:modelValue")?.at(-1)).toEqual([[]]);
+  });
+
+  it("chip 在容器宽度不足时折叠为 +N，剩余项交给 tooltip", async () => {
+    // jsdom 无布局引擎：钉住量算行的 rect 宽度驱动折叠路径（recalc 读 getBoundingClientRect）
+    const proto = Element.prototype as unknown as Record<string, unknown>;
+    const rectDesc = Object.getOwnPropertyDescriptor(proto, "getBoundingClientRect");
+    Object.defineProperty(proto, "getBoundingClientRect", {
+      configurable: true,
+      value: () => ({ width: 80 }),
+    });
+
+    try {
+      const wrapper = mountMultiSelect({
+        modelValue: ["a", "b", "d"],
+        display: "chip",
+      });
+      await nextTick();
+      await nextTick();
+
+      // 单 chip 80 + gap + "+N" 预留 42 > 可用宽 → 只露 1 个 chip，其余收进 +N
+      const chips = wrapper.get(".mw-multiselect__label").findAll(".mw-multiselect__chip");
+      expect(chips).toHaveLength(2);
+      expect(chips[0]?.text()).toContain("Alpha");
+      expect(chips[1]?.text()).toBe("+2");
+      expect((chips[1]!.element as HTMLElement & { __mwTooltip?: { value: string } }).__mwTooltip?.value).toBe("Beta, Delta");
+
+      // 隐藏量算行始终渲染全部 chip
+      expect(wrapper.findAll(".mw-multiselect__measure .mw-multiselect__chip")).toHaveLength(3);
+    } finally {
+      if (rectDesc) Object.defineProperty(proto, "getBoundingClientRect", rectDesc);
+      else delete proto.getBoundingClientRect;
+    }
   });
 
   it("支持 filter 过滤与 showToggleAll 全选/取消全选（忽略禁用项）", async () => {

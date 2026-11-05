@@ -236,6 +236,8 @@
   --shell-rail-w: 48px;
   --shell-aside-w: 320px;
   --shell-gutter: var(--space-1-5);
+  --scroll-fade-size: 24px;
+  --scroll-fade-size-sm: 12px;
 
   /* Layers：所有 body 级浮层都由本库渲染，数值即全部秩序。 */
   --z-base: 0;

@@ -65,6 +65,20 @@ export { type UserSelectOption } from "./components/user-select";
 export { useComboPanel, type ComboPanelAnchor, type ComboPanelOptions, type ComboPanelPlacement } from "./lib/useComboPanel";
 export { vTooltip } from "./lib/tooltip";
 export {
+  attachScrollFade,
+  computeScrollFadeState,
+  syncScrollFade,
+  vScrollFade,
+  type ScrollFadeBinding,
+  type ScrollFadeController,
+  type ScrollFadeMetrics,
+  type ScrollFadeOptions,
+  type ScrollFadeSize,
+  type ScrollFadeState,
+  type ScrollFadeX,
+  type ScrollFadeY,
+} from "./lib/scroll-fade";
+export {
   initTheme,
   resolveTheme,
   useThemePreference,

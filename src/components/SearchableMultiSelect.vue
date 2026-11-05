@@ -15,6 +15,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, useId, watch } from "vue";
 import { ChevronDown, X } from "lucide-vue-next";
 import { useI18n } from "vue-i18n";
+import { vScrollFade } from "../lib/scroll-fade";
 import { useComboPanel } from "../lib/useComboPanel";
 import { measureMaxTextWidth } from "../lib/text-fit.js";
 
@@ -356,35 +357,40 @@ function onKeydown(event: KeyboardEvent) {
     </span>
 
     <Teleport to="body">
-      <ul
+      <div
         v-if="open"
-        :id="listboxId"
         ref="panelRef"
-        class="mw-ms-overlay mw-frost"
+        class="mw-ms-overlay mw-frost mw-scroll-scope"
         :style="panelStyle"
-        :aria-label="ariaLabel"
-        :aria-labelledby="ariaLabelledby"
-        aria-multiselectable="true"
-        role="listbox"
       >
-        <li
-          v-for="(option, i) in filteredOptions"
-          :id="optionId(i)"
-          :key="`${String(valueOf(option))}-${i}`"
-          class="mw-ms-option"
-          :class="{
-            'mw-ms-option-selected': isSelected(option),
-            'mw-ms-option-active': i === activeIndex,
-          }"
-          :aria-selected="isSelected(option)"
-          role="option"
-          @mousedown.prevent="toggleOption(option)"
-          @mousemove="activeIndex = i"
+        <ul
+          :id="listboxId"
+          v-scroll-fade.sm
+          class="mw-ms-list mw-scroll"
+          :aria-label="ariaLabel"
+          :aria-labelledby="ariaLabelledby"
+          aria-multiselectable="true"
+          role="listbox"
         >
-          <slot name="option" :option="option" :label="labelOf(option)" :selected="isSelected(option)">{{ labelOf(option) }}</slot>
-        </li>
-        <li v-if="!filteredOptions.length" class="mw-ms-empty">{{ emptyMessageText }}</li>
-      </ul>
+          <li
+            v-for="(option, i) in filteredOptions"
+            :id="optionId(i)"
+            :key="`${String(valueOf(option))}-${i}`"
+            class="mw-ms-option"
+            :class="{
+              'mw-ms-option-selected': isSelected(option),
+              'mw-ms-option-active': i === activeIndex,
+            }"
+            :aria-selected="isSelected(option)"
+            role="option"
+            @mousedown.prevent="toggleOption(option)"
+            @mousemove="activeIndex = i"
+          >
+            <slot name="option" :option="option" :label="labelOf(option)" :selected="isSelected(option)">{{ labelOf(option) }}</slot>
+          </li>
+          <li v-if="!filteredOptions.length" class="mw-ms-empty">{{ emptyMessageText }}</li>
+        </ul>
+      </div>
     </Teleport>
   </div>
 </template>
@@ -550,6 +556,11 @@ svg.mw-ms-chip-remove {
 <style>
 .mw-ms-overlay {
   --_ms-max-h: calc(var(--size-lg-h) * 6);
+  overflow: hidden;
+  border-radius: var(--radius-float);
+  box-shadow: var(--shadow-floating);
+}
+.mw-ms-list {
   margin: 0;
   padding: var(--space-1);
   list-style: none;
@@ -558,8 +569,6 @@ svg.mw-ms-chip-remove {
   gap: var(--space-0-5);
   max-height: var(--_ms-max-h);
   overflow-y: auto;
-  border-radius: var(--radius-float);
-  box-shadow: var(--shadow-floating);
 }
 .mw-ms-overlay .mw-ms-option {
   padding: var(--space-1-5) var(--space-2-5);

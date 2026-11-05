@@ -5,7 +5,8 @@
 export function measureMaxTextWidth(el: HTMLElement | null, texts: readonly string[]): number {
   if (!el || typeof document === "undefined" || texts.length === 0) return 0;
   const ctx = document.createElement("canvas").getContext("2d");
-  if (!ctx) return 0;
+  // jsdom 的 2d context 是无 measureText 的桩，只判 null 挡不住它。
+  if (!ctx || typeof ctx.measureText !== "function") return 0;
   const cs = getComputedStyle(el);
   ctx.font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
   ctx.letterSpacing = cs.letterSpacing === "normal" ? "0px" : cs.letterSpacing;

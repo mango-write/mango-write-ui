@@ -1,12 +1,18 @@
 <script setup lang="ts">
-defineProps<{ columns: string[]; labelWidth?: string }>();
+import { t, type Bi } from "../i18n";
+
+defineProps<{ columns: (string | Bi)[]; labelWidth?: string }>();
 </script>
 
 <template>
-  <div class="state-grid mw-scroll" :style="{ '--state-cols': columns.length, '--state-label': labelWidth ?? '96px' }">
+  <div
+    v-scroll-fade.sm
+    class="state-grid mw-scroll"
+    :style="{ '--state-cols': columns.length, '--state-label': labelWidth ?? '96px' }"
+  >
     <div class="state-grid__table">
       <span class="state-grid__corner" />
-      <span v-for="col in columns" :key="col" class="state-grid__head">{{ col }}</span>
+      <span v-for="(col, i) in columns" :key="i" class="state-grid__head">{{ t(col) }}</span>
       <slot />
     </div>
   </div>

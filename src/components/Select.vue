@@ -3,6 +3,7 @@ import { Check, ChevronDown, LoaderCircle, X } from "lucide-vue-next";
 import { PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from "reka-ui";
 import { computed, getCurrentInstance, nextTick, onMounted, ref, useAttrs, useId, watch, type CSSProperties } from "vue";
 import { uiMessages } from "../locale/index.js";
+import { vScrollFade } from "../lib/scroll-fade";
 import { measureMaxTextWidth } from "../lib/text-fit.js";
 import type {
   SelectChangeEvent,
@@ -618,6 +619,7 @@ function optionKey(option: any, index: number): string {
         <ul
           :id="listboxId"
           ref="listboxRef"
+          v-scroll-fade.sm
           role="listbox"
           class="mw-select__list mw-scroll"
           :style="{ maxHeight: scrollHeight }"

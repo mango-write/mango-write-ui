@@ -3,9 +3,10 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import tailwindcss from "@tailwindcss/vite";
+import { llmsDevFiles } from "./scripts/vite-plugin-llms-dev.mjs";
 
 export default defineConfig({
-  plugins: [vue(), tailwindcss()],
+  plugins: [vue(), tailwindcss(), llmsDevFiles()],
   resolve: {
     dedupe: ["vue", "vue-router", "vue-i18n", "primevue"],
   },

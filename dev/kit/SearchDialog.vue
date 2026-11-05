@@ -3,8 +3,15 @@ import { computed, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import { Dialog } from "../../src";
 import { searchDocs, type SearchHit } from "../search";
+import { t } from "../i18n";
 
 const props = defineProps<{ open: boolean }>();
+
+const s = {
+  placeholder: { zh: "搜索组件、属性或设计规范…", en: "Search components, props, or design notes…" },
+  aria: { zh: "搜索文档", en: "Search docs" },
+  empty: { zh: "没有匹配结果", en: "No matches" },
+} as const;
 const emit = defineEmits<{ "update:open": [boolean] }>();
 
 const router = useRouter();
@@ -46,14 +53,19 @@ function onKeydown(event: KeyboardEvent) {
 </script>
 
 <template>
-  <Dialog v-model:open="dialogOpen" :show-header="false" width="min(34rem, calc(100vw - 2rem))">
+  <Dialog
+    v-model:open="dialogOpen"
+    :show-header="false"
+    dismissable-mask
+    width="min(34rem, calc(100vw - 2rem))"
+  >
     <div class="doc-search" @keydown="onKeydown">
       <input
         v-model="query"
         class="doc-search__input"
         type="text"
-        placeholder="搜索组件、属性或设计规范…"
-        aria-label="搜索文档"
+        :placeholder="t(s.placeholder)"
+        :aria-label="t(s.aria)"
       />
       <ul v-if="hits.length" class="doc-search__list">
         <li
@@ -64,11 +76,11 @@ function onKeydown(event: KeyboardEvent) {
           @mouseenter="active = i"
           @click="go(hit)"
         >
-          <span class="doc-search__group">{{ hit.item.group }}</span>
+          <span class="doc-search__group">{{ t(hit.item.group) }}</span>
           <span class="doc-search__title">{{ hit.item.title }}</span>
         </li>
       </ul>
-      <p v-else-if="query" class="doc-search__empty">没有匹配结果</p>
+      <p v-else-if="query" class="doc-search__empty">{{ t(s.empty) }}</p>
     </div>
   </Dialog>
 </template>

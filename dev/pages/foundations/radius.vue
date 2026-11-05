@@ -2,21 +2,36 @@
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
+import { t } from "../../i18n";
 
 const scale = ["2xs", "xs", "sm", "md", "lg", "xl", "2xl", "full"];
 const semantic = [
-  ["--radius-item", "菜单项、列表行"],
-  ["--radius-card", "卡片、分组卡"],
-  ["--radius-float", "菜单、弹出层、Toast"],
-  ["--radius-dialog", "对话框"],
-  ["--radius-sheet", "工作台浮岛"],
-  ["--control-radius", "控件（随尺寸档）"],
+  { token: "--radius-item", use: { zh: "菜单项、列表行", en: "Menu items, list rows" } },
+  { token: "--radius-card", use: { zh: "卡片、分组卡", en: "Cards, grouped cards" } },
+  { token: "--radius-float", use: { zh: "菜单、弹出层、Toast", en: "Menus, popovers, toasts" } },
+  { token: "--radius-dialog", use: { zh: "对话框", en: "Dialogs" } },
+  { token: "--radius-sheet", use: { zh: "工作台浮岛", en: "Workbench islands" } },
+  { token: "--control-radius", use: { zh: "控件（随尺寸档）", en: "Controls (follows the size tier)" } },
 ];
+
+const s = {
+  scaleTitle: { zh: "刻度", en: "Scale" },
+  semanticTitle: { zh: "语义圆角", en: "Semantic radii" },
+  semanticDesc: { zh: "组件写语义名，不写刻度。", en: "Components write semantic names, never scale values." },
+  concentricTitle: { zh: "同心规则", en: "Concentric rule" },
+  concentricDesc: {
+    zh: "容器套容器时，内圆角 = 外圆角 − 内边距。否则内外两条弧不平行，角上会「鼓」或「瘪」。",
+    en: "When containers nest, inner radius = outer radius − padding. Otherwise the two arcs aren't parallel and corners bulge or pinch.",
+  },
+  open: { zh: "打开", en: "Open" },
+  openInNewTab: { zh: "在新标签页打开", en: "Open in new tab" },
+  wrongNote: { zh: "✗ 内外同圆角：内弧比外弧更圆，角部发胖", en: "✗ Same radius inside and out: the inner arc is rounder than the outer one, so corners fatten" },
+} as const;
 </script>
 
 <template>
-  <DocPage lead="圆角表达「这是一件独立的东西」以及它的大小。越大的容器圆角越大；控件圆角随尺寸档走，不单独指定。">
-    <DocSection title="刻度">
+  <DocPage>
+    <DocSection :title="s.scaleTitle">
       <div class="radius-row">
         <div v-for="r in scale" :key="r" class="radius-box" :style="{ borderRadius: `var(--radius-${r})` }">
           <code>{{ r }}</code>
@@ -24,30 +39,30 @@ const semantic = [
       </div>
     </DocSection>
 
-    <DocSection title="语义圆角" desc="组件写语义名，不写刻度。">
+    <DocSection :title="s.semanticTitle" :desc="s.semanticDesc">
       <div class="radius-row">
-        <div v-for="[t, use] in semantic" :key="t" class="radius-box radius-box--wide" :style="{ borderRadius: `var(${t})` }">
-          <code>{{ t }}</code>
-          <span>{{ use }}</span>
+        <div v-for="row in semantic" :key="row.token" class="radius-box radius-box--wide" :style="{ borderRadius: `var(${row.token})` }">
+          <code>{{ row.token }}</code>
+          <span>{{ t(row.use) }}</span>
         </div>
       </div>
     </DocSection>
 
-    <DocSection title="同心规则" desc="容器套容器时，内圆角 = 外圆角 − 内边距。否则内外两条弧不平行，角上会「鼓」或「瘪」。">
+    <DocSection :title="s.concentricTitle" :desc="s.concentricDesc">
       <Specimen :surfaces="['frost']" themes="single">
         <div class="concentric">
           <div class="concentric__panel">
-            <div class="concentric__item concentric__item--on">打开</div>
-            <div class="concentric__item">在新标签页打开</div>
+            <div class="concentric__item concentric__item--on">{{ t(s.open) }}</div>
+            <div class="concentric__item">{{ t(s.openInNewTab) }}</div>
           </div>
           <p class="doc-note">✓ --radius-float − --float-padding = --radius-item</p>
         </div>
         <div class="concentric">
           <div class="concentric__panel">
-            <div class="concentric__item concentric__item--on concentric__item--wrong">打开</div>
-            <div class="concentric__item">在新标签页打开</div>
+            <div class="concentric__item concentric__item--on concentric__item--wrong">{{ t(s.open) }}</div>
+            <div class="concentric__item">{{ t(s.openInNewTab) }}</div>
           </div>
-          <p class="doc-note">✗ 内外同圆角：内弧比外弧更圆，角部发胖</p>
+          <p class="doc-note">{{ t(s.wrongNote) }}</p>
         </div>
       </Specimen>
     </DocSection>

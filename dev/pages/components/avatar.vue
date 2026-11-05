@@ -8,6 +8,9 @@ import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
 import StateGrid from "../../kit/StateGrid.vue";
 import StateRow from "../../kit/StateRow.vue";
+import UsagePlayground from "../../kit/UsagePlayground.vue";
+import { t } from "../../i18n";
+import { usage } from "../../usage/entries/avatar";
 
 const portraitSvg =
   "data:image/svg+xml;utf8," +
@@ -22,55 +25,116 @@ const sizes = [
   { label: "lg", value: "lg" },
   { label: "xlarge", value: "xlarge" },
 ] as const;
+
+const s = {
+  demo: { zh: "在线演示", en: "Live demo" },
+  demoDesc: {
+    zh: "调整配置即时预览；查看生成代码，一键复制到项目。",
+    en: "Tweak the options for a live preview; view the generated code and copy it into your project.",
+  },
+  whenToUse: { zh: "何时使用", en: "When to use" },
+  rule1: {
+    zh: "个人用户与协作者统一使用圆形（<code>shape=\"circle\"</code>）；团队空间、工作区或应用实体使用方形（<code>shape=\"square\"</code>）。",
+    en: "Round (<code>shape=\"circle\"</code>) for people and collaborators; square (<code>shape=\"square\"</code>) for team spaces, workspaces, and app entities.",
+  },
+  rule2: {
+    zh: "同时传入 <code>image</code> 与 <code>label</code>（或 <code>icon</code>），以便在图片地址失效时自动回退到首字母或图标。",
+    en: "Pass both <code>image</code> and <code>label</code> (or <code>icon</code>) so a broken image falls back to initials or the icon.",
+  },
+  rule3: {
+    zh: "需要行内提及并悬停展示用户资料卡时，不要手拼 <code>Avatar + 文本</code>，请直接用 <code>UserChip</code>。",
+    en: "For inline mentions with a hover profile card, don't hand-assemble <code>Avatar + text</code> — use <code>UserChip</code>.",
+  },
+  rule4: {
+    zh: "<code>label</code> 仅放 1–2 个字符（中文单字或英文首字母缩写），不放完整姓名。",
+    en: "Keep <code>label</code> to 1–2 characters (a Chinese character or initials), never the full name.",
+  },
+  baseTitle: { zh: "底面", en: "Surfaces" },
+  baseDesc: {
+    zh: "纸面与霜面并排。无图像时使用 --fill-strong 填充底与次级文字色，在两类底面上都具备清晰边界。",
+    en: "Paper and frost side by side. Without an image, the avatar uses a --fill-strong fill with secondary text color, keeping a clear edge on both surfaces.",
+  },
+  lin: { zh: "林", en: "L" },
+  linAria: { zh: "林知远", en: "Lin Zhiyuan" },
+  shen: { zh: "沈", en: "S" },
+  shenAria: { zh: "沈墨", en: "Shen Mo" },
+  reviewerAria: { zh: "匿名审稿人", en: "Anonymous reviewer" },
+  nlpAria: { zh: "NLP 课题组", en: "NLP research group" },
+  assistantAria: { zh: "科研助手", en: "Research assistant" },
+  sizesTitle: { zh: "尺寸", en: "Sizes" },
+  sizesDesc: {
+    zh: "xs / sm / md / lg / xlarge 五档，默认跟随密度上下文。方形头像圆角随尺寸档位同心缩放。",
+    en: "Five tiers, xs / sm / md / lg / xlarge, following the density context by default; square radii scale with the tier.",
+  },
+  group: { zh: "组", en: "G" },
+  statesTitle: { zh: "状态", en: "States" },
+  statesDesc: {
+    zh: "方形（square）与圆形（circle）在图像、字符、图标及图像加载失败回退下的表现。",
+    en: "Square and circle shapes across image, initials, icon, and broken-image fallback.",
+  },
+  colImage: { zh: "图像", en: "Image" },
+  colInitials: { zh: "字符缩略", en: "Initials" },
+  colUserIcon: { zh: "用户图标", en: "User icon" },
+  colEntityIcon: { zh: "实体图标", en: "Entity icon" },
+  colFallback: { zh: "图像失败回退", en: "Image fallback" },
+  rowCircle: { zh: "圆形", en: "Circle" },
+  rowSquare: { zh: "方形", en: "Square" },
+  lab: { zh: "课题", en: "Lab" },
+  fallback: { zh: "回", en: "A" },
+  api: { zh: "接口", en: "API" },
+} as const;
 </script>
 
 <template>
-  <DocPage lead="头像（Avatar）：代表用户、团队空间或 AI 助手的视觉标识。支持图像、首字母缩略与图标三种载体，图像加载失败时自动优雅降级。">
-    <DocSection title="何时使用">
+  <DocPage>
+    <DocSection :title="s.demo" :desc="s.demoDesc">
+      <UsagePlayground :entry="usage" />
+    </DocSection>
+    <DocSection :title="s.whenToUse">
       <ul class="doc-rules">
-        <li data-kind="do">个人用户与协作者统一使用圆形（<code>shape="circle"</code>）；团队空间、工作区或应用实体使用方形（<code>shape="square"</code>）。</li>
-        <li data-kind="do">同时传入 <code>image</code> 与 <code>label</code>（或 <code>icon</code>），以便在图片地址失效时自动回退到首字母或图标。</li>
-        <li data-kind="dont">需要行内提及并悬停展示用户资料卡时，不要手拼 <code>Avatar + 文本</code>，请直接用 <code>UserChip</code>。</li>
-        <li data-kind="dont"><code>label</code> 仅放 1–2 个字符（中文单字或英文首字母缩写），不放完整姓名。</li>
+        <li data-kind="do" v-html="t(s.rule1)" />
+        <li data-kind="do" v-html="t(s.rule2)" />
+        <li data-kind="dont" v-html="t(s.rule3)" />
+        <li data-kind="dont" v-html="t(s.rule4)" />
       </ul>
     </DocSection>
 
-    <DocSection title="底面" desc="纸面与霜面并排。无图像时使用 --fill-strong 填充底与次级文字色，在两类底面上都具备清晰边界。">
+    <DocSection :title="s.baseTitle" :desc="s.baseDesc">
       <Specimen :surfaces="['paper', 'frost']">
-        <Avatar :image="portraitSvg" label="林" shape="circle" aria-label="林知远" />
-        <Avatar label="沈" shape="circle" aria-label="沈墨" />
-        <Avatar :icon="User" shape="circle" aria-label="匿名审稿人" />
-        <Avatar label="NLP" shape="square" aria-label="NLP 课题组" />
-        <Avatar :icon="Bot" shape="square" aria-label="科研助手" />
+        <Avatar :image="portraitSvg" :label="t(s.lin)" shape="circle" :aria-label="t(s.linAria)" />
+        <Avatar :label="t(s.shen)" shape="circle" :aria-label="t(s.shenAria)" />
+        <Avatar :icon="User" shape="circle" :aria-label="t(s.reviewerAria)" />
+        <Avatar label="NLP" shape="square" :aria-label="t(s.nlpAria)" />
+        <Avatar :icon="Bot" shape="square" :aria-label="t(s.assistantAria)" />
       </Specimen>
     </DocSection>
 
-    <DocSection title="尺寸" desc="xs / sm / md / lg / xlarge 五档，默认跟随密度上下文。方形头像圆角随尺寸档位同心缩放。">
+    <DocSection :title="s.sizesTitle" :desc="s.sizesDesc">
       <Specimen themes="single" layout="stack">
-        <div v-for="s in sizes" :key="s.value" class="doc-row">
-          <span class="doc-note" style="width: 48px">{{ s.label }}</span>
-          <Avatar :size="s.value" shape="circle" :image="portraitSvg" label="林" />
-          <Avatar :size="s.value" shape="circle" label="林" />
-          <Avatar :size="s.value" shape="circle" :icon="User" />
-          <Avatar :size="s.value" shape="square" label="组" />
-          <Avatar :size="s.value" shape="square" :icon="Users" />
+        <div v-for="sz in sizes" :key="sz.value" class="doc-row">
+          <span class="doc-note" style="width: 48px">{{ sz.label }}</span>
+          <Avatar :size="sz.value" shape="circle" :image="portraitSvg" :label="t(s.lin)" />
+          <Avatar :size="sz.value" shape="circle" :label="t(s.lin)" />
+          <Avatar :size="sz.value" shape="circle" :icon="User" />
+          <Avatar :size="sz.value" shape="square" :label="t(s.group)" />
+          <Avatar :size="sz.value" shape="square" :icon="Users" />
         </div>
       </Specimen>
     </DocSection>
 
-    <DocSection title="状态" desc="方形（square）与圆形（circle）在图像、字符、图标及图像加载失败回退下的表现。">
+    <DocSection :title="s.statesTitle" :desc="s.statesDesc">
       <Specimen themes="both">
-        <StateGrid :columns="['图像', '字符缩略', '用户图标', '实体图标', '图像失败回退']" label-width="72px">
-          <StateRow label="圆形 circle">
-            <Avatar shape="circle" :image="portraitSvg" label="林" />
-            <Avatar shape="circle" label="林" />
+        <StateGrid :columns="[s.colImage, s.colInitials, s.colUserIcon, s.colEntityIcon, s.colFallback]" label-width="72px">
+          <StateRow :label="s.rowCircle">
+            <Avatar shape="circle" :image="portraitSvg" :label="t(s.lin)" />
+            <Avatar shape="circle" :label="t(s.lin)" />
             <Avatar shape="circle" :icon="User" />
             <Avatar shape="circle" :icon="Bot" />
-            <Avatar shape="circle" image="data:image/gif;base64,invalid" label="回" />
+            <Avatar shape="circle" image="data:image/gif;base64,invalid" :label="t(s.fallback)" />
           </StateRow>
-          <StateRow label="方形 square">
-            <Avatar shape="square" :image="portraitSvg" label="课题" />
-            <Avatar shape="square" label="课题" />
+          <StateRow :label="s.rowSquare">
+            <Avatar shape="square" :image="portraitSvg" :label="t(s.lab)" />
+            <Avatar shape="square" :label="t(s.lab)" />
             <Avatar shape="square" :icon="Users" />
             <Avatar shape="square" :icon="Building2" />
             <Avatar shape="square" image="data:image/gif;base64,invalid" :icon="Bot" />
@@ -79,7 +143,7 @@ const sizes = [
       </Specimen>
     </DocSection>
 
-    <DocSection title="接口">
+    <DocSection :title="s.api">
       <ApiTable :api="api" />
     </DocSection>
   </DocPage>

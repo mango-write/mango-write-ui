@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, getCurrentInstance, nextTick, ref, useAttrs, useId, watch } from "vue";
+import { vScrollFade } from "../lib/scroll-fade";
 import { uiMessages } from "../locale/index.js";
 import type {
   ListboxChangeEvent,
@@ -289,7 +290,7 @@ function optionKey(option: any, index: number): string {
       </div>
     </div>
 
-    <div class="mw-listbox__list-container" :style="(listStyle as any)">
+    <div v-scroll-fade.sm class="mw-listbox__list-container mw-scroll" :style="(listStyle as any)">
       <ul
         :id="listboxId"
         ref="listRef"

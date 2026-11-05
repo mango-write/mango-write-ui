@@ -3,93 +3,129 @@ import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
 import Swatch from "../../kit/Swatch.vue";
+import { t, type Bi } from "../../i18n";
 
-const surfaces = [
-  ["--bg-canvas", "画布", "壳底，浮岛之间露出的那层"],
-  ["--bg-surface", "纸面", "页面与工作区的默认底"],
-  ["--bg-raised", "抬起面", "卡片、分组卡、表格"],
-  ["--bg-sunken", "凹陷面", "代码块、只读井"],
-  ["--bg-inverse", "反色", "极少数强对比块"],
+interface SwatchRow {
+  token: string;
+  name: Bi;
+  desc?: Bi;
+}
+
+const surfaces: SwatchRow[] = [
+  { token: "--bg-canvas", name: { zh: "画布", en: "Canvas" }, desc: { zh: "壳底，浮岛之间露出的那层", en: "The shell base, showing between floating islands" } },
+  { token: "--bg-surface", name: { zh: "纸面", en: "Paper" }, desc: { zh: "页面与工作区的默认底", en: "The default base for pages and workspaces" } },
+  { token: "--bg-raised", name: { zh: "抬起面", en: "Raised" }, desc: { zh: "卡片、分组卡、表格", en: "Cards, grouped cards, tables" } },
+  { token: "--bg-sunken", name: { zh: "凹陷面", en: "Sunken" }, desc: { zh: "代码块、只读井", en: "Code blocks, read-only wells" } },
+  { token: "--bg-inverse", name: { zh: "反色", en: "Inverse" }, desc: { zh: "极少数强对比块", en: "Rare strong-contrast blocks" } },
 ];
-const texts = [
-  ["--text-primary", "主要"],
-  ["--text-secondary", "次要"],
-  ["--text-tertiary", "三级"],
-  ["--text-disabled", "禁用（豁免）"],
-  ["--text-accent", "强调 / 链接"],
+const texts: SwatchRow[] = [
+  { token: "--text-primary", name: { zh: "主要", en: "Primary" } },
+  { token: "--text-secondary", name: { zh: "次要", en: "Secondary" } },
+  { token: "--text-tertiary", name: { zh: "三级", en: "Tertiary" } },
+  { token: "--text-disabled", name: { zh: "禁用（豁免）", en: "Disabled (exempt)" } },
+  { token: "--text-accent", name: { zh: "强调 / 链接", en: "Accent / link" } },
 ];
-const fills = [
-  ["--fill-subtle", "静息底"],
-  ["--fill-default", "hover"],
-  ["--fill-strong", "按下"],
-  ["--fill-selected", "选中"],
+const fills: SwatchRow[] = [
+  { token: "--fill-subtle", name: { zh: "静息底", en: "Resting" } },
+  { token: "--fill-default", name: { zh: "hover", en: "hover" } },
+  { token: "--fill-strong", name: { zh: "按下", en: "Pressed" } },
+  { token: "--fill-selected", name: { zh: "选中", en: "Selected" } },
 ];
-const borders = [
-  ["--border-subtle", "分隔线"],
-  ["--border-default", "控件边"],
-  ["--border-strong", "hover / 强调"],
+const borders: SwatchRow[] = [
+  { token: "--border-subtle", name: { zh: "分隔线", en: "Separator" } },
+  { token: "--border-default", name: { zh: "控件边", en: "Control border" } },
+  { token: "--border-strong", name: { zh: "hover / 强调", en: "hover / emphasis" } },
 ];
 const status = ["accent", "danger", "success", "warning", "info"] as const;
-const statusName: Record<(typeof status)[number], string> = {
-  accent: "强调",
-  danger: "危险",
-  success: "成功",
-  warning: "警告",
-  info: "信息",
+const statusName: Record<(typeof status)[number], Bi> = {
+  accent: { zh: "强调", en: "Accent" },
+  danger: { zh: "危险", en: "Danger" },
+  success: { zh: "成功", en: "Success" },
+  warning: { zh: "警告", en: "Warning" },
+  info: { zh: "信息", en: "Info" },
 };
 const mango = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
 const paper = [0, 50, 100, 200, 300, 400, 500, 600, 700, 800, 900];
 const carbon = [50, 100, 200, 300, 700, 750, 800, 850, 900, 950];
+
+function rowLabel(row: SwatchRow): Bi {
+  return row.desc ? { zh: `${row.name.zh} · ${row.desc.zh}`, en: `${row.name.en} · ${row.desc.en}` } : row.name;
+}
+
+const s = {
+  surfacesTitle: { zh: "面", en: "Surfaces" },
+  surfacesDesc: {
+    zh: "从低到高。深色下层级靠亮度递增表达，阴影只负责分离。",
+    en: "Low to high. In the dark theme, layers climb via brightness; shadows only separate.",
+  },
+  textsTitle: { zh: "文字", en: "Text" },
+  textsDesc: {
+    zh: "比值为在纸面上的实测对比度；primary / secondary / tertiary / accent 均 ≥ 4.5:1（单测锁死）。",
+    en: "Ratios are measured contrast on paper; primary / secondary / tertiary / accent all reach ≥ 4.5:1 (locked by unit tests).",
+  },
+  fillsTitle: { zh: "填充与边框", en: "Fills & borders" },
+  fillsDesc: {
+    zh: "全部是墨色的半透明叠层：纸面与霜面上读感一致，霜面不会被打断。",
+    en: "All are translucent overlays of ink: they read the same on paper and frost, so the frost is never interrupted.",
+  },
+  statusTitle: { zh: "强调与状态", en: "Accent & status" },
+  statusDesc: {
+    zh: "每种语义四件套：实色（只给图标、圆点、实心按钮）、subtle 底、border 边、text 文字。状态色永远配图标或文字。",
+    en: "Each semantic color ships four pieces: a solid (icons, dots, and solid buttons only), a subtle fill, a border, and a text color. Status colors always pair with an icon or text.",
+  },
+  paletteTitle: { zh: "色板", en: "Palette" },
+  paletteDesc: {
+    zh: "原料层，组件不直接使用。芒果橙是唯一品牌色；纸与炭是浅深两套暖中性。",
+    en: "The raw layer; components never use it directly. Mango orange is the only brand color; paper and carbon are warm neutrals for light and dark.",
+  },
+} as const;
 </script>
 
 <template>
-  <DocPage lead="颜色只有三类工作：分层（面）、阅读（文字）、指向（强调与状态）。除了实心动作面，组件里的一切颜色都是半透明叠层。">
-    <DocSection title="面" desc="从低到高。深色下层级靠亮度递增表达，阴影只负责分离。">
+  <DocPage>
+    <DocSection :title="s.surfacesTitle" :desc="s.surfacesDesc">
       <Specimen layout="stack">
-        <Swatch v-for="s in surfaces" :key="s[0]" :token="s[0]" :label="`${s[1]} · ${s[2]}`" />
+        <Swatch v-for="row in surfaces" :key="row.token" :token="row.token" :label="rowLabel(row)" />
       </Specimen>
     </DocSection>
 
-    <DocSection title="文字" desc="比值为在纸面上的实测对比度；primary / secondary / tertiary / accent 均 ≥ 4.5:1（单测锁死）。">
+    <DocSection :title="s.textsTitle" :desc="s.textsDesc">
       <Specimen layout="stack">
-        <Swatch v-for="t in texts" :key="t[0]" :token="t[0]" :label="t[1]" text />
+        <Swatch v-for="row in texts" :key="row.token" :token="row.token" :label="row.name" text />
       </Specimen>
     </DocSection>
 
-    <DocSection title="填充与边框" desc="全部是墨色的半透明叠层：纸面与霜面上读感一致，霜面不会被打断。">
+    <DocSection :title="s.fillsTitle" :desc="s.fillsDesc">
       <Specimen :surfaces="['paper', 'frost']">
         <div class="tint-row">
-          <div v-for="f in fills" :key="f[0]" class="tint" :style="{ background: `var(${f[0]})` }">
-            <b>{{ f[1] }}</b><code>{{ f[0] }}</code>
+          <div v-for="row in fills" :key="row.token" class="tint" :style="{ background: `var(${row.token})` }">
+            <b>{{ t(row.name) }}</b><code>{{ row.token }}</code>
           </div>
-          <div v-for="b in borders" :key="b[0]" class="tint" :style="{ boxShadow: `inset 0 0 0 1px var(${b[0]})` }">
-            <b>{{ b[1] }}</b><code>{{ b[0] }}</code>
+          <div v-for="row in borders" :key="row.token" class="tint" :style="{ boxShadow: `inset 0 0 0 1px var(${row.token})` }">
+            <b>{{ t(row.name) }}</b><code>{{ row.token }}</code>
           </div>
         </div>
       </Specimen>
     </DocSection>
 
-    <DocSection
-      title="强调与状态"
-      desc="每种语义四件套：实色（只给图标、圆点、实心按钮）、subtle 底、border 边、text 文字。状态色永远配图标或文字。"
-    >
+    <DocSection :title="s.statusTitle" :desc="s.statusDesc">
       <Specimen :surfaces="['paper', 'frost']" layout="stack">
-        <div v-for="s in status" :key="s" class="status-row">
-          <span class="status-row__name">{{ statusName[s] }}</span>
-          <span class="status-dot" :style="{ background: `var(--${s})` }" />
+        <div v-for="st in status" :key="st" class="status-row">
+          <span class="status-row__name">{{ t(statusName[st]) }}</span>
+          <span class="status-dot" :style="{ background: `var(--${st})` }" />
           <span
             class="status-pill"
             :style="{
-              background: `var(--${s}-subtle)`,
-              boxShadow: `inset 0 0 0 1px var(--${s}-border)`,
-              color: s === 'accent' ? 'var(--text-accent)' : `var(--${s}-text)`,
+              background: `var(--${st}-subtle)`,
+              boxShadow: `inset 0 0 0 1px var(--${st}-border)`,
+              color: st === 'accent' ? 'var(--text-accent)' : `var(--${st}-text)`,
             }"
           >subtle · border · text</span>
         </div>
       </Specimen>
     </DocSection>
 
-    <DocSection title="色板" desc="原料层，组件不直接使用。芒果橙是唯一品牌色；纸与炭是浅深两套暖中性。">
+    <DocSection :title="s.paletteTitle" :desc="s.paletteDesc">
       <div class="palette">
         <div class="palette__row">
           <span class="palette__name">mango</span>

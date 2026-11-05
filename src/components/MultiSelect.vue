@@ -1,6 +1,18 @@
 <script setup lang="ts">
-import { computed, getCurrentInstance, nextTick, ref, useAttrs, useId, watch } from "vue";
+import {
+  computed,
+  getCurrentInstance,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  useAttrs,
+  useId,
+  watch,
+} from "vue";
 import { Check, ChevronDown, X } from "lucide-vue-next";
+import { vScrollFade } from "../lib/scroll-fade";
+import { vTooltip as vMwTooltip } from "../lib/tooltip";
 import { useComboPanel } from "../lib/useComboPanel";
 import { uiMessages } from "../locale/index.js";
 import type {
@@ -145,6 +157,8 @@ const rootRef = ref<HTMLElement | null>(null);
 const panelRef = ref<HTMLElement | null>(null);
 const filterInputRef = ref<HTMLInputElement | null>(null);
 const listRef = ref<HTMLElement | null>(null);
+const labelRef = ref<HTMLElement | null>(null);
+const measureRef = ref<HTMLElement | null>(null);
 
 const { open, panelStyle, openPanel, closePanel, reposition } = useComboPanel(rootRef, panelRef);
 
@@ -188,6 +202,77 @@ const summaryText = computed(() => {
   return selectedItems.value.map((item) => item.label).join(", ");
 });
 
+// ── chip 折叠：chip 永远单行。隐藏量算行测每个 chip 的真实宽度（思路同
+// SearchableMultiSelect 的 calcCollapse），全放得下就把「总宽 + 根节点铬」写入
+// --mw-multiselect-fit 让非 fluid 控件撑长到恰好容纳；父容器钳住后放不下的收进
+// +N（v-mw-tooltip 悬停看剩余），绝不换行竖排。
+const PLUS_RESERVE = 42; // "+N" chip 的预留宽度（含前置 gap）
+const fitStyle = ref<Record<string, string>>({});
+const visibleCount = ref(currentValues.value.length);
+const visibleItems = computed(() => selectedItems.value.slice(0, visibleCount.value));
+const overflowCount = computed(() => selectedItems.value.length - visibleCount.value);
+const overflowTip = computed(() =>
+  selectedItems.value
+    .slice(visibleCount.value)
+    .map((item) => item.label)
+    .join(", "),
+);
+
+function recalc() {
+  const total = selectedItems.value.length;
+  const label = labelRef.value;
+  const measure = measureRef.value;
+  if (props.display !== "chip" || total === 0 || !label || !measure || !rootRef.value) {
+    fitStyle.value = {};
+    visibleCount.value = total;
+    return;
+  }
+  const style = getComputedStyle(label);
+  const gap = parseFloat(style.columnGap || style.gap || "0") || 0;
+  const padX = parseFloat(style.paddingLeft || "0") + parseFloat(style.paddingRight || "0");
+  // 用浮点 rect 测宽：offsetWidth 的整数舍入会让「总宽 vs 可用宽」出现 1-2px 假差，
+  // 撑长后再量仍在刀口上，稳定在错误折叠态。
+  const widths = Array.from(measure.children).map((el) => (el as HTMLElement).getBoundingClientRect().width);
+  const chipsWidth = widths.reduce((a, w) => a + w, 0) + gap * Math.max(total - 1, 0);
+  // 铬 = 根节点 rect - 标签 rect（含边框）：clientWidth 差会漏掉边框，撑出来的宽度差一两个像素，
+  // 「放不下 → 折叠 → 再量还是放不下」就卡死在错误折叠态。
+  const chrome = rootRef.value.getBoundingClientRect().width - label.getBoundingClientRect().width;
+  fitStyle.value = { "--mw-multiselect-fit": `${Math.ceil(chipsWidth + padX + chrome)}px` };
+  const avail = label.getBoundingClientRect().width - padX;
+  // avail <= 0 是量算环境（jsdom / 未布局）给不出几何的信号，直接全部可见。
+  if (chipsWidth <= avail + 1 || avail <= 0) {
+    visibleCount.value = total;
+    return;
+  }
+  let used = 0;
+  let count = 0;
+  for (let i = 0; i < total; i++) {
+    const add = (count > 0 ? gap : 0) + widths[i];
+    if (used + add + gap + PLUS_RESERVE <= avail) {
+      used += add;
+      count++;
+    } else {
+      break;
+    }
+  }
+  visibleCount.value = Math.max(count, 1);
+}
+
+let chipResizeObserver: ResizeObserver | null = null;
+onMounted(() => {
+  chipResizeObserver =
+    typeof ResizeObserver !== "undefined" ? new ResizeObserver(() => recalc()) : null;
+  if (rootRef.value && chipResizeObserver) chipResizeObserver.observe(rootRef.value);
+  document.fonts?.ready.then(() => recalc()).catch(() => {});
+  nextTick(recalc);
+});
+onBeforeUnmount(() => chipResizeObserver?.disconnect());
+watch(selectedItems, () => nextTick(recalc), { flush: "post" });
+watch(
+  () => props.display,
+  () => nextTick(recalc),
+);
+
 const filteredOptions = computed(() => {
   const list = props.options ?? [];
   if (!props.filter) return list;
@@ -219,7 +304,6 @@ const showClearButton = computed(
 const rootClass = computed(() => [
   "mw-multiselect",
   "mw-control",
-  "mw-select",
   `mw-multiselect--${normalizedSize.value}`,
   {
     "mw-multiselect--fluid": props.fluid,
@@ -434,7 +518,7 @@ function optionKey(option: any, index: number): string {
     v-bind="controlAttrs"
     :id="baseId"
     :class="rootClass"
-    :style="($attrs.style as any)"
+    :style="[fitStyle, ($attrs.style as any)]"
     role="combobox"
     aria-haspopup="listbox"
     :aria-expanded="open ? 'true' : 'false'"
@@ -458,20 +542,20 @@ function optionKey(option: any, index: number): string {
   >
     <div class="mw-multiselect__label-container">
       <div
+        ref="labelRef"
         class="mw-multiselect__label"
         :class="{
           'mw-multiselect__label--placeholder': !hasSelection,
-          'mw-multiselect__label--chip':
-            display === 'chip' && hasSelection && !exceedsMaxLabels,
+          'mw-multiselect__label--chip': display === 'chip' && hasSelection,
         }"
       >
         <slot name="value" :value="currentValues" :placeholder="placeholder">
           <template v-if="!hasSelection">
             {{ placeholder ?? "" }}
           </template>
-          <template v-else-if="display === 'chip' && !exceedsMaxLabels">
+          <template v-else-if="display === 'chip'">
             <span
-              v-for="(item, idx) in selectedItems"
+              v-for="(item, idx) in visibleItems"
               :key="`chip-${idx}`"
               class="mw-multiselect__chip"
             >
@@ -487,12 +571,30 @@ function optionKey(option: any, index: number): string {
                 <X aria-hidden="true" />
               </button>
             </span>
+            <span
+              v-if="overflowCount > 0"
+              class="mw-multiselect__chip mw-multiselect__chip--more"
+              v-mw-tooltip="overflowTip"
+            >+{{ overflowCount }}</span>
           </template>
           <template v-else>
             {{ summaryText }}
           </template>
         </slot>
       </div>
+    </div>
+
+    <!-- 隐藏量算行：渲染全部 chip 供折叠测宽（不参与可见布局），自定义 value 插槽时不需要。 -->
+    <div
+      v-if="display === 'chip' && !$slots.value"
+      ref="measureRef"
+      class="mw-multiselect__measure"
+      aria-hidden="true"
+    >
+      <span v-for="(item, idx) in selectedItems" :key="`measure-${idx}`" class="mw-multiselect__chip">
+        <span class="mw-multiselect__chip-label">{{ item.label }}</span>
+        <X v-if="!disabled && !readonly" class="mw-multiselect__chip-remove" aria-hidden="true" />
+      </span>
     </div>
 
     <button
@@ -555,7 +657,8 @@ function optionKey(option: any, index: number): string {
         </div>
 
         <div
-          class="mw-multiselect__list-container"
+          v-scroll-fade.sm
+          class="mw-multiselect__list-container mw-scroll"
           :style="{ maxHeight: scrollHeight }"
         >
           <ul
@@ -624,11 +727,19 @@ function optionKey(option: any, index: number): string {
   position: relative;
   display: inline-flex;
   align-items: center;
+  width: var(--_ms-min-w);
   min-width: var(--_ms-min-w);
   max-width: 100%;
+  /* 高度用 min-height 不定死：chip 换行时控件随行数生长，内容不溢出边框。 */
   min-height: var(--control-h);
   cursor: pointer;
   user-select: none;
+}
+
+.mw-multiselect--chip {
+  /* 非 fluid 的 chip 控件撑长到恰好单行容纳全部 chip（JS 量算写入该变量）；
+     父容器不够时被 max-width 钳住，超出部分折进 +N，绝不换行竖排。 */
+  width: var(--mw-multiselect-fit, var(--_ms-min-w));
 }
 
 .mw-multiselect--fluid {
@@ -653,7 +764,7 @@ function optionKey(option: any, index: number): string {
 }
 
 .mw-multiselect__label {
-  padding: var(--space-1) 0 var(--space-1) var(--control-px);
+  padding: var(--space-1) var(--space-2) var(--space-1) var(--control-px);
   font-size: var(--control-font);
   line-height: var(--type-body-sm-line);
   color: var(--text-primary);
@@ -668,22 +779,36 @@ function optionKey(option: any, index: number): string {
 
 .mw-multiselect__label--chip {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   gap: var(--space-1);
-  padding: var(--space-1) 0 var(--space-1) var(--space-1-5);
+  padding: var(--space-1) var(--space-1-5);
 }
 
 .mw-multiselect__chip {
+  flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
+  max-width: 100%;
   padding: var(--space-0-5) var(--space-2);
   border-radius: var(--radius-xs);
   background-color: var(--fill-default);
   color: var(--text-primary);
   font-size: var(--type-caption-size);
   line-height: var(--type-caption-line);
+  white-space: nowrap;
+}
+
+.mw-multiselect__chip-label {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mw-multiselect__chip--more {
+  color: var(--text-secondary);
 }
 
 .mw-multiselect__chip-remove {
@@ -702,9 +827,22 @@ function optionKey(option: any, index: number): string {
   color: var(--text-primary);
 }
 
-.mw-multiselect__chip-remove svg {
+.mw-multiselect__chip-remove svg,
+svg.mw-multiselect__chip-remove {
   width: var(--icon-xs);
   height: var(--icon-xs);
+}
+
+.mw-multiselect__measure {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-wrap: nowrap;
+  gap: var(--space-1);
+  visibility: hidden;
+  pointer-events: none;
+  white-space: nowrap;
 }
 
 .mw-multiselect__clear {

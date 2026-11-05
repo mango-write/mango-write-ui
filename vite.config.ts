@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import tailwindcss from "@tailwindcss/vite";
+import { llmsDevFiles } from "./scripts/vite-plugin-llms-dev.mjs";
 
 const peers = [
   "vue",
@@ -13,7 +14,8 @@ const peers = [
 ];
 
 export default defineConfig({
-  plugins: [vue(), tailwindcss()],
+  // llmsDevFiles 只挂 serve:展示站 dev(`pnpm dev`)走本配置,llms*.txt 链接才不 404。
+  plugins: [vue(), tailwindcss(), llmsDevFiles()],
   resolve: {
     dedupe: ["vue", "vue-router", "vue-i18n", "reka-ui"],
   },

@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { contrastRatio, useTokenValues } from "./tokens";
+import { t, type Bi } from "../i18n";
 
 const props = defineProps<{
   token: string;
-  label?: string;
+  label?: string | Bi;
   /** 文字色：在 on 背景上测对比度。 */
   text?: boolean;
   on?: string;
@@ -12,6 +13,9 @@ const props = defineProps<{
 
 const el = ref<HTMLElement | null>(null);
 const { values } = useTokenValues(el, () => [props.token, props.on ?? "--bg-surface"]);
+
+// 字样 chip 的固定示文;英文档用同一对字形保持版式可比。
+const textSample = { zh: "Aa 文字", en: "Aa Text" };
 
 const value = computed(() => values.value[props.token] ?? "");
 const ratio = computed(() => {
@@ -28,10 +32,10 @@ const ratio = computed(() => {
       :class="{ 'swatch__chip--text': text }"
       :style="text ? { color: `var(${token})`, background: `var(${on ?? '--bg-surface'})` } : { background: `var(${token})` }"
     >
-      <span v-if="text">Aa 文字</span>
+      <span v-if="text">{{ t(textSample) }}</span>
     </div>
     <div class="swatch__meta">
-      <span class="swatch__label">{{ label ?? token }}</span>
+      <span class="swatch__label">{{ t(label ?? token) }}</span>
       <code class="swatch__token">{{ token }}</code>
       <span class="swatch__value">
         {{ value }}

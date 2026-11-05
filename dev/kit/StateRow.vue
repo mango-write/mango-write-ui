@@ -1,8 +1,10 @@
 <script setup lang="ts">
-defineProps<{ label: string }>();
+import { t, type Bi } from "../i18n";
+
+defineProps<{ label: string | Bi }>();
 </script>
 
 <template>
-  <span class="state-row__label">{{ label }}</span>
+  <span class="state-row__label">{{ t(label) }}</span>
   <slot />
 </template>

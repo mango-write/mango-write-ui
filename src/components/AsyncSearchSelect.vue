@@ -2,6 +2,7 @@
 import { computed, nextTick, onBeforeUnmount, ref, useId, watch } from "vue";
 import { ChevronDown, LoaderCircle, X } from "lucide-vue-next";
 import { useI18n } from "vue-i18n";
+import { vScrollFade } from "../lib/scroll-fade";
 import { useComboPanel } from "../lib/useComboPanel";
 import type { AsyncSearchOption } from "./async-search-select";
 
@@ -390,7 +391,7 @@ const showClearButton = computed(
         :style="panelStyle"
         @mousedown.prevent
       >
-        <div class="mw-ass-list-container">
+        <div v-scroll-fade.sm class="mw-ass-list-container mw-scroll">
           <ul
             :id="listboxId"
             role="listbox"

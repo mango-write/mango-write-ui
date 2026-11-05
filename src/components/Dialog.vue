@@ -22,6 +22,7 @@ import {
 import { Maximize2, Minimize2, X } from "lucide-vue-next";
 import { uiMessages } from "../locale/index.js";
 import { useOverlayLayer } from "../lib/overlay-layer.js";
+import { vScrollFade } from "../lib/scroll-fade";
 import type { DialogEmits, DialogProps } from "./dialog.js";
 
 defineOptions({
@@ -281,6 +282,7 @@ onBeforeUnmount(() => {
         </div>
 
         <div
+          v-scroll-fade
           class="mw-dialog__body mw-scroll"
           :class="(contentClass as any)"
           :style="contentStyle"

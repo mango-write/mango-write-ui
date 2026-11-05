@@ -1,11 +1,13 @@
 <script setup lang="ts">
-defineProps<{ title: string; desc?: string; id?: string }>();
+import { t, type Bi } from "../i18n";
+
+defineProps<{ title: string | Bi; desc?: string | Bi; id?: string }>();
 </script>
 
 <template>
   <section :id="id" class="doc-section">
-    <h2 class="doc-section__title">{{ title }}</h2>
-    <p v-if="desc" class="doc-section__desc">{{ desc }}</p>
+    <h2 class="doc-section__title">{{ t(title) }}</h2>
+    <p v-if="desc" class="doc-section__desc">{{ t(desc) }}</p>
     <div class="doc-section__body">
       <slot />
     </div>

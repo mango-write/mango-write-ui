@@ -439,6 +439,95 @@ svg.lucide {
   background-clip: padding-box;
 }
 
+/* 滚动边缘渐隐（Scroll Edge Fade）────────────────────────────────────────────
+   滚动出容器视口的内容在出口方向施加 alpha 遮罩渐隐，贴边尽头一侧保持清晰；
+   mask-image 只裁切 alpha 通道，与纸面、抬起卡、凹陷井、霜面（.mw-frost）及深浅色正交。 */
+.mw-scroll-fade {
+  --mw-scroll-fade-size: var(--scroll-fade-size);
+  --mw-scroll-fade-top-offset: 0px;
+}
+
+.mw-scroll-fade--sm {
+  --mw-scroll-fade-size: var(--scroll-fade-size-sm);
+}
+
+[data-scroll-fade-y="top"] {
+  --mw-scroll-mask-y: linear-gradient(
+    to bottom,
+    rgb(var(--ink-rgb) / 1) 0,
+    rgb(var(--ink-rgb) / 1) var(--mw-scroll-fade-top-offset, 0px),
+    transparent var(--mw-scroll-fade-top-offset, 0px),
+    rgb(var(--ink-rgb) / 1) calc(var(--mw-scroll-fade-top-offset, 0px) + var(--mw-scroll-fade-size, var(--scroll-fade-size))),
+    rgb(var(--ink-rgb) / 1) 100%
+  );
+}
+
+[data-scroll-fade-y="bottom"] {
+  --mw-scroll-mask-y: linear-gradient(
+    to bottom,
+    rgb(var(--ink-rgb) / 1) 0,
+    rgb(var(--ink-rgb) / 1) calc(100% - var(--mw-scroll-fade-size, var(--scroll-fade-size))),
+    transparent 100%
+  );
+}
+
+[data-scroll-fade-y="both"] {
+  --mw-scroll-mask-y: linear-gradient(
+    to bottom,
+    rgb(var(--ink-rgb) / 1) 0,
+    rgb(var(--ink-rgb) / 1) var(--mw-scroll-fade-top-offset, 0px),
+    transparent var(--mw-scroll-fade-top-offset, 0px),
+    rgb(var(--ink-rgb) / 1) calc(var(--mw-scroll-fade-top-offset, 0px) + var(--mw-scroll-fade-size, var(--scroll-fade-size))),
+    rgb(var(--ink-rgb) / 1) calc(100% - var(--mw-scroll-fade-size, var(--scroll-fade-size))),
+    transparent 100%
+  );
+}
+
+[data-scroll-fade-x="left"] {
+  --mw-scroll-mask-x: linear-gradient(
+    to right,
+    transparent 0,
+    rgb(var(--ink-rgb) / 1) var(--mw-scroll-fade-size, var(--scroll-fade-size)),
+    rgb(var(--ink-rgb) / 1) 100%
+  );
+}
+
+[data-scroll-fade-x="right"] {
+  --mw-scroll-mask-x: linear-gradient(
+    to right,
+    rgb(var(--ink-rgb) / 1) 0,
+    rgb(var(--ink-rgb) / 1) calc(100% - var(--mw-scroll-fade-size, var(--scroll-fade-size))),
+    transparent 100%
+  );
+}
+
+[data-scroll-fade-x="both"] {
+  --mw-scroll-mask-x: linear-gradient(
+    to right,
+    transparent 0,
+    rgb(var(--ink-rgb) / 1) var(--mw-scroll-fade-size, var(--scroll-fade-size)),
+    rgb(var(--ink-rgb) / 1) calc(100% - var(--mw-scroll-fade-size, var(--scroll-fade-size))),
+    transparent 100%
+  );
+}
+
+[data-scroll-fade-y]:not([data-scroll-fade-x]) {
+  -webkit-mask-image: var(--mw-scroll-mask-y);
+  mask-image: var(--mw-scroll-mask-y);
+}
+
+[data-scroll-fade-x]:not([data-scroll-fade-y]) {
+  -webkit-mask-image: var(--mw-scroll-mask-x);
+  mask-image: var(--mw-scroll-mask-x);
+}
+
+[data-scroll-fade-y][data-scroll-fade-x] {
+  -webkit-mask-image: var(--mw-scroll-mask-y), var(--mw-scroll-mask-x);
+  -webkit-mask-composite: source-in;
+  mask-image: var(--mw-scroll-mask-y), var(--mw-scroll-mask-x);
+  mask-composite: intersect;
+}
+
 /* 通用原语 ───────────────────────────────────────────────────────────────── */
 .mw-field-label {
   display: block;

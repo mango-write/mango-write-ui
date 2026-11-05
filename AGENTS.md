@@ -21,7 +21,8 @@
    - 覆盖受控值读写（`modelValue` / `open`）、禁用/只读/错误态、`aria-*`/`data-*` 落点与核心键盘路径。
 4. **导出、子路径与展示登记**
    - 同步更新 `src/index.ts` 与 `package.json` 的 `exports` + `publishConfig.exports`（两者键集合必须 1:1 对齐，由 `src/package-exports.test.ts` 自动门禁校验）。
-   - 在 `dev/registry.ts` 登记并在 `dev/pages/components/<slug>.vue` 提供完整文档页（何时使用、纸/霜双底面 Specimen、尺寸与状态矩阵、接口表）。
+   - 在 `dev/registry-data.ts` 登记（标题与页首 lead 的中英双语单源，`dev/registry.ts` 只补懒加载）并在 `dev/pages/components/<slug>.vue` 提供完整文档页（在线演示、何时使用、纸/霜双底面 Specimen、尺寸与状态矩阵、接口表）。
+   - **展示站文案一律内联双语**：页面/套件/api 数据的每条用户可见文案写成 `{ zh, en }`（`dev/i18n.ts` 的 `Bi`），模板经 `t()` 取词——漏译直接 typecheck 红；没进 Bi 的裸中文由 `node scripts/check-dev-locale.mjs` 棘轮拦截（`i18n-allow` 行内/块级标记可放行，注释不扫）。`dev/usage/` 的控件标签双语化落地后收进扫描。
 
 ## 静态样式与构建红线
 
@@ -39,6 +40,7 @@
 
 ```bash
 node scripts/check-tokens.mjs
+node scripts/check-dev-locale.mjs
 pnpm --dir packages/ui build
 pnpm --dir packages/ui typecheck
 pnpm --dir packages/ui test

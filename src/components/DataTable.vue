@@ -18,6 +18,7 @@ import {
   Minus,
 } from "lucide-vue-next";
 import Paginator from "./Paginator.vue";
+import { vScrollFade } from "../lib/scroll-fade";
 import {
   ColumnSlotRenderer,
   extractColumnsFromVNodes,
@@ -903,6 +904,7 @@ defineExpose({
     </div>
 
     <div
+      v-scroll-fade="{ stickyHeader: scrollable ? '.mw-datatable__thead' : undefined }"
       class="mw-datatable__table-container mw-scroll"
       :style="tableContainerStyle"
     >

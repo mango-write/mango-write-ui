@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { t, type Bi } from "../i18n";
 
 type Surface = "paper" | "canvas" | "raised" | "frost";
 
@@ -17,16 +18,35 @@ const props = withDefaults(
   { surfaces: () => ["paper"], themes: "both", layout: "row", minHeight: undefined },
 );
 
-const surfaceLabel: Record<Surface, string> = {
-  paper: "纸面",
-  canvas: "画布",
-  raised: "抬起面",
-  frost: "霜面",
+const surfaceLabel: Record<Surface, Bi> = {
+  paper: { zh: "纸面", en: "Paper" },
+  canvas: { zh: "画布", en: "Canvas" },
+  raised: { zh: "抬起面", en: "Raised" },
+  frost: { zh: "霜面", en: "Frost" },
 };
+
+const s = {
+  light: { zh: "浅色", en: "Light" },
+  dark: { zh: "深色", en: "Dark" },
+  currentTheme: { zh: "当前主题", en: "Current theme" },
+  frostCopy: {
+    zh: "霜面之下是真实内容：正文、图片、高亮与代码块。霜必须让上层文字保持可读，同时让人感到「底下还有东西」。",
+    en: "Real content sits beneath the frost: body text, images, highlights, and code. The frost must keep upper-layer text legible while hinting there is more below.",
+  },
+  frostMark: { zh: "被荧光笔标记的一段原文", en: "A passage marked by the highlighter" },
+  frostCite: {
+    zh: "引用 [1] 指向文献库中的条目；锚点与来源永不丢失。AI 建议，用户确认。数据跨环节零摩擦流转。",
+    en: "Citation [1] points to an entry in the library; anchors and sources are never lost. AI suggests, the user confirms. Data flows across the pipeline without friction.",
+  },
+} as const;
 
 const themeList = computed(() =>
   props.themes === "both" ? (["light", "dark"] as const) : ([undefined] as const),
 );
+
+function themeLabel(theme: "light" | "dark" | undefined): string {
+  return theme === "light" ? t(s.light) : theme === "dark" ? t(s.dark) : t(s.currentTheme);
+}
 </script>
 
 <template>
@@ -41,19 +61,14 @@ const themeList = computed(() =>
         :style="minHeight ? { minHeight } : undefined"
       >
         <span class="specimen__label">
-          {{ theme === "light" ? "浅色" : theme === "dark" ? "深色" : "当前主题" }} · {{ surfaceLabel[surface] }}
+          {{ themeLabel(theme) }} · {{ t(surfaceLabel[surface]) }}
         </span>
         <div v-if="surface === 'frost'" class="specimen__backdrop" aria-hidden="true">
           <span class="specimen__blob specimen__blob--a" />
           <span class="specimen__blob specimen__blob--b" />
-          <p>
-            霜面之下是真实内容：正文、图片、高亮与代码块。霜必须让上层文字保持可读，同时让人感到「底下还有东西」。
-            The frost layer keeps text legible while hinting at content beneath.
-          </p>
-          <p class="specimen__mark">被荧光笔标记的一段原文</p>
-          <p>
-            引用 [1] 指向文献库中的条目；锚点与来源永不丢失。AI 建议，用户确认。数据跨环节零摩擦流转。
-          </p>
+          <p>{{ t(s.frostCopy) }}</p>
+          <p class="specimen__mark">{{ t(s.frostMark) }}</p>
+          <p>{{ t(s.frostCite) }}</p>
         </div>
         <div class="specimen__stage" :class="[`specimen__stage--${layout}`, { 'mw-frost': surface === 'frost' }]">
           <slot />

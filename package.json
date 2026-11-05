@@ -45,6 +45,14 @@
       "types": "./dist/lib/tooltip.d.ts",
       "default": "./dist/lib/tooltip.js"
     },
+    "./lib/scroll-fade": {
+      "mango-source": {
+        "types": "./src/lib/scroll-fade.ts",
+        "default": "./src/lib/scroll-fade.ts"
+      },
+      "types": "./dist/lib/scroll-fade.d.ts",
+      "default": "./dist/lib/scroll-fade.js"
+    },
     "./lib/hover-card": {
       "mango-source": {
         "types": "./src/lib/hover-card.ts",
@@ -780,6 +788,11 @@
         "import": "./dist/lib/tooltip.js",
         "default": "./dist/lib/tooltip.js"
       },
+      "./lib/scroll-fade": {
+        "types": "./dist/lib/scroll-fade.d.ts",
+        "import": "./dist/lib/scroll-fade.js",
+        "default": "./dist/lib/scroll-fade.js"
+      },
       "./lib/hover-card": {
         "types": "./dist/lib/hover-card.d.ts",
         "import": "./dist/lib/hover-card.js",
@@ -1228,6 +1241,7 @@
     "build:playground": "vite build --config vite.playground.config.ts && node scripts/gen-llms.mjs",
     "typecheck": "vue-tsc --noEmit -p tsconfig.json",
     "tokens:check": "node scripts/check-tokens.mjs",
+    "locale:check": "node scripts/check-dev-locale.mjs",
     "test": "vitest run"
   },
   "dependencies": {
