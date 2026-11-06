@@ -22,7 +22,9 @@ describe("searchDocs", () => {
 
   it("中文与属性名都能检索", () => {
     expect(searchDocs("按钮")[0]?.item.en).toBe("Button");
-    expect(searchDocs("v-model:open")[0]?.item.en).toBe("Dialog");
+    // v-model:open 是多个浮层组件(Dialog/Popover/ActionMenu…)的公共接口行,
+    // 平分命中按 url 序决胜,断言「能检索到 Dialog」而非「排第一」。
+    expect(searchDocs("v-model:open").map((h) => h.item.en)).toContain("Dialog");
     expect(searchDocs("useNotify")[0]?.item.en).toBe("Toast");
   });
 

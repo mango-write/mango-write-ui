@@ -63,5 +63,7 @@ export function searchDocs(query: string): SearchHit[] {
   return buildSearchIndex()
     .map((item) => ({ item, score: scoreItem(item, query) }))
     .filter((hit) => hit.score > 0)
-    .sort((a, b) => b.score - a.score || a.item.title.localeCompare(b.item.title));
+    // 平分决胜只用 ASCII 的 url/localeCompare(en)——中文标题的 localeCompare
+    // 依赖系统 ICU（Windows 与 macOS 的中文排序不同），会让同分命中顺序漂移。
+    .sort((a, b) => b.score - a.score || a.item.url.localeCompare(b.item.url));
 }
