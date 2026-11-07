@@ -134,23 +134,39 @@ primary / secondary / tertiary / accent 在纸面上均 ≥ 4.5:1，由 `var-css
 
 ## 10. 动效
 
-| 时长 | 用途 |
-|---|---|
-| `--duration-instant` | 浮层退出、tooltip |
-| `--duration-fast` | hover / 按下 / 颜色切换 |
-| `--duration-base` | 浮层进入、展开收起 |
-| `--duration-slow` | 对话框进入、区域切换 |
-| `--duration-slower` | 页面级空间转场 |
+动效体系建立在**黄金分割律**（$\varphi \approx 0.618$，$1 - \varphi \approx 0.382$，$\varphi^3 \approx 0.236$，$\varphi^4 \approx 0.146$）之上：时长阶梯按 $\times 1.618$ 等比演进并收敛为**快、中、慢三档语义速度**，贝塞尔曲线控制点严格取黄金分割谐波坐标。
 
-| 曲线 | 用途 |
-|---|---|
-| `--ease-standard` | 状态切换 |
-| `--ease-enter` | 进入（快启动、长减速） |
-| `--ease-exit` | 退出（加速离场） |
-| `--ease-emphasized` | 空间位移、对话框 |
-| `--ease-spring-snap / -pop` | 只给小物体归位（位移 < 24px 或缩放），时长 ≤ base |
+### 10.1 快 · 中 · 慢三档速度与黄金时长阶梯（$\times 1.618$）
 
-- 浮层进入：透明度 + 自锚点方向位移 `--motion-enter-offset` + 缩放 `--motion-enter-scale`；退出只淡出，时长约为进入的 60%。
+全阶按黄金比 $\Phi \approx 1.618$ 等比递进（`70ms → 110ms → 180ms → 290ms → 470ms → 760ms`）：
+
+| 速度档位 | 语义 token | 底层时长 token | 数值 | 用途 |
+|---|---|---|---|---|
+| —（瞬态） | — | `--duration-instant` | `70ms` | 浮层快速退出、tooltip 收起 |
+| —（微交互） | — | `--duration-fast` | `110ms` | hover / 按下 / 颜色切换 |
+| **快（Fast）** | `--speed-fast` | `--duration-base` | `180ms` | 浮层进入、展开收起、区域过渡（与 `area-transition.ts` 同源） |
+| **中（Medium）** | `--speed-medium` | `--duration-slow` | `290ms` | 对话框进入、日月图标旋转变形 |
+| —（空间） | — | `--duration-slower` | `470ms` | 页面级空间转场、降级色彩过渡 |
+| **慢（Slow）** | `--speed-slow` | — | `760ms` | 全屏主题径向揭幕、仪式级大型过渡 |
+
+### 10.2 黄金分割与 Apple `cubic-bezier` 曲线族
+
+在 `[0, 1] × [0, 1]` 归一化时空中，提供**黄金分割谐波曲线族**（`0.146` / `0.236` / `0.382` / `0.618` / `0.764`）与 **Apple 经典物理阻尼曲线族**：
+
+| 曲线 token | 坐标 | 节奏结构与用途 |
+|---|---|---|
+| `--ease-standard` | `cubic-bezier(0.382, 0, 0.236, 1)` | **38.2% 蓄力 + 61.8% 缓冲**：日常状态切换、色彩与边框过渡 |
+| `--ease-enter` | `cubic-bezier(0.146, 0.618, 0.382, 1)` | **快响应 + 黄金减速着陆**：下拉、Popover 等浮层进入（离场时长约为进入的 $0.618 \approx 60\%$） |
+| `--ease-exit` | `cubic-bezier(0.382, 0, 0.764, 0.236)` | **黄金蓄力加速离场**：浮层关闭、元素退场（与 `--ease-enter` 镜像对称） |
+| `--ease-emphasized` | `cubic-bezier(0.236, 0.618, 0.382, 1)` | **饱满中段 + 长尾减速**：对话框、抽屉与中大尺度空间位移 |
+| `--ease-golden` | `cubic-bezier(0.382, 0, 0.618, 1)` | **对称黄金 S 曲线（38.2% : 61.8%）**：全屏深浅色径向揭幕、跨视口仪式级过渡 |
+| `--ease-apple-default` | `cubic-bezier(0.25, 0.1, 0.25, 1)` | **Apple Core Animation 默认**：温和起势、长尾收束，适合细腻色彩与透明度过渡 |
+| `--ease-apple-sheet` | `cubic-bezier(0.32, 0.72, 0, 1)` | **iOS Sheet / Modal 气垫阻尼**：前 1/3 快速到位，后 2/3 极长阻尼贴合，适合抽屉与浮岛聚合 |
+| `--ease-apple-out` | `cubic-bezier(0.16, 1, 0.3, 1)` | **Apple Keynote 丝滑揭幕**：零迟滞启动、绵长舒展落位，适合大画幅展开与营销舞台 |
+| `--ease-spring-snap / -pop` | `linear(...)` | 只给小物体归位（位移 < 24px 或缩放），时长 ≤ `--speed-medium` |
+
+- 浮层进入：透明度 + 自锚点方向位移 `--motion-enter-offset` + 缩放 `--motion-enter-scale`；退出只淡出，时长约为进入的 $1/\Phi \approx 61.8\%$（`290ms` 进入 → `180ms` / `110ms` 退出）。
+- 主题切换：基于 View Transitions API，以触发点为圆心，按 `--speed-slow`（`760ms`）+ `--ease-apple-out`（`cubic-bezier(0.16, 1, 0.3, 1)`）向外径向揭幕。
 - `filter` / `backdrop-filter` 永不进 transition 与 keyframes。
 - `prefers-reduced-motion` 下只保留透明度变化。
 

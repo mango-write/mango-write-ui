@@ -40,4 +40,57 @@ describe("theme 宿主配置", () => {
     expect(host.dataset.theme).toBe("light");
     expect(document.documentElement.dataset.theme).toBeUndefined();
   });
+
+  it("支持 startViewTransition 时：传入坐标触发径向揭幕并在结束后清理属性", async () => {
+    initTheme({
+      storageKey: "mango-write:theme",
+      rootEl: () => document.documentElement,
+    });
+    const { setTheme, toggleTheme, resolved } = useThemePreference();
+    setTheme("light", { animate: false });
+    expect(document.documentElement.dataset.theme).toBe("light");
+
+    let resolveFinished!: () => void;
+    const finished = new Promise<void>((r) => {
+      resolveFinished = r;
+    });
+    const docWithVT = document as unknown as {
+      startViewTransition?: (cb: () => void) => {
+        ready: Promise<void>;
+        finished: Promise<void>;
+        skipTransition: () => void;
+      };
+    };
+    const prevVT = docWithVT.startViewTransition;
+    let capturedBeforeCallback: string | undefined;
+    docWithVT.startViewTransition = (cb: () => void) => {
+      capturedBeforeCallback = document.documentElement.dataset.theme;
+      cb();
+      return {
+        ready: Promise.resolve(),
+        finished,
+        skipTransition: () => {},
+      };
+    };
+
+    try {
+      const next = toggleTheme({ clientX: 120, clientY: 40 });
+      expect(next).toBe("dark");
+      expect(resolved.value).toBe("dark");
+      expect(capturedBeforeCallback).toBe("light");
+      expect(document.documentElement.dataset.theme).toBe("dark");
+      expect(document.documentElement.dataset.themeTransition).toBe("radial");
+      expect(document.documentElement.style.getPropertyValue("--mw-vt-x")).toBe("120px");
+      expect(document.documentElement.style.getPropertyValue("--mw-vt-y")).toBe("40px");
+      expect(document.documentElement.style.getPropertyValue("--mw-vt-r")).toMatch(/^\d+px$/);
+
+      resolveFinished();
+      await finished;
+      await Promise.resolve();
+      expect(document.documentElement.dataset.themeTransition).toBeUndefined();
+      expect(document.documentElement.style.getPropertyValue("--mw-vt-x")).toBe("");
+    } finally {
+      docWithVT.startViewTransition = prevVT;
+    }
+  });
 });

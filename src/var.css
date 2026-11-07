@@ -203,16 +203,27 @@
   --focus-width: 2px;
   --focus-offset: 2px;
 
-  /* Motion：只动 transform / opacity / 颜色；filter 与 backdrop-filter 不进动画。 */
-  --duration-instant: 80ms;
-  --duration-fast: 120ms;
+  /* Motion：黄金分割体系（φ ≈ 0.618，1 − φ ≈ 0.382，φ³ ≈ 0.236，φ⁴ ≈ 0.146；时长阶梯按 ×1.618 递进：70 → 110 → 180 → 290 → 470 → 760ms）。
+     只动 transform / opacity / 颜色；filter 与 backdrop-filter 不进动画。 */
+  --duration-instant: 70ms;
+  --duration-fast: 110ms;
   --duration-base: 180ms;
-  --duration-slow: 260ms;
-  --duration-slower: 400ms;
-  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
-  --ease-enter: cubic-bezier(0.05, 0.7, 0.1, 1);
-  --ease-exit: cubic-bezier(0.3, 0, 0.8, 0.15);
-  --ease-emphasized: cubic-bezier(0.32, 0.72, 0, 1);
+  --duration-slow: 290ms;
+  --duration-slower: 470ms;
+  /* 快 / 中 / 慢三档语义速度（180ms / 290ms / 760ms，按 ×1.618 黄金阶梯锚定） */
+  --speed-fast: var(--duration-base);
+  --speed-medium: var(--duration-slow);
+  --speed-slow: 760ms;
+  /* 黄金分割 cubic-bezier 曲线族：控制点严格取 φ 谐波分割点（0.146 / 0.236 / 0.382 / 0.618 / 0.764） */
+  --ease-standard: cubic-bezier(0.382, 0, 0.236, 1);
+  --ease-enter: cubic-bezier(0.146, 0.618, 0.382, 1);
+  --ease-exit: cubic-bezier(0.382, 0, 0.764, 0.236);
+  --ease-emphasized: cubic-bezier(0.236, 0.618, 0.382, 1);
+  --ease-golden: cubic-bezier(0.382, 0, 0.618, 1);
+  /* Apple（iOS / macOS / Core Animation）经典阻尼曲线族 */
+  --ease-apple-default: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --ease-apple-sheet: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-apple-out: cubic-bezier(0.16, 1, 0.3, 1);
   /* 弹簧只给小物体归位（位移 < 24px 或缩放），时长 ≤ base。 */
   --ease-spring-snap:
     linear(0, 0.032, 0.11, 0.213, 0.327, 0.441, 0.547, 0.643, 0.727, 0.797,

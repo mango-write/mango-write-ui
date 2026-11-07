@@ -81,9 +81,13 @@ export {
 export {
   initTheme,
   resolveTheme,
+  toggleTheme,
   useThemePreference,
   type ResolvedTheme,
+  type SetThemeOptions,
+  type ThemeOptions,
   type ThemePreference,
+  type ThemeTransitionOrigin,
 } from "./lib/theme";
 export {
   computeHoverCardPosition,

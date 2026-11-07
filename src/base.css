@@ -769,3 +769,96 @@ html.mw-lowfx .mw-glass--strong {
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
+
+/* 主题切换过渡（View Transitions API 径向揭幕 + 降级色彩插值）─────────────────
+   仅在 html[data-theme-transition] 激活窗口期接管 ::view-transition-*(root)，
+   并临时屏蔽子元素的 view-transition-name（如工作台 mw-center），确保整屏合并为
+   单一 root 快照统一裁切，不干扰路由或局部 View Transition。 */
+html[data-theme-transition] *,
+html[data-theme-transition] *::before,
+html[data-theme-transition] *::after {
+  view-transition-name: none !important;
+}
+
+html[data-theme-transition="radial"]::view-transition-old(root),
+html[data-theme-transition="radial"]::view-transition-new(root),
+html[data-theme-transition="fade"]::view-transition-old(root),
+html[data-theme-transition="fade"]::view-transition-new(root) {
+  mix-blend-mode: normal;
+}
+
+html[data-theme-transition="radial"]::view-transition-old(root) {
+  animation: none;
+  z-index: var(--z-base);
+}
+
+html[data-theme-transition="radial"]::view-transition-new(root) {
+  animation: mw-theme-radial-reveal var(--mw-vt-duration, var(--speed-slow))
+    var(--mw-vt-ease, var(--ease-apple-out)) both;
+  z-index: var(--z-raised);
+}
+
+html[data-theme-transition="fade"]::view-transition-old(root) {
+  animation: mw-theme-fade-out var(--speed-medium) var(--ease-standard) both;
+  z-index: var(--z-base);
+}
+
+html[data-theme-transition="fade"]::view-transition-new(root) {
+  animation: mw-theme-fade-in var(--speed-medium) var(--ease-standard) both;
+  z-index: var(--z-raised);
+}
+
+html[data-theme-transition="fallback"],
+html[data-theme-transition="fallback"] body,
+html[data-theme-transition="fallback"] .mw-frost,
+html[data-theme-transition="fallback"] .mw-frost--thick,
+html[data-theme-transition="fallback"] .mw-group-card,
+html[data-theme-transition="fallback"] .mw-control {
+  transition:
+    background-color var(--duration-slow) var(--ease-standard),
+    color var(--duration-slow) var(--ease-standard),
+    border-color var(--duration-slow) var(--ease-standard),
+    box-shadow var(--duration-slow) var(--ease-standard);
+}
+
+@keyframes mw-theme-radial-reveal {
+  from {
+    clip-path: circle(0px at var(--mw-vt-x, 50%) var(--mw-vt-y, 50%));
+  }
+  to {
+    clip-path: circle(var(--mw-vt-r, 100vmax) at var(--mw-vt-x, 50%) var(--mw-vt-y, 50%));
+  }
+}
+
+@keyframes mw-theme-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes mw-theme-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-theme-transition="radial"]::view-transition-new(root) {
+    animation: mw-theme-fade-in var(--duration-fast) var(--ease-standard) both;
+  }
+
+  html[data-theme-transition="fallback"],
+  html[data-theme-transition="fallback"] body,
+  html[data-theme-transition="fallback"] .mw-frost,
+  html[data-theme-transition="fallback"] .mw-frost--thick,
+  html[data-theme-transition="fallback"] .mw-group-card,
+  html[data-theme-transition="fallback"] .mw-control {
+    transition: none;
+  }
+}

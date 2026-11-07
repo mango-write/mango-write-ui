@@ -53,8 +53,8 @@ function toggleLang() {
 
 // 切换只有浅/深两档；「跟随系统」只是从未手动选择时的默认（lib/theme.ts 的
 // preference 缺省值），不进 UI——一旦点过就固定在手动档。
-function toggleTheme() {
-  setTheme(themeResolved.value === "dark" ? "light" : "dark");
+function toggleTheme(event?: MouseEvent) {
+  setTheme(themeResolved.value === "dark" ? "light" : "dark", event);
 }
 
 const scrolled = ref(false);
@@ -176,13 +176,16 @@ onUnmounted(() => {
         <button
           v-if="showTheme"
           type="button"
-          class="mw-site-header__icon-btn"
+          class="mw-site-header__icon-btn mw-site-header__theme-btn"
+          :data-theme-state="themeResolved"
           :aria-label="themeLabel"
           :title="themeLabel"
-          @click="toggleTheme"
+          @click="toggleTheme($event)"
         >
-          <Sun v-if="themeResolved === 'light'" aria-hidden="true" />
-          <Moon v-else aria-hidden="true" />
+          <span class="mw-site-header__theme-stage" aria-hidden="true">
+            <Sun class="mw-site-header__theme-icon mw-site-header__theme-icon--sun" />
+            <Moon class="mw-site-header__theme-icon mw-site-header__theme-icon--moon" />
+          </span>
         </button>
 
         <slot name="actions" />
@@ -226,9 +229,18 @@ onUnmounted(() => {
       </nav>
       <div class="mw-site-header__drawer-row">
         <button v-if="showLang" type="button" class="mw-site-header__drawer-theme mw-site-header__lang" :aria-label="langTitle" @click="toggleLang(); closeDrawer()">{{ langLabel }}</button>
-        <button v-if="showTheme" type="button" class="mw-site-header__drawer-theme" :aria-label="themeLabel" @click="toggleTheme">
-          <Sun v-if="themeResolved === 'light'" aria-hidden="true" />
-          <Moon v-else aria-hidden="true" />
+        <button
+          v-if="showTheme"
+          type="button"
+          class="mw-site-header__drawer-theme mw-site-header__theme-btn"
+          :data-theme-state="themeResolved"
+          :aria-label="themeLabel"
+          @click="toggleTheme($event)"
+        >
+          <span class="mw-site-header__theme-stage" aria-hidden="true">
+            <Sun class="mw-site-header__theme-icon mw-site-header__theme-icon--sun" />
+            <Moon class="mw-site-header__theme-icon mw-site-header__theme-icon--moon" />
+          </span>
         </button>
         <!-- 抽屉状态只在壳内部；宿主把链接拦成 SPA 导航时（不整页重载），须自行调用 closeDrawer 收抽屉 -->
         <slot name="mobile-actions" :close-drawer="closeDrawer" />
@@ -346,9 +358,45 @@ onUnmounted(() => {
 }
 
 .mw-site-header__icon-btn > svg,
-.mw-site-header__drawer-theme > svg {
+.mw-site-header__drawer-theme > svg,
+.mw-site-header__theme-icon {
   width: var(--icon-lg);
   height: var(--icon-lg);
+}
+
+.mw-site-header__theme-stage {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: var(--icon-lg);
+  height: var(--icon-lg);
+}
+
+.mw-site-header__theme-icon {
+  grid-area: 1 / 1;
+  transition:
+    transform var(--speed-medium) var(--ease-spring-pop),
+    opacity var(--speed-fast) var(--ease-standard);
+}
+
+.mw-site-header__theme-btn[data-theme-state="light"] .mw-site-header__theme-icon--sun {
+  opacity: 1;
+  transform: rotate(0deg) scale(1);
+}
+
+.mw-site-header__theme-btn[data-theme-state="light"] .mw-site-header__theme-icon--moon {
+  opacity: 0;
+  transform: rotate(75deg) scale(0.45);
+}
+
+.mw-site-header__theme-btn[data-theme-state="dark"] .mw-site-header__theme-icon--sun {
+  opacity: 0;
+  transform: rotate(-75deg) scale(0.45);
+}
+
+.mw-site-header__theme-btn[data-theme-state="dark"] .mw-site-header__theme-icon--moon {
+  opacity: 1;
+  transform: rotate(0deg) scale(1);
 }
 
 .mw-site-header__lang {
@@ -499,7 +547,8 @@ onUnmounted(() => {
   .mw-site-header,
   .mw-site-header__link,
   .mw-site-header__icon-btn,
-  .mw-site-header__drawer-link {
+  .mw-site-header__drawer-link,
+  .mw-site-header__theme-icon {
     transition: none;
   }
 
