@@ -9,5 +9,5 @@
 export const MOTION_AREA_DURATION_MS = 180;
 
 export function areaDurationMs(): number {
-  return window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : MOTION_AREA_DURATION_MS;
+  return window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ? 0 : MOTION_AREA_DURATION_MS;
 }

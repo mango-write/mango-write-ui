@@ -38,6 +38,11 @@ export interface ComboPanelOptions {
    * 着面板走——面板只有一个，入口有好几个。
    */
   placement?: ComboPanelPlacement | (() => ComboPanelPlacement);
+  /**
+   * 面板最小宽度是否跟随触发器宽度（默认 true，供 Select / Combobox 下拉列表与框等宽）。
+   * 日历等固定网格浮层传 false，避免触发器 fluid 时把面板一起拉宽。
+   */
+  matchTriggerWidth?: boolean;
 }
 
 export function useComboPanel(
@@ -108,7 +113,7 @@ export function useComboPanel(
     panelStyle.value = {
       position: "fixed",
       left: `${Math.round(left)}px`,
-      minWidth: `${Math.round(r.width)}px`,
+      ...(options.matchTriggerWidth === false ? {} : { minWidth: `${Math.round(r.width)}px` }),
       zIndex: String(panelZIndex()),
       ...(flip
         ? { bottom: `${Math.round(window.innerHeight - r.top + 2)}px` }

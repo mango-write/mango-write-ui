@@ -1,16 +1,15 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, useAttrs, useId, watch } from "vue";
 import {
-  Calendar,
+  Calendar as CalendarIcon,
   ChevronDown,
-  ChevronLeft,
-  ChevronRight,
   ChevronUp,
   Clock,
   X,
 } from "lucide-vue-next";
 import { useComboPanel } from "../lib/useComboPanel";
-import { uiMessages } from "../locale/index.js";
+import { uiMessages, type UiLocaleSource } from "../locale/index.js";
+import Calendar from "./Calendar.vue";
 import type {
   DatePickerHourFormat,
   DatePickerModelValue,
@@ -41,6 +40,9 @@ const props = withDefaults(defineProps<DatePickerProps>(), {
   dateFormat: "yy-mm-dd",
   minDate: null,
   maxDate: null,
+  firstDayOfWeek: 1,
+  days: undefined,
+  locale: undefined,
   showIcon: false,
   showClear: false,
   showButtonBar: false,
@@ -76,7 +78,21 @@ const panelId = computed(() => `${props.id || props.inputId || `mw-dp-${uid}`}-p
 const rootEl = ref<HTMLElement | null>(null);
 const inputEl = ref<HTMLInputElement | null>(null);
 const panelEl = ref<HTMLElement | null>(null);
+const calendarRef = ref<InstanceType<typeof Calendar> | null>(null);
 const focused = ref(false);
+
+const localeKey = computed<UiLocaleSource>(() => {
+  if (props.locale) {
+    return props.locale.toLowerCase().startsWith("en") ? "en-US" : "zh-CN";
+  }
+  if (typeof document !== "undefined") {
+    const htmlLang = document.documentElement.lang?.toLowerCase() ?? "";
+    if (htmlLang.startsWith("en")) return "en-US";
+  }
+  return "zh-CN";
+});
+
+const copy = computed(() => uiMessages[localeKey.value].common);
 
 const normalizedSize = computed<"sm" | "md" | "lg">(() => {
   if (props.size === "small" || props.size === "sm") return "sm";
@@ -102,10 +118,6 @@ function pad2(n: number): string {
   return String(n).padStart(2, "0");
 }
 
-function toIsoDateKey(d: Date): string {
-  return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
-}
-
 function formatSingleDate(d: Date): string {
   if (props.timeOnly) {
     return formatTimePart(d);
@@ -115,7 +127,6 @@ function formatSingleDate(d: Date): string {
   const mm = pad2(d.getMonth() + 1);
   const dd = pad2(d.getDate());
   const fmt = props.dateFormat || "yy-mm-dd";
-  // PrimeVue convention: "yy" = 4-digit year, "y" = 2-digit year; also support "yyyy"
   let datePart = fmt
     .replace(/yyyy/gi, yyyy)
     .replace(/yy/gi, yyyy)
@@ -206,7 +217,7 @@ const {
   openPanel: comboOpenPanel,
   closePanel: comboClosePanel,
   reposition,
-} = useComboPanel(rootEl, panelEl);
+} = useComboPanel(rootEl, panelEl, { matchTriggerWidth: false });
 
 watch(open, (isOpen, wasOpen) => {
   if (isOpen && !wasOpen) {
@@ -256,111 +267,6 @@ function isDateDisabled(d: Date): boolean {
   return false;
 }
 
-function isSameCalendarDay(a: Date | null, b: Date | null): boolean {
-  if (!a || !b) return false;
-  return (
-    a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate()
-  );
-}
-
-function isDateSelected(d: Date): boolean {
-  if (Array.isArray(props.modelValue)) {
-    if (props.selectionMode === "range") {
-      const start = toValidDate(props.modelValue[0]);
-      const end = toValidDate(props.modelValue[1]);
-      return isSameCalendarDay(d, start) || isSameCalendarDay(d, end);
-    }
-    return props.modelValue.some((item) => isSameCalendarDay(d, toValidDate(item)));
-  }
-  return isSameCalendarDay(d, toValidDate(props.modelValue));
-}
-
-function isDateInRange(d: Date): boolean {
-  if (props.selectionMode !== "range" || !Array.isArray(props.modelValue)) return false;
-  const start = toValidDate(props.modelValue[0]);
-  const end = toValidDate(props.modelValue[1]);
-  if (!start || !end) return false;
-  const t = startOfDayTime(d);
-  return t > startOfDayTime(start) && t < startOfDayTime(end);
-}
-
-interface CalendarCell {
-  date: Date;
-  day: number;
-  isoDate: string;
-  otherMonth: boolean;
-  today: boolean;
-  selected: boolean;
-  inRange: boolean;
-  disabled: boolean;
-}
-
-const weekdayLabels = ["日", "一", "二", "三", "四", "五", "六"];
-
-const currentMonthLabel = computed<string>(() => `${viewMonth.value + 1}月`);
-
-const currentYearLabel = computed<string>(() => `${viewYear.value}年`);
-
-const calendarWeeks = computed<CalendarCell[][]>(() => {
-  const year = viewYear.value;
-  const month = viewMonth.value;
-  const firstOfMonth = new Date(year, month, 1);
-  const startDayOfWeek = firstOfMonth.getDay();
-  const gridStart = new Date(year, month, 1 - startDayOfWeek);
-  const todayDate = new Date();
-
-  const weeks: CalendarCell[][] = [];
-  let cursor = new Date(gridStart.getTime());
-
-  for (let w = 0; w < 6; w += 1) {
-    const row: CalendarCell[] = [];
-    for (let d = 0; d < 7; d += 1) {
-      const cellDate = new Date(
-        cursor.getFullYear(),
-        cursor.getMonth(),
-        cursor.getDate(),
-        props.showTime ? currentHours.value : 0,
-        props.showTime ? currentMinutes.value : 0,
-        0,
-        0,
-      );
-      row.push({
-        date: cellDate,
-        day: cellDate.getDate(),
-        isoDate: toIsoDateKey(cellDate),
-        otherMonth: cellDate.getMonth() !== month,
-        today: isSameCalendarDay(cellDate, todayDate),
-        selected: isDateSelected(cellDate),
-        inRange: isDateInRange(cellDate),
-        disabled: isDateDisabled(cellDate),
-      });
-      cursor.setDate(cursor.getDate() + 1);
-    }
-    weeks.push(row);
-  }
-  return weeks;
-});
-
-function prevMonth(): void {
-  if (viewMonth.value === 0) {
-    viewMonth.value = 11;
-    viewYear.value -= 1;
-  } else {
-    viewMonth.value -= 1;
-  }
-}
-
-function nextMonth(): void {
-  if (viewMonth.value === 11) {
-    viewMonth.value = 0;
-    viewYear.value += 1;
-  } else {
-    viewMonth.value += 1;
-  }
-}
-
 function buildDateWithTime(base: Date): Date {
   const d = new Date(base.getTime());
   if (props.showTime || props.timeOnly) {
@@ -371,56 +277,30 @@ function buildDateWithTime(base: Date): Date {
   return d;
 }
 
-function onSelectDay(cell: CalendarCell): void {
-  if (cell.disabled || props.disabled || props.readonly) return;
-  const chosen = buildDateWithTime(cell.date);
-
-  if (cell.otherMonth) {
-    viewYear.value = chosen.getFullYear();
-    viewMonth.value = chosen.getMonth();
-  }
+function onCalendarUpdateModelValue(nextVal: Date | Array<Date | null> | null): void {
+  inputText.value = formatModelValue(nextVal);
+  emit("update:modelValue", nextVal);
 
   if (props.selectionMode === "range") {
-    const current = Array.isArray(props.modelValue) ? props.modelValue : [];
-    const start = toValidDate(current[0]);
-    const end = toValidDate(current[1]);
-
-    let nextRange: Array<Date | null>;
-    if (!start || (start && end)) {
-      nextRange = [chosen, null];
-    } else if (chosen.getTime() < start.getTime()) {
-      nextRange = [chosen, start];
-    } else {
-      nextRange = [start, chosen];
-    }
-    inputText.value = formatModelValue(nextRange);
-    emit("update:modelValue", nextRange);
-    emit("date-select", chosen);
-    if (nextRange[0] && nextRange[1] && props.hideOnRangeSelection && !props.showTime) {
+    if (
+      Array.isArray(nextVal) &&
+      nextVal[0] &&
+      nextVal[1] &&
+      props.hideOnRangeSelection &&
+      !props.showTime
+    ) {
       closePanel();
     }
     return;
   }
 
-  if (props.selectionMode === "multiple") {
-    const current = Array.isArray(props.modelValue)
-      ? props.modelValue.map((d) => toValidDate(d)).filter((d): d is Date => d !== null)
-      : [];
-    const existsIndex = current.findIndex((d) => isSameCalendarDay(d, chosen));
-    const nextList =
-      existsIndex >= 0 ? current.filter((_, idx) => idx !== existsIndex) : [...current, chosen];
-    inputText.value = formatModelValue(nextList);
-    emit("update:modelValue", nextList);
-    emit("date-select", chosen);
-    return;
-  }
-
-  inputText.value = formatModelValue(chosen);
-  emit("update:modelValue", chosen);
-  emit("date-select", chosen);
-  if (!props.showTime) {
+  if (props.selectionMode === "single" && !props.showTime) {
     closePanel();
   }
+}
+
+function onCalendarDateSelect(chosen: Date): void {
+  emit("date-select", chosen);
 }
 
 function applyTimeChange(): void {
@@ -671,6 +551,7 @@ function onTodayClick(): void {
   const now = buildDateWithTime(new Date());
   viewYear.value = now.getFullYear();
   viewMonth.value = now.getMonth();
+  calendarRef.value?.backToToday();
   if (isDateDisabled(now)) return;
   if (props.selectionMode === "range") {
     const nextRange: Array<Date | null> = [now, now];
@@ -692,11 +573,20 @@ function onTodayClick(): void {
   if (!props.showTime) closePanel();
 }
 
+const isWideValueMode = computed(
+  () =>
+    props.selectionMode === "range" ||
+    props.selectionMode === "multiple" ||
+    props.showTime,
+);
+
 const rootClasses = computed(() => [
   "mw-date-picker",
   "mw-control",
   `mw-date-picker--${normalizedSize.value}`,
   {
+    "mw-date-picker--wide": isWideValueMode.value,
+    "mw-date-picker--time-only": props.timeOnly,
     "mw-date-picker--fluid": props.fluid,
     "mw-date-picker--disabled": props.disabled,
     "mw-date-picker--invalid": props.invalid,
@@ -743,7 +633,7 @@ const rootClasses = computed(() => [
       v-if="showClear && hasValue && !disabled && !readonly"
       type="button"
       class="mw-date-picker__clear"
-      :aria-label="uiMessages['zh-CN'].common.select.clear"
+      :aria-label="copy.select.clear"
       tabindex="-1"
       @click="onClearClick"
     >
@@ -755,13 +645,13 @@ const rootClasses = computed(() => [
       type="button"
       class="mw-date-picker__dropdown"
       :disabled="disabled"
-      aria-label="选择日期"
+      :aria-label="copy.calendar.chooseDate"
       :aria-expanded="open ? 'true' : 'false'"
       tabindex="-1"
       @click="togglePanel"
     >
       <Clock v-if="timeOnly" :size="14" aria-hidden="true" />
-      <Calendar v-else :size="14" aria-hidden="true" />
+      <CalendarIcon v-else :size="14" aria-hidden="true" />
     </button>
 
     <Teleport to="body">
@@ -772,87 +662,31 @@ const rootClasses = computed(() => [
         class="mw-date-picker__panel mw-frost mw-glass"
         :style="panelStyle"
         role="dialog"
-        :aria-label="ariaLabel || '选择日期'"
+        :aria-label="ariaLabel || copy.calendar.chooseDate"
       >
-        <template v-if="!timeOnly">
-          <div class="mw-date-picker__header">
-            <button
-              type="button"
-              class="mw-date-picker__nav-btn"
-              aria-label="上个月"
-              @click="prevMonth"
-            >
-              <ChevronLeft :size="14" aria-hidden="true" />
-            </button>
-
-            <div class="mw-date-picker__title">
-              <span class="mw-date-picker__year">{{ currentYearLabel }}</span>
-              <span class="mw-date-picker__month">{{ currentMonthLabel }}</span>
-            </div>
-
-            <button
-              type="button"
-              class="mw-date-picker__nav-btn"
-              aria-label="下个月"
-              @click="nextMonth"
-            >
-              <ChevronRight :size="14" aria-hidden="true" />
-            </button>
-          </div>
-
-          <div class="mw-date-picker__calendar-container">
-            <table class="mw-date-picker__calendar" role="grid">
-              <thead>
-                <tr>
-                  <th
-                    v-for="weekday in weekdayLabels"
-                    :key="weekday"
-                    scope="col"
-                    class="mw-date-picker__weekday"
-                  >
-                    <span class="mw-date-picker__weekday-text">{{ weekday }}</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(week, wIdx) in calendarWeeks" :key="wIdx">
-                  <td
-                    v-for="cell in week"
-                    :key="cell.isoDate"
-                    class="mw-date-picker__day-cell"
-                    :class="{
-                      'mw-date-picker__day-cell--other-month': cell.otherMonth,
-                      'mw-date-picker__day-cell--today': cell.today,
-                    }"
-                  >
-                    <button
-                      type="button"
-                      class="mw-date-picker__day"
-                      :class="{
-                        'mw-date-picker__day--selected': cell.selected,
-                        'mw-date-picker__day--in-range': cell.inRange,
-                        'mw-date-picker__day--today': cell.today,
-                        'mw-date-picker__day--other-month': cell.otherMonth,
-                        'mw-date-picker__day--disabled': cell.disabled,
-                      }"
-                      :data-date="cell.isoDate"
-                      :disabled="cell.disabled"
-                      :aria-selected="cell.selected ? 'true' : 'false'"
-                      :aria-disabled="cell.disabled ? 'true' : undefined"
-                      @click="onSelectDay(cell)"
-                    >
-                      {{ cell.day }}
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </template>
+        <Calendar
+          v-if="!timeOnly"
+          ref="calendarRef"
+          variant="plain"
+          :model-value="modelValue"
+          :selection-mode="selectionMode"
+          :min-date="minDate"
+          :max-date="maxDate"
+          :first-day-of-week="firstDayOfWeek"
+          :days="days"
+          :locale="locale"
+          :hours="showTime ? currentHours : 0"
+          :minutes="showTime ? currentMinutes : 0"
+          :disabled="disabled"
+          :readonly="readonly"
+          @update:model-value="onCalendarUpdateModelValue"
+          @date-select="onCalendarDateSelect"
+        />
 
         <div
           v-if="showTime || timeOnly"
           class="mw-date-picker__time-picker"
+          :class="{ 'mw-date-picker__time-picker--standalone': timeOnly }"
         >
           <div class="mw-date-picker__time-unit">
             <button
@@ -929,14 +763,14 @@ const rootClasses = computed(() => [
             class="mw-date-picker__bar-btn"
             @click="onTodayClick"
           >
-            今天
+            {{ copy.calendar.today }}
           </button>
           <button
             type="button"
             class="mw-date-picker__bar-btn"
             @click="onClearClick"
           >
-            清除
+            {{ copy.calendar.clear }}
           </button>
         </div>
       </div>
@@ -946,17 +780,28 @@ const rootClasses = computed(() => [
 
 <style>
 .mw-date-picker {
-  --_dp-min-w: calc(var(--size-lg-h) * 4);
+  --mw-date-picker-w: calc(var(--size-lg-h) * 4.5);
   position: relative;
   display: inline-flex;
   align-items: center;
   min-height: var(--control-h);
-  min-width: var(--_dp-min-w);
+  width: var(--mw-date-picker-w);
+  max-width: 100%;
+  justify-self: start;
   padding-inline-end: var(--space-1);
+}
+
+.mw-date-picker--wide {
+  --mw-date-picker-w: calc(var(--size-lg-h) * 5.5);
+}
+
+.mw-date-picker--time-only {
+  --mw-date-picker-w: calc(var(--size-lg-h) * 3.5);
 }
 
 .mw-date-picker--fluid {
   width: 100%;
+  justify-self: stretch;
   display: flex;
 }
 
@@ -990,6 +835,7 @@ const rootClasses = computed(() => [
   background: transparent;
   color: var(--text-primary);
   font: inherit;
+  font-variant-numeric: tabular-nums;
   padding: var(--space-1-5) var(--control-px);
   outline: none;
 }
@@ -1019,6 +865,8 @@ const rootClasses = computed(() => [
 }
 
 .mw-date-picker__panel {
+  width: max-content;
+  max-width: calc(100vw - var(--space-4));
   border-radius: var(--radius-float);
   box-shadow: var(--shadow-floating);
   padding: var(--space-2-5);
@@ -1028,114 +876,6 @@ const rootClasses = computed(() => [
   user-select: none;
 }
 
-.mw-date-picker__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-2);
-  padding-bottom: var(--space-1-5);
-  border-bottom: var(--border-width) solid var(--border-subtle);
-}
-
-.mw-date-picker__title {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1-5);
-  font-size: var(--type-body-sm-size);
-  line-height: var(--type-body-sm-line);
-  font-weight: var(--weight-semibold);
-  color: var(--text-primary);
-}
-
-.mw-date-picker__nav-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--size-sm-h);
-  height: var(--size-sm-h);
-  border: 0;
-  background: transparent;
-  color: var(--text-secondary);
-  border-radius: var(--radius-item);
-  cursor: pointer;
-  transition:
-    background-color var(--duration-fast) var(--ease-standard),
-    color var(--duration-fast) var(--ease-standard);
-}
-
-.mw-date-picker__nav-btn:hover {
-  background-color: var(--fill-default);
-  color: var(--text-primary);
-}
-
-.mw-date-picker__calendar {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed;
-}
-
-.mw-date-picker__weekday {
-  padding: var(--space-1) 0;
-  font-size: var(--type-micro-size);
-  line-height: var(--type-micro-line);
-  font-weight: var(--weight-medium);
-  color: var(--text-tertiary);
-  text-align: center;
-}
-
-.mw-date-picker__day-cell {
-  padding: var(--space-px);
-  text-align: center;
-}
-
-.mw-date-picker__day {
-  width: var(--size-md-h);
-  height: var(--size-md-h);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 0;
-  border-radius: var(--radius-item);
-  background: transparent;
-  color: var(--text-primary);
-  font-size: var(--type-body-sm-size);
-  line-height: var(--type-body-sm-line);
-  font-variant-numeric: tabular-nums;
-  cursor: pointer;
-  transition:
-    background-color var(--duration-fast) var(--ease-standard),
-    color var(--duration-fast) var(--ease-standard);
-}
-
-.mw-date-picker__day:hover:not(:disabled) {
-  background-color: var(--fill-default);
-}
-
-.mw-date-picker__day--other-month {
-  color: var(--text-tertiary);
-}
-
-.mw-date-picker__day--today {
-  font-weight: var(--weight-semibold);
-  border: var(--border-width) solid var(--border-strong);
-}
-
-.mw-date-picker__day--in-range {
-  background-color: var(--fill-selected);
-}
-
-.mw-date-picker__day--selected,
-.mw-date-picker__day--selected:hover:not(:disabled) {
-  background-color: var(--accent);
-  color: var(--text-on-accent);
-  font-weight: var(--weight-semibold);
-}
-
-.mw-date-picker__day--disabled {
-  opacity: var(--opacity-disabled);
-  cursor: not-allowed;
-}
-
 .mw-date-picker__time-picker {
   display: flex;
   align-items: center;
@@ -1143,6 +883,12 @@ const rootClasses = computed(() => [
   gap: var(--space-2);
   padding-top: var(--space-1-5);
   border-top: var(--border-width) solid var(--border-subtle);
+}
+
+.mw-date-picker__time-picker--standalone {
+  padding-top: var(--space-0);
+  padding-inline: var(--space-2);
+  border-top: 0;
 }
 
 .mw-date-picker__time-unit {
@@ -1204,9 +950,7 @@ const rootClasses = computed(() => [
 
 @media (prefers-reduced-motion: reduce) {
   .mw-date-picker__clear,
-  .mw-date-picker__dropdown,
-  .mw-date-picker__nav-btn,
-  .mw-date-picker__day {
+  .mw-date-picker__dropdown {
     transition: none;
   }
 }

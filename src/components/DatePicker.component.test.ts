@@ -1,4 +1,3 @@
-// @vitest-environment jsdom
 import { mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it } from "vitest";
 import { nextTick } from "vue";
@@ -174,6 +173,27 @@ describe("DatePicker", () => {
     expect(wrapper.emitted("clear")).toBeTruthy();
     expect(wrapper.emitted("clear-click")).toBeTruthy();
     expect(wrapper.emitted("update:modelValue")!.slice(-1)[0]).toEqual([null]);
+
+    wrapper.unmount();
+  });
+
+  it("keeps dropdown calendar compact without stretching to fluid trigger width", async () => {
+    const wrapper = mount(DatePicker, {
+      attachTo: document.body,
+      props: {
+        modelValue: new Date(2026, 4, 10),
+        fluid: true,
+        showIcon: true,
+      },
+    });
+
+    await wrapper.find(".mw-date-picker__dropdown").trigger("click");
+    await nextTick();
+
+    const panel = document.body.querySelector<HTMLElement>(".mw-date-picker__panel");
+    expect(panel).not.toBeNull();
+    expect(panel!.style.minWidth).toBe("");
+    expect(panel!.querySelector(".mw-calendar--plain")).not.toBeNull();
 
     wrapper.unmount();
   });

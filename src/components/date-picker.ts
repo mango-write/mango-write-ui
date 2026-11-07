@@ -1,3 +1,5 @@
+import type { CalendarFirstDayOfWeek } from "./calendar";
+
 export type DatePickerSelectionMode = "single" | "range" | "multiple";
 
 export type DatePickerHourFormat = "12" | "24";
@@ -15,6 +17,9 @@ export interface DatePickerProps {
   dateFormat?: string;
   minDate?: Date | null;
   maxDate?: Date | null;
+  firstDayOfWeek?: CalendarFirstDayOfWeek;
+  days?: Record<string, number>;
+  locale?: string;
   showIcon?: boolean;
   showClear?: boolean;
   showButtonBar?: boolean;

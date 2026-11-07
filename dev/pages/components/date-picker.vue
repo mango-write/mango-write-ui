@@ -37,8 +37,8 @@ const s = {
     en: "Entry deadlines, publication dates, sampling times, or filtering records by range (<code>selectionMode=\"range\"</code>).",
   },
   rule2: {
-    zh: "既支持展开霜面日历面板点选，也支持直接键入 <code>YYYY-MM-DD</code> 快速提交。",
-    en: "Pick from the frost calendar panel, or type <code>YYYY-MM-DD</code> directly for fast entry.",
+    zh: "既支持展开霜面日历面板点选，也支持直接键入 <code>YYYY-MM-DD</code> 快速提交；需要常驻展开的月历或手记热力筛选时使用同源组件 <code>Calendar</code>。",
+    en: "Pick from the frost calendar panel or type <code>YYYY-MM-DD</code> directly; for an always-visible month view or activity-heat filtering, use the companion <code>Calendar</code> component.",
   },
   rule3: {
     zh: "仅选择四位发表年份（如 1990–2026）时用 <code>InputNumber</code> 或 <code>Select</code>，不必展开完整月历。",

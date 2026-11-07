@@ -117,6 +117,14 @@
       "types": "./dist/components/Button.d.ts",
       "default": "./dist/components/Button.js"
     },
+    "./components/Calendar": {
+      "mango-source": {
+        "types": "./src/components/Calendar.vue",
+        "default": "./src/components/Calendar.vue"
+      },
+      "types": "./dist/components/Calendar.d.ts",
+      "default": "./dist/components/Calendar.js"
+    },
     "./components/Checkbox": {
       "mango-source": {
         "types": "./src/components/Checkbox.vue",
@@ -525,6 +533,14 @@
       "types": "./dist/components/button-defs.d.ts",
       "default": "./dist/components/button-defs.js"
     },
+    "./components/calendar": {
+      "mango-source": {
+        "types": "./src/components/calendar.ts",
+        "default": "./src/components/calendar.ts"
+      },
+      "types": "./dist/components/calendar.d.ts",
+      "default": "./dist/components/calendar.js"
+    },
     "./components/chip": {
       "mango-source": {
         "types": "./src/components/chip-defs.ts",
@@ -830,6 +846,11 @@
         "import": "./dist/components/Button.js",
         "default": "./dist/components/Button.js"
       },
+      "./components/Calendar": {
+        "types": "./dist/components/Calendar.d.ts",
+        "import": "./dist/components/Calendar.js",
+        "default": "./dist/components/Calendar.js"
+      },
       "./components/Checkbox": {
         "types": "./dist/components/Checkbox.d.ts",
         "import": "./dist/components/Checkbox.js",
@@ -1084,6 +1105,11 @@
         "types": "./dist/components/button-defs.d.ts",
         "import": "./dist/components/button-defs.js",
         "default": "./dist/components/button-defs.js"
+      },
+      "./components/calendar": {
+        "types": "./dist/components/calendar.d.ts",
+        "import": "./dist/components/calendar.js",
+        "default": "./dist/components/calendar.js"
       },
       "./components/chip": {
         "types": "./dist/components/chip-defs.d.ts",

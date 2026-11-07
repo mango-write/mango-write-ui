@@ -26,6 +26,16 @@ export interface UiMessages {
       reset: string;
       imageAlt: string;
     };
+    calendar: {
+      chooseDate: string;
+      prevMonth: string;
+      nextMonth: string;
+      prevYear: string;
+      nextYear: string;
+      today: string;
+      backToToday: string;
+      clear: string;
+    };
   };
 }
 
@@ -54,6 +64,16 @@ export const uiMessages: Record<UiLocaleSource, UiMessages> = {
         reset: "复位",
         imageAlt: "图片",
       },
+      calendar: {
+        chooseDate: "选择日期",
+        prevMonth: "上个月",
+        nextMonth: "下个月",
+        prevYear: "上一年",
+        nextYear: "下一年",
+        today: "今天",
+        backToToday: "回到今天",
+        clear: "清除",
+      },
     },
   },
   "en-US": {
@@ -77,6 +97,16 @@ export const uiMessages: Record<UiLocaleSource, UiMessages> = {
         rotateRight: "Rotate right",
         reset: "Reset",
         imageAlt: "Image",
+      },
+      calendar: {
+        chooseDate: "Choose date",
+        prevMonth: "Previous month",
+        nextMonth: "Next month",
+        prevYear: "Previous year",
+        nextYear: "Next year",
+        today: "Today",
+        backToToday: "Back to today",
+        clear: "Clear",
       },
     },
   },

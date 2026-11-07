@@ -326,8 +326,16 @@ export const docGroups: DocGroup[] = [
         "date-picker",
         { zh: "日期选择", en: "DatePicker" },
         {
-          zh: "日期与时间选择：支持单日、起止区间、多日点选与时间步进器，同时允许按格式直接键入文本。输入框采用半透明控件面（.mw-control），弹出日历面板为霜材质（.mw-frost）。",
-          en: "Date and time picking: single dates, ranges, multi-select, and time steppers, with direct text entry in any format. The input uses the translucent control surface (.mw-control) and the calendar panel is frost (.mw-frost).",
+          zh: "日期与时间选择：支持单日、起止区间、多日点选与时间步进器，同时允许按格式直接键入文本。输入框采用半透明控件面（.mw-control），展开的霜面日历浮层（.mw-frost）内部直接复用 Calendar 日期面板核，保持紧凑固定宽度。",
+          en: "Date and time picking: single dates, ranges, multi-select, and time steppers, with direct text entry. The input uses the translucent control surface (.mw-control), and the frost overlay (.mw-frost) reuses Calendar at a compact fixed width.",
+        },
+      ),
+      component(
+        "calendar",
+        { zh: "日期面板", en: "Calendar" },
+        {
+          zh: "常驻月历面板：提供年月下拉快选、跨月「回到今天」、单日/区间/多选与按日记录计数热力（手记时间流筛选），同时作为 DatePicker 的内嵌日历核（variant=\"plain\"）。",
+          en: "An inline month calendar panel with a frost year-month quick switcher, cross-month “Back to today”, single/range/multiple selection, and per-day activity heat counts (research log filtering), also serving as DatePicker's calendar core (variant=\"plain\").",
         },
       ),
     ],

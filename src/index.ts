@@ -130,6 +130,15 @@ export { default as AccordionContent } from "./components/AccordionContent.vue";
 export { default as Chip } from "./components/Chip.vue";
 export { default as ColorPicker } from "./components/ColorPicker.vue";
 export { default as Column } from "./components/Column.vue";
+export { default as Calendar } from "./components/Calendar.vue";
+export {
+  type CalendarFirstDayOfWeek,
+  type CalendarModelValue,
+  type CalendarProps,
+  type CalendarSelectionMode,
+  type CalendarVariant,
+  type CalendarViewRange,
+} from "./components/calendar";
 export { default as DataTable } from "./components/DataTable.vue";
 export { default as DatePicker } from "./components/DatePicker.vue";
 export { default as IconField } from "./components/IconField.vue";
