@@ -11,10 +11,17 @@ defineOptions({
 
 const props = withDefaults(defineProps<TabListProps>(), {
   loop: true,
+  hideWhenSingle: false,
 });
 
 const attrs = useAttrs();
-const rootClass = computed(() => ["mw-tab-list", "mw-scroll-fade", "mw-scroll-fade--sm", attrs.class]);
+const rootClass = computed(() => [
+  "mw-tab-list",
+  "mw-scroll-fade",
+  "mw-scroll-fade--sm",
+  { "mw-tab-list--hide-single": props.hideWhenSingle },
+  attrs.class,
+]);
 const rootStyle = computed<StyleValue>(() => attrs.style as StyleValue);
 const rootAttrs = computed(() => {
   const { class: _class, style: _style, ...rest } = attrs;
@@ -42,6 +49,10 @@ const rootAttrs = computed(() => {
   border-bottom: var(--border-width) solid var(--border-subtle);
   overflow-x: auto;
   scrollbar-width: none;
+}
+
+.mw-tab-list--hide-single:not(:has(> :nth-child(2))) {
+  display: none;
 }
 
 .mw-tab-list::-webkit-scrollbar {

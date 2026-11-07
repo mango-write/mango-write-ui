@@ -16,7 +16,7 @@ export {
 export { default as Checkbox } from "./components/Checkbox.vue";
 export { default as ConfirmHost } from "./components/ConfirmHost.vue";
 export { default as Dialog } from "./components/Dialog.vue";
-export { type DialogEmits, type DialogProps } from "./components/dialog-defs";
+export { type DialogEmits, type DialogProps, type DialogSize } from "./components/dialog-defs";
 export { default as FileDropZone } from "./components/FileDropZone.vue";
 export { default as PageHeader } from "./components/PageHeader.vue";
 export { default as NotFoundPage } from "./components/NotFoundPage.vue";
@@ -39,6 +39,41 @@ export {
 } from "./components/select-defs";
 export { default as SiteHeader } from "./components/site/SiteHeader.vue";
 export { default as SiteFooter } from "./components/site/SiteFooter.vue";
+export { default as AdminListPage } from "./components/admin/AdminListPage.vue";
+export { default as AdminConfigPage } from "./components/admin/AdminConfigPage.vue";
+export { default as ConfigSection, default as AdminConfigSection } from "./components/admin/AdminConfigSection.vue";
+export { default as ConfigRow, default as AdminConfigRow } from "./components/admin/AdminConfigRow.vue";
+export { default as AdminDetailPage } from "./components/admin/AdminDetailPage.vue";
+export { default as StatCard, default as AdminDetailCard } from "./components/admin/AdminDetailCard.vue";
+export { default as AdminBoardPage } from "./components/admin/AdminBoardPage.vue";
+export { default as AdminBoardSection } from "./components/admin/AdminBoardSection.vue";
+export { default as StatBar, default as AdminStatBar } from "./components/admin/AdminStatBar.vue";
+export {
+  ADMIN_HEADER_LEAD_TAKEN,
+  type AdminBoardPageProps,
+  type AdminBoardSectionProps,
+  type AdminConfigPageEmits,
+  type AdminConfigPageProps,
+  type AdminConfigRowProps,
+  type AdminConfigRowProps as ConfigRowProps,
+  type AdminConfigRowStatusTone,
+  type AdminConfigRowStatusTone as ConfigRowStatusTone,
+  type AdminConfigSectionProps,
+  type AdminConfigSectionProps as ConfigSectionProps,
+  type AdminDetailCardEmits,
+  type AdminDetailCardEmits as StatCardEmits,
+  type AdminDetailCardProps,
+  type AdminDetailCardProps as StatCardProps,
+  type AdminDetailPageEmits,
+  type AdminDetailPageProps,
+  type AdminListPageProps,
+  type AdminStatBarProps,
+  type AdminStatBarProps as StatBarProps,
+  type AdminStatItem,
+  type AdminStatItem as StatItem,
+  type AdminStatTone,
+  type AdminStatTone as StatTone,
+} from "./components/admin/admin-defs";
 export { default as Tabs } from "./components/Tabs.vue";
 export { default as TabList } from "./components/TabList.vue";
 export { default as Tab } from "./components/Tab.vue";
@@ -142,7 +177,7 @@ export {
   type CalendarSelectionMode,
   type CalendarVariant,
   type CalendarViewRange,
-} from "./components/calendar";
+} from "./components/calendar-defs";
 export { default as DataTable } from "./components/DataTable.vue";
 export { default as DatePicker } from "./components/DatePicker.vue";
 export { default as IconField } from "./components/IconField.vue";

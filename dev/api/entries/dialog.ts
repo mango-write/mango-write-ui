@@ -25,12 +25,30 @@ export const api: ApiEntry = {
       },
     },
     {
-      name: "width",
+      name: "size / width",
       kind: "prop",
-      type: "string",
+      type: "'sm' | 'md' | 'lg' | 'xl' · string",
       desc: {
-        zh: "自定义宽度，默认 <code>min(32rem, calc(100vw - var(--space-8)))</code>",
-        en: "Custom width; defaults to <code>min(32rem, calc(100vw - var(--space-8)))</code>",
+        zh: "标准宽度分档（<code>sm</code> 27.5rem / <code>md</code> 40rem / <code>lg</code> 53.75rem / <code>xl</code> 68.75rem），或经 <code>width</code> 传入任意 CSS 宽度（默认 <code>min(32rem, calc(100vw - var(--space-8)))</code>）",
+        en: "Standard width tiers (<code>sm</code> 27.5rem / <code>md</code> 40rem / <code>lg</code> 53.75rem / <code>xl</code> 68.75rem), or custom CSS <code>width</code> (default <code>min(32rem, calc(100vw - var(--space-8)))</code>)",
+      },
+    },
+    {
+      name: "canBack / backLabel / @back",
+      kind: "prop",
+      type: "boolean · string · () => void",
+      desc: {
+        zh: "同窗多级下钻：<code>canBack=true</code> 时在标题左侧渲染返回按钮并触发 <code>@back</code>，严禁弹窗叠弹窗",
+        en: "In-place drill-down: <code>canBack=true</code> renders a back button beside the title and emits <code>@back</code>, avoiding stacked modals",
+      },
+    },
+    {
+      name: "scopeText / bodyScroll",
+      kind: "prop",
+      type: "string · boolean",
+      desc: {
+        zh: "<code>scopeText</code> 在头部下方展示常驻范围与筛选上下文条；<code>bodyScroll=false</code> 锁定外层主体滚动，仅让内部 <code>DataTable</code> 或 <code>.mw-dialog-scroll</code> 独立内滚",
+        en: "<code>scopeText</code> renders a pinned scope bar below the header; <code>bodyScroll=false</code> locks the outer body so inner <code>DataTable</code> or <code>.mw-dialog-scroll</code> scrolls independently",
       },
     },
     {
@@ -52,12 +70,21 @@ export const api: ApiEntry = {
       },
     },
     {
-      name: "#header / #lead / #default / #footer",
+      name: "#header / #header-extra / #scope / #toolbar / #lead / #default / #footer-left / #footer",
       kind: "slot",
       type: { zh: "插槽", en: "Slot" },
       desc: {
-        zh: "标题区、正文上方固定引导区、可滚动主体、底栏动作区（默认 md 密度）",
-        en: "Title area, fixed lead above the body, scrollable body, and footer action area (default md density)",
+        zh: "标题区、标题右侧状态徽标、范围上下文条扩展区、固定子表单/筛选栏、引导区、可滚动主体、底栏左侧常驻开关与底栏右侧主次按钮",
+        en: "Title area, inline header badge, scope strip extension, pinned subform/filter toolbar, lead area, scrollable body, split footer left, and footer right actions",
+      },
+    },
+    {
+      name: ".mw-dialog-grid / .mw-dialog-scroll / .mw-dialog-subform",
+      kind: "css",
+      type: "class",
+      desc: {
+        zh: "弹窗内部标准布局类：双栏表单网格（含 <code>.mw-dialog-span</code> 跨列与 <code>.mw-dialog-divider</code> 分节线）、限高滚动容器（48vh）与常驻子表单栏",
+        en: "Built-in dialog layout classes: 2-column form grid (with <code>.mw-dialog-span</code> and <code>.mw-dialog-divider</code>), bounded scroll box (48vh), and pinned subform bar",
       },
     },
   ],

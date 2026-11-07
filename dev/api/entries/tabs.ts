@@ -26,12 +26,30 @@ export const api: ApiEntry = {
       },
     },
     {
+      name: "TabList hideWhenSingle",
+      kind: "prop",
+      type: "boolean",
+      desc: {
+        zh: "当列表内仅包含 1 个页签时自动隐藏标签栏（默认 <code>false</code>），适用于单/多子视图自适应模块",
+        en: "Auto-hides the tab bar when only 1 tab is rendered (default <code>false</code>), useful for single-vs-multi subview modules",
+      },
+    },
+    {
       name: "Tab value",
       kind: "prop",
       type: "string | number",
       desc: {
         zh: "页签唯一标识，与对应 <code>TabPanel</code> 配对",
         en: "Unique tab id, paired with its <code>TabPanel</code>",
+      },
+    },
+    {
+      name: "Tab badge",
+      kind: "prop",
+      type: "string | number",
+      desc: {
+        zh: "页签右侧等宽胶囊计数或简短状态角标，激活态自动切换主色柔和底",
+        en: "Tabular pill badge rendered on the trailing side of the tab; switches to accent tint when active",
       },
     },
     {

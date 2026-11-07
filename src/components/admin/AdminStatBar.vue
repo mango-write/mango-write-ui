@@ -1,0 +1,77 @@
+<script setup lang="ts">
+import type { AdminStatBarProps } from "./admin-defs";
+
+defineOptions({
+  name: "MwAdminStatBar",
+});
+
+defineProps<AdminStatBarProps>();
+</script>
+
+<template>
+  <div class="admin-stats">
+    <div
+      v-for="(item, idx) in items"
+      :key="item.key ?? idx"
+      class="admin-stats__item"
+      :data-tone="item.tone ?? 'default'"
+    >
+      <span class="admin-stats__label">{{ item.label }}</span>
+      <span class="admin-stats__num">{{ item.value }}</span>
+      <span v-if="item.sub" class="admin-stats__sub">{{ item.sub }}</span>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.admin-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-8);
+  flex-shrink: 0;
+}
+
+.admin-stats__item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-0-5);
+  min-width: 0;
+}
+
+.admin-stats__label {
+  color: var(--text-tertiary);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+}
+
+.admin-stats__num {
+  color: var(--text-primary);
+  font-size: var(--type-title-lg-size);
+  line-height: var(--type-title-line);
+  font-weight: var(--weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.admin-stats__item[data-tone="accent"] .admin-stats__num {
+  color: var(--text-accent);
+}
+
+.admin-stats__item[data-tone="success"] .admin-stats__num {
+  color: var(--success-text);
+}
+
+.admin-stats__item[data-tone="warning"] .admin-stats__num {
+  color: var(--warning-text);
+}
+
+.admin-stats__item[data-tone="danger"] .admin-stats__num {
+  color: var(--danger-text);
+}
+
+.admin-stats__sub {
+  color: var(--text-tertiary);
+  font-size: var(--type-micro-size);
+  line-height: var(--type-micro-line);
+  font-variant-numeric: tabular-nums;
+}
+</style>

@@ -1,10 +1,10 @@
 # MangoWrite UI
 
-为 Vue 3 和 PrimeVue 应用提供一致的主题、设计 token 和常用交互组件。支持浅色与深色模式，适用于内容工具、数据工作台和产品网站。
+为 Vue 3 应用提供一致的静态样式、设计 token 和常用交互组件。支持浅色与深色模式，适用于内容工具、数据工作台和产品网站。
 
 ## 功能
 
-- **主题与样式**：MangoPreset、轻量主题、语义颜色、排版、间距和动效 token。
+- **主题与样式**：轻量主题、语义颜色、排版、间距和动效 token。
 - **表单交互**：FormField、FileDropZone、可搜索单选、多选与组合面板。
 - **内容与反馈**：AsyncSlot 四态、ActionMenu、HoverCard 与带焦点管理的图片灯箱。
 - **用户组件**：UserChip、UserCard 与 UserSelect，使用通用用户 DTO，不依赖宿主路由或团队契约。
@@ -16,12 +16,18 @@
 使用 Node.js 24+ 和 pnpm 10.20.0。
 
 ```bash
-pnpm add @mango-write/ui@github:mango-write/mango-write-ui#v0.1.0
-pnpm add vue primevue @primeuix/themes vue-i18n lucide-vue-next
-pnpm add -D tailwindcss @tailwindcss/vite tailwindcss-primeui
+pnpm add @mango-write/ui@github:mango-write/mango-write-ui#6d9ac4cbaf9621d8c8f577f974e2c8f485aa712d
+pnpm add vue vue-i18n lucide-vue-next
+pnpm add -D tailwindcss @tailwindcss/vite
 ```
 
 安装时会生成 JavaScript、TypeScript 声明和 CSS 文件。
+
+## 版本与升级
+
+Git 依赖使用完整 commit 固定源码；上面的安装示例钉选已公开的提交。升级时显式更新依赖与锁文件，不使用浮动分支。正式版本的标签、package version、发布包和校验值应一致，已发布标签与产物不覆盖。
+
+历史 `v0.1.0` 存在同名标签指向不同提交的情况；已有安装请保留锁定的完整 SHA，新契约使用新版本承接，避免仅凭旧标签重装。当前包保持 `private: true`，可安装 Git 源码；若使用发布页预构建包，应同时核对校验文件。不能假设 npm registry 已提供此包。
 
 ## 在 Vue 应用中使用
 

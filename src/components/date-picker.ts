@@ -1,4 +1,4 @@
-import type { CalendarFirstDayOfWeek } from "./calendar";
+import type { CalendarFirstDayOfWeek } from "./calendar-defs";
 
 export type DatePickerSelectionMode = "single" | "range" | "multiple";
 

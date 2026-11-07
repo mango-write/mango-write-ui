@@ -129,6 +129,8 @@ const footerLocale = computed(() => (locale.value === "zh-CN" ? "zh-CN" : "en"))
 <style scoped>
 .site-showcase-stack {
   display: grid;
+  /* 轨道锁 0 下限:SiteHeader 整行 flex-shrink:0,min-content 超出文档列时由 frame 裁切,不撑出纸面。 */
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-3);
 }
 
@@ -155,6 +157,20 @@ const footerLocale = computed(() => (locale.value === "zh-CN" ? "zh-CN" : "en"))
   overflow: hidden;
   border-radius: var(--radius-lg);
   border: var(--border-width) solid var(--border-subtle);
+}
+
+/* SiteHeader 的桌面导航整行 flex-shrink:0 且只认视口断言;在窄于其 min-content 的
+   演示列里放开收缩并允许换行,避免顶栏 CTA 被硬裁切。只作用于演示框,不影响组件本身。 */
+.site-showcase-frame :deep(.mw-site-header__desktop) {
+  flex-shrink: 1;
+  flex-wrap: wrap;
+  min-width: 0;
+  row-gap: var(--space-1);
+}
+
+/* 换行后主行动按钮贴右缘,与上一行的语言/主题按钮对齐;未换行时 desktop 按内容定宽,无效果。 */
+.site-showcase-frame :deep(.mw-site-header__desktop .mw-btn) {
+  margin-left: auto;
 }
 
 /* 假主体占位：给页脚的二维码悬浮卡（向上展开）留出完整的弹出空间 */

@@ -54,7 +54,7 @@ const s = {
     en: "Header cells use caption size in tertiary color; row height defaults to 40px (--size-lg-h), and hover is a very light ink overlay.",
   },
   colTitle: { zh: "标题", en: "Title" },
-  colAuthor: { zh: "第一作者", en: "First author" },
+  colAuthor: { zh: "作者", en: "Author" },
   colYear: { zh: "年份", en: "Year" },
   colCited: { zh: "被引", en: "Cited" },
   sizeTitle: { zh: "尺寸", en: "Sizes" },
@@ -180,7 +180,7 @@ function expansionNote(data: Paper): string {
       <Specimen themes="both">
         <StateGrid :columns="[s.colTable]" label-width="64px">
           <StateRow :label="s.rowDefault">
-            <DataTable :value="few.slice(0, 2)" data-key="id" size="sm" style="width: 360px">
+            <DataTable :value="few.slice(0, 2)" data-key="id" size="sm" style="width: 360px; max-width: 100%">
               <Column field="title" :header="t(s.colTitle)" />
               <Column field="cited" :header="t(s.colCited)" style="text-align: end" />
             </DataTable>
@@ -191,7 +191,7 @@ function expansionNote(data: Paper): string {
               :value="few.slice(0, 2)"
               data-key="id"
               size="sm"
-              style="width: 360px"
+              style="width: 360px; max-width: 100%"
             >
               <Column selection-mode="multiple" style="width: 40px" />
               <Column field="title" :header="t(s.colTitle)" />
@@ -204,20 +204,20 @@ function expansionNote(data: Paper): string {
               size="sm"
               sort-field="cited"
               :sort-order="-1"
-              style="width: 360px"
+              style="width: 360px; max-width: 100%"
             >
               <Column field="title" :header="t(s.colTitle)" sortable />
               <Column field="cited" :header="t(s.colCited)" sortable style="text-align: end" />
             </DataTable>
           </StateRow>
           <StateRow :label="s.rowLoading">
-            <DataTable :value="few.slice(0, 2)" data-key="id" size="sm" loading style="width: 360px">
+            <DataTable :value="few.slice(0, 2)" data-key="id" size="sm" loading style="width: 360px; max-width: 100%">
               <Column field="title" :header="t(s.colTitle)" />
               <Column field="cited" :header="t(s.colCited)" style="text-align: end" />
             </DataTable>
           </StateRow>
           <StateRow :label="s.rowEmpty">
-            <DataTable :value="[]" data-key="id" size="sm" style="width: 360px">
+            <DataTable :value="[]" data-key="id" size="sm" style="width: 360px; max-width: 100%">
               <Column field="title" :header="t(s.colTitle)" />
               <Column field="cited" :header="t(s.colCited)" />
               <template #empty>

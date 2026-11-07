@@ -111,8 +111,8 @@ const s = {
         <Tabs v-model:value="activeTab">
           <TabList>
             <Tab value="outline">{{ t(s.tabOutline) }}</Tab>
-            <Tab value="notes">{{ t(s.tabNotes) }}</Tab>
-            <Tab value="refs">{{ t(s.tabRefs) }}</Tab>
+            <Tab value="notes" :badge="12">{{ t(s.tabNotes) }}</Tab>
+            <Tab value="refs" :badge="28">{{ t(s.tabRefs) }}</Tab>
             <Tab value="history" disabled>{{ t(s.tabHistory) }}</Tab>
           </TabList>
           <TabPanels>

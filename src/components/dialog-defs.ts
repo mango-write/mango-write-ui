@@ -1,5 +1,7 @@
 import type { StyleValue } from "vue";
 
+export type DialogSize = "sm" | "md" | "lg" | "xl";
+
 export interface DialogProps {
   /** 受控打开状态（主契约） */
   open?: boolean;
@@ -11,6 +13,16 @@ export interface DialogProps {
   header?: string;
   /** 标题下方的补充说明文案 */
   description?: string;
+  /** 标准宽度分档：sm (27.5rem) / md (40rem) / lg (53.75rem) / xl (68.75rem)；未传时默认 32rem */
+  size?: DialogSize;
+  /** 是否在标题左侧显示同窗多级下钻返回按钮（默认 false） */
+  canBack?: boolean;
+  /** 返回按钮的无障碍与提示文案 */
+  backLabel?: string;
+  /** 头部下方常驻的范围与筛选上下文说明条 */
+  scopeText?: string;
+  /** 弹窗主体是否整体滚动（默认 true；主从表或双区弹窗设 false 由内部表格独立滚动） */
+  bodyScroll?: boolean;
   /** 是否为模态弹窗（默认 true） */
   modal?: boolean;
   /** 是否显示右上角关闭按钮（默认 true） */
@@ -27,7 +39,7 @@ export interface DialogProps {
   draggable?: boolean;
   /** 打开期间是否锁定背景滚动（默认 true） */
   blockScroll?: boolean;
-  /** 弹窗宽度（如 `'28rem'`、`'min(760px, 92vw)'`） */
+  /** 弹窗自定义宽度（如 `'28rem'`、`'min(760px, 92vw)'`；优先级高于 `size`） */
   width?: string;
   /** 内容区附加类名 */
   contentClass?: unknown;
@@ -44,6 +56,7 @@ export interface DialogProps {
 export interface DialogEmits {
   "update:open": [value: boolean];
   "update:visible": [value: boolean];
+  back: [];
   show: [];
   hide: [];
   afterLeave: [];

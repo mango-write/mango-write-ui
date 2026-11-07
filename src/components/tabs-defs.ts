@@ -23,6 +23,8 @@ export interface TabsEmits {
 export interface TabListProps {
   /** 键盘方向键导航是否首尾循环（默认 true） */
   loop?: boolean;
+  /** 当列表内仅包含 1 个页签时是否自动隐藏（默认 false） */
+  hideWhenSingle?: boolean;
 }
 
 export interface TabProps {
@@ -30,6 +32,8 @@ export interface TabProps {
   value: TabValue;
   /** 是否禁用该页签 */
   disabled?: boolean;
+  /** 页签右侧角标计数或简短文本 */
+  badge?: string | number;
 }
 
 export interface TabPanelsProps {}

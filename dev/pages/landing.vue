@@ -815,13 +815,13 @@ Vue 3 组件库 · {{ componentCount }} 组件 · Apache-2.0
                   <i /><b>{{ t(s.dark) }}</b>
                 </span>
               </div>
-              <code v-else-if="feature.demo === 'typescript'" v-scroll-fade.sm class="feat__code">
+              <code v-else-if="feature.demo === 'typescript'" class="feat__code">
                 &lt;Button variant="outlined" /&gt;
               </code>
               <div v-else-if="feature.demo === 'a11y'" class="feat-focus">
                 <span class="feat-focus__ring">focus-visible</span>
               </div>
-              <code v-else v-scroll-fade.sm class="feat__code">import { Button } from "@mango-write/ui"</code>
+              <code v-else class="feat__code">import { Button } from "@mango-write/ui"</code>
             </div>
             <h3 class="feat__title">{{ t(feature.title) }}</h3>
             <p class="feat__body">{{ t(feature.body) }}</p>
@@ -1745,8 +1745,8 @@ button.hero__cta-ghost {
   font-family: var(--font-mono);
   font-size: var(--type-caption-size);
   color: var(--text-secondary);
-  white-space: nowrap;
-  overflow-x: auto;
+  white-space: normal;
+  min-width: 0;
 }
 
 .feat-focus__ring {

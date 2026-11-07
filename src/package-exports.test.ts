@@ -87,6 +87,17 @@ function stripCssComments(css: string): string {
 }
 
 describe("@mango-write/ui package exports & static CSS isolation (P1)", () => {
+  it("Calendar component and public contract declarations stay distinct on case-insensitive filesystems", () => {
+    const targets = (key: string) => collectTargetPaths(pkgJson.exports[key])
+      .filter(({ label }) => label.endsWith("types"))
+      .map(({ relPath }) => relPath.toLowerCase());
+    const component = targets("./components/Calendar");
+    const contract = targets("./components/calendar");
+    expect(component.length).toBeGreaterThan(0);
+    expect(contract.length).toBeGreaterThan(0);
+    expect(component.filter((target) => contract.includes(target))).toEqual([]);
+  });
+
   it("exports and publishConfig.exports share identical keys and every target file exists on disk", () => {
     const exportKeys = Object.keys(pkgJson.exports).sort();
     const publishExportKeys = Object.keys(pkgJson.publishConfig.exports).sort();

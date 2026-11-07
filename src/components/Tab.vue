@@ -10,6 +10,7 @@ defineOptions({
 
 const props = withDefaults(defineProps<TabProps>(), {
   disabled: false,
+  badge: undefined,
 });
 
 const attrs = useAttrs();
@@ -30,6 +31,7 @@ const rootAttrs = computed(() => {
     :disabled="props.disabled"
   >
     <slot />
+    <span v-if="props.badge !== undefined" class="mw-tab__badge">{{ props.badge }}</span>
   </TabsTrigger>
 </template>
 
@@ -73,6 +75,24 @@ const rootAttrs = computed(() => {
   flex: none;
   width: var(--control-icon);
   height: var(--control-icon);
+}
+
+.mw-tab__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-1-5);
+  border-radius: var(--radius-full);
+  background: var(--fill-default);
+  color: var(--text-secondary);
+  font-size: var(--type-micro-size);
+  line-height: var(--type-micro-line);
+  font-variant-numeric: tabular-nums;
+}
+
+.mw-tab[data-state="active"] .mw-tab__badge {
+  background: var(--accent-subtle);
+  color: var(--text-accent);
 }
 
 .mw-tab:hover:not(:disabled):not([data-disabled]) {

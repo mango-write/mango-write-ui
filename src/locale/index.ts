@@ -36,6 +36,15 @@ export interface UiMessages {
       backToToday: string;
       clear: string;
     };
+    admin: {
+      unsaved: string;
+      save: string;
+      saving: string;
+      confirmSaveHeader: string;
+      leaveHeader: string;
+      leaveConfirm: string;
+      back: string;
+    };
   };
 }
 
@@ -74,6 +83,15 @@ export const uiMessages: Record<UiLocaleSource, UiMessages> = {
         backToToday: "回到今天",
         clear: "清除",
       },
+      admin: {
+        unsaved: "{count} 项未保存",
+        save: "保存",
+        saving: "保存中…",
+        confirmSaveHeader: "确认保存",
+        leaveHeader: "放弃未保存的修改",
+        leaveConfirm: "当前有 {count} 项修改未保存，离开将丢失。",
+        back: "返回",
+      },
     },
   },
   "en-US": {
@@ -86,7 +104,7 @@ export const uiMessages: Record<UiLocaleSource, UiMessages> = {
         searching: "Searching…",
       },
       userSelect: { placeholder: "Search and select users", empty: "No users available" },
-      async: { loading: "Loading", errorTitle: "Failed to load", retry: "Retry" },
+      async: { loading: "正在加载", errorTitle: "Failed to load", retry: "Retry" },
       action: { close: "Close" },
       dialog: { maximize: "Maximize", restore: "Restore" },
       confirm: { title: "Confirm", accept: "Confirm", reject: "Cancel" },
@@ -107,6 +125,15 @@ export const uiMessages: Record<UiLocaleSource, UiMessages> = {
         today: "Today",
         backToToday: "Back to today",
         clear: "Clear",
+      },
+      admin: {
+        unsaved: "{count} unsaved",
+        save: "Save",
+        saving: "Saving…",
+        confirmSaveHeader: "Confirm save",
+        leaveHeader: "Discard unsaved changes",
+        leaveConfirm: "You have {count} unsaved changes that will be lost if you leave.",
+        back: "Back",
       },
     },
   },

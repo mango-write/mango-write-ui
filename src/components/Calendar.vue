@@ -10,7 +10,7 @@ import type {
   CalendarSelectionMode,
   CalendarVariant,
   CalendarViewRange,
-} from "./calendar";
+} from "./calendar-defs";
 
 export type {
   CalendarFirstDayOfWeek,

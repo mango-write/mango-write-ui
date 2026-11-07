@@ -4,8 +4,8 @@ import { sfc } from "../codegen";
 import type { UsageEntry, UsageValues } from "../types";
 
 const tabs = [
-  { value: "draft", label: "草稿" },
-  { value: "refs", label: "文献" },
+  { value: "draft", label: "草稿", badge: 3 },
+  { value: "refs", label: "文献", badge: 28 },
   { value: "figures", label: "图表" },
   { value: "review", label: "审阅", disabled: true },
 ];
@@ -33,12 +33,16 @@ export const usage: UsageEntry = {
         { label: "纵向", value: "vertical" },
       ],
     },
+    { prop: "badge", label: "显示角标计数", kind: "boolean", default: false },
+    { prop: "hideWhenSingle", label: "单页签自动隐藏", kind: "boolean", default: false },
   ],
-  render: (v: UsageValues) =>
-    h(
+  render: (v: UsageValues) => {
+    const visibleTabs = v.hideWhenSingle ? tabs.slice(0, 1) : tabs;
+    const activeVal = v.hideWhenSingle ? "draft" : ((v.active as string) ?? "draft");
+    return h(
       Tabs,
       {
-        value: (v.active as string) ?? "draft",
+        value: activeVal,
         "onUpdate:value": (x: unknown) => {
           v.active = x as string;
         },
@@ -46,23 +50,51 @@ export const usage: UsageEntry = {
       },
       {
         default: () => [
-          h(TabList, () => tabs.map((t) => h(Tab, { value: t.value, disabled: t.disabled }, () => t.label))),
+          h(
+            TabList,
+            { hideWhenSingle: Boolean(v.hideWhenSingle) },
+            () =>
+              visibleTabs.map((t) =>
+                h(
+                  Tab,
+                  {
+                    value: t.value,
+                    disabled: t.disabled,
+                    badge: v.badge ? t.badge : undefined,
+                  },
+                  () => t.label,
+                ),
+              ),
+          ),
           h(
             TabPanels,
-            () => tabs.filter((t) => !t.disabled).map((t) => h(TabPanel, { value: t.value }, () => h("p", { class: "doc-note", style: "margin:0" }, panelText[t.value]))),
+            () =>
+              visibleTabs
+                .filter((t) => !t.disabled)
+                .map((t) =>
+                  h(TabPanel, { value: t.value }, () =>
+                    h("p", { class: "doc-note", style: "margin:0" }, panelText[t.value]),
+                  ),
+                ),
           ),
         ],
       },
-    ),
+    );
+  },
   code: (v: UsageValues) => {
     const attrs = [
       'v-model:value="active"',
       v.orientation && v.orientation !== "horizontal" ? 'orientation="vertical"' : "",
     ].filter(Boolean);
-    const tabLines = tabs
-      .map((t) => `      <Tab value="${t.value}"${t.disabled ? " disabled" : ""}>${t.label}</Tab>`)
+    const visibleTabs = v.hideWhenSingle ? tabs.slice(0, 1) : tabs;
+    const listAttr = v.hideWhenSingle ? " hide-when-single" : "";
+    const tabLines = visibleTabs
+      .map(
+        (t) =>
+          `      <Tab value="${t.value}"${v.badge && t.badge !== undefined ? ` :badge="${t.badge}"` : ""}${t.disabled ? " disabled" : ""}>${t.label}</Tab>`,
+      )
       .join("\n");
-    const panelLines = tabs
+    const panelLines = visibleTabs
       .filter((t) => !t.disabled)
       .map((t) => `      <TabPanel value="${t.value}">\n        <p class="doc-note">${panelText[t.value]}</p>\n      </TabPanel>`)
       .join("\n");
@@ -70,7 +102,7 @@ export const usage: UsageEntry = {
       ui: ["Tab", "TabList", "TabPanel", "TabPanels", "Tabs"],
       vue: ["ref"],
       setup: [`const active = ref(${JSON.stringify(v.active ?? "draft")});`],
-      template: `<Tabs\n    ${attrs.join("\n    ")}\n  >\n    <TabList>\n${tabLines}\n    </TabList>\n    <TabPanels>\n${panelLines}\n    </TabPanels>\n  </Tabs>`,
+      template: `<Tabs\n    ${attrs.join("\n    ")}\n  >\n    <TabList${listAttr}>\n${tabLines}\n    </TabList>\n    <TabPanels>\n${panelLines}\n    </TabPanels>\n  </Tabs>`,
     });
   },
 };

@@ -1246,6 +1246,7 @@ defineExpose({
 .mw-datatable {
   --mw-datatable-row-h: var(--size-lg-h);
   --mw-datatable-face: var(--mw-datatable-bg, var(--bg-raised));
+  --mw-datatable-head-face: var(--mw-datatable-head-bg, var(--bg-raised));
   --mw-datatable-row-fill: transparent;
   position: relative;
   display: flex;
@@ -1324,7 +1325,7 @@ defineExpose({
 .mw-datatable__header-cell {
   position: relative;
   border-bottom-color: var(--border-default);
-  background: transparent;
+  background: var(--mw-datatable-head-face);
   color: var(--text-tertiary);
   font-size: var(--type-caption-size);
   font-weight: var(--weight-medium);
@@ -1337,7 +1338,7 @@ defineExpose({
   position: sticky;
   top: 0;
   z-index: 2;
-  background: var(--mw-datatable-face);
+  background: var(--mw-datatable-head-face);
 }
 
 .mw-datatable__header-cell--sortable {
@@ -1348,7 +1349,7 @@ defineExpose({
 }
 
 .mw-datatable__header-cell--sortable:hover {
-  background: linear-gradient(var(--fill-subtle), var(--fill-subtle)), var(--mw-datatable-face);
+  background: linear-gradient(var(--fill-subtle), var(--fill-subtle)), var(--mw-datatable-head-face);
   color: var(--text-secondary);
 }
 
@@ -1463,7 +1464,7 @@ defineExpose({
 
 .mw-datatable__thead .mw-datatable__cell--frozen {
   z-index: 3;
-  background: var(--mw-datatable-face);
+  background: var(--mw-datatable-head-face);
 }
 
 .mw-datatable__checkbox,

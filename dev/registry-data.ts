@@ -433,6 +433,14 @@ export const docGroups: DocGroup[] = [
           en: "The brand logo: an inline SVG MangoWrite mark with a full horizontal lockup (wordmark + glyph) and a compact square (markOnly), recoloring with the theme automatically.",
         },
       ),
+      component(
+        "stat-bar",
+        { zh: "指标条与指标卡", en: "StatBar / StatCard" },
+        {
+          zh: "关键指标展示：无边框高密度水平指标条（StatBar）与凹陷底概览指标卡（StatCard），数值固定采用等宽字体（tabular-nums）并支持五种语义色调。",
+          en: "Key metric display: a borderless horizontal metric strip (StatBar) and sunken summary card (StatCard), locked to tabular-nums with five semantic tones.",
+        },
+      ),
     ],
   },
   {
@@ -565,6 +573,22 @@ export const docGroups: DocGroup[] = [
         {
           zh: "站点顶栏与页脚：Write 与 Rewrite 营销站、法务页共用的顶层导航（SiteHeader）与合规页脚（SiteFooter）。",
           en: "Site header and footer: the top navigation (SiteHeader) and compliance footer (SiteFooter) shared by the Write and Rewrite marketing and legal pages.",
+        },
+      ),
+      component(
+        "config-section",
+        { zh: "配置分组行", en: "ConfigSection / ConfigRow" },
+        {
+          zh: "三列设置分组：凹陷底分组卡（ConfigSection）与三列对齐配置行（ConfigRow，168px 标签悬停提示 keyHint + 280px 控件 + 自适应说明 + 底部状态行），随容器宽度自动折行。",
+          en: "Three-column setting groups: sunken section cards (ConfigSection) and aligned rows (ConfigRow: 168px label with keyHint tooltip + 280px control + flexible hint + status line), collapsing cleanly via container queries.",
+        },
+      ),
+      component(
+        "admin-shell",
+        { zh: "后台页面四壳", en: "Admin Page Shells" },
+        {
+          zh: "后台页面四壳：严格分离「固定页面要素」与「唯一可滚动数据层」的列表壳（AdminListPage）、配置壳（AdminConfigPage）、详情壳（AdminDetailPage）与看板壳（AdminBoardPage）。",
+          en: "Four admin page shells that strictly separate fixed page chrome from the single scrollable data plane: AdminListPage, AdminConfigPage, AdminDetailPage, and AdminBoardPage.",
         },
       ),
     ],

@@ -34,6 +34,7 @@
   - `src/base.css` 与 `src/components.css` 属于纯 Mango 静态样式层，**严禁引入 `primeicons`、`primevue-theme.css` 或 `--p-*` 变量**。
   - `src/components.css` 仅保留 `.mw-control` 公共底座；各组件样式统一内聚在各自的 `.vue` 单文件组件中。
   - 状态选择器统一使用 `[data-state="..."]`、`[data-highlighted]`、`[data-disabled]`、`[data-invalid]`。
+- **声明文件跨平台唯一性**：组件与类型契约的文件名不能仅靠大小写区分（如 `Calendar` / `calendar`）；macOS 构建会覆盖声明。契约使用 `calendar-defs.ts` 这类独立名称，公开子路径通过 exports 映射保持稳定。
 - **模块化构建与 Tree-shaking**：`vite.config.ts` 开启 `preserveModules: true`，确保消费方按子路径或按需引入时绝不连带 `@primeuix/themes`、`MangoPreset` 或无关组件。
 
 ## 验证命令

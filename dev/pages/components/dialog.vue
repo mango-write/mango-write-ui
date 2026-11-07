@@ -1,6 +1,19 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { Button, Dialog, FormField, InputText, Select, Textarea } from "../../../src";
+import { Plus } from "lucide-vue-next";
+import {
+  Button,
+  Column,
+  DataTable,
+  Dialog,
+  FormField,
+  InputNumber,
+  InputText,
+  Select,
+  Tag,
+  Textarea,
+  ToggleSwitch,
+} from "../../../src";
 import { api } from "../../api/entries/dialog";
 import ApiTable from "../../kit/ApiTable.vue";
 import DocPage from "../../kit/DocPage.vue";
@@ -17,8 +30,12 @@ const maxOpen = ref(false);
 const maskOpen = ref(false);
 const headlessOpen = ref(false);
 const lockedEscOpen = ref(false);
-const sizedOpen = ref(false);
-const activeWidth = ref("32rem");
+
+const smOpen = ref(false);
+const mdOpen = ref(false);
+const lgOpen = ref(false);
+const xlOpen = ref(false);
+const xlDrillTarget = ref<string | null>(null);
 
 const s = {
   demo: { zh: "在线演示", en: "Live demo" },
@@ -32,8 +49,8 @@ const s = {
     en: "The user must finish a full input or configuration before returning to the main flow, e.g. creating a draft, configuring export options, or editing bibliographic metadata.",
   },
   do2: {
-    zh: "承载中等复杂度的子表单或预览，需要独立滚动区（<code>.mw-dialog__body</code>）与明确的主次底栏动作。",
-    en: "Hosting medium-complexity sub-forms or previews that need their own scroll area (<code>.mw-dialog__body</code>) and clear primary/secondary footer actions.",
+    zh: "按内容复杂度选用 <code>size=\"sm | md | lg | xl\"</code> 四档标准宽度；分析弹窗下钻明细时使用 <code>:can-back=\"true\"</code> 同窗切换，不在弹窗上叠开第二个弹窗。",
+    en: "Pick from the four standard width tiers (<code>size=\"sm | md | lg | xl\"</code>); drill down in-place with <code>:can-back=\"true\"</code> rather than stacking a second modal.",
   },
   dont1: {
     zh: "一句话的二元拦截（「是否删除」）用 <code>useConfirm</code> + <code>ConfirmHost</code>，不要手搭 <code>Dialog</code>。",
@@ -96,17 +113,68 @@ const s = {
     en: "Read-only dialogs can close on scrim clicks to shorten the cursor trip; form dialogs with unsaved input should keep the default (off) so a stray click cannot lose data.",
   },
   gotIt: { zh: "知道了", en: "Got it" },
-  sizeTitle: { zh: "尺寸与宽度", en: "Sizes and widths" },
+
+  sizeTitle: { zh: "四档尺寸与同窗下钻", en: "Four size tiers and in-place drill-down" },
   sizeDesc: {
-    zh: "默认宽度 min(32rem, calc(100vw - 32px))；可通过 width 传入任意 CSS 宽度，或开启 maximizable 支持全屏切换。",
-    en: "Defaults to min(32rem, calc(100vw - 32px)); pass any CSS width via width, or enable maximizable for a fullscreen toggle.",
+    zh: "预设 sm (27.5rem) / md (40rem) / lg (53.75rem) / xl (68.75rem) 四档宽度；头部、#scope 范围条、#toolbar 子表单栏与底栏固定不滚，支持 :body-scroll=\"false\" 内部表格滚动与 :can-back=\"true\" 同窗二级下钻。",
+    en: "Preset sm (27.5rem), md (40rem), lg (53.75rem), and xl (68.75rem) tiers; header, #scope bar, #toolbar strip, and footer stay pinned, supporting :body-scroll=\"false\" inner table scroll and :can-back=\"true\" in-place drill-down.",
   },
   open: { zh: "打开", en: "Open" },
-  widthSpec: { zh: "宽度规格：", en: "Width spec: " },
-  sizedBody: {
-    zh: "对话框的头部、说明区与底栏固定不滚动；当正文高度超出视口上限（<code>calc(100vh - 32px)</code>）时，正文区 <code>.mw-dialog__body</code> 自动启用细滚动条。",
-    en: "The header, description, and footer stay fixed; when the body exceeds the viewport cap (<code>calc(100vh - 32px)</code>), the body area <code>.mw-dialog__body</code> enables a thin scrollbar automatically.",
+  tierSmDesc: { zh: "27.5rem — 单栏轻量修改、配额调整", en: "27.5rem — Single-column quick edits, quota tweaks" },
+  tierMdDesc: { zh: "40rem — 双栏配置表单（.mw-dialog-grid）与左右分栏底栏（#footer-left）", en: "40rem — Two-column form (.mw-dialog-grid) with split footer (#footer-left)" },
+  tierLgDesc: { zh: "53.75rem — 固定 #toolbar 子表单 + 内部表格独立滚动（:body-scroll=\"false\"）", en: "53.75rem — Pinned #toolbar subform + independent scrolling table (:body-scroll=\"false\")" },
+  tierXlDesc: { zh: "68.75rem — 带 #scope 范围条的同窗多级下钻（:can-back=\"true\"）", en: "68.75rem — In-place multi-level drill-down with #scope bar (:can-back=\"true\")" },
+
+  smDialogTitle: { zh: "调整用户配额", en: "Adjust user quota" },
+  smScope: { zh: "林知夏 · usr_01H9X8A", en: "Lin Zhixia · usr_01H9X8A" },
+  smDeltaLabel: { zh: "增减额度 (Tokens)", en: "Quota delta (Tokens)" },
+  smReasonLabel: { zh: "变更原因备注", en: "Audit reason" },
+  smReasonPlaceholder: { zh: "例如：学术会议试用补贴", en: "e.g. Academic workshop grant" },
+
+  mdDialogTitle: { zh: "编辑模型与计费单价", en: "Edit model & token pricing" },
+  mdBasicSec: { zh: "基础路由标识", en: "Routing identity" },
+  mdPriceSec: { zh: "Token 计费单价（元 / 百万 Tokens）", en: "Token pricing (CNY / 1M tokens)" },
+  mdModelKey: { zh: "模型标识 (modelKey)", en: "Model key" },
+  mdDisplayName: { zh: "展示名称", en: "Display name" },
+  mdEndpoint: { zh: "上游端点覆盖", en: "Upstream endpoint override" },
+  mdInputPrice: { zh: "输入单价 (Input)", en: "Input price" },
+  mdOutputPrice: { zh: "输出单价 (Output)", en: "Output price" },
+  mdEnabledLabel: { zh: "立即向线上路由开放该模型", en: "Enable model for live routing" },
+  saveBtn: { zh: "保存修改", en: "Save changes" },
+
+  lgDialogTitle: { zh: "角色成员与范围授权 · 财务审计员", en: "Role members & scope grants · Billing Auditor" },
+  lgScopeBar: {
+    zh: "上部 #toolbar 授权栏与底栏固定常驻（:body-scroll=\"false\"），仅中部成员表独立滚动。",
+    en: "Top #toolbar grant bar and footer stay pinned (:body-scroll=\"false\"); only the member table scrolls.",
   },
+  colUser: { zh: "用户", en: "User" },
+  colScope: { zh: "授权产品域", en: "Product scope" },
+  colExpires: { zh: "到期日", en: "Expires at" },
+  colAction: { zh: "操作", en: "Action" },
+  revokeBtn: { zh: "撤销", en: "Revoke" },
+  addGrantUser: { zh: "新增授权账号", en: "Grant user email / ID" },
+  addGrantScope: { zh: "授权范围", en: "Grant scope" },
+  addGrantBtn: { zh: "添加授权", en: "Add grant" },
+  searchPlaceholder: { zh: "输入邮箱或用户 ID…", en: "Enter email or user ID…" },
+
+  xlSummaryTitle: { zh: "活跃与留存分群下钻", en: "Active & retention cohort drill-down" },
+  xlDrillTitle: { zh: "分群成员明细 · 高频写作核心群", en: "Cohort members · High-frequency writers" },
+  xlScopeBase: {
+    zh: "时间窗：2026-10-09 — 2026-11-07 · 产品：Write · 端：Web",
+    en: "Window: 2026-10-09 — 2026-11-07 · Product: Write · Client: Web",
+  },
+  xlBackLabel: { zh: "返回分群汇总矩阵", en: "Back to cohort matrix" },
+  xlDrillFilterTag: { zh: "当前聚焦：高频写作核心群 (328 人)", en: "Focused: High-frequency writers (328)" },
+  xlClearDrill: { zh: "返回汇总", en: "Back to summary" },
+  colCohort: { zh: "用户分群", en: "Cohort segment" },
+  colUsers: { zh: "活跃用户", en: "Active users" },
+  colRetention: { zh: "次周留存率", en: "W1 retention" },
+  colAvgTokens: { zh: "人均 Tokens", en: "Avg tokens" },
+  drillIntoCohort: { zh: "同窗下钻名单 →", en: "Drill in-place →" },
+  colPlan: { zh: "档位", en: "Plan" },
+  colQuota: { zh: "额度", en: "Quota" },
+  colLastActive: { zh: "最近活跃", en: "Last active" },
+
   stateTitle: { zh: "状态与行为", en: "States and behavior" },
   stateDesc: {
     zh: "支持键盘焦点环捕获、Escape 拦截、无头部自定义布局及最大化还原。",
@@ -143,23 +211,80 @@ const s = {
   api: { zh: "接口", en: "API" },
 } as const;
 
-const widthPresets = [
+const smQuotaDelta = ref(20000);
+const smQuotaReason = ref("");
+
+const modelForm = ref({
+  key: "deepseek-r1-0528",
+  name: "DeepSeek R1 (0528)",
+  endpoint: "https://api.deepseek.com/v1/chat/completions",
+  inputPrice: 4,
+  outputPrice: 16,
+  enabled: true,
+});
+
+const newGrantEmail = ref("");
+const newGrantScope = ref("write");
+const grantScopeOptions = [
+  { label: "Write", value: "write" },
+  { label: "Rewrite", value: "rewrite" },
+  { label: "All Products", value: "all" },
+];
+
+const grantRows = computed(() => [
   {
-    label: { zh: "紧凑 24rem", en: "Compact 24rem" },
-    value: "24rem",
-    desc: { zh: "轻量重命名、创建标签、快捷授权", en: "Lightweight renames, tag creation, quick approvals" },
+    id: "gr_1",
+    user: t({ zh: "林知夏 (lin@tsinghua.edu.cn)", en: "Lin Zhixia (lin@tsinghua.edu.cn)" }),
+    scope: "Write + Rewrite",
+    expires: "2027-06-30",
   },
   {
-    label: { zh: "标准 32rem", en: "Standard 32rem" },
-    value: "32rem",
-    desc: { zh: "默认尺寸，适合常规单列配置表单", en: "The default; fits regular single-column configuration forms" },
+    id: "gr_2",
+    user: t({ zh: "陈怀瑾 (chen@pku.edu.cn)", en: "Chen Huaijin (chen@pku.edu.cn)" }),
+    scope: "Write",
+    expires: "2027-03-15",
   },
   {
-    label: { zh: "宽幅 44rem", en: "Wide 44rem" },
-    value: "44rem",
-    desc: { zh: "双列字段、引用预览或导入映射", en: "Two-column fields, citation previews, or import mappings" },
+    id: "gr_3",
+    user: t({ zh: "宋清如 (song@fudan.edu.cn)", en: "Song Qingru (song@fudan.edu.cn)" }),
+    scope: "Rewrite",
+    expires: "2026-12-31",
   },
-] as const;
+]);
+
+const cohortRows = computed(() => [
+  {
+    key: "power",
+    cohort: t({ zh: "高频写作核心群 (周活 ≥ 4 天)", en: "High-frequency writers (≥ 4d/wk)" }),
+    users: "328",
+    retention: "86.4%",
+    avgTokens: "142,800",
+  },
+  {
+    key: "importer",
+    cohort: t({ zh: "文献重度导入群 (周导入 ≥ 10 篇)", en: "Heavy literature importers (≥ 10/wk)" }),
+    users: "614",
+    retention: "74.2%",
+    avgTokens: "68,500",
+  },
+]);
+
+const cohortMemberRows = computed(() => [
+  {
+    id: "usr_01",
+    name: t({ zh: "林知夏 (lin@tsinghua.edu.cn)", en: "Lin Zhixia (lin@tsinghua.edu.cn)" }),
+    plan: "Pro",
+    quota: "128,400",
+    lastActive: "2026-11-07 14:12",
+  },
+  {
+    id: "usr_02",
+    name: t({ zh: "陈怀瑾 (chen@pku.edu.cn)", en: "Chen Huaijin (chen@pku.edu.cn)" }),
+    plan: "Team",
+    quota: "512,000",
+    lastActive: "2026-11-07 13:58",
+  },
+]);
 
 /* InputText/Textarea 直读字符串,v-model 默认值按当前语言取词;用户输入优先 */
 const draftTitleEdits = ref<string | null>(null);
@@ -179,16 +304,9 @@ const citeStyles = [
   { label: "GB/T 7714-2015", value: "gbt" },
 ];
 
-function openWithWidth(width: string) {
-  activeWidth.value = width;
-  sizedOpen.value = true;
-}
-
-function sizedDescription(width: string): string {
-  return t({
-    zh: `当前弹窗绑定 width=&quot;${width}&quot;，在小屏视口下自动夹紧为 100vw - 32px。`,
-    en: `This dialog binds width=&quot;${width}&quot;; on small viewports it clamps to 100vw - 32px.`,
-  });
+function openXlDrill() {
+  xlDrillTarget.value = null;
+  xlOpen.value = true;
 }
 </script>
 
@@ -294,22 +412,166 @@ function sizedDescription(width: string): string {
 
     <DocSection :title="s.sizeTitle" :desc="s.sizeDesc">
       <Specimen themes="single" layout="stack">
-        <div v-for="w in widthPresets" :key="w.value" class="doc-row">
-          <span class="doc-note" style="width: 84px">{{ t(w.label) }}</span>
-          <Button size="sm" severity="secondary" :label="`${t(s.open)} ${w.value}`" @click="openWithWidth(w.value)" />
-          <span class="doc-note">{{ t(w.desc) }}</span>
+        <div class="doc-row">
+          <span class="doc-note" style="width: 48px">sm</span>
+          <Button size="sm" severity="secondary" :label="`${t(s.open)} sm`" @click="smOpen = true" />
+          <span class="doc-note">{{ t(s.tierSmDesc) }}</span>
+        </div>
+        <div class="doc-row">
+          <span class="doc-note" style="width: 48px">md</span>
+          <Button size="sm" severity="secondary" :label="`${t(s.open)} md`" @click="mdOpen = true" />
+          <span class="doc-note">{{ t(s.tierMdDesc) }}</span>
+        </div>
+        <div class="doc-row">
+          <span class="doc-note" style="width: 48px">lg</span>
+          <Button size="sm" severity="secondary" :label="`${t(s.open)} lg`" @click="lgOpen = true" />
+          <span class="doc-note">{{ t(s.tierLgDesc) }}</span>
+        </div>
+        <div class="doc-row">
+          <span class="doc-note" style="width: 48px">xl</span>
+          <Button size="sm" :label="`${t(s.open)} xl`" @click="openXlDrill" />
+          <span class="doc-note">{{ t(s.tierXlDesc) }}</span>
         </div>
       </Specimen>
 
       <Dialog
-        v-model:open="sizedOpen"
-        :title="`${t(s.widthSpec)}${activeWidth}`"
-        :description="sizedDescription(activeWidth)"
-        :width="activeWidth"
+        v-model:open="smOpen"
+        size="sm"
+        :title="t(s.smDialogTitle)"
+        :scope-text="t(s.smScope)"
       >
-        <p style="margin: 0" v-html="t(s.sizedBody)" />
+        <div class="doc-stack">
+          <FormField input-id="dialog-sm-delta" :label="t(s.smDeltaLabel)">
+            <InputNumber input-id="dialog-sm-delta" v-model="smQuotaDelta" :step="5000" />
+          </FormField>
+          <FormField input-id="dialog-sm-reason" :label="t(s.smReasonLabel)">
+            <InputText id="dialog-sm-reason" v-model="smQuotaReason" :placeholder="t(s.smReasonPlaceholder)" />
+          </FormField>
+        </div>
         <template #footer>
-          <Button variant="text" severity="secondary" :label="t(s.close)" @click="sizedOpen = false" />
+          <Button variant="outlined" :label="t(s.cancel)" @click="smOpen = false" />
+          <Button :label="t(s.saveBtn)" @click="smOpen = false" />
+        </template>
+      </Dialog>
+
+      <Dialog
+        v-model:open="mdOpen"
+        size="md"
+        :title="t(s.mdDialogTitle)"
+      >
+        <template #header-extra>
+          <Tag value="DeepSeek" severity="info" />
+        </template>
+        <div class="mw-dialog-grid">
+          <h4 class="mw-dialog-section-title">{{ t(s.mdBasicSec) }}</h4>
+          <FormField input-id="dialog-model-key" :label="t(s.mdModelKey)">
+            <InputText id="dialog-model-key" v-model="modelForm.key" />
+          </FormField>
+          <FormField input-id="dialog-model-name" :label="t(s.mdDisplayName)">
+            <InputText id="dialog-model-name" v-model="modelForm.name" />
+          </FormField>
+          <FormField input-id="dialog-model-endpoint" class="mw-dialog-span" :label="t(s.mdEndpoint)">
+            <InputText id="dialog-model-endpoint" v-model="modelForm.endpoint" />
+          </FormField>
+          <div class="mw-dialog-divider" />
+          <h4 class="mw-dialog-section-title">{{ t(s.mdPriceSec) }}</h4>
+          <FormField input-id="dialog-model-in-price" :label="t(s.mdInputPrice)">
+            <InputNumber input-id="dialog-model-in-price" v-model="modelForm.inputPrice" :min="0" :step="0.5" />
+          </FormField>
+          <FormField input-id="dialog-model-out-price" :label="t(s.mdOutputPrice)">
+            <InputNumber input-id="dialog-model-out-price" v-model="modelForm.outputPrice" :min="0" :step="0.5" />
+          </FormField>
+        </div>
+        <template #footer-left>
+          <ToggleSwitch v-model="modelForm.enabled" />
+          <span>{{ t(s.mdEnabledLabel) }}</span>
+        </template>
+        <template #footer>
+          <Button variant="outlined" :label="t(s.cancel)" @click="mdOpen = false" />
+          <Button :label="t(s.saveBtn)" @click="mdOpen = false" />
+        </template>
+      </Dialog>
+
+      <Dialog
+        v-model:open="lgOpen"
+        size="lg"
+        :body-scroll="false"
+        :title="t(s.lgDialogTitle)"
+        :scope-text="t(s.lgScopeBar)"
+      >
+        <template #toolbar>
+          <div class="mw-dialog-subform">
+            <FormField input-id="dialog-grant-user" :label="t(s.addGrantUser)" style="flex: 1; min-width: 200px">
+              <InputText id="dialog-grant-user" v-model="newGrantEmail" :placeholder="t(s.searchPlaceholder)" />
+            </FormField>
+            <FormField input-id="dialog-grant-scope" :label="t(s.addGrantScope)" style="width: 160px">
+              <Select
+                v-model="newGrantScope"
+                :options="grantScopeOptions"
+                option-label="label"
+                option-value="value"
+              />
+            </FormField>
+            <Button size="sm" :icon="Plus" :label="t(s.addGrantBtn)" />
+          </div>
+        </template>
+        <div class="mw-dialog-scroll">
+          <DataTable :value="grantRows" data-key="id">
+            <Column field="user" :header="t(s.colUser)" />
+            <Column field="scope" :header="t(s.colScope)" />
+            <Column field="expires" :header="t(s.colExpires)" />
+            <Column field="action" :header="t(s.colAction)">
+              <template #body>
+                <Button size="xs" variant="text" severity="danger" :label="t(s.revokeBtn)" />
+              </template>
+            </Column>
+          </DataTable>
+        </div>
+        <template #footer>
+          <Button variant="outlined" :label="t(s.close)" @click="lgOpen = false" />
+        </template>
+      </Dialog>
+
+      <Dialog
+        v-model:open="xlOpen"
+        size="xl"
+        :body-scroll="false"
+        :can-back="Boolean(xlDrillTarget)"
+        :back-label="t(s.xlBackLabel)"
+        :title="xlDrillTarget ? t(s.xlDrillTitle) : t(s.xlSummaryTitle)"
+        :scope-text="t(s.xlScopeBase)"
+        @back="xlDrillTarget = null"
+      >
+        <template #scope>
+          <div v-if="xlDrillTarget" class="doc-row">
+            <Tag :value="t(s.xlDrillFilterTag)" severity="info" />
+            <Button size="xs" variant="text" :label="t(s.xlClearDrill)" @click="xlDrillTarget = null" />
+          </div>
+        </template>
+
+        <div class="mw-dialog-scroll">
+          <DataTable v-if="!xlDrillTarget" :value="cohortRows" data-key="key">
+            <Column field="cohort" :header="t(s.colCohort)" />
+            <Column field="users" :header="t(s.colUsers)" />
+            <Column field="retention" :header="t(s.colRetention)" />
+            <Column field="avgTokens" :header="t(s.colAvgTokens)" />
+            <Column field="action" :header="t(s.colAction)">
+              <template #body="{ data }">
+                <Button size="xs" variant="text" :label="t(s.drillIntoCohort)" @click="xlDrillTarget = data.key" />
+              </template>
+            </Column>
+          </DataTable>
+
+          <DataTable v-else :value="cohortMemberRows" data-key="id">
+            <Column field="name" :header="t(s.colUser)" />
+            <Column field="plan" :header="t(s.colPlan)" />
+            <Column field="quota" :header="t(s.colQuota)" />
+            <Column field="lastActive" :header="t(s.colLastActive)" />
+          </DataTable>
+        </div>
+
+        <template #footer>
+          <Button variant="outlined" :label="t(s.close)" @click="xlOpen = false" />
         </template>
       </Dialog>
     </DocSection>

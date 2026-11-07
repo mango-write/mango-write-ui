@@ -19,11 +19,12 @@ import {
   DialogRoot,
   DialogTitle,
 } from "reka-ui";
-import { Maximize2, Minimize2, X } from "lucide-vue-next";
+import { ArrowLeft, Maximize2, Minimize2, X } from "lucide-vue-next";
 import { uiMessages } from "../locale/index.js";
 import { useOverlayLayer } from "../lib/overlay-layer.js";
 import { vScrollFade } from "../lib/scroll-fade";
-import type { DialogEmits, DialogProps } from "./dialog-defs.js";
+import { vTooltip } from "../lib/tooltip";
+import type { DialogEmits, DialogProps, DialogSize } from "./dialog-defs.js";
 
 defineOptions({
   name: "MwDialog",
@@ -36,6 +37,11 @@ const props = withDefaults(defineProps<DialogProps>(), {
   title: undefined,
   header: undefined,
   description: undefined,
+  size: undefined,
+  canBack: false,
+  backLabel: undefined,
+  scopeText: undefined,
+  bodyScroll: true,
   modal: true,
   closable: true,
   showHeader: true,
@@ -55,6 +61,13 @@ const props = withDefaults(defineProps<DialogProps>(), {
 const emit = defineEmits<DialogEmits>();
 const attrs = useAttrs();
 const instance = getCurrentInstance();
+
+const SIZE_WIDTH_MAP: Record<DialogSize, string> = {
+  sm: "min(27.5rem, calc(100vw - var(--space-8)))",
+  md: "min(40rem, calc(100vw - var(--space-8)))",
+  lg: "min(53.75rem, calc(100vw - var(--space-8)))",
+  xl: "min(68.75rem, calc(100vw - var(--space-8)))",
+};
 
 function translate(key: string, fallback: string): string {
   const globalProps = instance?.appContext.config.globalProperties as
@@ -76,9 +89,17 @@ const maximizeLabel = computed(() =>
 const restoreLabel = computed(() =>
   translate("common.dialog.restore", uiMessages["zh-CN"].common.dialog.restore),
 );
+const resolvedBackLabel = computed(
+  () =>
+    props.backLabel ??
+    translate("common.admin.back", uiMessages["zh-CN"].common.admin.back),
+);
 
 const isOpen = computed(() => props.open ?? props.visible ?? false);
 const resolvedTitle = computed(() => props.title ?? props.header ?? "");
+const resolvedWidth = computed(
+  () => props.width ?? (props.size ? SIZE_WIDTH_MAP[props.size] : undefined),
+);
 const maximized = ref(false);
 const { layerZ, scrimZ } = useOverlayLayer(() => isOpen.value);
 
@@ -91,6 +112,7 @@ const dialogClass = computed(() => [
   "mw-dialog",
   "mw-frost",
   "mw-frost--thick",
+  props.size ? `mw-dialog--${props.size}` : undefined,
   {
     "mw-dialog--maximized": maximized.value,
     "mw-dialog--non-modal": !props.modal,
@@ -100,7 +122,7 @@ const dialogClass = computed(() => [
 
 const dialogStyle = computed<StyleValue>(() => [
   layerZ.value ? { zIndex: layerZ.value } : undefined,
-  props.width && !maximized.value ? { width: props.width } : undefined,
+  resolvedWidth.value && !maximized.value ? { width: resolvedWidth.value } : undefined,
   attrs.style as StyleValue,
 ]);
 
@@ -230,6 +252,7 @@ onBeforeUnmount(() => {
         :class="dialogClass"
         :style="dialogStyle"
         :aria-label="ariaLabel || (dialogAttrs['aria-label'] as string | undefined)"
+        :data-size="size"
         :data-maximized="maximized ? 'true' : undefined"
         :data-draggable="draggable ? 'true' : undefined"
         @escape-key-down="onEscapeKeyDown"
@@ -239,9 +262,22 @@ onBeforeUnmount(() => {
         @keydown="onContentKeydown"
       >
         <header v-if="showHeader" class="mw-dialog__header">
-          <DialogTitle class="mw-dialog__title">
-            <slot name="header">{{ resolvedTitle || ariaLabel || closeLabel }}</slot>
-          </DialogTitle>
+          <div class="mw-dialog__title-row">
+            <button
+              v-if="canBack"
+              type="button"
+              class="mw-dialog__action-btn mw-dialog__back"
+              :aria-label="resolvedBackLabel"
+              v-tooltip.bottom="resolvedBackLabel"
+              @click="emit('back')"
+            >
+              <ArrowLeft :size="16" aria-hidden="true" />
+            </button>
+            <DialogTitle class="mw-dialog__title">
+              <slot name="header">{{ resolvedTitle || ariaLabel || closeLabel }}</slot>
+            </DialogTitle>
+            <slot name="header-extra" />
+          </div>
           <div v-if="maximizable || closable" class="mw-dialog__actions">
             <button
               v-if="maximizable"
@@ -277,22 +313,44 @@ onBeforeUnmount(() => {
           {{ resolvedTitle || ariaLabel || closeLabel }}
         </DialogDescription>
 
-        <div v-if="$slots.lead" class="mw-dialog__lead">
+        <div
+          v-if="scopeText || $slots.scope || $slots.toolbar || $slots.lead"
+          class="mw-dialog__lead"
+        >
+          <div v-if="scopeText || $slots.scope" class="mw-dialog__scope">
+            <span v-if="scopeText" class="mw-dialog__scope-text">{{ scopeText }}</span>
+            <slot name="scope" />
+          </div>
+          <div v-if="$slots.toolbar" class="mw-dialog__toolbar">
+            <slot name="toolbar" />
+          </div>
           <slot name="lead" />
         </div>
 
         <div
           v-scroll-fade
-          class="mw-dialog__body mw-scroll"
-          :class="(contentClass as any)"
+          class="mw-dialog__body"
+          :class="[
+            bodyScroll ? 'mw-scroll' : 'mw-dialog__body--locked',
+            contentClass as any,
+          ]"
           :style="contentStyle"
         >
           <slot />
           <slot v-if="$slots.empty" name="empty" />
         </div>
 
-        <footer v-if="$slots.footer" class="mw-dialog__footer mw-size-md">
-          <slot name="footer" />
+        <footer
+          v-if="$slots['footer-left'] || $slots.footer"
+          class="mw-dialog__footer mw-size-md"
+          :class="{ 'mw-dialog__footer--split': Boolean($slots['footer-left']) }"
+        >
+          <div v-if="$slots['footer-left']" class="mw-dialog__footer-left">
+            <slot name="footer-left" />
+          </div>
+          <div v-if="$slots.footer" class="mw-dialog__footer-right">
+            <slot name="footer" />
+          </div>
         </footer>
       </DialogContent>
     </DialogPortal>
@@ -368,10 +426,25 @@ onBeforeUnmount(() => {
   flex-shrink: 0;
 }
 
+.mw-dialog__title-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.mw-dialog__back {
+  flex-shrink: 0;
+  margin-inline-start: calc(-1 * var(--space-1));
+}
+
 .mw-dialog__title {
   margin: 0;
   min-width: 0;
-  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   color: var(--text-primary);
   font-size: var(--type-title-size);
   font-weight: var(--weight-semibold);
@@ -433,8 +506,37 @@ onBeforeUnmount(() => {
 }
 
 .mw-dialog__lead {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
   padding: 0 var(--space-5) var(--space-3);
   flex-shrink: 0;
+}
+
+.mw-dialog__scope {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--fill-subtle);
+  border: var(--border-width) solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  font-variant-numeric: tabular-nums;
+}
+
+.mw-dialog__scope-text {
+  color: var(--text-secondary);
+}
+
+.mw-dialog__toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2-5);
 }
 
 .mw-dialog__body {
@@ -444,6 +546,34 @@ onBeforeUnmount(() => {
   color: var(--text-secondary);
   font-size: var(--type-body-size);
   line-height: var(--type-body-line);
+}
+
+.mw-dialog__body--locked {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  overflow: hidden;
+}
+
+.mw-dialog__body--locked :deep(.mw-datatable) {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.mw-dialog__body--locked :deep(.mw-datatable__table-container) {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.mw-dialog__body :deep(.mw-datatable thead th) {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--mw-datatable-head-bg, var(--bg-raised)); /* opaque-ok：吸顶表头必须实底遮挡下方滚动数据行 */
+  white-space: nowrap;
 }
 
 .mw-dialog:not(:has(.mw-dialog__header)) .mw-dialog__body {
@@ -460,6 +590,77 @@ onBeforeUnmount(() => {
   justify-content: flex-end;
   gap: var(--space-2);
   padding: var(--space-3) var(--space-5) var(--space-5);
+  flex-shrink: 0;
+}
+
+.mw-dialog__footer--split {
+  justify-content: space-between;
+}
+
+.mw-dialog__footer-left {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-secondary);
+  font-size: var(--type-body-sm-size);
+  line-height: var(--type-body-sm-line);
+}
+
+.mw-dialog__footer-right {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-inline-start: auto;
+}
+
+:global(.mw-dialog-grid) {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+@media (max-width: 640px) {
+  :global(.mw-dialog-grid) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+:global(.mw-dialog-span) {
+  grid-column: 1 / -1;
+}
+
+:global(.mw-dialog-divider) {
+  grid-column: 1 / -1;
+  height: var(--border-width);
+  background: var(--border-subtle);
+  margin: var(--space-1) 0;
+}
+
+:global(.mw-dialog-section-title) {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  font-weight: var(--weight-semibold);
+}
+
+:global(.mw-dialog-scroll) {
+  max-height: min(26rem, 48vh);
+  overflow: auto;
+  border: var(--border-width) solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+:global(.mw-dialog-subform) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-2-5);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--fill-subtle);
+  border: var(--border-width) solid var(--border-subtle);
   flex-shrink: 0;
 }
 

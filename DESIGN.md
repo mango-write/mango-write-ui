@@ -209,7 +209,69 @@ primary / secondary / tertiary / accent 在纸面上均 ≥ 4.5:1，由 `var-css
 - 浮层组件根节点挂 `.mw-frost` 或 `.mw-frost--thick`，自身不再声明背景色。
 - 每个组件在展示站有一页：用途 / 何时不用 · 档位 · 变体 · 状态矩阵 · 纸面 / 画布 / 霜面三种底 × 深浅两色。
 
-## 15. 门禁
+## 15. 后台页面规章与四壳模板（Admin Console Shells）
+
+管理后台是高频运营工具，核心目标是**高密度、强主次、跨页操作位置恒定**。所有后台业务视图必须且只能装入以下 4 套页面外壳（配合通用 `Tabs` 的 `hideWhenSingle` / `badge` 与通用 `Dialog` 的四档尺寸及同窗下钻能力），禁止页面自起标题或自造布局骨架。
+
+### 15.1 四壳模板与统一页头契约
+
+1. **统一页头契约（`#admin-header-lead` / `#admin-header-actions`）**
+   - 页头由外层宿主统一提供，左侧默认显示当前菜单项标题，右侧为 `#admin-header-actions` 操作槽；页面内部**不再写 `<h1>`/`<h2>` 页面标题、副标题或面包屑**。
+   - 多子视图页面使用 `Tabs`（`TabList` 开启 `hide-when-single`，`Tab` 可配 `badge` 计数）紧贴页头下方；当按权限或服务可用性过滤后**仅剩 1 个可见页签时自动隐藏页签栏**。
+2. **四种标准页面外壳**
+   - **列表检索页（`AdminListPage`）**：主操作上呈页头右侧（`#actions`）→ 可选列表顶部汇总条（`#summary`）→ 单行筛选条（`#filters`，左搜索回车即查、右下拉/日期变更即查，不放「搜索/重置」按钮）→ `DataTable` 占满余高（表头实底吸顶、仅表体数据行内滚，行内操作固定最右列）→ 底栏 `Paginator`（`#pagination`）。
+   - **配置表单页（`AdminConfigPage` + `ConfigSection` + `ConfigRow`）**：「N 项未保存」与唯一「保存」按钮上呈页头右侧（无改动禁用；动钱/动密钥/动权限/批量影响用户的改动传入 `confirmMessage` 触发一句后果确认）→ 可选固定工具条（`#toolbar`）→ 下方 `.admin-config-page__body` 独立滚动，每段一张 `ConfigSection` 分组卡（顶部短词标题 + 行间内缩分隔线）→ `ConfigRow` 三列栅格（`168px` 单行标签配技术键名 Tooltip / `280px` 定宽控件 / 余宽填满一句后果说明，窄容器自动折行）。
+   - **对象详情页（`AdminDetailPage` + `StatCard`）**：通过 `ADMIN_HEADER_LEAD_TAKEN` 将返回按钮与对象名/状态标签送入页头左侧（不另起独立返回行）；页头右侧放 1–2 个高频主操作，低频与危险操作收进 `ActionMenu`（`⋯`）→ 顶部 `StatCard` 状态摘要卡网格（`#cards`，常驻固定，数值等宽 + 右上角 1 个行内编辑弹窗入口）→ 页内子标签导航栏（`#tabs` 或 `<Tabs>` 的 `TabList`，常驻固定）→ 下方 `.admin-detail-page__body`（或当前 `TabPanel`）作为唯一滚动数据区。
+   - **数据看板页（`AdminBoardPage` + `StatBar` + `AdminBoardSection`）**：全局时间窗/产品/端筛选上呈页头右侧（`#actions`，配合可选固定 `#toolbar` 常驻顶部）→ 下方 `.admin-board-page__body` 作为滚动数据区，承载顶部 `StatBar` 核心指标摘要行（`#stats`，等宽数字）与 `AdminBoardSection` 趋势与监控分段卡（右上角 `#drill` 明细下钻入口）一同流式滚动。
+
+### 15.2 页面要素 vs 数据层：垂直三层滚动规范（Page Chrome vs. Data Plane Scrolling）
+
+后台页面与复杂弹窗必须严格区分**「页面要素（Page Chrome，固定常驻）」**与**「数据部分（Data Plane，唯一可滚动内容）」**，严禁把导航/控制要素和业务数据混在同一个滚动容器里，也严禁出现双滚动条套娃或多表格高度塌陷：
+
+1. **垂直三层解剖模型**
+   - **L1 全局导航与页头层（Shell Chrome · 绝对固定）**：侧栏、页头标题 / 返回按钮+对象身份（`#lead`）、页头主操作 / 未保存计数+保存按钮 / 全局时间窗（`#actions`）、模块级路由页签（`TabList`）。全部 `flex-shrink: 0`；即使在 `:teleport="false"` 独立渲染模式下，页头 `.mw-admin-shell-header` 也位于滚动容器之外，永不随内容滚走。
+   - **L2 局部控制与上下文锚点层（Context & Controls · 固定常驻）**：按页面类型承载筛选搜索栏、对象状态卡、页内视图切换栏、表格列头与底部分页器，恒为 `flex-shrink: 0` 或 `sticky`。
+   - **L3 数据载荷层（Data Plane · 唯一滚动区）**：全视图唯一允许出现纵向滚动条的区域（`flex: 1; min-height: 0; overflow-y: auto`），挂载 `v-scroll-fade` 边缘渐隐并预留 `var(--space-1)` 焦点环安全槽。
+
+2. **四壳与弹窗的「固定要素 vs 滚动数据」边界表**
+
+| 容器组件 | 固定常驻的页面要素（`flex-shrink: 0` / `sticky`，不滚） | 可滚动的数据部分（唯一滚动区） |
+|---|---|---|
+| `AdminListPage` | 页头（标题 + `#actions`）、`#summary` 顶部汇总、`#filters` 筛选条、`DataTable` 实心表头 `thead th`（`sticky`）、`#pagination` 底部分页栏 | 仅 `.mw-datatable__table-container`（`tbody` 数据行）独立内滚 |
+| `AdminConfigPage` | 页头（标题 + `#actions` + `N 项未保存` + `保存` 按钮）、`#toolbar` 顶部固定工具栏 | 仅 `.admin-config-page__body` 内的 `ConfigSection` 配置分组流滚动 |
+| `AdminDetailPage` | 页头（返回按钮 + `#title` 对象身份 + `#actions` 操作）、`#cards` 状态摘要卡网格、`#tabs` 页内 Tab 切换栏（或默认槽直传 `<Tabs>` 的 `.mw-tab-list`） | 仅 `.admin-detail-page__body`（或当前激活的 `.mw-tab-panels` 明细内容区）滚动；内嵌表格 `thead th` 实底吸顶 |
+| `AdminBoardPage` | 页头（标题 + `#actions` 全局时间窗/维度筛选器）、`#toolbar` 二级固定工具条 | `.admin-board-page__body` 内的 `#stats`（`StatBar` 大盘指标条）与 `AdminBoardSection` 图表/排行区块流一同滚动 |
+| `Dialog` | 弹窗 Header（返回 + 标题 + `#header-extra` + 关闭）、`#scope` 上下文范围条、`#toolbar`（子表单 `.mw-dialog-subform` / 弹窗筛选条 / 汇总 Tag）、Footer（`#footer-left` + `#footer`） | `sm`/`md` 滚 `.mw-dialog__body` 表单字段流；`lg`/`xl` 表类弹窗锁死外层（`:body-scroll="false"`），仅表体 `tbody` 或 `.mw-dialog-scroll` 滚动、表头实底吸顶 |
+
+3. **内嵌表格防塌陷守则**
+   - 在 `.admin-panel--scrollable` 流式数据区内，直接子块默认 `flex-shrink: 0`，内嵌 `DataTable`（未声明 `.mw-datatable--flex-scrollable`）自动退回 `flex: none; height: auto` 按实际行数撑开，表头 `thead th` 保持 `position: sticky; top: 0; z-index: 2; background: var(--mw-datatable-head-bg, var(--bg-raised))`。
+
+### 15.3 复杂弹窗规范（Complex Dialogs · `Dialog` 四档尺寸）
+
+后台严禁手写 `.admin-modal*` 遮罩或散装弹窗样式，复杂表单、主从表维护与多维下钻统一使用通用 `Dialog` 的四档标准宽度（`size="sm | md | lg | xl"`）与内部滚动纪律：
+
+| 档位 (`size`) | 宽度上限 | 适用场景 | 布局与滚动纪律 |
+|---|---|---|---|
+| `sm` | `440px` (`27.5rem`) | 单一动作窄表单（新建角色、绑定通道、修改授权到期日、发放兑换码） | Header + `#scope` + Footer 固定；单列 `FormField` 栈在 `.mw-dialog__body` 内流式滚动 |
+| `md` | `640px` (`40rem`) | 多分段双栏配置窗（模型编辑 + 计费单价、套餐参数编辑） | 使用 `.mw-dialog-grid` 双列栅格、`.mw-dialog-span` 跨列项、`.mw-dialog-divider` 分割线与 `.mw-dialog-section-title` 分节小标题；底栏支持 `#footer-left` 与 `#footer` 左右分栏 |
+| `lg` | `860px` (`53.75rem`) | 主从表 / 批量勾选 / 表+内嵌子表单弹窗（角色权限勾选矩阵、角色成员表 + 添加授权栏、模型模板批量导入） | 传入 `:body-scroll="false"` 锁定弹窗主体高度；子表单或筛选器放入固定 `#toolbar` 插槽（`.mw-dialog-subform`），仅 `.mw-dialog-scroll` 或 `DataTable` 表体独立内滚、表头吸顶 |
+| `xl` | `min(1100px, 94vw)` (`68.75rem`) | 数据看板多维下钻分析窗、卡密批次明细窗（用量分群下钻、营收对账明细、AI 遥测下钻、队列健康度下钻） | 顶栏下方通过 `scopeText`/`#scope` 常驻展示当前查询范围条，通过 `#toolbar` 常驻展示筛选条与统计标签；正文数据表表头吸顶、表体内滚 |
+
+### 15.4 下钻与上下文保持规范（Drill-Down & Context Continuity）
+
+后台从「全局概览 → 分群/趋势切片 → 单日/单格成员名单 → 实体档案详情」遵循四条可逆下钻契约：
+
+1. **同窗多级下钻，严禁弹窗叠弹窗（Single-Dialog In-Place Drill-Down）**
+   - **模式一：顶栏返回栈（Header Back Stack）**：在 `Dialog` 内从汇总表或日趋势点击进入下一层明细时，在**同一个 `Dialog`** 内切换视图并开启 `:can-back="true"`（标题前自动出现返回箭头按钮并触发 `@back`），严禁在 `Dialog` 之上再叠开第二个 `Dialog`。唯一允许叠在 `Dialog` 之上的浮层是 `useConfirm()` 的单句高危确认框。
+   - **模式二：矩阵-名单同窗联动（Matrix-to-Members Inline Focus）**：在 `xl` 下钻弹窗中点击上部二维矩阵单元格或趋势柱时，高亮该单元格并在**同一弹窗下半区**就地展开或过滤关联用户名单表，同时在 `#scope` 范围条右侧渲染当前聚焦条件胶囊与清除按钮（返回全量视图）。
+2. **URL 查询参数单一真相源（URL Query Continuity）**
+   - 看板与列表的筛选及下钻状态（`from`、`to`、`product`、`client`、`environment`、`detail`、`detailDay`）同步写入路由 `query`；刷新页面、复制链接分享给协作者或点击浏览器后退，均可精确还原当前打开的下钻弹窗与时间切片。
+3. **跨页实体下钻与返回闭环（Cross-Page Entity Drill-Down）**
+   - 点击表格整行或用户标识胶囊（`UserChip`）跳转至 `AdminDetailPage` 时，路由携带来源上下文 `query`；`AdminDetailPage` 经 `ADMIN_HEADER_LEAD_TAKEN` 将返回按钮注入宿主顶栏左侧，点击返回即原路恢复原列表或看板上下文。
+4. **分段卡与状态卡右上角轻入口（Section Header Drill Trigger）**
+   - 看板区块的下钻入口统一放在 `AdminBoardSection` 右上角 `#drill` 插槽，详情状态卡的单项维护入口统一放在 `StatCard` 右上角 `actionLabel`；图表区与卡片正文中不重复堆砌主数字或散落多处下钻按钮。
+
+## 16. 门禁
 
 `scripts/check-tokens.mjs`（`pnpm test` 内的 `check-tokens.test.ts`）对 `src/components/**` 与 `components.css` 检查：
 

@@ -517,6 +517,86 @@
       "types": "./dist/components/action-menu.d.ts",
       "default": "./dist/components/action-menu.js"
     },
+    "./components/admin/AdminBoardPage": {
+      "mango-source": {
+        "types": "./src/components/admin/AdminBoardPage.vue",
+        "default": "./src/components/admin/AdminBoardPage.vue"
+      },
+      "types": "./dist/components/admin/AdminBoardPage.d.ts",
+      "default": "./dist/components/admin/AdminBoardPage.js"
+    },
+    "./components/admin/AdminBoardSection": {
+      "mango-source": {
+        "types": "./src/components/admin/AdminBoardSection.vue",
+        "default": "./src/components/admin/AdminBoardSection.vue"
+      },
+      "types": "./dist/components/admin/AdminBoardSection.d.ts",
+      "default": "./dist/components/admin/AdminBoardSection.js"
+    },
+    "./components/admin/AdminConfigPage": {
+      "mango-source": {
+        "types": "./src/components/admin/AdminConfigPage.vue",
+        "default": "./src/components/admin/AdminConfigPage.vue"
+      },
+      "types": "./dist/components/admin/AdminConfigPage.d.ts",
+      "default": "./dist/components/admin/AdminConfigPage.js"
+    },
+    "./components/admin/AdminConfigRow": {
+      "mango-source": {
+        "types": "./src/components/admin/AdminConfigRow.vue",
+        "default": "./src/components/admin/AdminConfigRow.vue"
+      },
+      "types": "./dist/components/admin/AdminConfigRow.d.ts",
+      "default": "./dist/components/admin/AdminConfigRow.js"
+    },
+    "./components/admin/AdminConfigSection": {
+      "mango-source": {
+        "types": "./src/components/admin/AdminConfigSection.vue",
+        "default": "./src/components/admin/AdminConfigSection.vue"
+      },
+      "types": "./dist/components/admin/AdminConfigSection.d.ts",
+      "default": "./dist/components/admin/AdminConfigSection.js"
+    },
+    "./components/admin/AdminDetailCard": {
+      "mango-source": {
+        "types": "./src/components/admin/AdminDetailCard.vue",
+        "default": "./src/components/admin/AdminDetailCard.vue"
+      },
+      "types": "./dist/components/admin/AdminDetailCard.d.ts",
+      "default": "./dist/components/admin/AdminDetailCard.js"
+    },
+    "./components/admin/AdminDetailPage": {
+      "mango-source": {
+        "types": "./src/components/admin/AdminDetailPage.vue",
+        "default": "./src/components/admin/AdminDetailPage.vue"
+      },
+      "types": "./dist/components/admin/AdminDetailPage.d.ts",
+      "default": "./dist/components/admin/AdminDetailPage.js"
+    },
+    "./components/admin/AdminListPage": {
+      "mango-source": {
+        "types": "./src/components/admin/AdminListPage.vue",
+        "default": "./src/components/admin/AdminListPage.vue"
+      },
+      "types": "./dist/components/admin/AdminListPage.d.ts",
+      "default": "./dist/components/admin/AdminListPage.js"
+    },
+    "./components/admin/AdminStatBar": {
+      "mango-source": {
+        "types": "./src/components/admin/AdminStatBar.vue",
+        "default": "./src/components/admin/AdminStatBar.vue"
+      },
+      "types": "./dist/components/admin/AdminStatBar.d.ts",
+      "default": "./dist/components/admin/AdminStatBar.js"
+    },
+    "./components/admin/admin-defs": {
+      "mango-source": {
+        "types": "./src/components/admin/admin-defs.ts",
+        "default": "./src/components/admin/admin-defs.ts"
+      },
+      "types": "./dist/components/admin/admin-defs.d.ts",
+      "default": "./dist/components/admin/admin-defs.js"
+    },
     "./components/async-search-select": {
       "mango-source": {
         "types": "./src/components/async-search-select.ts",
@@ -535,11 +615,11 @@
     },
     "./components/calendar": {
       "mango-source": {
-        "types": "./src/components/calendar.ts",
-        "default": "./src/components/calendar.ts"
+        "types": "./src/components/calendar-defs.ts",
+        "default": "./src/components/calendar-defs.ts"
       },
-      "types": "./dist/components/calendar.d.ts",
-      "default": "./dist/components/calendar.js"
+      "types": "./dist/components/calendar-defs.d.ts",
+      "default": "./dist/components/calendar-defs.js"
     },
     "./components/chip": {
       "mango-source": {
@@ -1096,6 +1176,56 @@
         "import": "./dist/components/action-menu.js",
         "default": "./dist/components/action-menu.js"
       },
+      "./components/admin/AdminBoardPage": {
+        "types": "./dist/components/admin/AdminBoardPage.d.ts",
+        "import": "./dist/components/admin/AdminBoardPage.js",
+        "default": "./dist/components/admin/AdminBoardPage.js"
+      },
+      "./components/admin/AdminBoardSection": {
+        "types": "./dist/components/admin/AdminBoardSection.d.ts",
+        "import": "./dist/components/admin/AdminBoardSection.js",
+        "default": "./dist/components/admin/AdminBoardSection.js"
+      },
+      "./components/admin/AdminConfigPage": {
+        "types": "./dist/components/admin/AdminConfigPage.d.ts",
+        "import": "./dist/components/admin/AdminConfigPage.js",
+        "default": "./dist/components/admin/AdminConfigPage.js"
+      },
+      "./components/admin/AdminConfigRow": {
+        "types": "./dist/components/admin/AdminConfigRow.d.ts",
+        "import": "./dist/components/admin/AdminConfigRow.js",
+        "default": "./dist/components/admin/AdminConfigRow.js"
+      },
+      "./components/admin/AdminConfigSection": {
+        "types": "./dist/components/admin/AdminConfigSection.d.ts",
+        "import": "./dist/components/admin/AdminConfigSection.js",
+        "default": "./dist/components/admin/AdminConfigSection.js"
+      },
+      "./components/admin/AdminDetailCard": {
+        "types": "./dist/components/admin/AdminDetailCard.d.ts",
+        "import": "./dist/components/admin/AdminDetailCard.js",
+        "default": "./dist/components/admin/AdminDetailCard.js"
+      },
+      "./components/admin/AdminDetailPage": {
+        "types": "./dist/components/admin/AdminDetailPage.d.ts",
+        "import": "./dist/components/admin/AdminDetailPage.js",
+        "default": "./dist/components/admin/AdminDetailPage.js"
+      },
+      "./components/admin/AdminListPage": {
+        "types": "./dist/components/admin/AdminListPage.d.ts",
+        "import": "./dist/components/admin/AdminListPage.js",
+        "default": "./dist/components/admin/AdminListPage.js"
+      },
+      "./components/admin/AdminStatBar": {
+        "types": "./dist/components/admin/AdminStatBar.d.ts",
+        "import": "./dist/components/admin/AdminStatBar.js",
+        "default": "./dist/components/admin/AdminStatBar.js"
+      },
+      "./components/admin/admin-defs": {
+        "types": "./dist/components/admin/admin-defs.d.ts",
+        "import": "./dist/components/admin/admin-defs.js",
+        "default": "./dist/components/admin/admin-defs.js"
+      },
       "./components/async-search-select": {
         "types": "./dist/components/async-search-select.d.ts",
         "import": "./dist/components/async-search-select.js",
@@ -1107,9 +1237,9 @@
         "default": "./dist/components/button-defs.js"
       },
       "./components/calendar": {
-        "types": "./dist/components/calendar.d.ts",
-        "import": "./dist/components/calendar.js",
-        "default": "./dist/components/calendar.js"
+        "types": "./dist/components/calendar-defs.d.ts",
+        "import": "./dist/components/calendar-defs.js",
+        "default": "./dist/components/calendar-defs.js"
       },
       "./components/chip": {
         "types": "./dist/components/chip-defs.d.ts",
