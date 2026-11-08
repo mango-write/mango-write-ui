@@ -19,12 +19,13 @@ defineProps<AdminConfigSectionProps>();
 
 <style scoped>
 .admin-config-section {
+  --mw-datatable-radius: var(--radius-sm);
   container-type: inline-size;
   width: 100%;
   box-sizing: border-box;
   padding: 0 var(--space-4) var(--space-1);
   border: var(--border-width) solid var(--border-subtle);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-card);
   background: var(--bg-sunken);
 }
 

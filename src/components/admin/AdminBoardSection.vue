@@ -24,9 +24,10 @@ defineProps<AdminBoardSectionProps>();
 
 <style scoped>
 .admin-board-section {
+  --mw-datatable-radius: var(--radius-sm);
   padding: var(--space-3) var(--space-4);
   border: var(--border-width) solid var(--border-subtle);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-card);
   background: var(--bg-sunken);
 }
 
