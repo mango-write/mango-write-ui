@@ -51,7 +51,7 @@ const emit = defineEmits<AdminDetailCardEmits>();
   min-width: 0;
   padding: var(--space-2) var(--space-3) var(--space-2-5);
   border: var(--border-width) solid var(--border-subtle);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-card);
   background: var(--bg-sunken);
 }
 

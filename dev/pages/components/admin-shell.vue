@@ -520,11 +520,9 @@ const boardStats = computed(() => [
 .admin-shell-viewport {
   display: flex;
   flex-direction: column;
+  width: 100%;
   height: 360px;
-  padding: var(--space-3);
-  border-radius: var(--radius-lg);
-  border: var(--border-width) solid var(--border-subtle);
-  background: var(--bg-canvas);
+  min-height: 0;
   overflow: hidden;
 }
 
