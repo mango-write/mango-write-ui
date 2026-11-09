@@ -1,0 +1,60 @@
+.mw-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  gap: var(--space-1);
+  min-height: calc(var(--control-h) - var(--space-2));
+  padding-inline: calc(var(--control-px) * 0.5 + var(--space-0-5));
+  border-radius: calc(var(--control-radius) - var(--space-0-5));
+  background-color: var(--fill-default);
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: calc(var(--control-font) - var(--space-px));
+  font-weight: var(--weight-medium);
+  line-height: var(--type-caption-line);
+  white-space: nowrap;
+}
+
+.mw-tag--rounded {
+  border-radius: var(--radius-full);
+}
+
+.mw-tag--primary {
+  background-color: var(--accent-subtle);
+  color: var(--text-accent);
+}
+
+.mw-tag--success {
+  background-color: var(--success-subtle);
+  color: var(--success-text);
+}
+
+.mw-tag--info {
+  background-color: var(--info-subtle);
+  color: var(--info-text);
+}
+
+.mw-tag--warn,
+.mw-tag--warning {
+  background-color: var(--warning-subtle);
+  color: var(--warning-text);
+}
+
+.mw-tag--danger {
+  background-color: var(--danger-subtle);
+  color: var(--danger-text);
+}
+
+.mw-tag--contrast {
+  background-color: var(--bg-inverse);
+  color: var(--text-inverse);
+}
+
+.mw-tag__icon,
+.mw-tag > svg {
+  flex: none;
+  width: calc(var(--control-icon) - var(--space-0-5));
+  height: calc(var(--control-icon) - var(--space-0-5));
+  font-size: calc(var(--control-icon) - var(--space-0-5));
+}

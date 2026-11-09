@@ -8,7 +8,7 @@ import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const DEV = join(root, "dev");
+const DEV = join(root, "playground", "dev");
 
 // usage 系统与 UsagePlayground 的控件标签双语化尚在并行开发,落地后收进扫描。
 const EXCLUDED = [join(DEV, "usage"), join(DEV, "kit", "UsagePlayground.vue")];

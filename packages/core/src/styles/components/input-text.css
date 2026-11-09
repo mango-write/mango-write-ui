@@ -1,0 +1,9 @@
+.mw-input-text {
+  display: inline-block;
+  height: var(--control-h);
+  padding-inline: var(--control-px);
+}
+
+.mw-input-text--fluid {
+  width: 100%;
+}

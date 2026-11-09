@@ -1,0 +1,5 @@
+@import "tailwindcss" prefix(tw);
+@import "@mango-write/ui-vue/base.css";
+@import "@mango-write/ui-vue/components.css";
+@source "../../packages/vue/src";
+@source "./";

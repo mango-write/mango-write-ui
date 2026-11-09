@@ -35,17 +35,17 @@ async function importTs(file) {
   return import(pathToFileURL(f).href);
 }
 
-const { libraryIntro, installSteps } = await importTs(join(ROOT, "dev/content.ts"));
+const { libraryIntro, installSteps } = await importTs(join(ROOT, "playground/dev/content.ts"));
 
 const entries = {};
-for (const f of readdirSync(join(ROOT, "dev/api/entries")).filter((n) => n.endsWith(".ts"))) {
-  const { api } = await importTs(join(ROOT, "dev/api/entries", f));
+for (const f of readdirSync(join(ROOT, "playground/dev/api/entries")).filter((n) => n.endsWith(".ts"))) {
+  const { api } = await importTs(join(ROOT, "playground/dev/api/entries", f));
   entries[api.slug] = api;
 }
 
 // 目录与 lead 单源在 registry-data(纯字面量,node 可直 import);文案取 zh。
 const zh = (bi) => (bi && typeof bi === "object" ? bi.zh : bi ?? "");
-const { docGroups } = await importTs(join(ROOT, "dev/registry-data.ts"));
+const { docGroups } = await importTs(join(ROOT, "playground/dev/registry-data.ts"));
 const groups = docGroups.map((g) => ({
   id: g.id,
   title: zh(g.title),

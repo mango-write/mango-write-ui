@@ -1,0 +1,152 @@
+{
+  "name": "@mango-write/ui-core",
+  "version": "0.1.0",
+  "description": "MangoWrite UI Core — framework-agnostic tokens, static CSS, locale, headless state machines, and pure contracts.",
+  "license": "Apache-2.0",
+  "author": "MangoWrite Contributors",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mango-write/mango-write-ui.git",
+    "directory": "packages/core"
+  },
+  "homepage": "https://ui.mangowrite.com",
+  "bugs": {
+    "url": "https://github.com/mango-write/mango-write-ui/issues"
+  },
+  "keywords": [
+    "ui",
+    "design-system",
+    "tokens",
+    "headless",
+    "css"
+  ],
+  "type": "module",
+  "packageManager": "pnpm@10.20.0",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "mango-source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./var.css": "./src/var.css",
+    "./base.css": "./src/base.css",
+    "./components.css": {
+      "mango-source": "./src/components.css",
+      "default": "./dist/components.css"
+    },
+    "./theme.css": "./dist/theme.css",
+    "./locale": {
+      "mango-source": "./src/locale/index.ts",
+      "types": "./dist/locale/index.d.ts",
+      "default": "./dist/locale/index.js"
+    },
+    "./headless/confirm-core": {
+      "mango-source": "./src/headless/confirm-core.ts",
+      "types": "./dist/headless/confirm-core.d.ts",
+      "default": "./dist/headless/confirm-core.js"
+    },
+    "./headless/hover-card": {
+      "mango-source": "./src/headless/hover-card.ts",
+      "types": "./dist/headless/hover-card.d.ts",
+      "default": "./dist/headless/hover-card.js"
+    },
+    "./headless/notify-core": {
+      "mango-source": "./src/headless/notify-core.ts",
+      "types": "./dist/headless/notify-core.d.ts",
+      "default": "./dist/headless/notify-core.js"
+    },
+    "./headless/option-accessor": {
+      "mango-source": "./src/headless/option-accessor.ts",
+      "types": "./dist/headless/option-accessor.d.ts",
+      "default": "./dist/headless/option-accessor.js"
+    },
+    "./headless/overlay-slot": {
+      "mango-source": "./src/headless/overlay-slot.ts",
+      "types": "./dist/headless/overlay-slot.d.ts",
+      "default": "./dist/headless/overlay-slot.js"
+    },
+    "./headless/scroll-fade-core": {
+      "mango-source": "./src/headless/scroll-fade-core.ts",
+      "types": "./dist/headless/scroll-fade-core.d.ts",
+      "default": "./dist/headless/scroll-fade-core.js"
+    },
+    "./headless/theme-core": {
+      "mango-source": "./src/headless/theme-core.ts",
+      "types": "./dist/headless/theme-core.d.ts",
+      "default": "./dist/headless/theme-core.js"
+    },
+    "./defs": {
+      "mango-source": "./src/defs/index.ts",
+      "types": "./dist/defs/index.d.ts",
+      "default": "./dist/defs/index.js"
+    }
+  },
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "./var.css": "./dist/var.css",
+      "./base.css": "./dist/base.css",
+      "./components.css": "./dist/components.css",
+      "./theme.css": "./dist/theme.css",
+      "./locale": {
+        "types": "./dist/locale/index.d.ts",
+        "default": "./dist/locale/index.js"
+      },
+      "./headless/confirm-core": {
+        "types": "./dist/headless/confirm-core.d.ts",
+        "default": "./dist/headless/confirm-core.js"
+      },
+      "./headless/hover-card": {
+        "types": "./dist/headless/hover-card.d.ts",
+        "default": "./dist/headless/hover-card.js"
+      },
+      "./headless/notify-core": {
+        "types": "./dist/headless/notify-core.d.ts",
+        "default": "./dist/headless/notify-core.js"
+      },
+      "./headless/option-accessor": {
+        "types": "./dist/headless/option-accessor.d.ts",
+        "default": "./dist/headless/option-accessor.js"
+      },
+      "./headless/overlay-slot": {
+        "types": "./dist/headless/overlay-slot.d.ts",
+        "default": "./dist/headless/overlay-slot.js"
+      },
+      "./headless/scroll-fade-core": {
+        "types": "./dist/headless/scroll-fade-core.d.ts",
+        "default": "./dist/headless/scroll-fade-core.js"
+      },
+      "./headless/theme-core": {
+        "types": "./dist/headless/theme-core.d.ts",
+        "default": "./dist/headless/theme-core.js"
+      },
+      "./defs": {
+        "types": "./dist/defs/index.d.ts",
+        "default": "./dist/defs/index.js"
+      }
+    }
+  },
+  "sideEffects": [
+    "*.css"
+  ],
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "prepare": "node scripts/build.mjs",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@types/node": "^24.13.3",
+    "typescript": "npm:@typescript/typescript6@^6.0.2"
+  }
+}

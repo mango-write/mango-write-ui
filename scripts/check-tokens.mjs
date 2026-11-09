@@ -1,23 +1,24 @@
 #!/usr/bin/env node
 // 设计 token 门禁：组件只许读 var.css 的 Scale / Semantic / Derived / Domain 层与本组件 --mw-* 局部变量。
 // 规则与理由见 ../DESIGN.md「门禁」。CLI：node scripts/check-tokens.mjs；vitest 经 check-tokens.test.ts 调用。
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const src = join(root, "src");
+const coreSrc = join(root, "packages", "core", "src");
+const vueSrc = join(root, "packages", "vue", "src");
 
 const FLOATING = new Set([
   "ActionMenu", "AsyncSearchSelect", "ColorPicker", "ConfirmHost", "DatePicker", "Dialog",
   "HoverCard", "Menu", "MultiSelect", "Popover", "SearchableMultiSelect", "SearchableSelect",
-  "Select", "ToastHost", "UserSelect",
+  "Select", "ToastHost", "UserSelect", "popover",
 ]);
 const OPAQUE_BG = /var\(--bg-(surface|raised|sunken|canvas)\)/;
 const RAW_CHECKED_PROPS =
   /^(padding|padding-[a-z-]+|margin|margin-[a-z-]+|gap|row-gap|column-gap|border-radius|border-[a-z-]*-radius|font-size|line-height|letter-spacing|box-shadow|outline-offset|font-weight|transition|transition-duration|transition-delay|animation|animation-duration)$/;
 const COLOR_LITERAL = /#[0-9a-fA-F]{3,8}\b|\brgba?\(\s*\d|\bhsla?\(|\boklch\(|\b(?:white|black)\b/;
-const ALLOWED_EXTERNAL = [/^--reka-/, /^--tw-/];
+const ALLOWED_EXTERNAL = [/^--reka-/, /^--radix-/, /^--tw-/];
 const PI_ICON = /\bpi-[a-z0-9-]+\b|\bprimeicons\b/;
 
 export function scanPiIcons(file, text) {
@@ -31,6 +32,7 @@ export function scanPiIcons(file, text) {
 }
 
 function walk(dir, out = []) {
+  if (!existsSync(dir)) return out;
   for (const name of readdirSync(dir)) {
     const full = join(dir, name);
     if (statSync(full).isDirectory()) walk(full, out);
@@ -88,15 +90,21 @@ function stripVar(value) {
 }
 
 export function checkTokens() {
-  const varCss = readFileSync(join(src, "var.css"), "utf8");
+  const varCss = readFileSync(join(coreSrc, "var.css"), "utf8");
   const legacyBody = varCss.slice(varCss.indexOf("@legacy-start"), varCss.indexOf("@legacy-end"));
   const legacy = new Set([...legacyBody.matchAll(/(--[a-z0-9-]+)\s*:/g)].map((m) => m[1]));
   for (const m of varCss.matchAll(/(--color-[a-z0-9-]+-rgb)\s*:/g)) {
     if (!m[1].startsWith("--color-mark-") && !m[1].startsWith("--color-annotation-")) legacy.add(m[1]);
   }
 
-  const componentFiles = walk(join(src, "components")).filter((f) => f.endsWith(".vue"));
-  const sharedFiles = [join(src, "var.css"), join(src, "base.css"), join(src, "components.css")];
+  const coreComponentCssFiles = walk(join(coreSrc, "styles", "components")).filter((f) => f.endsWith(".css"));
+  const vueComponentFiles = walk(join(vueSrc, "components")).filter((f) => f.endsWith(".vue"));
+  const componentFiles = [...coreComponentCssFiles, ...vueComponentFiles];
+  const sharedFiles = [
+    join(coreSrc, "var.css"),
+    join(coreSrc, "base.css"),
+    join(coreSrc, "components.css"),
+  ];
   const defined = new Set();
   for (const file of [...sharedFiles, ...componentFiles]) {
     for (const { css } of styleBlocks(file)) {
@@ -108,19 +116,19 @@ export function checkTokens() {
   const report = (file, line, rule, detail) =>
     violations.push({ file: relative(root, file), line: line + 1, rule, detail });
 
-  for (const file of [join(src, "base.css"), join(src, "components.css"), ...componentFiles]) {
-    const isComponent = file !== join(src, "base.css");
-    const name = file.split("/").pop().replace(/\.vue$/, "");
+  for (const file of [join(coreSrc, "base.css"), join(coreSrc, "components.css"), ...componentFiles]) {
+    const isComponent = file !== join(coreSrc, "base.css");
+    const isComponentCssOrVue = file.endsWith(".vue") || coreComponentCssFiles.includes(file);
+    const name = file.split("/").pop().replace(/\.(vue|css)$/, "");
     for (const { css, offset } of styleBlocks(file)) {
       for (const { prop, value, line } of declarations(css)) {
         const at = offset + line;
-        if (prop.startsWith("--") && isComponent && file.endsWith(".vue") && !prop.startsWith("--mw-") && !prop.startsWith("--control-")) {
+        if (prop.startsWith("--") && isComponent && isComponentCssOrVue && !prop.startsWith("--mw-") && !prop.startsWith("--control-")) {
           report(file, at, "local-token-prefix", `${prop}（组件内局部变量必须以 --mw- 开头）`);
         }
         for (const m of value.matchAll(/var\(\s*(--[a-zA-Z0-9-]+)\s*(,?)/g)) {
           const token = m[1];
           if (ALLOWED_EXTERNAL.some((re) => re.test(token))) continue;
-          // --mw-* 带回落值 = 组件对外暴露的可选定制钩子，允许不预先定义。
           if (token.startsWith("--mw-") && m[2] === ",") continue;
           if (!defined.has(token)) report(file, at, "undefined-token", token);
           else if (legacy.has(token)) report(file, at, "legacy-token", token);
@@ -152,7 +160,7 @@ export function checkTokens() {
       }
     }
   }
-  for (const file of [join(src, "components.css"), ...walk(join(src, "components"))]) {
+  for (const file of [join(coreSrc, "components.css"), ...coreComponentCssFiles, ...walk(join(vueSrc, "components"))]) {
     violations.push(...scanPiIcons(relative(root, file), readFileSync(file, "utf8")));
   }
   return violations;

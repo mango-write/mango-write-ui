@@ -1,0 +1,52 @@
+.mw-avatar {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: var(--mw-avatar-size, var(--control-h));
+  height: var(--mw-avatar-size, var(--control-h));
+  border-radius: var(--control-radius);
+  background-color: var(--fill-strong);
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: var(--control-font);
+  font-weight: var(--weight-semibold);
+  line-height: 1;
+  overflow: hidden;
+  user-select: none;
+}
+
+.mw-avatar--circle {
+  border-radius: var(--radius-full);
+}
+
+.mw-avatar--xlarge {
+  --mw-avatar-size: var(--space-12);
+  --control-icon: var(--icon-2xl);
+  border-radius: var(--radius-lg);
+  font-size: var(--type-title-lg-size);
+}
+
+.mw-avatar--xlarge.mw-avatar--circle {
+  border-radius: var(--radius-full);
+}
+
+.mw-avatar--image {
+  background-color: transparent;
+}
+
+.mw-avatar__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mw-avatar__icon,
+.mw-avatar > svg {
+  flex: none;
+  width: var(--control-icon);
+  height: var(--control-icon);
+  font-size: var(--control-icon);
+}

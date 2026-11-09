@@ -1,0 +1,98 @@
+.mw-accordion {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  font-family: var(--font-sans);
+}
+
+.mw-accordion__panel {
+  border-bottom: var(--border-width) solid var(--border-subtle);
+}
+
+.mw-accordion__panel:last-child {
+  border-bottom: 0;
+}
+
+.mw-accordion__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--control-gap);
+  width: 100%;
+  min-height: calc(var(--control-h) + var(--space-2));
+  box-sizing: border-box;
+  margin-block: var(--space-0-5);
+  padding-block: var(--space-1);
+  padding-inline: var(--control-px);
+  border: 0;
+  border-radius: var(--radius-item);
+  background: transparent;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--control-font);
+  font-weight: var(--weight-medium);
+  line-height: var(--type-body-sm-line);
+  text-align: start;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+
+.mw-accordion__header:hover:not(:disabled):not([data-disabled]) {
+  background-color: var(--fill-subtle);
+}
+
+.mw-accordion__header:active:not(:disabled):not([data-disabled]) {
+  background-color: var(--fill-default);
+}
+
+.mw-accordion__header:focus-visible {
+  outline: var(--focus-width) solid var(--focus-color);
+  outline-offset: calc(-1 * var(--focus-width));
+}
+
+.mw-accordion__header:disabled,
+.mw-accordion__header[data-disabled] {
+  color: var(--text-disabled);
+  cursor: not-allowed;
+}
+
+.mw-accordion__header > svg:not(.mw-accordion__chevron) {
+  flex: none;
+  width: var(--control-icon);
+  height: var(--control-icon);
+  color: var(--text-secondary);
+}
+
+.mw-accordion__chevron {
+  flex-shrink: 0;
+  width: var(--control-icon);
+  height: var(--control-icon);
+  margin-inline-start: auto;
+  color: var(--text-tertiary);
+  transition: transform var(--duration-base) var(--ease-standard);
+}
+
+.mw-accordion__header[data-state="open"] .mw-accordion__chevron {
+  transform: rotate(180deg);
+}
+
+.mw-accordion__content {
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: var(--type-body-sm-size);
+  line-height: var(--type-body-sm-line);
+}
+
+.mw-accordion__content-inner {
+  min-width: 0;
+  padding: var(--space-1) var(--control-px) var(--space-4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mw-accordion__header,
+  .mw-accordion__chevron {
+    transition: none;
+  }
+}

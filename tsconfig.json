@@ -4,7 +4,19 @@
     "noEmit": true,
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "types": ["node", "vite/client"],
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "paths": {
+      "@mango-write/ui-core": ["./packages/core/src/index.ts"],
+      "@mango-write/ui-core/*": ["./packages/core/src/*"],
+      "@mango-write/ui-vue": ["./packages/vue/src/index.ts"],
+      "@mango-write/ui-vue/*": ["./packages/vue/src/*"]
+    }
   },
-  "include": ["src/**/*.ts", "src/**/*.vue", "dev/**/*.ts", "dev/**/*.vue"]
+  "include": [
+    "packages/core/src/**/*.ts",
+    "packages/vue/src/**/*.ts",
+    "packages/vue/src/**/*.vue",
+    "playground/dev/**/*.ts",
+    "playground/dev/**/*.vue"
+  ]
 }

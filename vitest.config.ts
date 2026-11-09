@@ -4,10 +4,13 @@ import { defineConfig } from "vitest/config";
 import vue from "@vitejs/plugin-vue";
 
 const domPatterns = ["**/*.component.test.ts", "**/*.dom.test.ts"];
-const baseExclude = ["**/node_modules/**", "**/dist/**"];
+const baseExclude = ["**/node_modules/**", "**/dist/**", "**/dist-playground/**"];
 
 export default defineConfig({
   plugins: [vue()],
+  resolve: {
+    conditions: ["mango-source", "module", "import", "browser", "default"],
+  },
   test: {
     projects: [
       {
