@@ -10,9 +10,11 @@ const distDir = join(pkgRoot, "dist");
 rmSync(distDir, { recursive: true, force: true });
 mkdirSync(distDir, { recursive: true });
 
-execFileSync("pnpm", ["exec", "tsc6", "-p", "tsconfig.build.json"], {
+const isWin = process.platform === "win32";
+execFileSync(isWin ? "pnpm.cmd" : "pnpm", ["exec", "tsc6", "-p", "tsconfig.build.json"], {
   cwd: pkgRoot,
   stdio: "inherit",
+  shell: isWin,
 });
 
 for (const file of ["var.css", "mobile-tokens.css", "base.css", "theme.css"]) {

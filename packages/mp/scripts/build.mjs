@@ -13,24 +13,29 @@ rmSync(distDir, { recursive: true, force: true });
 mkdirSync(distDir, { recursive: true });
 mkdirSync(stylesDir, { recursive: true });
 
+const isWin = process.platform === "win32";
+const pnpmBin = isWin ? "pnpm.cmd" : "pnpm";
+
 // 1. Ensure @mango-write/ui-core is built first
-execFileSync("node", [join(coreRoot, "scripts", "build.mjs")], {
+execFileSync(process.execPath, [join(coreRoot, "scripts", "build.mjs")], {
   cwd: coreRoot,
   stdio: "inherit",
 });
 
 // 2. Build @mango-write/ui-mp ESM + declarations
-execFileSync("pnpm", ["exec", "vite", "build"], {
+execFileSync(pnpmBin, ["exec", "vite", "build"], {
   cwd: pkgRoot,
   stdio: "inherit",
+  shell: isWin,
 });
 
 execFileSync(
-  "pnpm",
+  pnpmBin,
   ["exec", "vue-tsc", "--declaration", "--emitDeclarationOnly", "-p", "tsconfig.build.json"],
   {
     cwd: pkgRoot,
     stdio: "inherit",
+    shell: isWin,
   },
 );
 
