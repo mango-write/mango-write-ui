@@ -50,21 +50,25 @@ const componentCount = inventory.length;
 /* 按 i % 3 轮转分作三行;中行反向滚动,与上下两行错开 */
 const marqueeRows = [0, 1, 2].map((row) => inventory.filter((_, i) => i % 3 === row));
 const apiRowCount = Object.values(apiEntries).reduce((sum, entry) => sum + entry.rows.length, 0);
-const foundationCount = docGroups.find((group) => group.id === "foundations")?.entries.length ?? 0;
+const foundationCount = docGroups
+  .filter((group) => group.section === "foundations")
+  .reduce((sum, group) => sum + group.entries.length, 0);
 
 const s = {
   changelogChip: { zh: "v0.1.0 · 更新日志", en: "v0.1.0 · Changelog" },
   brand: { zh: "纸与霜", en: "Paper & Frost" },
   titleSuffix: { zh: "设计语言", en: " Design Language" },
   lede1: {
-    zh: "MangoWrite 全线产品共用的设计语言与 Vue 3组件库：",
-    en: "The design language and Vue 3 component library shared by every MangoWrite product:",
+    zh: "MangoWrite 全线产品共用的「一核双翼」设计语言与跨端组件生态：",
+    en: "The “One Core, Two Wings” design language and cross-platform UI ecosystem for MangoWrite:",
   },
   lede2: {
-    zh: "纸面与霜面双材质，浅色深色双主题，为长时间阅读与写作而生。",
-    en: "paper and frost materials, light and dark themes, built for long reading and writing sessions.",
+    zh: "共享纸与霜核心视觉基因，分别打造桌面精细工作台（@mango-write/ui-vue）与掌上触控组件库（@mango-write/ui-mp）。",
+    en: "one shared Paper & Frost core, tailored into the Desktop precision workbench (@mango-write/ui-vue) and Mobile touch library (@mango-write/ui-mp).",
   },
-  quickStart: { zh: "快速上手", en: "Get started" },
+  quickStart: { zh: "桌面端组件", en: "Desktop Components" },
+  mobileStart: { zh: "移动端组件", en: "Mobile Components" },
+  designStart: { zh: "设计语言规范", en: "Design Language" },
   copyPrompt: { zh: "复制 Prompt 给 LLM", en: "Copy prompt for LLMs" },
   statComponents: { zh: "个组件", en: "components" },
   statApiRows: { zh: "个接口行", en: "API rows" },
@@ -385,9 +389,12 @@ const quickstartCode = computed(() =>
               <RouterLink class="hero__cta-primary" to="/getting-started/installation">
                 {{ t(s.quickStart) }}
               </RouterLink>
-              <a class="hero__cta-ghost" :href="githubUrl" target="_blank" rel="noreferrer">
-                GitHub
-              </a>
+              <RouterLink class="hero__cta-ghost" to="/mobile/installation">
+                {{ t(s.mobileStart) }}
+              </RouterLink>
+              <RouterLink class="hero__cta-ghost" to="/foundations/overview">
+                {{ t(s.designStart) }}
+              </RouterLink>
               <button type="button" class="hero__cta-ghost" @click="copyLlmPrompt">
                 <Copy :size="18" aria-hidden="true" />
                 {{ t(s.copyPrompt) }}

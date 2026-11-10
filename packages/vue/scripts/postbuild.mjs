@@ -3,14 +3,31 @@ import { basename, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const coreDistDir = join(root, "..", "core", "dist");
+const coreRoot = join(root, "..", "core");
+const coreDistDir = existsSync(join(coreRoot, "dist", "var.css"))
+  ? join(coreRoot, "dist")
+  : join(coreRoot, "src");
 const distDir = join(root, "dist");
 
 for (const cssFile of ["var.css", "base.css", "theme.css"]) {
   cpSync(join(coreDistDir, cssFile), join(distDir, cssFile));
 }
 
-const coreComponentsCss = readFileSync(join(coreDistDir, "components.css"), "utf8").trim();
+function loadCoreComponentsCss() {
+  const builtPath = join(coreRoot, "dist", "components.css");
+  if (existsSync(builtPath)) {
+    return readFileSync(builtPath, "utf8").trim();
+  }
+  const srcComponentsDir = join(coreRoot, "src", "styles", "components");
+  const raw = readFileSync(join(coreRoot, "src", "components.css"), "utf8");
+  return raw
+    .replace(/@import\s+["']\.\/styles\/components\/([^"']+)["']\s*;/g, (_m, rel) =>
+      readFileSync(join(srcComponentsDir, rel), "utf8").trim(),
+    )
+    .trim();
+}
+
+const coreComponentsCss = loadCoreComponentsCss();
 const extractedComponentsCss = existsSync(join(distDir, "components.css"))
   ? readFileSync(join(distDir, "components.css"), "utf8").trim()
   : "";

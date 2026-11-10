@@ -4,7 +4,11 @@
     "noEmit": true,
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "types": ["node", "vite/client"],
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "paths": {
+      "@mango-write/ui-core": ["../core/src/index.ts"],
+      "@mango-write/ui-core/*": ["../core/src/*"]
+    }
   },
   "include": ["src/**/*.ts", "src/**/*.vue"]
 }

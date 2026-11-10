@@ -7,10 +7,12 @@
   "scripts": {
     "dev": "vite",
     "build:playground": "vite build && node ../scripts/gen-llms.mjs",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "typecheck": "vue-tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
     "@mango-write/ui-core": "workspace:*",
+    "@mango-write/ui-mp": "workspace:*",
     "@mango-write/ui-vue": "workspace:*"
   },
   "devDependencies": {

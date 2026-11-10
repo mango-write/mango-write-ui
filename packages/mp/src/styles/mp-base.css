@@ -1,0 +1,151 @@
+page,
+.mw-mp-root {
+  --mw-mp-safe-top: var(--mp-safe-top);
+  --mw-mp-safe-bottom: var(--mp-safe-bottom);
+  --mw-mp-keyboard-offset: var(--space-0);
+  --mw-mp-capsule-width: var(--mp-capsule-w);
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--mp-type-body-size);
+  line-height: var(--mp-type-body-line);
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mw-mp-root,
+.mw-mp-root *,
+.mw-mp-root *::before,
+.mw-mp-root *::after {
+  box-sizing: border-box;
+}
+
+.mw-mp-root view,
+.mw-mp-root text,
+.mw-mp-root image,
+.mw-mp-root button,
+.mw-mp-root label,
+.mw-mp-root input,
+.mw-mp-root textarea,
+.mw-mp-root navigator,
+.mw-mp-root scroll-view,
+.mw-mp-root swiper,
+.mw-mp-root swiper-item,
+.mw-mp-root picker,
+.mw-mp-root form,
+.mw-mp-root switch,
+.mw-mp-root slider,
+.mw-mp-root rich-text,
+.mw-mp-root progress,
+.mw-mp-root checkbox,
+.mw-mp-root radio,
+.mw-mp-root canvas,
+.mw-mp-root cover-view,
+.mw-mp-root cover-image {
+  box-sizing: border-box;
+}
+
+.mw-mp-root button::after {
+  border: 0;
+  content: none;
+}
+
+.mw-mp-root .mw-size-sm,
+.mw-mp-btn.mw-size-sm {
+  --control-h: var(--mp-size-sm-h);
+  --control-font: var(--mp-size-sm-font);
+  --control-icon: var(--mp-size-sm-icon);
+  --control-px: var(--mp-size-sm-px);
+  --control-gap: var(--mp-size-sm-gap);
+  --control-radius: var(--mp-size-sm-radius);
+}
+
+.mw-mp-root .mw-size-md,
+.mw-mp-btn.mw-size-md {
+  --control-h: var(--mp-size-md-h);
+  --control-font: var(--mp-size-md-font);
+  --control-icon: var(--mp-size-md-icon);
+  --control-px: var(--mp-size-md-px);
+  --control-gap: var(--mp-size-md-gap);
+  --control-radius: var(--mp-size-md-radius);
+}
+
+.mw-mp-root .mw-size-lg,
+.mw-mp-btn.mw-size-lg {
+  --control-h: var(--mp-size-lg-h);
+  --control-font: var(--mp-size-lg-font);
+  --control-icon: var(--mp-size-lg-icon);
+  --control-px: var(--mp-size-lg-px);
+  --control-gap: var(--mp-size-lg-gap);
+  --control-radius: var(--mp-size-lg-radius);
+}
+
+.mw-mp-root .mw-tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+.mw-mp-root .mw-frost {
+  background-color: var(--frost-bg);
+  background-image: var(--frost-specular);
+  backdrop-filter: var(--frost-blur);
+  -webkit-backdrop-filter: var(--frost-blur);
+  border: var(--border-width) solid var(--frost-border);
+  box-shadow: var(--frost-highlight), var(--shadow-floating);
+  color: var(--text-primary);
+}
+
+.mw-mp-root .mw-frost--thick {
+  background-color: var(--frost-bg-thick);
+  background-image: var(--frost-specular);
+  backdrop-filter: var(--frost-blur-thick);
+  -webkit-backdrop-filter: var(--frost-blur-thick);
+  border: var(--border-width) solid var(--frost-border);
+  box-shadow: var(--frost-highlight), var(--shadow-overlay);
+  color: var(--text-primary);
+}
+
+.mw-mp-field {
+  border: var(--border-width) solid var(--border-subtle);
+  border-radius: var(--control-radius);
+  background-color: var(--bg-sunken);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--control-font);
+  line-height: var(--mp-type-body-line);
+  transition: border-color var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard);
+}
+
+.mw-mp-field.is-focused,
+.mw-mp-field:focus-within {
+  outline: none;
+  border-color: var(--accent-border);
+  background-color: var(--bg-raised);
+  box-shadow: var(--focus-shadow);
+}
+
+.mw-mp-field.is-invalid {
+  border-color: var(--danger);
+  box-shadow: var(--focus-shadow-danger);
+}
+
+.mw-mp-field.is-disabled {
+  background-color: var(--fill-subtle);
+  color: var(--text-disabled);
+  opacity: var(--opacity-disabled);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .mw-mp-root .mw-frost,
+  .mw-mp-root .mw-frost--thick {
+    background-color: var(--frost-fallback);
+    background-image: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mw-mp-field {
+    transition: none;
+  }
+}

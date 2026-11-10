@@ -1,6 +1,13 @@
 <script setup lang="ts">
 import { computed, ref, useAttrs, watch, type CSSProperties } from "vue";
 import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-vue-next";
+import {
+  buildCalendarWeeks,
+  getWeekdayLabels,
+  isSameCalendarDay,
+  parseDateValue as parseCoreDateValue,
+  type CalendarCell,
+} from "@mango-write/ui-core/headless/calendar-grid";
 import { areaDurationMs } from "../lib/area-transition";
 import { uiMessages, type UiLocaleSource } from "../locale/index.js";
 import type {
@@ -13,6 +20,7 @@ import type {
 } from "./calendar-defs";
 
 export type {
+  CalendarCell,
   CalendarFirstDayOfWeek,
   CalendarModelValue,
   CalendarProps,
@@ -57,40 +65,8 @@ const emit = defineEmits<{
 
 const attrs = useAttrs();
 
-function pad2(n: number): string {
-  return String(n).padStart(2, "0");
-}
-
-function toIsoDateKey(d: Date): string {
-  return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
-}
-
 function parseDateValue(val: unknown): Date | null {
-  if (!val) return null;
-  if (val instanceof Date) {
-    return Number.isNaN(val.getTime()) ? null : new Date(val.getTime());
-  }
-  if (typeof val === "string") {
-    const trimmed = val.trim();
-    const isoMatch = /^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/.exec(trimmed);
-    if (isoMatch) {
-      const y = Number(isoMatch[1]);
-      const m = Number(isoMatch[2]) - 1;
-      const d = Number(isoMatch[3]);
-      const candidate = new Date(y, m, d, props.hours, props.minutes, 0, 0);
-      if (
-        candidate.getFullYear() === y &&
-        candidate.getMonth() === m &&
-        candidate.getDate() === d
-      ) {
-        return candidate;
-      }
-      return null;
-    }
-    const parsed = new Date(trimmed);
-    return Number.isNaN(parsed.getTime()) ? null : parsed;
-  }
-  return null;
+  return parseCoreDateValue(val, props.hours, props.minutes);
 }
 
 const resolvedLocale = computed<string>(() => {
@@ -177,131 +153,29 @@ const monthNames = computed<string[]>(() =>
   ),
 );
 
-const weekdayLabels = computed<string[]>(() => {
-  const zhWeekdaysSun = ["日", "一", "二", "三", "四", "五", "六"];
-  const enWeekdaysSun = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
-  const base = localeKey.value === "en-US" ? enWeekdaysSun : zhWeekdaysSun;
-  if (props.firstDayOfWeek === 1) {
-    return [...base.slice(1), base[0]!];
-  }
-  return base;
-});
+const weekdayLabels = computed<string[]>(() =>
+  getWeekdayLabels(localeKey.value, props.firstDayOfWeek),
+);
 
-function startOfDayTime(d: Date): number {
-  return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
-}
-
-function isSameCalendarDay(a: Date | null, b: Date | null): boolean {
-  if (!a || !b) return false;
-  return (
-    a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate()
-  );
-}
-
-function isDateOutOfBounds(d: Date): boolean {
-  const dayTime = startOfDayTime(d);
-  if (props.minDate instanceof Date && !Number.isNaN(props.minDate.getTime())) {
-    if (dayTime < startOfDayTime(props.minDate)) return true;
-  }
-  if (props.maxDate instanceof Date && !Number.isNaN(props.maxDate.getTime())) {
-    if (dayTime > startOfDayTime(props.maxDate)) return true;
-  }
-  return false;
-}
-
-function isDateSelected(d: Date, isoKey: string): boolean {
-  if (props.selected !== undefined && props.selected !== null) {
-    return props.selected === isoKey;
-  }
-  if (Array.isArray(props.modelValue)) {
-    if (props.selectionMode === "range") {
-      const start = parseDateValue(props.modelValue[0]);
-      const end = parseDateValue(props.modelValue[1]);
-      return isSameCalendarDay(d, start) || isSameCalendarDay(d, end);
-    }
-    return props.modelValue.some((item) => isSameCalendarDay(d, parseDateValue(item)));
-  }
-  return isSameCalendarDay(d, parseDateValue(props.modelValue));
-}
-
-function isDateInRange(d: Date): boolean {
-  if (props.selectionMode !== "range" || !Array.isArray(props.modelValue)) return false;
-  const start = parseDateValue(props.modelValue[0]);
-  const end = parseDateValue(props.modelValue[1]);
-  if (!start || !end) return false;
-  const t = startOfDayTime(d);
-  return t > startOfDayTime(start) && t < startOfDayTime(end);
-}
-
-export interface CalendarCell {
-  date: Date;
-  day: number;
-  isoDate: string;
-  otherMonth: boolean;
-  today: boolean;
-  selected: boolean;
-  inRange: boolean;
-  disabled: boolean;
-  interactive: boolean;
-  count: number;
-  heat: 0 | 1 | 2;
-}
-
-const calendarWeeks = computed<CalendarCell[][]>(() => {
-  const year = viewYear.value;
-  const month = viewMonth.value;
-  const firstOfMonth = new Date(year, month, 1);
-  const firstDow = firstOfMonth.getDay();
-  const offset =
-    props.firstDayOfWeek === 1 ? (firstDow + 6) % 7 : firstDow;
-  const gridStart = new Date(year, month, 1 - offset);
-  const todayObj = new Date(todayYear, todayMonth, todayDate);
-
-  const weeks: CalendarCell[][] = [];
-  const cursor = new Date(gridStart.getTime());
-
-  for (let w = 0; w < 6; w += 1) {
-    const row: CalendarCell[] = [];
-    for (let d = 0; d < 7; d += 1) {
-      const cellDate = new Date(
-        cursor.getFullYear(),
-        cursor.getMonth(),
-        cursor.getDate(),
-        props.hours,
-        props.minutes,
-        0,
-        0,
-      );
-      const otherMonth = cellDate.getMonth() !== month;
-      const isoDate = toIsoDateKey(cellDate);
-      const count = !otherMonth && props.days ? (props.days[isoDate] ?? 0) : 0;
-      const heat: 0 | 1 | 2 = count >= 2 ? 2 : count === 1 ? 1 : 0;
-      const outOfBounds = isDateOutOfBounds(cellDate);
-      const blockedByDays = props.onlySelectableWithDays && (otherMonth || count <= 0);
-      const disabled = Boolean(props.disabled || outOfBounds || blockedByDays);
-      const interactive = !disabled && !props.readonly;
-
-      row.push({
-        date: cellDate,
-        day: cellDate.getDate(),
-        isoDate,
-        otherMonth,
-        today: isSameCalendarDay(cellDate, todayObj),
-        selected: !otherMonth && isDateSelected(cellDate, isoDate),
-        inRange: !otherMonth && isDateInRange(cellDate),
-        disabled,
-        interactive,
-        count,
-        heat,
-      });
-      cursor.setDate(cursor.getDate() + 1);
-    }
-    weeks.push(row);
-  }
-  return weeks;
-});
+const calendarWeeks = computed<CalendarCell[][]>(() =>
+  buildCalendarWeeks({
+    year: viewYear.value,
+    month: viewMonth.value,
+    today: new Date(todayYear, todayMonth, todayDate),
+    firstDayOfWeek: props.firstDayOfWeek,
+    selectionMode: props.selectionMode,
+    modelValue: props.modelValue,
+    selected: props.selected,
+    minDate: props.minDate,
+    maxDate: props.maxDate,
+    days: props.days,
+    onlySelectableWithDays: props.onlySelectableWithDays,
+    disabled: props.disabled,
+    readonly: props.readonly,
+    hours: props.hours,
+    minutes: props.minutes,
+  }),
+);
 
 function emitViewRange(): void {
   const from = new Date(viewYear.value, viewMonth.value, 1);

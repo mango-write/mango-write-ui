@@ -48,13 +48,15 @@ const zh = (bi) => (bi && typeof bi === "object" ? bi.zh : bi ?? "");
 const { docGroups } = await importTs(join(ROOT, "playground/dev/registry-data.ts"));
 const groups = docGroups.map((g) => ({
   id: g.id,
+  section: g.section,
   title: zh(g.title),
   base: g.base,
   entries: g.entries.map((e) => ({ slug: e.slug, title: zh(e.title), en: e.title?.en ?? "", lead: zh(e.lead) })),
 }));
 
-const componentGroups = groups.filter((g) => g.id !== "foundations" && g.id !== "getting-started");
-const foundations = groups.find((g) => g.id === "foundations");
+const componentGroups = groups.filter((g) => g.section === "desktop" && g.id !== "getting-started");
+const foundationGroups = groups.filter((g) => g.section === "foundations");
+const mobileGroups = groups.filter((g) => g.section === "mobile");
 const registrySlugs = componentGroups.flatMap((g) => g.entries.map((e) => e.slug));
 const entrySlugs = Object.keys(entries).sort();
 const missing = registrySlugs.filter((s) => !entries[s]);
@@ -106,15 +108,22 @@ llms.push(
   "",
 );
 llms.push(`# 设计规范`, "");
-for (const f of foundations.entries) {
-  const anchor = f.slug === "installation" ? "getting-started/installation" : `foundations/${f.slug}`;
-  llms.push(`- [${f.title} ${f.en}](${SITE}/${anchor}):${f.lead}`);
+for (const g of foundationGroups) {
+  for (const f of g.entries) {
+    llms.push(`- [${f.title} ${f.en}](${SITE}/${g.base}/${f.slug}):${f.lead}`);
+  }
 }
-llms.push("", `# 组件(${entrySlugs.length} 个)`, "");
+llms.push("", `# 桌面端组件 (@mango-write/ui-vue · ${entrySlugs.length} 个)`, "");
 for (const g of componentGroups) {
   for (const e of g.entries) {
     const api = entries[e.slug];
     llms.push(`- [${e.en} ${e.title}](${pageUrl(api)}):${e.lead}`);
+  }
+}
+llms.push("", `# 移动端与小程序组件 (@mango-write/ui-mp)`, "");
+for (const g of mobileGroups) {
+  for (const e of g.entries) {
+    llms.push(`- [${e.en} ${e.title}](${SITE}/${g.base}/${e.slug}):${e.lead}`);
   }
 }
 llms.push(
@@ -145,11 +154,19 @@ for (const step of installSteps) {
   full.push("```" + step.lang, zh(step.code), "```", "");
 }
 full.push(`## 设计规范`, "");
-for (const f of foundations.entries) {
-  full.push(`- [${f.title} ${f.en}](${SITE}/foundations/${f.slug}):${f.lead}`);
+for (const g of foundationGroups) {
+  for (const f of g.entries) {
+    full.push(`- [${f.title} ${f.en}](${SITE}/${g.base}/${f.slug}):${f.lead}`);
+  }
+}
+full.push("", `## 移动端与小程序组件 (@mango-write/ui-mp)`, "");
+for (const g of mobileGroups) {
+  for (const e of g.entries) {
+    full.push(`- [${e.en} ${e.title}](${SITE}/${g.base}/${e.slug}):${e.lead}`);
+  }
 }
 for (const g of componentGroups) {
-  full.push("", `## 组件 · ${g.title}`, "");
+  full.push("", `## 桌面端组件 · ${g.title}`, "");
   for (const e of g.entries) {
     full.push(componentSection(entries[e.slug], { heading: "###" }));
   }

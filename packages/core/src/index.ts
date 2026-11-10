@@ -1,4 +1,5 @@
 export * from "./locale/index.js";
+export * from "./headless/calendar-grid.js";
 export * from "./headless/hover-card.js";
 export * from "./headless/overlay-slot.js";
 export * from "./headless/scroll-fade-core.js";

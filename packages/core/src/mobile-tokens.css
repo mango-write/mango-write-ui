@@ -1,0 +1,124 @@
+page,
+.mw-mp-root {
+  --mp-type-micro-size: 0.6875rem;
+  --mp-type-micro-line: 1rem;
+  --mp-type-caption-size: 0.75rem;
+  --mp-type-caption-line: 1.125rem;
+  --mp-type-subhead-size: 0.8125rem;
+  --mp-type-subhead-line: 1.25rem;
+  --mp-type-body-size: 0.9375rem;
+  --mp-type-body-line: 1.375rem;
+  --mp-type-reading-size: 1rem;
+  --mp-type-reading-line: 1.625rem;
+  --mp-type-title-sm-size: 1rem;
+  --mp-type-title-sm-line: 1.375rem;
+  --mp-type-title-size: 1.125rem;
+  --mp-type-title-line: 1.5rem;
+  --mp-type-title-lg-size: 1.375rem;
+  --mp-type-title-lg-line: 1.75rem;
+
+  --mp-size-xs-h: 28px;
+  --mp-size-xs-font: var(--mp-type-caption-size);
+  --mp-size-xs-icon: 16px;
+  --mp-size-xs-px: 10px;
+  --mp-size-xs-gap: 4px;
+  --mp-size-xs-radius: 8px;
+  --mp-size-sm-h: 36px;
+  --mp-size-sm-font: var(--mp-type-subhead-size);
+  --mp-size-sm-icon: 18px;
+  --mp-size-sm-px: 12px;
+  --mp-size-sm-gap: 6px;
+  --mp-size-sm-radius: 10px;
+  --mp-size-md-h: 44px;
+  --mp-size-md-font: var(--mp-type-body-size);
+  --mp-size-md-icon: 20px;
+  --mp-size-md-px: 16px;
+  --mp-size-md-gap: 8px;
+  --mp-size-md-radius: 12px;
+  --mp-size-lg-h: 48px;
+  --mp-size-lg-font: var(--mp-type-reading-size);
+  --mp-size-lg-icon: 22px;
+  --mp-size-lg-px: 20px;
+  --mp-size-lg-gap: 8px;
+  --mp-size-lg-radius: 14px;
+  --mp-chip-h: 32px;
+
+  --mp-card-inset: var(--space-4);
+  --mp-card-radius: 14px;
+  --mp-card-gap: var(--space-3);
+  --mp-cell-min-h: 48px;
+  --mp-cell-py: var(--space-3);
+  --mp-cell-px: 0px;
+  --mp-hairline-inset: 0px;
+
+  --mp-sheet-radius: 20px;
+  --mp-sheet-max-h: 88%;
+  --mp-sheet-max-h-short: 78%;
+  --mp-sheet-max-w: 480px;
+  --mp-bar-max-w: 520px;
+  --mp-reading-max-w: 600px;
+  --mp-grabber-w: 36px;
+  --mp-grabber-h: 4px;
+  --mp-action-item-h: 48px;
+  --mp-action-item-h-short: 44px;
+  --mp-dialog-w: 312px;
+  --mp-dialog-w-expanded: 380px;
+  --mp-dialog-radius: var(--radius-xl);
+  --mp-dialog-btn-h: 48px;
+
+  --mp-navbar-h: 44px;
+  --mp-navbar-h-landscape: 38px;
+  --mp-tabbar-h: 52px;
+  --mp-tabbar-h-landscape: 44px;
+  --mp-capsule-w: 88px;
+  --mp-capsule-h: 32px;
+  --mp-safe-top: env(safe-area-inset-top, 0px);
+  --mp-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --mp-icon-size: 22px;
+  --mp-icon-sm: 18px;
+  --mp-icon-md: 20px;
+  --mp-icon-lg: 22px;
+  --mp-touch-min: 44px;
+  --mp-press-scale: 0.985;
+  --mp-press-scale-subtle: 0.99;
+  --mp-accent-ink: var(--text-on-accent);
+  --mp-text-meta: var(--text-secondary);
+  --mw-mp-icon-image: none;
+}
+
+.mw-mp-root.mw-theme-dark {
+  --mp-accent-ink: var(--text-on-accent);
+}
+
+.mw-mp-root {
+  --size-xs-h: var(--mp-size-xs-h);
+  --size-xs-font: var(--mp-size-xs-font);
+  --size-xs-icon: var(--mp-size-xs-icon);
+  --size-xs-px: var(--mp-size-xs-px);
+  --size-xs-gap: var(--mp-size-xs-gap);
+  --size-xs-radius: var(--mp-size-xs-radius);
+  --size-sm-h: var(--mp-size-sm-h);
+  --size-sm-font: var(--mp-size-sm-font);
+  --size-sm-icon: var(--mp-size-sm-icon);
+  --size-sm-px: var(--mp-size-sm-px);
+  --size-sm-gap: var(--mp-size-sm-gap);
+  --size-sm-radius: var(--mp-size-sm-radius);
+  --size-md-h: var(--mp-size-md-h);
+  --size-md-font: var(--mp-size-md-font);
+  --size-md-icon: var(--mp-size-md-icon);
+  --size-md-px: var(--mp-size-md-px);
+  --size-md-gap: var(--mp-size-md-gap);
+  --size-md-radius: var(--mp-size-md-radius);
+  --size-lg-h: var(--mp-size-lg-h);
+  --size-lg-font: var(--mp-size-lg-font);
+  --size-lg-icon: var(--mp-size-lg-icon);
+  --size-lg-px: var(--mp-size-lg-px);
+  --size-lg-gap: var(--mp-size-lg-gap);
+  --size-lg-radius: var(--mp-size-lg-radius);
+  --control-h: var(--mp-size-md-h);
+  --control-font: var(--mp-size-md-font);
+  --control-icon: var(--mp-size-md-icon);
+  --control-px: var(--mp-size-md-px);
+  --control-gap: var(--mp-size-md-gap);
+  --control-radius: var(--mp-size-md-radius);
+}

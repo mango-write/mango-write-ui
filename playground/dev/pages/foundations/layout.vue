@@ -315,6 +315,7 @@ const s = {
 }
 
 .fade-demo-item {
+  flex-shrink: 0;
   padding: var(--space-1-5) var(--space-2);
   border-radius: var(--radius-sm);
   background: var(--fill-default);

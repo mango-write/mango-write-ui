@@ -10,6 +10,7 @@ export default defineConfig({
   plugins: [vue()],
   resolve: {
     conditions: ["mango-source", "module", "import", "browser", "default"],
+    dedupe: ["vue", "vue-router", "vue-i18n", "reka-ui"],
   },
   test: {
     projects: [

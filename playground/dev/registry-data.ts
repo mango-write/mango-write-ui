@@ -4,6 +4,8 @@
 // DocPage 头与 llms-full.txt 共用,改文案在这里改,别回页面里找。
 import type { Bi } from "./i18n";
 
+export type DocSectionId = "foundations" | "desktop" | "mobile";
+
 export interface DocEntry {
   slug: string;
   title: Bi;
@@ -12,6 +14,7 @@ export interface DocEntry {
 
 export interface DocGroup {
   id: string;
+  section: DocSectionId;
   title: Bi;
   base: string;
   entries: DocEntry[];
@@ -26,23 +29,21 @@ function component(slug: string, title: Bi, lead?: Bi): DocEntry {
 }
 
 export const docGroups: DocGroup[] = [
-  {
-    id: "getting-started",
-    title: { zh: "上手", en: "Getting started" },
-    base: "/getting-started",
-    entries: [foundation("installation", { zh: "安装与上手", en: "Installation" })],
-  },
+  // ============================================================================
+  // Pillar 1: 设计语言 (Design Language · Core + Platform Guidelines)
+  // ============================================================================
   {
     id: "foundations",
-    title: { zh: "基础", en: "Foundations" },
+    section: "foundations",
+    title: { zh: "整体设计语言", en: "Core Design Language" },
     base: "/foundations",
     entries: [
       foundation(
         "overview",
         { zh: "设计原则", en: "Principles" },
         {
-          zh: "内容是纸，浮层是霜，橙色只给动作。研究者长时间面对文字与资料，界面要安静、可预测、层次一眼可辨。",
-          en: "Content is paper, overlays are frost, and orange belongs to actions alone. Researchers live in text and sources for hours, so the interface must stay quiet, predictable, and legible at a glance.",
+          zh: "内容是纸，浮层是霜，橙色只给动作。以一套核心视觉基因（Core）衍生出桌面精细工作台（Desktop）与掌上触控伴侣（Mobile）双翼体系。",
+          en: "Content is paper, overlays are frost, and orange belongs to actions alone. One shared Core visual DNA branches into the Desktop precision workbench and the Mobile touch companion.",
         },
       ),
       foundation(
@@ -120,7 +121,42 @@ export const docGroups: DocGroup[] = [
     ],
   },
   {
+    id: "platform-guidelines",
+    section: "foundations",
+    title: { zh: "各端设计语言", en: "Platform Design Languages" },
+    base: "/foundations",
+    entries: [
+      foundation(
+        "desktop",
+        { zh: "桌面端", en: "Desktop Guidelines" },
+        {
+          zh: "纸与霜 · 精细工作台：面向 1px 鼠标指针、快捷键与宽屏多列视口，采用 24/28/32/40px 指针尺寸轴、13px 默认排版、清晰描边控件、锚定弹出层与管理后台四壳模板。",
+          en: "Paper & Frost · Precision Workbench: tailored for 1px mouse pointers, keyboard shortcuts, and wide multi-column viewports with the 24/28/32/40px pointer size axis, 13px default type, bordered controls, anchored popovers, and 4-shell admin templates.",
+        },
+      ),
+      foundation(
+        "mobile",
+        { zh: "移动端", en: "Mobile Guidelines" },
+        {
+          zh: "纸与霜 · 掌上版：面向拇指触控与手持窄视口，采用内容优先的通栏信息流、44/48/52px 交互尺寸、16/17px 正文排版、统一矢量图标与可访问的底部抽屉。",
+          en: "Paper & Frost · Touch: content-first flush feeds, 44/48/52px interactive sizes, 16/17px body typography, unified vector icons, and accessible bottom sheets for handheld viewports.",
+        },
+      ),
+    ],
+  },
+  // ============================================================================
+  // Pillar 2: 桌面端组件 (Desktop Components · @mango-write/ui-vue)
+  // ============================================================================
+  {
+    id: "getting-started",
+    section: "desktop",
+    title: { zh: "上手", en: "Getting started" },
+    base: "/getting-started",
+    entries: [foundation("installation", { zh: "安装与上手", en: "Installation" })],
+  },
+  {
     id: "actions",
+    section: "desktop",
     title: { zh: "操作", en: "Actions" },
     base: "/components",
     entries: [
@@ -160,6 +196,7 @@ export const docGroups: DocGroup[] = [
   },
   {
     id: "inputs",
+    section: "desktop",
     title: { zh: "输入", en: "Inputs" },
     base: "/components",
     entries: [
@@ -263,6 +300,7 @@ export const docGroups: DocGroup[] = [
   },
   {
     id: "selection",
+    section: "desktop",
     title: { zh: "选择", en: "Selection" },
     base: "/components",
     entries: [
@@ -342,6 +380,7 @@ export const docGroups: DocGroup[] = [
   },
   {
     id: "display",
+    section: "desktop",
     title: { zh: "展示", en: "Display" },
     base: "/components",
     entries: [
@@ -445,6 +484,7 @@ export const docGroups: DocGroup[] = [
   },
   {
     id: "overlays",
+    section: "desktop",
     title: { zh: "浮层", en: "Overlays" },
     base: "/components",
     entries: [
@@ -508,6 +548,7 @@ export const docGroups: DocGroup[] = [
   },
   {
     id: "structure",
+    section: "desktop",
     title: { zh: "结构", en: "Structure" },
     base: "/components",
     entries: [
@@ -585,12 +626,88 @@ export const docGroups: DocGroup[] = [
       ),
       component(
         "admin-shell",
-        { zh: "后台页面四壳", en: "Admin Page Shells" },
+        { zh: "后台页面框架", en: "Admin Page Shells" },
         {
-          zh: "后台页面四壳：严格分离「固定页面要素」与「唯一可滚动数据层」的列表壳（AdminListPage）、配置壳（AdminConfigPage）、详情壳（AdminDetailPage）与看板壳（AdminBoardPage）。",
+          zh: "后台页面框架：严格分离「固定页面要素」与「唯一可滚动数据层」的列表壳（AdminListPage）、配置壳（AdminConfigPage）、详情壳（AdminDetailPage）与看板壳（AdminBoardPage）。",
           en: "Four admin page shells that strictly separate fixed page chrome from the single scrollable data plane: AdminListPage, AdminConfigPage, AdminDetailPage, and AdminBoardPage.",
         },
       ),
+    ],
+  },
+  {
+    id: "mp-getting-started",
+    section: "mobile",
+    title: { zh: "移动基础", en: "Mobile foundations" },
+    base: "/mobile",
+    entries: [
+      component("installation", { zh: "主题与图标", en: "Theme and icons" }, {
+        zh: "统一语义 Token、深浅色、触控与矢量图标，H5 与小程序共享同一基础。",
+        en: "Shared semantic tokens, themes, touch geometry, and vector icons for H5 and Mini Programs.",
+      }),
+    ],
+  },
+  {
+    id: "mp-primitives",
+    section: "mobile",
+    title: { zh: "基础组件", en: "Primitives" },
+    base: "/mobile",
+    entries: [
+      component("navbar", { zh: "导航", en: "Navigation" }, {
+        zh: "返回与上下文顶栏、一级底部导航，以及真实胶囊安全区。",
+        en: "Back and context navigation, top-level tabs, and real capsule clearance.",
+      }),
+      component("cell", { zh: "内容列表", en: "Content lists" }, {
+        zh: "标题、摘要和元信息分行组织的通栏研究信息流。",
+        en: "Flush research feeds with distinct title, summary, and metadata rows.",
+      }),
+      component("button", { zh: "动作按钮", en: "Buttons" }, {
+        zh: "44/48/52px 三档真实交互尺寸与明确的动作层级。",
+        en: "True 44/48/52px interactive sizes with clear action hierarchy.",
+      }),
+      component("input", { zh: "输入与校验", en: "Input and validation" }, {
+        zh: "搜索、单行与多行输入，以及关联标签、提示和错误的表单字段。",
+        en: "Search, text inputs, and form fields with connected labels, hints, and errors.",
+      }),
+      component("filters", { zh: "筛选与标签", en: "Filters and tags" }, {
+        zh: "静态标签、单选筛选条与多选芯片各自承担明确语义。",
+        en: "Distinct static tags, single-select filter bars, and multi-select chips.",
+      }),
+    ],
+  },
+  {
+    id: "mp-feedback",
+    section: "mobile",
+    title: { zh: "状态与浮层", en: "States and overlays" },
+    base: "/mobile",
+    entries: [
+      component("empty", { zh: "加载、空态与错误", en: "Loading and empty states" }, {
+        zh: "独立加载反馈，以及带真实恢复动作的空态与错误态。",
+        en: "Dedicated loading feedback and empty/error states with working recovery actions.",
+      }),
+      component("sheet", { zh: "底部抽屉与选择器", en: "Sheets and selection" }, {
+        zh: "轻量详情、底部动作区与独立单选语义，长文编辑不进入 Sheet。",
+        en: "Lightweight details and single selection; long editing stays outside sheets.",
+      }),
+      component("action-sheet", { zh: "条目动作菜单", en: "Action menu" }, {
+        zh: "针对条目的动作列表，危险与禁用状态清晰可见。",
+        en: "Item commands with clear danger and disabled states.",
+      }),
+      component("feedback", { zh: "反馈与消息", en: "Feedback and messages" }, {
+        zh: "可访问确认、单条最新通知、内联提示与问答消息。",
+        en: "Accessible confirmation, latest-only toasts, inline notices, and messages.",
+      }),
+    ],
+  },
+  {
+    id: "mp-patterns",
+    section: "mobile",
+    title: { zh: "交互模式", en: "Patterns" },
+    base: "/mobile",
+    entries: [
+      component("patterns", { zh: "页面结构与输入器", en: "Page patterns and composer" }, {
+        zh: "页面标题、区块标题、底部主动作与 AI 输入器组成真实任务结构。",
+        en: "Page and section headers, bottom actions, and composers form real task structures.",
+      }),
     ],
   },
 ];

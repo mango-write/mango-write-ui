@@ -161,12 +161,21 @@ describe("@mango-write/ui-vue & @mango-write/ui-core package exports & static CS
     expect(distBase).not.toContain("--p-");
 
     const coreSrcComponents = stripCssComments(readFileSync(path.join(coreRoot, "src/components.css"), "utf8"));
-    expect(coreSrcComponents).toContain(".mw-control");
+    expect(coreSrcComponents).toContain('./styles/components/control.css');
+    expect(coreSrcComponents.indexOf("./styles/components/control.css")).toBeLessThan(
+      coreSrcComponents.indexOf("./styles/components/checkbox.css"),
+    );
     expect(coreSrcComponents).not.toContain("--p-");
 
     const distComponents = stripCssComments(readFileSync(path.join(pkgRoot, "dist/components.css"), "utf8"));
     expect(distComponents).toContain(".mw-control");
     expect(distComponents).toContain(".mw-form-field");
+    expect(distComponents.indexOf(".mw-control")).toBeLessThan(distComponents.indexOf(".mw-checkbox"));
+    expect(distComponents.indexOf(".mw-control")).toBeLessThan(distComponents.indexOf(".mw-toggle-switch"));
+
+    const coreDistComponents = stripCssComments(readFileSync(path.join(coreRoot, "dist/components.css"), "utf8"));
+    expect(coreDistComponents.indexOf(".mw-control")).toBeLessThan(coreDistComponents.indexOf(".mw-checkbox"));
+    expect(coreDistComponents.indexOf(".mw-control")).toBeLessThan(coreDistComponents.indexOf(".mw-toggle-switch"));
 
     const themeCss = stripCssComments(readFileSync(path.join(pkgRoot, "dist/theme.css"), "utf8"));
     expect(themeCss).toContain("./base.css");

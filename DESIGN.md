@@ -1,29 +1,38 @@
 # Mango 设计语言 ·「纸与霜」
 
-> 本文是 `@mango-write/ui` 的设计规范正文：原则、结构、规则与理由。
-> **数值只在 [`packages/core/src/var.css`](packages/core/src/var.css)**，可视化的活规格在展示站文档页（`pnpm dev`）。
-> 文中出现的 token 名就是代码里的变量名。
+> 本文是 `@mango-write/ui` 设计体系的**一核双翼（Core + Desktop + Mobile）**核心总纲与规范正文：原则、结构、规则与理由。
+> - **Core 核心令牌**：[`packages/core/src/var.css`](packages/core/src/var.css)（数值唯一真相源，展示站 Foundations 直接读取这里）
+> - **Desktop 桌面端设计规范**：[`DESIGN-DESKTOP.md`](DESIGN-DESKTOP.md)（Web / Electron 工作台 / Admin 后台）
+> - **Mobile 移动端与小程序设计规范**：[`DESIGN-MOBILE.md`](DESIGN-MOBILE.md)（[`packages/core/src/mobile-tokens.css`](packages/core/src/mobile-tokens.css)，微信小程序 / 移动端 H5 / 原生移动伴侣）
+> - 可视化活规格与双端对照见展示站文档页（`pnpm dev`）。文中出现的 token 名就是代码里的变量名。
 
-## 1. 一句话
+## 1. 一句话与一核双翼架构
 
-**内容是纸，浮层是霜，橙色只给动作。** 研究者长时间面对的是文字与资料，界面要安静、可预测、层次一眼可辨；
-品牌存在于少数关键时刻（主操作、选中、焦点），不铺满画面。
+**内容是纸，浮层是霜，橙色只给动作。** 研究者长时间面对的是文字与资料，界面要安静、可预测、层次一眼可辨；品牌存在于少数关键时刻（主操作、选中、焦点），不铺满画面。
+
+由于**键鼠桌面工作台**与**拇指手持伴侣（小程序/移动端）**在视距、输入精度、屏幕画幅与使用心流上存在物理代差，设计体系采用 **「一核双翼」** 协同架构：
+
+| 层级 | 定位 | 权威规范与 Token 源 | 消费包 |
+|---|---|---|---|
+| **Core 核心设计语言** | 跨端不变量：色彩哲学、纸与霜材质、半透明叠层、黄金分割动效、4px 网格、字重阶梯与状态语义 | 本文（`DESIGN.md`）+ [`packages/core/src/var.css`](packages/core/src/var.css) | `@mango-write/ui-core` |
+| **Desktop 桌面设计语言** | 精细工作台：`24/28/32/40px` 指针尺寸轴、`13px` 紧凑排版、描边控件、Hover/Focus Ring、画布多浮岛、锚定弹出层与后台四壳模板 | [`DESIGN-DESKTOP.md`](DESIGN-DESKTOP.md) + `var.css` 默认几何 | `@mango-write/ui-vue` / `@mango-write/ui-react` |
+| **Mobile 移动设计语言** | 内容优先的掌上信息流：`44/48/52px` 交互尺寸、`16px/17px` 正文、通栏列表、填充控件、统一矢量图标、可访问底部抽屉与真实胶囊避让 | [`DESIGN-MOBILE.md`](DESIGN-MOBILE.md) + [`packages/core/src/mobile-tokens.css`](packages/core/src/mobile-tokens.css) | `@mango-write/ui-mp` |
 
 ## 2. 六条原则（冲突时按序取舍）
 
-1. **纸先于一切（Paper first）**：正文落在不透明、偏暖的纸面上。界面框架（壳、工具条、侧栏）退后，不与内容抢亮度。
+1. **纸先于一切（Paper first）**：正文落在不透明、偏暖的纸面上。界面框架（壳、工具条、侧栏、导航栏）退后，不与内容抢亮度。
 2. **浮起来的才是霜（Frost for floating）**：只有「浮在内容之上、底下会有东西滑过」的层用霜材质；同一时刻屏上的霜层 ≤ 2。
 3. **着色不铺色（Tint, don't paint）**：组件内部的填充一律是墨色或强调色的**半透明叠层**（`--fill-*`、`--*-subtle`），
    因此同一个组件放在纸面、画布、霜面上都成立，霜面不会被内部的实色块打断。
 4. **橙色只给动作（Ember for action）**：`--accent` 只用于主操作、选中态、焦点与关键数据强调。一个区块至多一个实心主按钮。
-5. **一根尺寸轴（One size axis）**：控件的高度、字号、图标、内距、间隙、圆角由同一档位派生，不单独挑数。密度由容器决定，不由组件各自决定。
+5. **一根尺寸轴（One size axis）**：控件的高度、字号、图标、内距、间隙、圆角由同一档位（`xs / sm / md / lg`）派生，不单独挑数。密度由容器和平台上下文决定，不由组件各自决定。
 6. **安静的动（Quiet motion）**：动效解释因果（从哪来、到哪去），不表演。只动 transform / opacity / 颜色。
 
 ## 3. Token 结构
 
 ```
 ① Palette  原料色板（--palette-*）            只给 ③ 用；组件禁止引用
-② Scale    尺寸 / 间距 / 字号 / 圆角 / 动效 / 布局 / 层级   与主题无关
+② Scale    尺寸 / 间距 / 字号 / 圆角 / 动效 / 布局 / 层级   与主题无关（Desktop 默认 + Mobile 作用域覆写）
 ③ Semantic 语义色（--bg-* / --text-* / --accent / --danger …）浅色基值 + 深色覆盖
 ④ Derived  派生（--fill-* / --border-* / --*-subtle / --focus-*）每个主题作用域重新求值
 ⑤ Domain   业务域（批注 / 划线 / 代码 / 灯箱 / 营销舞台）
@@ -31,20 +40,21 @@
 ```
 
 - 组件只读 ②③④⑤ 与自己的 `--mw-<组件>-*` 局部变量；`--mw-*` 带回落值即为组件对外的定制钩子。
-- 主题作用域 `[data-theme="light|dark"]` 可以挂在任意元素上：深浅色可以在同一页面并排出现（展示站即如此）。
+- 主题作用域 `[data-theme="light|dark"]`（以及小程序类名 `.mw-theme-light|dark`）可以挂在任意元素上：深浅色可以在同一页面并排出现（展示站即如此）。
+- 平台尺寸作用域隔离：`:root` 恒定提供 Desktop Scale；仅在 `page` 或 `.mw-mp-root`（`MpThemeProvider`）作用域内将 `--size-xs/sm/md/lg-*` 与 `--control-*` 映射至 Mobile 触控尺寸轴，绝不污染桌面端全局 `:root`。
 - 新增 token 的门槛：表达稳定语义、至少两个组件消费。只服务一个组件的值写成该组件的 `--mw-*`。
 
 ## 4. 颜色
 
 ### 4.1 面（从低到高）
 
-| token | 角色 |
-|---|---|
-| `--bg-canvas` | 桌面 / 壳底：浮岛之间露出的那层，明显低于纸面 |
-| `--bg-surface` | **纸面**：页面与工作区的默认底 |
-| `--bg-raised` | 抬起的内容面：卡片、分组卡、表格 |
-| `--bg-sunken` | 凹陷面：代码块、只读井、侧栏分组底 |
-| `--bg-inverse` | 反色：tooltip 之外极少数的强对比块 |
+| token | 角色 | Desktop 用法 | Mobile 用法 |
+|---|---|---|---|
+| `--bg-canvas` | 桌面 / 壳底：明显低于纸面 | 工作台浮岛之间露出的那层 | **页面默认底壳**：衬托内缩分组纸卡 |
+| `--bg-surface` | **纸面**：内容与阅读面 | 页面与工作区的默认底 | 全宽内容页、底部抽屉或沉浸阅读底 |
+| `--bg-raised` | 抬起的内容面 | 卡片、分组卡、表格 | **Inset Grouped 内缩分组纸卡** |
+| `--bg-sunken` | 凹陷面 | 代码块、只读井、侧栏分组底 | 代码块或凹陷只读区 |
+| `--bg-inverse` | 反色 | tooltip 之外极少数的强对比块 | 胶囊轻提示或反色强调块 |
 
 深色下层级靠亮度递增表达（canvas 最暗 → raised 最亮），阴影只负责分离。
 
@@ -67,11 +77,12 @@ primary / secondary / tertiary / accent 在纸面上均 ≥ 4.5:1，由 `var-css
 
 ## 5. 文字排版
 
-- 系统字体栈（macOS → 苹方 + SF，Windows → 微软雅黑 + Segoe），不自托管，不基于某一款字体做字距决策。
+- 系统字体栈（macOS / iOS → 苹方 + SF，Windows → 微软雅黑 + Segoe，Android → HarmonyOS Sans / Roboto），不自托管，不基于某一款字体做字距决策。
 - 字号与行高成对出现（`--type-<step>-size` / `--type-<step>-line`），行高落 4px 网格：
 
-  `micro` · `caption` · `body-sm`（**界面默认**：控件、菜单、表格）· `body`（对话框正文、说明段落）· `body-lg`（长文阅读）·
+  `micro` · `caption` · `body-sm`（**Desktop 界面默认**：控件、菜单、表格）· `body`（对话框正文、说明段落）· `body-lg`（长文阅读）·
   `title-sm` · `title` · `title-lg`（页面标题）· `headline` · `display` · `display-lg`（仅营销站）。
+  （Mobile 掌上阶梯 `--mp-type-*` 详见 [`DESIGN-MOBILE.md`](DESIGN-MOBILE.md)：控件与正文默认 `16px`，重点阅读用 `17px`。）
 - 字重只用四档：`--weight-regular`（正文）、`--weight-medium`（控件、字段名）、`--weight-semibold`（标题）、`--weight-bold`（营销展示）。
 - 层级靠字重与颜色，不靠堆字号；数据密集界面不出现 `headline` 以上。
 - 数字列加 `.mw-tabular`（等宽数字）；长正文行宽不超过 `--container-prose`。
@@ -84,7 +95,15 @@ primary / secondary / tertiary / accent 在纸面上均 ≥ 4.5:1，由 `var-css
 
 - **md 是默认档**（表单、对话框、页头）；sm 给工具条之外的紧凑行（表格行内、标签栏）；xs 只给嵌入式微控件；lg 给营销与空态主 CTA。
 - 图标约为控件高度的一半；icon-only 控件恒为正方形。
-- 触屏（`pointer: coarse`）下控件视觉不变，命中区由伪元素扩到 `--hit-min`。**不靠缩小控件换密度。**
+- 桌面端在触屏（`pointer: coarse`）下控件视觉不变，命中区由伪元素扩到 `--hit-min`。**不靠缩小控件换密度。**
+- 双端物理数值对照：
+
+| 档位 | Desktop 桌面端（键鼠指针 · 1px 精度） | Mobile 掌上端（拇指触控 · `.mw-mp-root` 作用域） |
+|---|---|---|
+| `xs` | 高 `24px` · 字 `12px` · 圆角 `6px`（行内微控件） | 高 `28px` · 字 `12px` · 圆角 `8px`（静态标签，不承担独立动作） |
+| `sm` | 高 `28px` · 字 `12px` · 圆角 `6px`（紧凑行、表格行内） | 高 `44px` · 字 `14px` · 圆角 `10px`（次要按钮与紧凑控件） |
+| `md`（**默认**） | 高 `32px` · 字 `13px` · 圆角 `8px`（表单、对话框、页头） | 高 `48px` · 字 `16px` · 圆角 `12px`（默认按钮与输入） |
+| `lg` | 高 `40px` · 字 `14px` · 圆角 `10px`（营销与空态主 CTA） | 高 `52px` · 字 `16px` · 圆角 `14px`（底部通栏主动作） |
 
 ### 6.2 密度上下文
 
@@ -114,7 +133,7 @@ primary / secondary / tertiary / accent 在纸面上均 ≥ 4.5:1，由 `var-css
 | 0 平面 | 纸面、页面 | `--bg-surface` | 无 |
 | 1 抬起 | 卡片、分组卡、浮岛 | `--bg-raised` + `--border-subtle` | `--shadow-raised` / `--shadow-sheet` |
 | 2 浮动 | 菜单、下拉、Popover、Toast、Tooltip | 霜 | `--shadow-floating` |
-| 3 覆盖 | Dialog、确认框 | 厚霜 + `--scrim` 遮罩 | `--shadow-overlay` |
+| 3 覆盖 | Dialog、确认框、Bottom Sheet | 厚霜 + `--scrim` 遮罩 | `--shadow-overlay` |
 
 写「第几层」，不写「要多重的阴影」。z 轴秩序只用 `--z-*`：sticky < dropdown < overlay < toast < tooltip。
 
@@ -172,9 +191,9 @@ primary / secondary / tertiary / accent 在纸面上均 ≥ 4.5:1，由 `var-css
 
 ## 11. 图标
 
-- 全仓统一使用 `lucide-vue-next` 线性图标（24 栅格，描边 `--icon-stroke`），跟随 `currentColor`；同一区块不混填充与描边，不再使用 `pi pi-*` 类名图标。
+- 桌面端统一使用 `lucide-vue-next` 线性图标（24 栅格，描边 `--icon-stroke`），跟随 `currentColor`；小程序端通过 `MpIcon` 消费同源 Lucide SVG mask 数据 URI；同一区块不混填充与描边，不再使用 `pi pi-*` 类名图标。
 - 尺寸只取 `--icon-xs … --icon-2xl` 或控件上下文 `--control-icon`，**不跟随字号**。
-- 组件的 `icon` 参数只接受 Vue `Component`（Lucide 图标组件），尺寸由组件上下文 token 决定。
+- 桌面端组件的 `icon` 参数只接受 Vue `Component`（Lucide 图标组件），尺寸由组件上下文 token 决定。
 - 装饰性图标用 `--text-tertiary`；可点击的 icon-only 控件必须有可访问名称。
 
 ## 12. 布局与滚动边界
@@ -205,7 +224,7 @@ primary / secondary / tertiary / accent 在纸面上均 ≥ 4.5:1，由 `var-css
 ## 14. 组件契约
 
 - 几何全部来自 `--control-*` 与 ② 层 token；颜色全部来自 ③④；不写裸 px（1px 发丝线除外）、裸色值、裸时长、裸字重。
-- 一个组件的样式只有一个落点：组件自己的 `<style>`；`components.css` 只放跨组件共享底座（`.mw-control`）。
+- 跨框架通用组件样式沉淀在 `@mango-write/ui-core` 的 `styles/components/*.css`（其中 `control.css` 作为 `.mw-control` 公共底座排在各组件特化规则之前），Vue 交互组件专属样式放在组件自己的 `<style>`。
 - 浮层组件根节点挂 `.mw-frost` 或 `.mw-frost--thick`，自身不再声明背景色。
 - 每个组件在展示站有一页：用途 / 何时不用 · 档位 · 变体 · 状态矩阵 · 纸面 / 画布 / 霜面三种底 × 深浅两色。
 
@@ -273,11 +292,13 @@ primary / secondary / tertiary / accent 在纸面上均 ≥ 4.5:1，由 `var-css
 
 ## 16. 门禁
 
-`scripts/check-tokens.mjs`（`pnpm test` 内的 `check-tokens.test.ts`）对 `src/components/**` 与 `components.css` 检查：
+`scripts/check-tokens.mjs` 對 `packages/core`、`packages/vue` 与 `packages/mp` 统一强制：
 
 | 规则 | 含义 |
 |---|---|
 | `undefined-token` | 引用了未定义的变量（静默失效的头号来源） |
+| `mobile-token-in-desktop` | 桌面端样式或组件引用了 `--mp-*` / `--mw-mp-*` 移动端变量 |
+| `mobile-scope-leak` | 移动端样式出现裸 `:root` 或未限定在 `page / .mw-mp-root / .mw-mp-*` 作用域内的选择器 |
 | `legacy-token` | 引用了 ⑥ 旧名 |
 | `palette-in-component` | 组件直接读色板 |
 | `local-token-prefix` | 组件局部变量不以 `--mw-` 开头 |

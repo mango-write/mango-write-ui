@@ -8,6 +8,7 @@ import { fileURLToPath } from "node:url";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const coreSrc = join(root, "packages", "core", "src");
 const vueSrc = join(root, "packages", "vue", "src");
+const mpSrc = join(root, "packages", "mp", "src");
 
 const FLOATING = new Set([
   "ActionMenu", "AsyncSearchSelect", "ColorPicker", "ConfirmHost", "DatePicker", "Dialog",
@@ -99,16 +100,42 @@ export function checkTokens() {
 
   const coreComponentCssFiles = walk(join(coreSrc, "styles", "components")).filter((f) => f.endsWith(".css"));
   const vueComponentFiles = walk(join(vueSrc, "components")).filter((f) => f.endsWith(".vue"));
-  const componentFiles = [...coreComponentCssFiles, ...vueComponentFiles];
-  const sharedFiles = [
+  const mpComponentCssFile = join(mpSrc, "styles", "mp-components.css");
+  const mpSubComponentCssFiles = walk(join(mpSrc, "styles", "components")).filter((f) => f.endsWith(".css"));
+  const mpBaseCssFile = join(mpSrc, "styles", "mp-base.css");
+  const mobileTokensCssFile = join(coreSrc, "mobile-tokens.css");
+  const mpComponentFiles = [
+    ...(existsSync(mpComponentCssFile) ? [mpComponentCssFile] : []),
+    ...mpSubComponentCssFiles,
+    ...walk(join(mpSrc, "components")).filter((f) => f.endsWith(".vue")),
+  ];
+  const componentFiles = [...coreComponentCssFiles, ...vueComponentFiles, ...mpComponentFiles];
+  const baseCssFiles = [
+    join(coreSrc, "base.css"),
+    ...(existsSync(mpBaseCssFile) ? [mpBaseCssFile] : []),
+  ];
+  const desktopFiles = new Set([
     join(coreSrc, "var.css"),
     join(coreSrc, "base.css"),
     join(coreSrc, "components.css"),
+    ...coreComponentCssFiles,
+    ...vueComponentFiles,
+  ]);
+  const mobileSourceFiles = [
+    ...(existsSync(mobileTokensCssFile) ? [mobileTokensCssFile] : []),
+    ...(existsSync(mpBaseCssFile) ? [mpBaseCssFile] : []),
+    ...mpComponentFiles,
   ];
-  const defined = new Set();
-  for (const file of [...sharedFiles, ...componentFiles]) {
+  const desktopDefined = new Set();
+  for (const file of desktopFiles) {
     for (const { css } of styleBlocks(file)) {
-      for (const m of stripComments(css).matchAll(/(--[a-zA-Z0-9-]+)\s*:/g)) defined.add(m[1]);
+      for (const m of stripComments(css).matchAll(/(--[a-zA-Z0-9-]+)\s*:/g)) desktopDefined.add(m[1]);
+    }
+  }
+  const mobileDefined = new Set(desktopDefined);
+  for (const file of mobileSourceFiles) {
+    for (const { css } of styleBlocks(file)) {
+      for (const m of stripComments(css).matchAll(/(--[a-zA-Z0-9-]+)\s*:/g)) mobileDefined.add(m[1]);
     }
   }
 
@@ -116,9 +143,35 @@ export function checkTokens() {
   const report = (file, line, rule, detail) =>
     violations.push({ file: relative(root, file), line: line + 1, rule, detail });
 
-  for (const file of [join(coreSrc, "base.css"), join(coreSrc, "components.css"), ...componentFiles]) {
-    const isComponent = file !== join(coreSrc, "base.css");
-    const isComponentCssOrVue = file.endsWith(".vue") || coreComponentCssFiles.includes(file);
+  const mobileStyleFiles = [
+    ...(existsSync(mobileTokensCssFile) ? [mobileTokensCssFile] : []),
+    ...(existsSync(mpBaseCssFile) ? [mpBaseCssFile] : []),
+    ...(existsSync(mpComponentCssFile) ? [mpComponentCssFile] : []),
+    ...mpSubComponentCssFiles,
+  ];
+  for (const file of mobileStyleFiles) {
+    const clean = stripComments(readFileSync(file, "utf8"));
+    for (const m of clean.matchAll(/([^{};]+)\{/g)) {
+      const rawSelector = m[1].trim();
+      if (!rawSelector || rawSelector.startsWith("@") || /^(from|to|\d+%)$/.test(rawSelector)) continue;
+      const line = clean.slice(0, m.index + (m[1].length - m[1].trimStart().length)).split("\n").length - 1;
+      for (const part of rawSelector.split(",").map((s) => s.trim()).filter(Boolean)) {
+        if (/(^|[^\w-]):root\b/.test(part) || !/^(page\b|\.mw-mp-root\b|\.mw-mp-[a-z0-9-])/.test(part)) {
+          report(file, line, "mobile-scope-leak", `${part}（移动端样式必须限定在 page / .mw-mp-root / .mw-mp-* 作用域内）`);
+        }
+      }
+    }
+  }
+
+  for (const file of [...baseCssFiles, join(coreSrc, "components.css"), ...componentFiles]) {
+    const isDesktop = desktopFiles.has(file);
+    const activeDefined = isDesktop ? desktopDefined : mobileDefined;
+    const isComponent = !baseCssFiles.includes(file);
+    const isComponentCssOrVue =
+      file.endsWith(".vue") ||
+      coreComponentCssFiles.includes(file) ||
+      file === mpComponentCssFile ||
+      mpSubComponentCssFiles.includes(file);
     const name = file.split("/").pop().replace(/\.(vue|css)$/, "");
     for (const { css, offset } of styleBlocks(file)) {
       for (const { prop, value, line } of declarations(css)) {
@@ -130,7 +183,9 @@ export function checkTokens() {
           const token = m[1];
           if (ALLOWED_EXTERNAL.some((re) => re.test(token))) continue;
           if (token.startsWith("--mw-") && m[2] === ",") continue;
-          if (!defined.has(token)) report(file, at, "undefined-token", token);
+          if (isDesktop && (token.startsWith("--mp-") || token.startsWith("--mw-mp-"))) {
+            report(file, at, "mobile-token-in-desktop", token);
+          } else if (!activeDefined.has(token)) report(file, at, "undefined-token", token);
           else if (legacy.has(token)) report(file, at, "legacy-token", token);
           else if (isComponent && token.startsWith("--palette-")) report(file, at, "palette-in-component", token);
         }
@@ -160,7 +215,7 @@ export function checkTokens() {
       }
     }
   }
-  for (const file of [join(coreSrc, "components.css"), ...coreComponentCssFiles, ...walk(join(vueSrc, "components"))]) {
+  for (const file of [join(coreSrc, "components.css"), ...coreComponentCssFiles, ...mpComponentFiles, ...walk(join(vueSrc, "components"))]) {
     violations.push(...scanPiIcons(relative(root, file), readFileSync(file, "utf8")));
   }
   return violations;

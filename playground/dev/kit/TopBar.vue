@@ -16,17 +16,28 @@ import { locale, setLocale, t, type Locale } from "../i18n";
 const githubUrl = "https://github.com/mango-write/mango-write-ui";
 // 根相对路径:dev 由 vite 中间件伺服产物,线上随部署域名走(见 vite.playground.config.ts)。
 const llmsUrl = "/llms.txt";
-const docsEntry = "/getting-started/installation";
+const foundationsEntry = "/foundations/overview";
+const desktopEntry = "/getting-started/installation";
+const mobileEntry = "/mobile/installation";
 
 const route = useRoute();
-// 文档区没有单一入口路由可吃 router-link-active(组件页各成一路),按区域算高亮。
+// 顶栏四栏一级导航:首页 / 设计语言 / 桌面端组件 / 移动端组件,按当前路由归属高亮。
 const isLanding = computed(() => route.meta.landing === true);
+const activeSection = computed(() => {
+  if (isLanding.value) return "landing";
+  if (route.meta.section) return route.meta.section;
+  if (route.path.startsWith("/foundations")) return "foundations";
+  if (route.path.startsWith("/mobile")) return "mobile";
+  return "desktop";
+});
 
 const s = {
   brandHome: { zh: "MangoWrite UI 首页", en: "MangoWrite UI home" },
   mainNav: { zh: "主导航", en: "Main navigation" },
   home: { zh: "首页", en: "Home" },
-  docs: { zh: "组件文档", en: "Components" },
+  design: { zh: "设计语言", en: "Design Language" },
+  desktopDocs: { zh: "桌面端组件", en: "Desktop" },
+  mobileDocs: { zh: "移动端组件", en: "Mobile" },
   llms: { zh: "LLM 接入", en: "LLM docs" },
   theme: { zh: "颜色主题", en: "Color theme" },
   light: { zh: "浅色", en: "Light" },
@@ -67,8 +78,30 @@ function updateLocale(value: unknown) {
       <span class="dev-topbar__name">MangoWrite UI</span>
     </RouterLink>
     <nav class="dev-topbar__nav" :aria-label="t(s.mainNav)">
-      <RouterLink to="/" class="dev-topbar__navlink" :class="{ 'is-active': isLanding }">{{ t(s.home) }}</RouterLink>
-      <RouterLink :to="docsEntry" class="dev-topbar__navlink" :class="{ 'is-active': !isLanding }">{{ t(s.docs) }}</RouterLink>
+      <RouterLink to="/" class="dev-topbar__navlink" :class="{ 'is-active': activeSection === 'landing' }">
+        {{ t(s.home) }}
+      </RouterLink>
+      <RouterLink
+        :to="foundationsEntry"
+        class="dev-topbar__navlink"
+        :class="{ 'is-active': activeSection === 'foundations' }"
+      >
+        {{ t(s.design) }}
+      </RouterLink>
+      <RouterLink
+        :to="desktopEntry"
+        class="dev-topbar__navlink"
+        :class="{ 'is-active': activeSection === 'desktop' }"
+      >
+        {{ t(s.desktopDocs) }}
+      </RouterLink>
+      <RouterLink
+        :to="mobileEntry"
+        class="dev-topbar__navlink"
+        :class="{ 'is-active': activeSection === 'mobile' }"
+      >
+        {{ t(s.mobileDocs) }}
+      </RouterLink>
     </nav>
     <span class="dev-topbar__spacer" />
     <slot name="append" />

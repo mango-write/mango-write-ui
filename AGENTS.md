@@ -1,15 +1,16 @@
-# UI 组件库局部指引（`@mango-write/ui-core` / `@mango-write/ui-vue`）
+# UI 组件库局部指引（`@mango-write/ui-core` / `@mango-write/ui-vue` / `@mango-write/ui-mp`）
 
 适用于 `packages/ui/**`。先遵守主仓根 [`AGENTS.md`](../../AGENTS.md)，再使用本文件。
 
 ## 职责与定位
 
 `packages/ui` 是全仓唯一共享 UI 基础组件与静态样式源，同时作为独立平级 Monorepo 仓库发布：
-- `packages/core` (`@mango-write/ui-core`)：跨框架零依赖核心（6 层设计 Token `var.css`、静态底座 `base.css`、22 族通用组件静态样式 `styles/components/*.css`、纯 TS 无头逻辑 `headless/*`、公共契约类型 `defs/*` 与国际化字典 `locale`）。
-- `packages/vue` (`@mango-write/ui-vue`)：Vue 3 组件库与领域套件（对标未来 `@mango-write/ui-react` 与微信小程序 `@mango-write/ui-mp`）。
-- `playground` (`@mango-write/ui-playground`)：独立文档与交互展示站，与库发布包物理隔离。
+- `packages/core` (`@mango-write/ui-core`)：跨框架零依赖核心（6 层设计 Token `var.css`、移动端触控尺寸轴与卡片几何 `mobile-tokens.css`、静态底座 `base.css`、22 族通用组件静态样式 `styles/components/*.css`、纯 TS 无头逻辑 `headless/*`、公共契约类型 `defs/*` 与国际化字典 `locale`）。
+- `packages/vue` (`@mango-write/ui-vue`)：Vue 3 桌面工作台组件库与领域套件（对标未来 `@mango-write/ui-react`）。
+- `packages/mp` (`@mango-write/ui-mp`)：移动与微信小程序 / `uni-app` 组件库与样式编译管线（`compileWxssTokens` 合并 `var.css` + `mobile-tokens.css` → `mp-tokens.wxss`）；真实纵向切片宿主与微信验收归主仓 `apps/write-mp`。
+- `playground` (`@mango-write/ui-playground`)：独立文档与交互展示站（含 `/foundations/overview`、`/foundations/desktop`、`/foundations/mini-program` 及 `/mp.html` 独立入口），与库发布包物理隔离。
 
-设计语言（「纸与霜 / Paper & Frost」）、6 层 token 体系、尺寸轴、圆角同心律与霜面纪律的唯一权威规格见 [`DESIGN.md`](DESIGN.md)；详细架构契约、组件开发模板与业务页面架构模板见 [`../../docs/architecture/ui-components.md`](../../docs/architecture/ui-components.md)，业务层消费速查见 [`../../docs/frontend-design-guide.md`](../../docs/frontend-design-guide.md)。
+设计语言采用「一核双翼」三部曲权威规格：核心设计语言见 [`DESIGN.md`](DESIGN.md)，桌面精细工作台设计语言见 [`DESIGN-DESKTOP.md`](DESIGN-DESKTOP.md)，移动与微信小程序设计语言（纸与霜 · 掌上版）见 [`DESIGN-MOBILE.md`](DESIGN-MOBILE.md)。详细架构契约、组件开发模板与业务页面架构模板见 [`../../docs/architecture/ui-components.md`](../../docs/architecture/ui-components.md)，业务层消费速查见 [`../../docs/frontend-design-guide.md`](../../docs/frontend-design-guide.md)。
 
 ## 新增/修改组件强制清单（文件四件套）
 
@@ -41,6 +42,16 @@
   - 状态选择器统一使用 `[data-state="..."]`、`[data-highlighted]`、`[data-disabled]`、`[data-invalid]`。
 - **声明文件跨平台唯一性**：组件与类型契约的文件名不能仅靠大小写区分（如 `Calendar` / `calendar`）；macOS 构建会覆盖声明。契约使用 `calendar-defs.ts` 这类独立名称，公开子路径通过 exports 映射保持稳定。
 - **模块化构建与 Tree-shaking**：`packages/vue/vite.config.ts` 开启 `preserveModules: true`，确保消费方按子路径或按需引入时绝不连带无关组件。
+- **小程序与 H5 Demo 双环境兼容红线（`packages/mp`）**：
+  - 模板禁止使用微信小程序 WXML 不支持的运行时动态标签 `<component :is="...">`；
+  - 表单输入（`MpInput` / `MpTextarea` / `MpSearchBar`）统一经 `packages/mp/src/lib/mp-dom.ts` 的 `readMpInputValue(event)` 取值，同时兼容小程序 `event.detail.value` 与 H5 `event.target.value`；
+  - 独立触控目标至少 44px；交互按钮只使用 `sm (44px)` / `md (48px)` / `lg (52px)`，静态标签可用 `xs (28px)`，禁止用 `.mw-mp-hit-target` 透明热区补偿微型交互控件；
+  - `MpTag` 只展示静态标签，选择使用 `MpFilterChip` / `MpFilterBar`；单选使用 `MpSelectSheet`，不再与 `MpActionSheet` 混用；
+  - 通用页面结构使用 `MpFormField`、`MpPageHeader`、`MpSectionHeader`、`MpBottomActionBar`、`MpComposer` 等公共模式，业务请求与 store 仍归宿主；
+  - 模态浮层统一经 `lib/use-mp-overlay.ts` 管理焦点、Esc、焦点恢复与 H5 滚动锁，不另写平行焦点陷阱；
+  - 微信编译器不支持对象展开式 `v-bind`：单根组件用原生 fallthrough，输入节点显式绑定 `id/name/aria-*`，不得为透传重新引入 `v-bind="$attrs"` 或 `v-bind="attrs"`；
+  - 跨 uni-app 页面边界的通知服务必须显式传给 `MpToastHost.service`，不能假设根 provide 或模块级后备服务在所有页面 chunk 中共享；
+  - 微信验收使用主仓 `apps/write-mp` 的真实 uni-app 编译产物；组件库不生成另一套手写 WXML/JS 页面。
 
 ## 验证命令
 

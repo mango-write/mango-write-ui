@@ -1,0 +1,396 @@
+{
+  "name": "@mango-write/ui-mp",
+  "version": "0.1.0",
+  "description": "MangoWrite UI Mini Program — Paper & Frost components and WXSS token pipeline for WeChat Mini Program (uni-app Vue 3).",
+  "license": "Apache-2.0",
+  "author": "MangoWrite Contributors",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mango-write/mango-write-ui.git",
+    "directory": "packages/mp"
+  },
+  "homepage": "https://ui.mangowrite.com",
+  "bugs": {
+    "url": "https://github.com/mango-write/mango-write-ui/issues"
+  },
+  "type": "module",
+  "packageManager": "pnpm@10.20.0",
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "mango-source": {
+        "types": "./src/index.ts",
+        "default": "./src/index.ts"
+      },
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./tokens.wxss": "./dist/mp-tokens.wxss",
+    "./tokens.css": {
+      "mango-source": "./src/styles/mp-tokens.css",
+      "default": "./dist/mp-tokens.css"
+    },
+    "./base.wxss": "./dist/mp-base.wxss",
+    "./base.css": {
+      "mango-source": "./src/styles/mp-base.css",
+      "default": "./dist/mp-base.css"
+    },
+    "./components.wxss": "./dist/mp-components.wxss",
+    "./components.css": {
+      "mango-source": "./src/styles/mp-components.css",
+      "default": "./dist/mp-components.css"
+    },
+    "./styles.wxss": {
+      "mango-source": "./src/styles/mp-styles.wxss",
+      "default": "./dist/mp-styles.wxss"
+    },
+    "./styles.css": {
+      "mango-source": "./src/styles/mp-styles.css",
+      "default": "./dist/mp-styles.css"
+    },
+    "./components/MpThemeProvider": {
+      "mango-source": {
+        "types": "./src/components/MpThemeProvider.vue",
+        "default": "./src/components/MpThemeProvider.vue"
+      },
+      "types": "./dist/components/MpThemeProvider.d.ts",
+      "default": "./dist/components/MpThemeProvider.js"
+    },
+    "./components/MpIcon": {
+      "mango-source": {
+        "types": "./src/components/MpIcon.vue",
+        "default": "./src/components/MpIcon.vue"
+      },
+      "types": "./dist/components/MpIcon.d.ts",
+      "default": "./dist/components/MpIcon.js"
+    },
+    "./components/MpNavBar": {
+      "mango-source": {
+        "types": "./src/components/MpNavBar.vue",
+        "default": "./src/components/MpNavBar.vue"
+      },
+      "types": "./dist/components/MpNavBar.d.ts",
+      "default": "./dist/components/MpNavBar.js"
+    },
+    "./components/MpButton": {
+      "mango-source": {
+        "types": "./src/components/MpButton.vue",
+        "default": "./src/components/MpButton.vue"
+      },
+      "types": "./dist/components/MpButton.d.ts",
+      "default": "./dist/components/MpButton.js"
+    },
+    "./components/MpSearchBar": {
+      "mango-source": {
+        "types": "./src/components/MpSearchBar.vue",
+        "default": "./src/components/MpSearchBar.vue"
+      },
+      "types": "./dist/components/MpSearchBar.d.ts",
+      "default": "./dist/components/MpSearchBar.js"
+    },
+    "./components/MpInput": {
+      "mango-source": {
+        "types": "./src/components/MpInput.vue",
+        "default": "./src/components/MpInput.vue"
+      },
+      "types": "./dist/components/MpInput.d.ts",
+      "default": "./dist/components/MpInput.js"
+    },
+    "./components/MpTextarea": {
+      "mango-source": {
+        "types": "./src/components/MpTextarea.vue",
+        "default": "./src/components/MpTextarea.vue"
+      },
+      "types": "./dist/components/MpTextarea.d.ts",
+      "default": "./dist/components/MpTextarea.js"
+    },
+    "./components/MpCellGroup": {
+      "mango-source": {
+        "types": "./src/components/MpCellGroup.vue",
+        "default": "./src/components/MpCellGroup.vue"
+      },
+      "types": "./dist/components/MpCellGroup.d.ts",
+      "default": "./dist/components/MpCellGroup.js"
+    },
+    "./components/MpCell": {
+      "mango-source": {
+        "types": "./src/components/MpCell.vue",
+        "default": "./src/components/MpCell.vue"
+      },
+      "types": "./dist/components/MpCell.d.ts",
+      "default": "./dist/components/MpCell.js"
+    },
+    "./components/MpTag": {
+      "mango-source": {
+        "types": "./src/components/MpTag.vue",
+        "default": "./src/components/MpTag.vue"
+      },
+      "types": "./dist/components/MpTag.d.ts",
+      "default": "./dist/components/MpTag.js"
+    },
+    "./components/MpBadge": {
+      "mango-source": {
+        "types": "./src/components/MpBadge.vue",
+        "default": "./src/components/MpBadge.vue"
+      },
+      "types": "./dist/components/MpBadge.d.ts",
+      "default": "./dist/components/MpBadge.js"
+    },
+    "./components/MpSheet": {
+      "mango-source": {
+        "types": "./src/components/MpSheet.vue",
+        "default": "./src/components/MpSheet.vue"
+      },
+      "types": "./dist/components/MpSheet.d.ts",
+      "default": "./dist/components/MpSheet.js"
+    },
+    "./components/MpActionSheet": {
+      "mango-source": {
+        "types": "./src/components/MpActionSheet.vue",
+        "default": "./src/components/MpActionSheet.vue"
+      },
+      "types": "./dist/components/MpActionSheet.d.ts",
+      "default": "./dist/components/MpActionSheet.js"
+    },
+    "./components/MpConfirmHost": {
+      "mango-source": {
+        "types": "./src/components/MpConfirmHost.vue",
+        "default": "./src/components/MpConfirmHost.vue"
+      },
+      "types": "./dist/components/MpConfirmHost.d.ts",
+      "default": "./dist/components/MpConfirmHost.js"
+    },
+    "./components/MpToastHost": {
+      "mango-source": {
+        "types": "./src/components/MpToastHost.vue",
+        "default": "./src/components/MpToastHost.vue"
+      },
+      "types": "./dist/components/MpToastHost.d.ts",
+      "default": "./dist/components/MpToastHost.js"
+    },
+    "./components/MpTabBar": {
+      "mango-source": {
+        "types": "./src/components/MpTabBar.vue",
+        "default": "./src/components/MpTabBar.vue"
+      },
+      "types": "./dist/components/MpTabBar.d.ts",
+      "default": "./dist/components/MpTabBar.js"
+    },
+    "./components/MpEmpty": {
+      "mango-source": {
+        "types": "./src/components/MpEmpty.vue",
+        "default": "./src/components/MpEmpty.vue"
+      },
+      "types": "./dist/components/MpEmpty.d.ts",
+      "default": "./dist/components/MpEmpty.js"
+    },
+    "./components/MpFilterChip": {
+      "mango-source": { "types": "./src/components/MpFilterChip.vue", "default": "./src/components/MpFilterChip.vue" },
+      "types": "./dist/components/MpFilterChip.d.ts",
+      "default": "./dist/components/MpFilterChip.js"
+    },
+    "./components/MpSwitch": {
+      "mango-source": { "types": "./src/components/MpSwitch.vue", "default": "./src/components/MpSwitch.vue" },
+      "types": "./dist/components/MpSwitch.d.ts",
+      "default": "./dist/components/MpSwitch.js"
+    },
+    "./components/MpSelectSheet": {
+      "mango-source": { "types": "./src/components/MpSelectSheet.vue", "default": "./src/components/MpSelectSheet.vue" },
+      "types": "./dist/components/MpSelectSheet.d.ts",
+      "default": "./dist/components/MpSelectSheet.js"
+    },
+    "./components/MpLoading": {
+      "mango-source": { "types": "./src/components/MpLoading.vue", "default": "./src/components/MpLoading.vue" },
+      "types": "./dist/components/MpLoading.d.ts",
+      "default": "./dist/components/MpLoading.js"
+    },
+    "./components/MpFormField": {
+      "mango-source": { "types": "./src/components/MpFormField.vue", "default": "./src/components/MpFormField.vue" },
+      "types": "./dist/components/MpFormField.d.ts",
+      "default": "./dist/components/MpFormField.js"
+    },
+    "./components/MpPageHeader": {
+      "mango-source": { "types": "./src/components/MpPageHeader.vue", "default": "./src/components/MpPageHeader.vue" },
+      "types": "./dist/components/MpPageHeader.d.ts",
+      "default": "./dist/components/MpPageHeader.js"
+    },
+    "./components/MpSectionHeader": {
+      "mango-source": { "types": "./src/components/MpSectionHeader.vue", "default": "./src/components/MpSectionHeader.vue" },
+      "types": "./dist/components/MpSectionHeader.d.ts",
+      "default": "./dist/components/MpSectionHeader.js"
+    },
+    "./components/MpFilterBar": {
+      "mango-source": { "types": "./src/components/MpFilterBar.vue", "default": "./src/components/MpFilterBar.vue" },
+      "types": "./dist/components/MpFilterBar.d.ts",
+      "default": "./dist/components/MpFilterBar.js"
+    },
+    "./components/MpBottomActionBar": {
+      "mango-source": { "types": "./src/components/MpBottomActionBar.vue", "default": "./src/components/MpBottomActionBar.vue" },
+      "types": "./dist/components/MpBottomActionBar.d.ts",
+      "default": "./dist/components/MpBottomActionBar.js"
+    },
+    "./components/MpComposer": {
+      "mango-source": { "types": "./src/components/MpComposer.vue", "default": "./src/components/MpComposer.vue" },
+      "types": "./dist/components/MpComposer.d.ts",
+      "default": "./dist/components/MpComposer.js"
+    },
+    "./components/MpNotice": {
+      "mango-source": { "types": "./src/components/MpNotice.vue", "default": "./src/components/MpNotice.vue" },
+      "types": "./dist/components/MpNotice.d.ts",
+      "default": "./dist/components/MpNotice.js"
+    },
+    "./components/MpMessage": {
+      "mango-source": { "types": "./src/components/MpMessage.vue", "default": "./src/components/MpMessage.vue" },
+      "types": "./dist/components/MpMessage.d.ts",
+      "default": "./dist/components/MpMessage.js"
+    }
+  },
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js",
+        "default": "./dist/index.js"
+      },
+      "./tokens.wxss": "./dist/mp-tokens.wxss",
+      "./tokens.css": "./dist/mp-tokens.css",
+      "./base.wxss": "./dist/mp-base.wxss",
+      "./base.css": "./dist/mp-base.css",
+      "./components.wxss": "./dist/mp-components.wxss",
+      "./components.css": "./dist/mp-components.css",
+      "./styles.wxss": "./dist/mp-styles.wxss",
+      "./styles.css": "./dist/mp-styles.css",
+      "./components/MpThemeProvider": {
+        "types": "./dist/components/MpThemeProvider.d.ts",
+        "import": "./dist/components/MpThemeProvider.js",
+        "default": "./dist/components/MpThemeProvider.js"
+      },
+      "./components/MpIcon": {
+        "types": "./dist/components/MpIcon.d.ts",
+        "import": "./dist/components/MpIcon.js",
+        "default": "./dist/components/MpIcon.js"
+      },
+      "./components/MpNavBar": {
+        "types": "./dist/components/MpNavBar.d.ts",
+        "import": "./dist/components/MpNavBar.js",
+        "default": "./dist/components/MpNavBar.js"
+      },
+      "./components/MpButton": {
+        "types": "./dist/components/MpButton.d.ts",
+        "import": "./dist/components/MpButton.js",
+        "default": "./dist/components/MpButton.js"
+      },
+      "./components/MpSearchBar": {
+        "types": "./dist/components/MpSearchBar.d.ts",
+        "import": "./dist/components/MpSearchBar.js",
+        "default": "./dist/components/MpSearchBar.js"
+      },
+      "./components/MpInput": {
+        "types": "./dist/components/MpInput.d.ts",
+        "import": "./dist/components/MpInput.js",
+        "default": "./dist/components/MpInput.js"
+      },
+      "./components/MpTextarea": {
+        "types": "./dist/components/MpTextarea.d.ts",
+        "import": "./dist/components/MpTextarea.js",
+        "default": "./dist/components/MpTextarea.js"
+      },
+      "./components/MpCellGroup": {
+        "types": "./dist/components/MpCellGroup.d.ts",
+        "import": "./dist/components/MpCellGroup.js",
+        "default": "./dist/components/MpCellGroup.js"
+      },
+      "./components/MpCell": {
+        "types": "./dist/components/MpCell.d.ts",
+        "import": "./dist/components/MpCell.js",
+        "default": "./dist/components/MpCell.js"
+      },
+      "./components/MpTag": {
+        "types": "./dist/components/MpTag.d.ts",
+        "import": "./dist/components/MpTag.js",
+        "default": "./dist/components/MpTag.js"
+      },
+      "./components/MpBadge": {
+        "types": "./dist/components/MpBadge.d.ts",
+        "import": "./dist/components/MpBadge.js",
+        "default": "./dist/components/MpBadge.js"
+      },
+      "./components/MpSheet": {
+        "types": "./dist/components/MpSheet.d.ts",
+        "import": "./dist/components/MpSheet.js",
+        "default": "./dist/components/MpSheet.js"
+      },
+      "./components/MpActionSheet": {
+        "types": "./dist/components/MpActionSheet.d.ts",
+        "import": "./dist/components/MpActionSheet.js",
+        "default": "./dist/components/MpActionSheet.js"
+      },
+      "./components/MpConfirmHost": {
+        "types": "./dist/components/MpConfirmHost.d.ts",
+        "import": "./dist/components/MpConfirmHost.js",
+        "default": "./dist/components/MpConfirmHost.js"
+      },
+      "./components/MpToastHost": {
+        "types": "./dist/components/MpToastHost.d.ts",
+        "import": "./dist/components/MpToastHost.js",
+        "default": "./dist/components/MpToastHost.js"
+      },
+      "./components/MpTabBar": {
+        "types": "./dist/components/MpTabBar.d.ts",
+        "import": "./dist/components/MpTabBar.js",
+        "default": "./dist/components/MpTabBar.js"
+      },
+      "./components/MpEmpty": {
+        "types": "./dist/components/MpEmpty.d.ts",
+        "import": "./dist/components/MpEmpty.js",
+        "default": "./dist/components/MpEmpty.js"
+      },
+      "./components/MpFilterChip": { "types": "./dist/components/MpFilterChip.d.ts", "import": "./dist/components/MpFilterChip.js", "default": "./dist/components/MpFilterChip.js" },
+      "./components/MpSwitch": { "types": "./dist/components/MpSwitch.d.ts", "import": "./dist/components/MpSwitch.js", "default": "./dist/components/MpSwitch.js" },
+      "./components/MpSelectSheet": { "types": "./dist/components/MpSelectSheet.d.ts", "import": "./dist/components/MpSelectSheet.js", "default": "./dist/components/MpSelectSheet.js" },
+      "./components/MpLoading": { "types": "./dist/components/MpLoading.d.ts", "import": "./dist/components/MpLoading.js", "default": "./dist/components/MpLoading.js" },
+      "./components/MpFormField": { "types": "./dist/components/MpFormField.d.ts", "import": "./dist/components/MpFormField.js", "default": "./dist/components/MpFormField.js" },
+      "./components/MpPageHeader": { "types": "./dist/components/MpPageHeader.d.ts", "import": "./dist/components/MpPageHeader.js", "default": "./dist/components/MpPageHeader.js" },
+      "./components/MpSectionHeader": { "types": "./dist/components/MpSectionHeader.d.ts", "import": "./dist/components/MpSectionHeader.js", "default": "./dist/components/MpSectionHeader.js" },
+      "./components/MpFilterBar": { "types": "./dist/components/MpFilterBar.d.ts", "import": "./dist/components/MpFilterBar.js", "default": "./dist/components/MpFilterBar.js" },
+      "./components/MpBottomActionBar": { "types": "./dist/components/MpBottomActionBar.d.ts", "import": "./dist/components/MpBottomActionBar.js", "default": "./dist/components/MpBottomActionBar.js" },
+      "./components/MpComposer": { "types": "./dist/components/MpComposer.d.ts", "import": "./dist/components/MpComposer.js", "default": "./dist/components/MpComposer.js" },
+      "./components/MpNotice": { "types": "./dist/components/MpNotice.d.ts", "import": "./dist/components/MpNotice.js", "default": "./dist/components/MpNotice.js" },
+      "./components/MpMessage": { "types": "./dist/components/MpMessage.d.ts", "import": "./dist/components/MpMessage.js", "default": "./dist/components/MpMessage.js" }
+    }
+  },
+  "sideEffects": [
+    "**/*.css",
+    "**/*.wxss"
+  ],
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "prepare": "node scripts/build.mjs",
+    "typecheck": "vue-tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@mango-write/ui-core": "workspace:*"
+  },
+  "peerDependencies": {
+    "vue": "^3.5.34"
+  },
+  "devDependencies": {
+    "@types/node": "^24.13.3",
+    "@vitejs/plugin-vue": "^6.0.8",
+    "@vue/test-utils": "^2.4.11",
+    "happy-dom": "^21.0.4",
+    "typescript": "npm:@typescript/typescript6@^6.0.2",
+    "vite": "^8.3.5",
+    "vitest": "^4.1.12",
+    "vue": "^3.5.34",
+    "vue-tsc": "^3.3.11"
+  }
+}

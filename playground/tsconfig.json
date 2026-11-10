@@ -1,0 +1,22 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": ["node", "vite/client"],
+    "resolveJsonModule": true,
+    "paths": {
+      "@mango-write/ui-core": ["../packages/core/src/index.ts"],
+      "@mango-write/ui-core/*": ["../packages/core/src/*"],
+      "@mango-write/ui-vue": ["../packages/vue/src/index.ts"],
+      "@mango-write/ui-vue/*": ["../packages/vue/src/*"],
+      "@mango-write/ui-mp": ["../packages/mp/src/index.ts"],
+      "@mango-write/ui-mp/styles.css": ["../packages/mp/src/styles/mp-styles.d.ts"]
+    }
+  },
+  "include": [
+    "dev/**/*.ts",
+    "dev/**/*.vue",
+    "mp-main.ts"
+  ]
+}

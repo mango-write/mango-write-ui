@@ -1,9 +1,10 @@
 {
   "name": "@mango-write/ui-vue",
-  "private": true,
   "version": "0.1.0",
+  "description": "MangoWrite UI Vue 3 — Paper & Frost desktop components powered by Reka UI and @mango-write/ui-core.",
   "type": "module",
   "license": "Apache-2.0",
+  "author": "MangoWrite Contributors",
   "packageManager": "pnpm@10.20.0",
   "files": [
     "dist",
@@ -1427,10 +1428,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/mango-write/mango-write-ui.git"
+    "url": "git+https://github.com/mango-write/mango-write-ui.git",
+    "directory": "packages/vue"
   },
   "bugs": {
     "url": "https://github.com/mango-write/mango-write-ui/issues"
   },
-  "homepage": "https://github.com/mango-write/mango-write-ui#readme"
+  "homepage": "https://ui.mangowrite.com"
 }

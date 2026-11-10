@@ -1,0 +1,25 @@
+html,
+body,
+#mp-app {
+  min-height: 100%;
+  margin: 0;
+}
+
+.mp-standalone {
+  max-width: 430px;
+  height: 100vh;
+  margin: 0 auto;
+}
+
+.mp-standalone__theme {
+  position: relative;
+  display: block;
+  height: 100%;
+  overflow: hidden;
+}
+
+.mp-standalone__main {
+  height: 100%;
+  padding: 0 var(--mp-card-inset) calc(var(--mp-tabbar-h) + var(--mp-size-lg-h) + var(--space-16));
+  overflow-y: auto;
+}

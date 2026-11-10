@@ -9,7 +9,9 @@
       "@mango-write/ui-core": ["./packages/core/src/index.ts"],
       "@mango-write/ui-core/*": ["./packages/core/src/*"],
       "@mango-write/ui-vue": ["./packages/vue/src/index.ts"],
-      "@mango-write/ui-vue/*": ["./packages/vue/src/*"]
+      "@mango-write/ui-vue/*": ["./packages/vue/src/*"],
+      "@mango-write/ui-mp": ["./packages/mp/src/index.ts"],
+      "@mango-write/ui-mp/styles.css": ["./packages/mp/src/styles/mp-styles.d.ts"]
     }
   },
   "include": [

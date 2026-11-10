@@ -35,17 +35,39 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
-    "./var.css": "./src/var.css",
-    "./base.css": "./src/base.css",
+    "./tokens.css": {
+      "mango-source": "./src/var.css",
+      "default": "./dist/tokens.css"
+    },
+    "./var.css": {
+      "mango-source": "./src/var.css",
+      "default": "./dist/var.css"
+    },
+    "./mobile-tokens.css": {
+      "mango-source": "./src/mobile-tokens.css",
+      "default": "./dist/mobile-tokens.css"
+    },
+    "./base.css": {
+      "mango-source": "./src/base.css",
+      "default": "./dist/base.css"
+    },
     "./components.css": {
       "mango-source": "./src/components.css",
       "default": "./dist/components.css"
     },
-    "./theme.css": "./dist/theme.css",
+    "./theme.css": {
+      "mango-source": "./src/theme.css",
+      "default": "./dist/theme.css"
+    },
     "./locale": {
       "mango-source": "./src/locale/index.ts",
       "types": "./dist/locale/index.d.ts",
       "default": "./dist/locale/index.js"
+    },
+    "./headless/calendar-grid": {
+      "mango-source": "./src/headless/calendar-grid.ts",
+      "types": "./dist/headless/calendar-grid.d.ts",
+      "default": "./dist/headless/calendar-grid.js"
     },
     "./headless/confirm-core": {
       "mango-source": "./src/headless/confirm-core.ts",
@@ -95,13 +117,19 @@
         "types": "./dist/index.d.ts",
         "default": "./dist/index.js"
       },
+      "./tokens.css": "./dist/tokens.css",
       "./var.css": "./dist/var.css",
+      "./mobile-tokens.css": "./dist/mobile-tokens.css",
       "./base.css": "./dist/base.css",
       "./components.css": "./dist/components.css",
       "./theme.css": "./dist/theme.css",
       "./locale": {
         "types": "./dist/locale/index.d.ts",
         "default": "./dist/locale/index.js"
+      },
+      "./headless/calendar-grid": {
+        "types": "./dist/headless/calendar-grid.d.ts",
+        "default": "./dist/headless/calendar-grid.js"
       },
       "./headless/confirm-core": {
         "types": "./dist/headless/confirm-core.d.ts",
@@ -143,7 +171,7 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "prepare": "node scripts/build.mjs",
-    "typecheck": "tsc --noEmit -p tsconfig.json"
+    "typecheck": "tsc6 --noEmit -p tsconfig.json"
   },
   "devDependencies": {
     "@types/node": "^24.13.3",

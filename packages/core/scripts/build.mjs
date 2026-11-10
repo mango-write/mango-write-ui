@@ -15,9 +15,10 @@ execFileSync("pnpm", ["exec", "tsc6", "-p", "tsconfig.build.json"], {
   stdio: "inherit",
 });
 
-for (const file of ["var.css", "base.css", "theme.css"]) {
+for (const file of ["var.css", "mobile-tokens.css", "base.css", "theme.css"]) {
   copyFileSync(join(srcDir, file), join(distDir, file));
 }
+copyFileSync(join(srcDir, "var.css"), join(distDir, "tokens.css"));
 
 const srcComponentsDir = join(srcDir, "styles", "components");
 const distComponentsDir = join(distDir, "styles", "components");
