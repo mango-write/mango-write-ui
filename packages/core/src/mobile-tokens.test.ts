@@ -2,8 +2,8 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-const css = readFileSync(join(__dirname, "mobile-tokens.css"), "utf8");
-const varCss = readFileSync(join(__dirname, "var.css"), "utf8");
+const css = readFileSync(join(__dirname, "mobile-tokens.css"), "utf8").replace(/\r\n/g, "\n");
+const varCss = readFileSync(join(__dirname, "var.css"), "utf8").replace(/\r\n/g, "\n");
 
 function token(source: string, name: string): string {
   const match = source.match(new RegExp(`${name}:\\s*([^;]+);`));
