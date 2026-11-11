@@ -34,7 +34,7 @@ watch(() => mpSim.feedback.toastTick, (value) => { if (value > 0) showToast(); }
 <template>
   <div class="mp-stage">
     <main class="mp-preview__scroll mp-preview__pad">
-      <MpPageHeader :title="t({ zh: '反馈与对话', en: 'Feedback and messages' })" :description="t({ zh: '反馈不抢焦点，也不遮挡主操作。', en: 'Feedback preserves focus and avoids primary actions.' })" />
+      <MpPageHeader :title="t({ zh: '反馈与对话', en: 'Messages' })" :description="t({ zh: '反馈不抢焦点，也不遮挡主操作。', en: 'Feedback preserves focus and avoids primary actions.' })" />
       <div class="mp-preview__stack">
         <MpButton block :variant="mpSim.feedback.danger ? 'tinted' : 'solid'" :severity="mpSim.feedback.danger ? 'danger' : 'primary'" :label="t({ zh: '打开确认框', en: 'Open confirmation' })" @click="openConfirm" />
         <MpButton block :label="t({ zh: '显示最新通知', en: 'Show latest toast' })" @click="showToast" />

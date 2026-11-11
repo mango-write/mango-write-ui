@@ -6,7 +6,7 @@ import { t } from "../i18n";
 
 <template>
   <main class="mp-preview__scroll mp-preview__pad">
-    <MpPageHeader :title="t({ zh: '动作按钮', en: 'Action buttons' })" :description="t({ zh: '每个区域一个主动作，目标不小于 44px。', en: 'One primary action per region, targets at least 44px.' })" />
+    <MpPageHeader :title="t({ zh: '按钮', en: 'Action buttons' })" :description="t({ zh: '每个区域一个主动作，目标不小于 44px。', en: 'One primary action per region, targets at least 44px.' })" />
     <MpCellGroup :title="t({ zh: '当前配置', en: 'Current configuration' })">
       <div class="mp-preview__stack">
         <MpButton :label="mpSim.button.label" :variant="mpSim.button.variant" :severity="mpSim.button.severity" :size="mpSim.button.size" :block="mpSim.button.block" :disabled="mpSim.button.disabled" :loading="mpSim.button.loading" />

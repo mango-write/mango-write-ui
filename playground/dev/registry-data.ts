@@ -474,7 +474,7 @@ export const docGroups: DocGroup[] = [
       ),
       component(
         "stat-bar",
-        { zh: "指标条与指标卡", en: "StatBar / StatCard" },
+        { zh: "指标条与指标卡", en: "StatBar" },
         {
           zh: "关键指标展示：无边框高密度水平指标条（StatBar）与凹陷底概览指标卡（StatCard），数值固定采用等宽字体（tabular-nums）并支持五种语义色调。",
           en: "Key metric display: a borderless horizontal metric strip (StatBar) and sunken summary card (StatCard), locked to tabular-nums with five semantic tones.",
@@ -508,7 +508,7 @@ export const docGroups: DocGroup[] = [
         "toast",
         { zh: "轻提示", en: "Toast" },
         {
-          zh: "非阻塞轻提示：操作完成或后台状态变更后在视口角落短暂浮现，不打断当前焦点。采用霜材质（.mw-frost），支持四级语义、行内动作按钮、同 ID 原位更新与指针悬停暂停倒计时。",
+          zh: "非阻塞轻提示：操作完成或后台状态变更后在视口角落短暂浮现，不打断当前焦点。采用霜材质（.mw-frost），支持四级语义、行内按钮、同 ID 原位更新与指针悬停暂停倒计时。",
           en: "A non-blocking toast that briefly appears in a viewport corner after actions or background changes, never stealing focus. Frost material (.mw-frost), four severities, inline actions, in-place updates by ID, and hover-to-pause countdown.",
         },
       ),
@@ -610,7 +610,7 @@ export const docGroups: DocGroup[] = [
       ),
       component(
         "site",
-        { zh: "营销站框架", en: "SiteHeader / SiteFooter" },
+        { zh: "营销站框架", en: "SiteHeader" },
         {
           zh: "站点顶栏与页脚：Write 与 Rewrite 营销站、法务页共用的顶层导航（SiteHeader）与合规页脚（SiteFooter）。",
           en: "Site header and footer: the top navigation (SiteHeader) and compliance footer (SiteFooter) shared by the Write and Rewrite marketing and legal pages.",
@@ -618,7 +618,7 @@ export const docGroups: DocGroup[] = [
       ),
       component(
         "config-section",
-        { zh: "配置分组行", en: "ConfigSection / ConfigRow" },
+        { zh: "配置分组行", en: "ConfigSection" },
         {
           zh: "三列设置分组：凹陷底分组卡（ConfigSection）与三列对齐配置行（ConfigRow，168px 标签悬停提示 keyHint + 280px 控件 + 自适应说明 + 底部状态行），随容器宽度自动折行。",
           en: "Three-column setting groups: sunken section cards (ConfigSection) and aligned rows (ConfigRow: 168px label with keyHint tooltip + 280px control + flexible hint + status line), collapsing cleanly via container queries.",
@@ -626,7 +626,7 @@ export const docGroups: DocGroup[] = [
       ),
       component(
         "admin-shell",
-        { zh: "后台页面框架", en: "Admin Page Shells" },
+        { zh: "后台页面框架", en: "AdminShell" },
         {
           zh: "后台页面框架：严格分离「固定页面要素」与「唯一可滚动数据层」的列表壳（AdminListPage）、配置壳（AdminConfigPage）、详情壳（AdminDetailPage）与看板壳（AdminBoardPage）。",
           en: "Four admin page shells that strictly separate fixed page chrome from the single scrollable data plane: AdminListPage, AdminConfigPage, AdminDetailPage, and AdminBoardPage.",
@@ -640,7 +640,7 @@ export const docGroups: DocGroup[] = [
     title: { zh: "移动基础", en: "Mobile foundations" },
     base: "/mobile",
     entries: [
-      component("installation", { zh: "主题与图标", en: "Theme and icons" }, {
+      component("installation", { zh: "主题与图标", en: "Installation" }, {
         zh: "统一语义 Token、深浅色、触控与矢量图标，H5 与小程序共享同一基础。",
         en: "Shared semantic tokens, themes, touch geometry, and vector icons for H5 and Mini Programs.",
       }),
@@ -652,23 +652,23 @@ export const docGroups: DocGroup[] = [
     title: { zh: "基础组件", en: "Primitives" },
     base: "/mobile",
     entries: [
-      component("navbar", { zh: "导航", en: "Navigation" }, {
+      component("navbar", { zh: "导航", en: "NavBar" }, {
         zh: "返回与上下文顶栏、一级底部导航，以及真实胶囊安全区。",
         en: "Back and context navigation, top-level tabs, and real capsule clearance.",
       }),
-      component("cell", { zh: "内容列表", en: "Content lists" }, {
+      component("cell", { zh: "内容列表", en: "Cell" }, {
         zh: "标题、摘要和元信息分行组织的通栏研究信息流。",
         en: "Flush research feeds with distinct title, summary, and metadata rows.",
       }),
-      component("button", { zh: "动作按钮", en: "Buttons" }, {
+      component("button", { zh: "按钮", en: "Button" }, {
         zh: "44/48/52px 三档真实交互尺寸与明确的动作层级。",
         en: "True 44/48/52px interactive sizes with clear action hierarchy.",
       }),
-      component("input", { zh: "输入与校验", en: "Input and validation" }, {
+      component("input", { zh: "输入", en: "Input" }, {
         zh: "搜索、单行与多行输入，以及关联标签、提示和错误的表单字段。",
         en: "Search, text inputs, and form fields with connected labels, hints, and errors.",
       }),
-      component("filters", { zh: "筛选与标签", en: "Filters and tags" }, {
+      component("filters", { zh: "筛选与标签", en: "Filters" }, {
         zh: "静态标签、单选筛选条与多选芯片各自承担明确语义。",
         en: "Distinct static tags, single-select filter bars, and multi-select chips.",
       }),
@@ -680,19 +680,19 @@ export const docGroups: DocGroup[] = [
     title: { zh: "状态与浮层", en: "States and overlays" },
     base: "/mobile",
     entries: [
-      component("empty", { zh: "加载、空态与错误", en: "Loading and empty states" }, {
+      component("empty", { zh: "空状态", en: "Empty" }, {
         zh: "独立加载反馈，以及带真实恢复动作的空态与错误态。",
         en: "Dedicated loading feedback and empty/error states with working recovery actions.",
       }),
-      component("sheet", { zh: "底部抽屉与选择器", en: "Sheets and selection" }, {
+      component("sheet", { zh: "抽屉", en: "Sheet" }, {
         zh: "轻量详情、底部动作区与独立单选语义，长文编辑不进入 Sheet。",
         en: "Lightweight details and single selection; long editing stays outside sheets.",
       }),
-      component("action-sheet", { zh: "条目动作菜单", en: "Action menu" }, {
+      component("action-sheet", { zh: "动作面板", en: "ActionSheet" }, {
         zh: "针对条目的动作列表，危险与禁用状态清晰可见。",
         en: "Item commands with clear danger and disabled states.",
       }),
-      component("feedback", { zh: "反馈与消息", en: "Feedback and messages" }, {
+      component("feedback", { zh: "消息", en: "Feedback" }, {
         zh: "可访问确认、单条最新通知、内联提示与问答消息。",
         en: "Accessible confirmation, latest-only toasts, inline notices, and messages.",
       }),
@@ -704,7 +704,7 @@ export const docGroups: DocGroup[] = [
     title: { zh: "交互模式", en: "Patterns" },
     base: "/mobile",
     entries: [
-      component("patterns", { zh: "页面结构与输入器", en: "Page patterns and composer" }, {
+      component("patterns", { zh: "页面结构", en: "Patterns" }, {
         zh: "页面标题、区块标题、底部主动作与 AI 输入器组成真实任务结构。",
         en: "Page and section headers, bottom actions, and composers form real task structures.",
       }),

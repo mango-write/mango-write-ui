@@ -204,7 +204,7 @@ const s = {
     en: "With :close-on-escape=\"false\" and :closable=\"false\", accidental mid-flow closes are blocked.",
   },
   lockedBody: {
-    zh: "此时按 Escape 或点击遮罩均不会关闭对话框，必须通过底栏的明确动作按钮结束流程。",
+    zh: "此时按 Escape 或点击遮罩均不会关闭对话框，必须通过底栏的明确按钮结束流程。",
     en: "Neither Escape nor a scrim click closes the dialog now; the flow must end through an explicit footer action.",
   },
   doneClose: { zh: "完成并关闭", en: "Done" },

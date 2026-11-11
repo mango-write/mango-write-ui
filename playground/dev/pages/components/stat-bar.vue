@@ -42,7 +42,7 @@ const s = {
   },
   cardTitle: { zh: "概览指标卡（StatCard）", en: "Summary metric card (StatCard)" },
   cardDesc: {
-    zh: "采用凹陷面（--bg-sunken）与细边框，右上角可挂载轻量动作按钮。",
+    zh: "采用凹陷面（--bg-sunken）与细边框，右上角可挂载轻量按钮。",
     en: "Built on the sunken surface (--bg-sunken) with a hairline border and an optional top-right action button.",
   },
   tonesTitle: { zh: "语义色调", en: "Semantic tones" },
