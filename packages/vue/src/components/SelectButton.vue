@@ -275,9 +275,11 @@ function onOptionKeydown(index: number, event: KeyboardEvent) {
   --mw-select-button-inset: var(--space-0-5);
 
   display: inline-flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--space-0-5);
-  height: var(--control-h);
+  min-height: var(--control-h);
+  max-width: 100%;
   padding: calc(var(--mw-select-button-inset) - var(--border-width));
   border: var(--border-width) solid transparent;
   border-radius: var(--control-radius);
@@ -299,10 +301,13 @@ function onOptionKeydown(index: number, event: KeyboardEvent) {
 .mw-select-button__item {
   position: relative;
   display: inline-flex;
+  /* 等分充满轨道，放不下时按段换行；段标签 nowrap，min-width:auto 保证标签不被压缩 */
+  flex: 1 1 0%;
   align-items: center;
   justify-content: center;
   gap: var(--control-gap);
-  height: 100%;
+  /* 由 token 直算而非 height:100%——根高度改 min-height 后父高内容驱动，百分比会塌；换行时每段保持额定高度 */
+  height: calc(var(--control-h) - 2 * var(--mw-select-button-inset));
   padding-block: 0;
   padding-inline: calc(var(--control-px) - var(--mw-select-button-inset));
   border: 0;
