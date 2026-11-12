@@ -1,9 +1,15 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, watch, watchEffect } from "vue";
 import { useThemePreference } from "@mango-write/ui-vue";
 import { MpThemeProvider, provideMpConfirm, provideMpNotify } from "@mango-write/ui-mp";
 import { mobilePreviews } from "../mobile-demos/registry";
-import { getMpDevicePreset, mpSim } from "../mobile-demos/state";
+import {
+  computePhysicalScale,
+  getMpDevicePreset,
+  mpSim,
+  readRuntimeMonitorCssPpi,
+  resolveMpCreaseAxis,
+} from "../mobile-demos/state";
 import { t } from "../i18n";
 
 provideMpConfirm();
@@ -26,8 +32,34 @@ const activeDevice = computed(() => getMpDevicePreset(mpSim.deviceId));
 const stageRef = ref<HTMLElement | null>(null);
 const stageSize = ref({ width: 0, height: 0 });
 let resizeObserver: ResizeObserver | null = null;
+let dprMediaQuery: MediaQueryList | null = null;
+
+function syncScreenMetrics(): void {
+  mpSim.monitorCssPpi = readRuntimeMonitorCssPpi();
+}
+
+function bindDprWatcher(): void {
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
+  dprMediaQuery?.removeEventListener("change", handleDprChange);
+  dprMediaQuery = window.matchMedia(`(resolution: ${window.devicePixelRatio || 1}dppx)`);
+  dprMediaQuery.addEventListener("change", handleDprChange);
+}
+
+function handleDprChange(): void {
+  syncScreenMetrics();
+  bindDprWatcher();
+}
 
 onMounted(() => {
+  syncScreenMetrics();
+  if (typeof window !== "undefined") {
+    window.addEventListener("resize", syncScreenMetrics, { passive: true });
+    (window.screen as Partial<EventTarget> | undefined)?.addEventListener?.(
+      "change",
+      syncScreenMetrics,
+    );
+    bindDprWatcher();
+  }
   if (!stageRef.value || typeof ResizeObserver === "undefined") return;
   resizeObserver = new ResizeObserver((entries) => {
     const rect = entries[0]?.contentRect;
@@ -39,40 +71,65 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   resizeObserver?.disconnect();
+  if (typeof window !== "undefined") {
+    window.removeEventListener("resize", syncScreenMetrics);
+    (window.screen as Partial<EventTarget> | undefined)?.removeEventListener?.(
+      "change",
+      syncScreenMetrics,
+    );
+  }
+  dprMediaQuery?.removeEventListener("change", handleDprChange);
 });
 
 const BEZEL_FRAME = 6;
+const DOCK_GUTTER = 24;
 const outerWidth = computed(() => mpSim.width + BEZEL_FRAME * 2);
 const outerHeight = computed(() => mpSim.height + BEZEL_FRAME * 2);
+const physicalScale = computed(() => computePhysicalScale(activeDevice.value, mpSim.monitorCssPpi));
+
+const desiredScale = computed(() => {
+  if (mpSim.scaleMode === "1:1") return physicalScale.value;
+  if (mpSim.scaleMode === "custom") return mpSim.customScalePercent / 100;
+  const availH = stageSize.value.height - 8;
+  return availH > 0 ? Math.min(1, availH / outerHeight.value) : physicalScale.value;
+});
 
 const dockStyle = computed(() => ({
-  width: `${Math.max(448, outerWidth.value + 16)}px`,
+  width: `${Math.max(320, Math.round(outerWidth.value * desiredScale.value) + DOCK_GUTTER)}px`,
 }));
 
-const fitScale = computed(() => {
+const resolvedScale = computed(() => {
+  const target = desiredScale.value;
   const availW = stageSize.value.width - 8;
   const availH = stageSize.value.height - 8;
-  if (availW <= 0 || availH <= 0) return 1;
-  if (mpSim.scaleMode === "1:1") {
-    return availW < outerWidth.value ? Math.min(1, availW / outerWidth.value) : 1;
+  if (availW <= 0 || availH <= 0) return target;
+  if (mpSim.scaleMode === "fit") {
+    return Math.min(1, availW / outerWidth.value, availH / outerHeight.value);
   }
-  return Math.min(1, availW / outerWidth.value, availH / outerHeight.value);
+  return Math.min(target, availW / outerWidth.value);
+});
+
+watchEffect(() => {
+  mpSim.effectiveScale = resolvedScale.value;
 });
 
 const frameWrapperStyle = computed(() => {
-  const scale = fitScale.value;
+  const scale = resolvedScale.value;
   return {
     width: `${Math.round(outerWidth.value * scale)}px`,
     height: `${Math.round(outerHeight.value * scale)}px`,
   };
 });
 
-const phoneStyle = computed(() => ({
-  width: `${outerWidth.value}px`,
-  height: `${outerHeight.value}px`,
-  transform: fitScale.value < 1 ? `scale(${fitScale.value.toFixed(4)})` : undefined,
-  transformOrigin: "top center",
-}));
+const phoneStyle = computed(() => {
+  const scale = resolvedScale.value;
+  return {
+    width: `${outerWidth.value}px`,
+    height: `${outerHeight.value}px`,
+    transform: Math.abs(scale - 1) > 0.001 ? `scale(${scale.toFixed(4)})` : undefined,
+    transformOrigin: "top center",
+  };
+});
 
 const viewportStyle = computed(() => ({
   width: `${mpSim.width}px`,
@@ -87,21 +144,21 @@ const homeBarStyle = computed(() => ({
   height: `${mpSim.orientation === "landscape" ? Math.min(activeDevice.value.safeBottom, 16) : activeDevice.value.safeBottom}px`,
 }));
 
-const creaseAxis = computed<"horizontal" | "vertical" | null>(() => {
-  if (activeDevice.value.formFactor === "wide-fold") {
-    return mpSim.orientation === "portrait" ? "horizontal" : "vertical";
-  }
-  if (activeDevice.value.formFactor === "book-fold") {
-    return mpSim.orientation === "portrait" ? "vertical" : "horizontal";
-  }
-  return null;
-});
+const creaseAxis = computed<"horizontal" | "vertical" | null>(() =>
+  resolveMpCreaseAxis(activeDevice.value.formFactor, mpSim.orientation),
+);
 
 const activePreview = computed(() => mobilePreviews[mpSim.activeSlug]);
 </script>
 
 <template>
-  <aside class="mp-dock" :style="dockStyle" :aria-label="t(s.aria)">
+  <aside
+    class="mp-dock"
+    :style="dockStyle"
+    :data-scale-mode="mpSim.scaleMode"
+    :aria-label="t(s.aria)"
+    @pointerenter="syncScreenMetrics"
+  >
     <div
       ref="stageRef"
       class="mp-dock__stage"
@@ -164,7 +221,7 @@ const activePreview = computed(() => mobilePreviews[mpSim.activeSlug]);
 <style scoped>
 .mp-dock {
   flex: none;
-  width: 448px;
+  width: 344px;
   max-width: 64vw;
   display: flex;
   flex-direction: column;
@@ -190,6 +247,7 @@ const activePreview = computed(() => mobilePreviews[mpSim.activeSlug]);
 
 .mp-phone-holder {
   flex: none;
+  margin: auto 0;
   position: relative;
   display: flex;
   justify-content: center;
@@ -356,11 +414,11 @@ const activePreview = computed(() => mobilePreviews[mpSim.activeSlug]);
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  padding: 0 var(--mp-card-inset) calc(var(--mp-tabbar-h) + var(--space-6));
+  padding: 0 var(--mp-card-inset) calc(var(--mp-tabbar-h) + var(--mp-float-inset) * 2 + var(--space-4));
 }
 
 :deep(.mp-preview__with-action) {
-  padding-bottom: calc(var(--mp-size-lg-h) + var(--space-16));
+  padding-bottom: calc(var(--mp-tabbar-h) + var(--mp-float-inset) * 2 + var(--space-6));
 }
 
 :deep(.mp-preview__row) {
@@ -373,6 +431,13 @@ const activePreview = computed(() => mobilePreviews[mpSim.activeSlug]);
 :deep(.mp-preview__stack) {
   display: flex;
   flex-direction: column;
+  gap: var(--space-3);
+}
+
+:deep(.mp-preview__specimen) {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   gap: var(--space-3);
 }
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { MpButton, MpCell, MpNotice, MpPageHeader, MpSelectSheet, MpSheet, MpTextarea } from "@mango-write/ui-mp";
+import { MpButton, MpCell, MpCellGroup, MpNotice, MpPageHeader, MpSelectSheet, MpSheet, MpTextarea } from "@mango-write/ui-mp";
 import { demoText } from "./content";
 import { mpSim } from "./state";
 import { t } from "../i18n";
@@ -17,13 +17,15 @@ const spaces = computed(() => [
     <main class="mp-preview__scroll mp-preview__pad">
       <MpPageHeader :title="t({ zh: '底部浮层', en: 'Bottom sheets' })" :description="t({ zh: '轻量详情和单选使用 Sheet，长文编辑仍走独立页面。', en: 'Sheets handle lightweight details and selection; long editing gets a full page.' })" />
       <div class="mp-preview__stack">
-        <MpButton block :label="t({ zh: '查看文献详情', en: 'View paper details' })" @click="mpSim.sheet.open = true" />
-        <MpButton block variant="tinted" severity="secondary" :label="t({ zh: '选择工作空间', en: 'Select space' })" @click="mpSim.sheet.selectOpen = true" />
+        <MpButton fluid :label="t({ zh: '查看文献详情', en: 'View paper details' })" @click="mpSim.sheet.open = true" />
+        <MpButton fluid variant="tinted" severity="secondary" :label="t({ zh: '选择工作空间', en: 'Select space' })" @click="mpSim.sheet.selectOpen = true" />
       </div>
-      <MpCell :title="demoText.title" :subtitle="demoText.subtitle" />
+      <MpCellGroup>
+        <MpCell :title="demoText.title" :subtitle="demoText.subtitle" clickable arrow @click="mpSim.sheet.open = true" />
+      </MpCellGroup>
     </main>
     <MpSheet v-model:open="mpSim.sheet.open" contained :title="t({ zh: '文献详情', en: 'Paper details' })" subtitle="ICLR 2024">
-      <MpNotice icon="quote" tone="primary" :title="demoText.title">{{ demoText.subtitle }}</MpNotice>
+      <MpNotice icon="quote" severity="primary" :title="demoText.title">{{ demoText.subtitle }}</MpNotice>
       <MpTextarea :model-value="t({ zh: '保留来源的文献摘录', en: 'Literature excerpt with source preserved' })" :maxlength="300" />
       <template v-if="mpSim.sheet.showFooter" #footer>
         <MpButton variant="tinted" severity="secondary" :label="t({ zh: '取消', en: 'Cancel' })" @click="mpSim.sheet.open = false" />

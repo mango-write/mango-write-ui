@@ -4,14 +4,9 @@
 // 版本号与搜索入口,首页留空。
 import { computed } from "vue";
 import { useRoute } from "vue-router";
-import {
-  AppLogo,
-  Button,
-  SelectButton,
-  useThemePreference,
-  type ThemePreference,
-} from "@mango-write/ui-vue";
-import { locale, setLocale, t, type Locale } from "../i18n";
+import { Moon, PenLine, Sun, WandSparkles } from "lucide-vue-next";
+import { AppLogo, Button, useThemePreference } from "@mango-write/ui-vue";
+import { locale, setLocale, t } from "../i18n";
 
 const githubUrl = "https://github.com/mango-write/mango-write-ui";
 // 根相对路径:dev 由 vite 中间件伺服产物,线上随部署域名走(见 vite.playground.config.ts)。
@@ -39,35 +34,23 @@ const s = {
   desktopDocs: { zh: "桌面端组件", en: "Desktop" },
   mobileDocs: { zh: "移动端组件", en: "Mobile" },
   llms: { zh: "LLM 接入", en: "LLM docs" },
-  theme: { zh: "颜色主题", en: "Color theme" },
-  light: { zh: "浅色", en: "Light" },
-  dark: { zh: "深色", en: "Dark" },
-  system: { zh: "系统", en: "System" },
+  theme: { zh: "切换深浅色主题", en: "Toggle color theme" },
   deai: { zh: "降 AI", en: "Rewrite" },
   research: { zh: "科研平台", en: "Research platform" },
   gh: { zh: "GitHub 仓库", en: "GitHub repository" },
-  lang: { zh: "界面语言", en: "Interface language" },
+  lang: { zh: "切换中英文", en: "Switch language" },
 } as const;
 
-const { preference, setTheme } = useThemePreference();
-const themeOptions = computed(() => [
-  { label: t(s.light), value: "light" },
-  { label: t(s.dark), value: "dark" },
-  { label: t(s.system), value: "system" },
-]);
+const { resolved: themeResolved, setTheme } = useThemePreference();
 
-function updateTheme(value: unknown) {
-  if (value === "light" || value === "dark" || value === "system") setTheme(value);
+function toggleTheme(event: MouseEvent) {
+  setTheme(themeResolved.value === "dark" ? "light" : "dark", event);
 }
 
-// 语言标签固定「中 / EN」:切换目标用本名示人,不随界面语言翻。
-const langOptions: { label: string; value: Locale }[] = [
-  { label: "中", value: "zh-CN" }, // i18n-allow 本名示人
-  { label: "EN", value: "en-US" },
-];
+const languageShort = computed(() => (locale.value === "zh-CN" ? "中" : "EN")); // i18n-allow 本名示人
 
-function updateLocale(value: unknown) {
-  if (value === "zh-CN" || value === "en-US") setLocale(value);
+function toggleLocale() {
+  setLocale(locale.value === "zh-CN" ? "en-US" : "zh-CN");
 }
 </script>
 
@@ -106,55 +89,59 @@ function updateLocale(value: unknown) {
     <span class="dev-topbar__spacer" />
     <slot name="append" />
     <Button
+      class="dev-topbar__llms"
       :href="llmsUrl"
       target="_blank"
       rel="noreferrer"
       size="sm"
+      rounded
+      variant="outlined"
+      severity="secondary"
       :label="t(s.llms)"
     />
-    <SelectButton
-      class="dev-topbar__lang"
-      :model-value="locale"
-      :options="langOptions"
-      option-label="label"
-      option-value="value"
-      :allow-empty="false"
-      size="sm"
+    <button
+      type="button"
+      class="dev-topbar__icon-btn dev-topbar__lang"
       :aria-label="t(s.lang)"
-      @update:model-value="updateLocale"
-    />
-    <SelectButton
-      class="dev-topbar__theme"
-      :model-value="preference"
-      :options="themeOptions"
-      option-label="label"
-      option-value="value"
-      :allow-empty="false"
-      size="sm"
+      :title="t(s.lang)"
+      @click="toggleLocale"
+    >{{ languageShort }}</button>
+    <button
+      type="button"
+      class="dev-topbar__icon-btn dev-topbar__theme-btn"
+      :data-theme-state="themeResolved"
       :aria-label="t(s.theme)"
-      @update:model-value="updateTheme"
-    />
+      :title="t(s.theme)"
+      @click="toggleTheme($event)"
+    >
+      <span class="dev-topbar__theme-stage" aria-hidden="true">
+        <Sun class="dev-topbar__theme-icon dev-topbar__theme-icon--sun" />
+        <Moon class="dev-topbar__theme-icon dev-topbar__theme-icon--moon" />
+      </span>
+    </button>
     <Button
-      class="dev-topbar__product"
+      class="dev-topbar__product dev-topbar__product--deai"
       href="https://rewrite.mangowrite.com"
       target="_blank"
       rel="noreferrer"
       size="sm"
-      variant="outlined"
-      severity="secondary"
+      rounded
+      severity="contrast"
+      :icon="WandSparkles"
       :label="t(s.deai)"
     />
     <Button
-      class="dev-topbar__product"
+      class="dev-topbar__product dev-topbar__product--write"
       href="https://mangowrite.com"
       target="_blank"
       rel="noreferrer"
       size="sm"
-      variant="outlined"
-      severity="secondary"
+      rounded
+      severity="primary"
+      :icon="PenLine"
       :label="t(s.research)"
     />
-    <a class="dev-topbar__gh" :href="githubUrl" target="_blank" rel="noreferrer" :aria-label="t(s.gh)">
+    <a class="dev-topbar__icon-btn dev-topbar__gh" :href="githubUrl" target="_blank" rel="noreferrer" :aria-label="t(s.gh)">
       <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true">
         <path
           d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"
@@ -174,7 +161,7 @@ function updateLocale(value: unknown) {
   margin: var(--space-2) var(--space-2) 0;
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--space-2);
   padding: var(--space-2-5) var(--space-4);
   border-radius: var(--radius-card);
   background-color: color-mix(in srgb, var(--frost-bg) 45%, transparent);
@@ -234,38 +221,121 @@ function updateLocale(value: unknown) {
   flex: 1;
 }
 
-.dev-topbar__gh {
+.dev-topbar__icon-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
   width: var(--size-sm-h);
   height: var(--size-sm-h);
-  border-radius: var(--radius-sm);
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-full);
+  background: transparent;
   color: var(--text-secondary);
+  font-family: inherit;
+  cursor: pointer;
+  transition:
+    color var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard);
 }
 
-.dev-topbar__gh:hover {
+.dev-topbar__icon-btn:hover {
   background: var(--fill-default);
   color: var(--text-primary);
 }
 
-@media (max-width: 720px) {
-  .dev-topbar {
-    gap: var(--space-2);
-    padding: var(--space-2) var(--space-3);
-  }
+.dev-topbar__lang {
+  font-size: var(--type-body-sm-size);
+  font-weight: var(--weight-bold);
+}
 
-  /* 产品入口与主题档位收起,给区域胶囊和 LLM 接入让位;主题回落系统档。
-     语言切换保持可见——这是手机档唯一还能切语言的入口。 */
-  .dev-topbar__product,
-  .dev-topbar__theme {
+.dev-topbar__theme-stage {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: var(--icon-lg);
+  height: var(--icon-lg);
+}
+
+.dev-topbar__theme-icon {
+  grid-area: 1 / 1;
+  width: var(--icon-lg);
+  height: var(--icon-lg);
+  transition:
+    transform var(--duration-slow) var(--ease-spring-pop),
+    opacity var(--duration-base) var(--ease-standard);
+}
+
+.dev-topbar__theme-btn[data-theme-state="light"] .dev-topbar__theme-icon--sun {
+  opacity: 1;
+  transform: rotate(0deg) scale(1);
+}
+
+.dev-topbar__theme-btn[data-theme-state="light"] .dev-topbar__theme-icon--moon {
+  opacity: 0;
+  transform: rotate(75deg) scale(0.45);
+}
+
+.dev-topbar__theme-btn[data-theme-state="dark"] .dev-topbar__theme-icon--sun {
+  opacity: 0;
+  transform: rotate(-75deg) scale(0.45);
+}
+
+.dev-topbar__theme-btn[data-theme-state="dark"] .dev-topbar__theme-icon--moon {
+  opacity: 1;
+  transform: rotate(0deg) scale(1);
+}
+
+.dev-topbar__product {
+  font-weight: var(--weight-semibold);
+}
+
+.dev-topbar__product--write {
+  background: linear-gradient(135deg, var(--accent-hover), var(--accent));
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--accent) 26%, transparent);
+}
+
+.dev-topbar__product--write:hover {
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--accent) 34%, transparent);
+}
+
+@media (max-width: 1080px) {
+  .dev-topbar__name {
     display: none;
   }
 }
 
-@media (max-width: 480px) {
-  .dev-topbar__name {
+@media (max-width: 880px) {
+  .dev-topbar__llms {
     display: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .dev-topbar {
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .dev-topbar__product {
+    display: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .dev-topbar__navlink {
+    padding: 0 var(--space-2);
+  }
+
+  .dev-topbar__gh {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dev-topbar__icon-btn,
+  .dev-topbar__theme-icon {
+    transition: none;
   }
 }
 </style>

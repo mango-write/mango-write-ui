@@ -138,8 +138,8 @@ export const docGroups: DocGroup[] = [
         "mobile",
         { zh: "移动端", en: "Mobile Guidelines" },
         {
-          zh: "纸与霜 · 掌上版：面向拇指触控与手持窄视口，采用内容优先的通栏信息流、44/48/52px 交互尺寸、16/17px 正文排版、统一矢量图标与可访问的底部抽屉。",
-          en: "Paper & Frost · Touch: content-first flush feeds, 44/48/52px interactive sizes, 16/17px body typography, unified vector icons, and accessible bottom sheets for handheld viewports.",
+          zh: "纸与霜 · 掌上版：面向拇指触控与手持窄视口，采用画布托底的圆角纸卡信息流、36/44/48px 胶囊交互尺寸、统一矢量图标与四周内缩厚霜抽屉。",
+          en: "Paper & Frost · Touch: rounded paper-card feeds over warm canvas, 36/44/48px capsule controls, unified vector icons, and inset thick-frost bottom sheets.",
         },
       ),
     ],
@@ -652,17 +652,17 @@ export const docGroups: DocGroup[] = [
     title: { zh: "基础组件", en: "Primitives" },
     base: "/mobile",
     entries: [
-      component("navbar", { zh: "导航", en: "NavBar" }, {
-        zh: "返回与上下文顶栏、一级底部导航，以及真实胶囊安全区。",
-        en: "Back and context navigation, top-level tabs, and real capsule clearance.",
+      component("navbar", { zh: "导航", en: "Navigation" }, {
+        zh: "左上角浮动返回圆钮、底部单轨悬浮霜面胶囊导航与同轨收折编排。",
+        en: "Top-left floating back button, bottom single-rail frost capsule tabs, and inline collapse choreography.",
       }),
       component("cell", { zh: "内容列表", en: "Cell" }, {
-        zh: "标题、摘要和元信息分行组织的通栏研究信息流。",
-        en: "Flush research feeds with distinct title, summary, and metadata rows.",
+        zh: "默认圆角纸卡承载记录流与设置分组，霜面抽屉内切换为半透明叠层行。",
+        en: "Rounded paper-card feeds by default, with translucent flush rows inside frost sheets.",
       }),
       component("button", { zh: "按钮", en: "Button" }, {
-        zh: "44/48/52px 三档真实交互尺寸与明确的动作层级。",
-        en: "True 44/48/52px interactive sizes with clear action hierarchy.",
+        zh: "36/44/48px 三档全胶囊交互尺寸与明确的动作层级。",
+        en: "True 36/44/48px capsule interactive sizes with clear action hierarchy.",
       }),
       component("input", { zh: "输入", en: "Input" }, {
         zh: "搜索、单行与多行输入，以及关联标签、提示和错误的表单字段。",

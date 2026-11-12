@@ -26,12 +26,12 @@ import "@mango-write/ui-mp/styles.css";
 const providerCode = computed(() =>
   t({
     zh: `<MpThemeProvider theme="light">
-  <MpNavBar title="科研日志" />
-  <MpIcon name="journal" :size="22" />
+  <MpPageHeader title="科研日志" />
+  <MpTabBar v-model="active" :items="items" />
 </MpThemeProvider>`,
     en: `<MpThemeProvider theme="light">
-  <MpNavBar title="Research log" />
-  <MpIcon name="journal" :size="22" />
+  <MpPageHeader title="Research log" />
+  <MpTabBar v-model="active" :items="items" />
 </MpThemeProvider>`,
   }),
 );
@@ -45,7 +45,7 @@ const providerCode = computed(() =>
     :guidelines="[
       { kind: 'do', zh: '<strong>统一语义底座</strong>：主题、语义色和矢量图标由 MpThemeProvider 与 MpIcon 统一提供，业务页不复制颜色或字符图标。', en: '<strong>Shared semantic foundation</strong>: MpThemeProvider and MpIcon provide themes, semantic tokens, and vector icons.' },
       { kind: 'do', zh: '<strong>多形态容器感知</strong>：MpThemeProvider 自动识别常规直板屏（compact）、16:10 阔折叠（wide-short）与书本折叠展开态（expanded）。', en: '<strong>Form-factor awareness</strong>: MpThemeProvider automatically adapts across compact, wide-short (16:10), and expanded foldables.' },
-      { kind: 'dont', zh: '不在小程序顶栏绘制伪胶囊按钮；只通过 capsule-safe 预留真实微信胶囊安全区。', en: 'Never draw fake WeChat capsule buttons; only reserve the real capsule safe area via capsule-safe.' },
+      { kind: 'dont', zh: '不在小程序内自建顶部导航栏或绘制伪胶囊；一级页交由微信原生导航栏承载，沉浸式二级页只放左上角 MpBackButton。', en: 'Never build custom top navbars or fake WeChat capsules; rely on the native bar and use MpBackButton on custom-nav secondary pages.' },
     ]"
   >
     <template #sections>

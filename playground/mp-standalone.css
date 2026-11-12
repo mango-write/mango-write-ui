@@ -20,6 +20,6 @@ body,
 
 .mp-standalone__main {
   height: 100%;
-  padding: 0 var(--mp-card-inset) calc(var(--mp-tabbar-h) + var(--mp-size-lg-h) + var(--space-16));
+  padding: var(--space-2) var(--mp-card-inset) calc(var(--mp-tabbar-h) + var(--mp-float-inset) * 2 + var(--space-6));
   overflow-y: auto;
 }

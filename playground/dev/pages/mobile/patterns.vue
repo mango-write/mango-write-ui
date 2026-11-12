@@ -14,10 +14,10 @@ const code = computed(() =>
   mpSim.patterns.mode === "action"
     ? t({
         zh: `<MpBottomActionBar>
-  <MpButton size="lg" block label="记录新日志" />
+  <MpButton size="lg" fluid label="记录新日志" />
 </MpBottomActionBar>`,
         en: `<MpBottomActionBar>
-  <MpButton size="lg" block label="New journal entry" />
+  <MpButton size="lg" fluid label="New journal entry" />
 </MpBottomActionBar>`,
       })
     : t({

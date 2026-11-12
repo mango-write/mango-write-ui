@@ -3,6 +3,7 @@ import { ref } from "vue";
 import {
   MpButton,
   MpCell,
+  MpCellGroup,
   MpFilterChip,
   MpInput,
   MpNotice,
@@ -18,7 +19,7 @@ const text = ref("");
 const principles = [
   {
     title: { zh: "内容先于装饰", en: "Content before decoration" },
-    body: { zh: "单列信息流默认通栏，标题、正文和来源拥有完整宽度。卡片只用于真正需要分组的短内容。", en: "Flush single-column feeds give titles, prose, and sources full width. Cards only group genuinely related short content." },
+    body: { zh: "画布托底、圆角纸卡默认承载内容分组；进入厚霜抽屉时自动切换为半透明叠层行，不打穿霜面。", en: "Canvas backs rounded paper cards by default; inside thick-frost sheets, lists switch to translucent flush rows." },
   },
   {
     title: { zh: "动作先于零件", en: "Actions before parts" },
@@ -47,13 +48,15 @@ const sizes = [
       </div>
     </DocSection>
 
-    <DocSection :title="{ zh: '真实组件标本', en: 'Real component specimens' }" :desc="{ zh: '相同语义组件在纸与霜双底面上保持一致层级；输入框使用凹陷底色，主按钮统一橙底白字。', en: 'The same semantic components preserve hierarchy across light and dark surfaces, with sunken inputs and white text on primary orange.' }">
+    <DocSection :title="{ zh: '真实组件标本', en: 'Real component specimens' }" :desc="{ zh: '相同语义组件在纸与霜双底面上保持一致层级；输入控件采用半透明填色与全胶囊圆角，主按钮统一橙底白字。', en: 'The same semantic components preserve hierarchy across Paper & Frost surfaces, with translucent capsule inputs and white text on primary orange.' }">
       <Specimen themes="both" layout="stack">
         <MpThemeProvider class="mp-foundation-specimen">
           <MpInput v-model="text" :placeholder="t({ zh: '搜索标题、作者或 DOI', en: 'Search title, author, or DOI' })" clearable />
-          <MpCell :title="t({ zh: '长文档证据召回实验', en: 'Long-document evidence retrieval experiment' })" :subtitle="t({ zh: 'ColBERTv2 重排提升 Top-5 召回率 6.4%。', en: 'ColBERTv2 reranking improves Top-5 recall by 6.4%.' })" :meta="t({ zh: '实验记录 · 10 分钟前', en: 'Experiment log · 10m ago' })" clickable arrow />
+          <MpCellGroup>
+            <MpCell :title="t({ zh: '长文档证据召回实验', en: 'Long-document evidence retrieval experiment' })" :subtitle="t({ zh: 'ColBERTv2 重排提升 Top-5 召回率 6.4%。', en: 'ColBERTv2 reranking improves Top-5 recall by 6.4%.' })" :meta="t({ zh: '实验记录 · 10 分钟前', en: 'Experiment log · 10m ago' })" clickable arrow />
+          </MpCellGroup>
           <div class="doc-row"><MpFilterChip :label="t({ zh: '实验记录', en: 'Experiment log' })" selected /><MpButton :label="t({ zh: '记录新日志', en: 'New entry' })" /></div>
-          <MpNotice tone="primary" :title="t({ zh: '来源随内容流动', en: 'Provenance travels with content' })">{{ t({ zh: '文献标题与 DOI 会随摘录保留。', en: 'Paper title and DOI travel with the excerpt.' }) }}</MpNotice>
+          <MpNotice severity="primary" :title="t({ zh: '来源随内容流动', en: 'Provenance travels with content' })">{{ t({ zh: '文献标题与 DOI 会随摘录保留。', en: 'Paper title and DOI travel with the excerpt.' }) }}</MpNotice>
         </MpThemeProvider>
       </Specimen>
     </DocSection>

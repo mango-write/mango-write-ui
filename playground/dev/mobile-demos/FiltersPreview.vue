@@ -28,6 +28,6 @@ function toggle(tag: string): void {
     <MpSectionHeader :title="t({ zh: '多选标签', en: 'Multi-select tags' })" :meta="`${mpSim.filters.tags.length}`" />
     <div class="mp-preview__row"><MpFilterChip v-for="tag in tags" :key="tag" :label="t(tagLabels[tag])" :selected="mpSim.filters.tags.includes(tag)" :disabled="mpSim.filters.disabled" @click="toggle(tag)" /></div>
     <MpSectionHeader :title="t({ zh: '静态语义标签', en: 'Static semantic tags' })" />
-    <div class="mp-preview__row"><MpTag label="Primary" tone="primary" /><MpTag label="Info" tone="info" /><MpTag label="Success" tone="success" /><MpTag label="Warning" tone="warning" /></div>
+    <div class="mp-preview__row"><MpTag label="Primary" severity="primary" /><MpTag label="Info" severity="info" /><MpTag label="Success" severity="success" /><MpTag label="Warning" severity="warning" /></div>
   </main>
 </template>

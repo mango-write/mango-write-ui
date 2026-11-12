@@ -23,6 +23,10 @@ export type MpDeviceId =
 
 export type MpFormFactor = "bar" | "wide-fold" | "book-fold";
 export type MpOrientation = "portrait" | "landscape";
+export type MpScaleMode = "1:1" | "fit" | "custom";
+
+export const MP_CUSTOM_SCALE_MIN = 40;
+export const MP_CUSTOM_SCALE_MAX = 150;
 
 export interface MpDevicePreset {
   id: MpDeviceId;
@@ -130,19 +134,114 @@ export function getMpDevicePreset(id: MpDeviceId): MpDevicePreset {
   return MP_DEVICE_PRESETS.find((item) => item.id === id) ?? MP_DEVICE_PRESETS[0];
 }
 
+export function resolveMpCreaseAxis(
+  formFactor: MpFormFactor,
+  orientation: MpOrientation,
+): "horizontal" | "vertical" | null {
+  if (formFactor === "bar") return null;
+  // Pura X (440×706) 与 iPhone Duo (688×874 = 双 437×688 屏拼合) 竖置时折轴均沿短边水平横贯,横置时垂直居中。
+  return orientation === "portrait" ? "horizontal" : "vertical";
+}
+
+export function getMpDeviceDiagonalInches(preset: MpDevicePreset): number {
+  const parsed = Number.parseFloat(preset.diagonal);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 6.3;
+}
+
+export function getMpDeviceCssPpi(preset: MpDevicePreset): number {
+  return Math.hypot(preset.width, preset.height) / getMpDeviceDiagonalInches(preset);
+}
+
+// 浏览器因反指纹不暴露显示器物理尺寸(EDID),按特征背板分辨率与纵横比反推物理对角线英寸数。
+export function estimateMonitorCssPpi(
+  screenWidth: number,
+  screenHeight: number,
+  devicePixelRatio = 1,
+): number {
+  if (!(screenWidth > 0 && screenHeight > 0)) return 110;
+  const w = Math.max(screenWidth, screenHeight);
+  const h = Math.min(screenWidth, screenHeight);
+  const dpr = Number.isFinite(devicePixelRatio) && devicePixelRatio > 0 ? devicePixelRatio : 1;
+  const diagCss = Math.hypot(w, h);
+  const physW = Math.round(w * dpr);
+  const physH = Math.round(h * dpr);
+  const aspect = w / h;
+  const near = (a: number, b: number, tol = 12) => Math.abs(a - b) <= tol;
+
+  let diagInches: number | undefined;
+  if (
+    (near(physW, 3024) && near(physH, 1964)) ||
+    (near(physW, 3600) && near(physH, 2338)) ||
+    (near(physW, 2704) && near(physH, 1756))
+  ) {
+    diagInches = 14.2;
+  } else if (
+    (near(physW, 3456) && near(physH, 2234)) ||
+    (near(physW, 4112) && near(physH, 2658)) ||
+    (near(physW, 3008) && near(physH, 1944))
+  ) {
+    diagInches = 16.2;
+  } else if ((near(physW, 2940) && near(physH, 1912)) || (near(physW, 2560) && near(physH, 1664))) {
+    diagInches = 13.6;
+  } else if ((near(physW, 3420) && near(physH, 2214)) || (near(physW, 2880) && near(physH, 1864))) {
+    diagInches = 15.3;
+  } else if (near(physW, 4480) && near(physH, 2520)) {
+    diagInches = 23.5;
+  } else if (near(physW, 6016) && near(physH, 3384)) {
+    diagInches = 32.0;
+  } else if (aspect >= 2.2) {
+    diagInches = aspect >= 3.2 ? 49.0 : physW >= 5000 ? 38.0 : 34.0;
+  } else if (aspect <= 1.68 && dpr >= 1.2) {
+    if (near(physW, 2880, 16) && near(physH, 1800, 16)) diagInches = w <= 1440 ? 13.8 : 14.2;
+    else if (near(physW, 3360, 16) && near(physH, 2100, 16)) diagInches = 14.0;
+    else if (physW >= 3000) diagInches = 15.3;
+    else diagInches = 14.5;
+  } else if (physW >= 4800) {
+    diagInches = 27.0;
+  } else if (physW >= 3600) {
+    diagInches = dpr <= 1.1 ? 31.5 : 27.0;
+  } else if (physW >= 2400) {
+    diagInches = dpr >= 1.4 ? 15.6 : 27.0;
+  } else if (physW >= 1800) {
+    diagInches = dpr >= 1.2 ? 15.6 : 23.8;
+  }
+
+  const ppi = diagInches ? diagCss / diagInches : 110;
+  return Math.min(160, Math.max(72, ppi));
+}
+
+export function computePhysicalScale(preset: MpDevicePreset, monitorCssPpi: number): number {
+  const raw = monitorCssPpi / getMpDeviceCssPpi(preset);
+  return Math.min(MP_CUSTOM_SCALE_MAX / 100, Math.max(MP_CUSTOM_SCALE_MIN / 100, raw));
+}
+
+export function readRuntimeMonitorCssPpi(): number {
+  if (typeof window === "undefined" || !window.screen) return 110;
+  return estimateMonitorCssPpi(
+    window.screen.width,
+    window.screen.height,
+    window.devicePixelRatio || 1,
+  );
+}
+
 function freshState() {
   return structuredClone({
     button: {
       label: t({ zh: "保存研究记录", en: "Save research note" }),
-      variant: "solid" as "solid" | "tinted" | "outlined" | "text",
-      severity: "primary" as "primary" | "secondary" | "danger",
+      variant: "filled" as "filled" | "tinted" | "outlined" | "text",
+      severity: "primary" as "primary" | "secondary" | "danger" | "contrast",
       size: "md" as "sm" | "md" | "lg",
-      block: true,
+      fluid: true,
       disabled: false,
       loading: false,
     },
-    navbar: { showBack: false, capsuleSafe: true, showBadges: false },
-    cell: { grouped: false, showLead: false, clickable: true, arrow: true, selected: false, disabled: false },
+    navbar: {
+      showBack: false,
+      railMode: "split" as "tabs" | "split" | "composer",
+      showBadges: false,
+      message: "",
+    },
+    cell: { grouped: true, showLead: false, clickable: true, arrow: true, selected: false, disabled: false },
     input: {
       query: "ColBERTv2",
       inputValue: "Attention Is All You Need",
@@ -167,6 +266,8 @@ function freshState() {
   });
 }
 
+const initialMonitorCssPpi = readRuntimeMonitorCssPpi();
+
 export const mpSim = reactive({
   activeSlug: "installation" as MpPageSlug,
   theme: "light" as "light" | "dark",
@@ -174,11 +275,41 @@ export const mpSim = reactive({
   orientation: "portrait" as MpOrientation,
   width: 402 as number,
   height: 874 as number,
-  scaleMode: "1:1" as "1:1" | "fit",
+  scaleMode: "fit" as MpScaleMode,
+  customScalePercent: 100 as number,
+  monitorCssPpi: initialMonitorCssPpi,
+  effectiveScale: computePhysicalScale(MP_DEVICE_PRESETS[0], initialMonitorCssPpi),
   longContent: false,
   debugTouch: false,
   ...freshState(),
 });
+
+export function clampMpScalePercent(percent: number): number {
+  if (!Number.isFinite(percent)) return 100;
+  return Math.min(MP_CUSTOM_SCALE_MAX, Math.max(MP_CUSTOM_SCALE_MIN, Math.round(percent)));
+}
+
+function syncNominalEffectiveScale(): void {
+  if (mpSim.scaleMode === "1:1") {
+    mpSim.effectiveScale = computePhysicalScale(getMpDevicePreset(mpSim.deviceId), mpSim.monitorCssPpi);
+  } else if (mpSim.scaleMode === "custom") {
+    mpSim.effectiveScale = mpSim.customScalePercent / 100;
+  }
+}
+
+export function setMpScaleMode(mode: MpScaleMode): void {
+  if (mode === "custom" && mpSim.scaleMode !== "custom") {
+    mpSim.customScalePercent = clampMpScalePercent(mpSim.effectiveScale * 100);
+  }
+  mpSim.scaleMode = mode;
+  syncNominalEffectiveScale();
+}
+
+export function setMpCustomScalePercent(percent: number): void {
+  mpSim.customScalePercent = clampMpScalePercent(percent);
+  mpSim.scaleMode = "custom";
+  syncNominalEffectiveScale();
+}
 
 function syncMpViewport(): void {
   const preset = getMpDevicePreset(mpSim.deviceId);
@@ -189,6 +320,7 @@ function syncMpViewport(): void {
     mpSim.width = preset.width;
     mpSim.height = preset.height;
   }
+  syncNominalEffectiveScale();
 }
 
 export function selectMpDevice(deviceId: MpDeviceId): void {

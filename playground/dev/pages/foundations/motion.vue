@@ -33,6 +33,39 @@ const playDur = ref(false);
 const playEase = ref(false);
 const open = ref(false);
 
+const choreography: { tier: string; trigger: Bi; recipe: string; rule: Bi }[] = [
+  {
+    tier: "M1",
+    trigger: { zh: "触觉微反馈（按压 / 悬停 / 获焦）", en: "Tactile micro-feedback (press / hover / focus)" },
+    recipe: "110ms · --ease-standard",
+    rule: { zh: "桌面动色彩与阴影；移动触控叠加 0.97 弹性微缩。", en: "Desktop transitions color/shadow; mobile touch adds 0.97 press scale." },
+  },
+  {
+    tier: "M2",
+    trigger: { zh: "轨内归属游走（Tab 胶囊 / 分段 / 开关）", en: "In-rail indicator travel (tabs / segmented / switch)" },
+    recipe: "180–290ms · --ease-emphasized",
+    rule: { zh: "指示物常驻 DOM，只动 translateX，禁止旧灭新亮闪烁。", en: "Keep indicator mounted and animate translateX; never blink-swap." },
+  },
+  {
+    tier: "M3",
+    trigger: { zh: "同轨容器形变（导航展开 ↔ 折叠输入舱）", en: "Single-rail morphing (nav pill ↔ collapsed composer)" },
+    recipe: "290ms · --ease-emphasized",
+    rule: { zh: "严禁 v-if 拆建外壳与 max-width 互搏；单一 flex-grow 守恒推拉（禁用 x2=0 曲线防尾段 1px 顿挫）+ 内部错峰淡入。", en: "Never teardown shell via v-if; drive rail morph via single flex-grow (--ease-emphasized avoids 1px tail stepping) + staggered inner fade." },
+  },
+  {
+    tier: "M4",
+    trigger: { zh: "浮层进出场（Sheet / Dialog / Toast）", en: "Overlay enter & exit (Sheet / Dialog / Toast)" },
+    recipe: "In 180–290ms · Out ×0.618",
+    rule: { zh: "有进必有出：离场挂 pointer-events: none 播完下滑/微缩淡出再卸载。", en: "Every enter has a 0.618× exit with pointer-events: none before unmount." },
+  },
+  {
+    tier: "M5",
+    trigger: { zh: "区域与视口换装（页签面板 / 四态 / 主题）", en: "Region & viewport transitions (panels / states / theme)" },
+    recipe: "180ms / 760ms · --ease-apple-out",
+    rule: { zh: "区域交叉淡入（禁用 out-in）；全屏主题按点击圆心径向揭幕。", en: "Cross-fade regions without out-in; radially reveal full-screen themes." },
+  },
+];
+
 const s = {
   durationsTitle: { zh: "快 · 中 · 慢三档速度与黄金时长阶梯（×1.618）", en: "Fast · Medium · Slow speeds & golden duration scale (×1.618)" },
   easingsTitle: { zh: "黄金分割与 Apple 曲线族", en: "Golden ratio & Apple easing curves" },
@@ -57,6 +90,11 @@ const s = {
   themeStageHint: {
     zh: "点击下方画布任意位置或顶栏主题开关，观察从点击坐标出发的径向揭幕：",
     en: "Click anywhere on the canvas below or the topbar theme switcher to see the radial reveal from the click point:",
+  },
+  matrixTitle: { zh: "M1–M5 触发与编排矩阵（何时必须上什么动画）", en: "M1–M5 trigger & choreography matrix" },
+  matrixDesc: {
+    zh: "所有状态变化按物理尺度归入五级判据：同轨与指示物保持常驻做连续位移/形变，模态浮层有进必有出，绝不用 v-if 硬切制造闪跳。",
+    en: "Every state change maps to five physical tiers: keep rail capsules and indicators mounted for continuous motion, pair every overlay enter with an asymmetric exit, and never flash-cut via bare v-if.",
   },
   rulesTitle: { zh: "规则", en: "Rules" },
   ruleHover: {
@@ -144,6 +182,27 @@ const s = {
           />
         </div>
       </div>
+    </DocSection>
+
+    <DocSection :title="s.matrixTitle" :desc="s.matrixDesc">
+      <table class="doc-table">
+        <thead>
+          <tr>
+            <th>{{ t({ zh: "等级", en: "Tier" }) }}</th>
+            <th>{{ t({ zh: "触发时机", en: "Trigger" }) }}</th>
+            <th>{{ t({ zh: "时长 × 曲线", en: "Duration × Curve" }) }}</th>
+            <th>{{ t({ zh: "编排规则", en: "Choreography Rule" }) }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="item in choreography" :key="item.tier">
+            <td><strong>{{ item.tier }}</strong></td>
+            <td>{{ t(item.trigger) }}</td>
+            <td><code>{{ item.recipe }}</code></td>
+            <td>{{ t(item.rule) }}</td>
+          </tr>
+        </tbody>
+      </table>
     </DocSection>
 
     <DocSection :title="s.rulesTitle">

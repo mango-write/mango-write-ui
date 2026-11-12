@@ -36,10 +36,10 @@ watch(() => mpSim.feedback.toastTick, (value) => { if (value > 0) showToast(); }
     <main class="mp-preview__scroll mp-preview__pad">
       <MpPageHeader :title="t({ zh: '反馈与对话', en: 'Messages' })" :description="t({ zh: '反馈不抢焦点，也不遮挡主操作。', en: 'Feedback preserves focus and avoids primary actions.' })" />
       <div class="mp-preview__stack">
-        <MpButton block :variant="mpSim.feedback.danger ? 'tinted' : 'solid'" :severity="mpSim.feedback.danger ? 'danger' : 'primary'" :label="t({ zh: '打开确认框', en: 'Open confirmation' })" @click="openConfirm" />
-        <MpButton block :label="t({ zh: '显示最新通知', en: 'Show latest toast' })" @click="showToast" />
+        <MpButton fluid :variant="mpSim.feedback.danger ? 'tinted' : 'filled'" :severity="mpSim.feedback.danger ? 'danger' : 'primary'" :label="t({ zh: '打开确认框', en: 'Open confirmation' })" @click="openConfirm" />
+        <MpButton fluid :label="t({ zh: '显示最新通知', en: 'Show latest toast' })" @click="showToast" />
       </div>
-      <MpNotice tone="success" :title="t({ zh: '来源已保留', en: 'Source preserved' })">{{ t({ zh: '文献标题和 DOI 会随摘录进入日志。', en: 'Paper title and DOI travel with the excerpt.' }) }}</MpNotice>
+      <MpNotice severity="success" :title="t({ zh: '来源已保留', en: 'Source preserved' })">{{ t({ zh: '文献标题和 DOI 会随摘录进入日志。', en: 'Paper title and DOI travel with the excerpt.' }) }}</MpNotice>
       <div class="mp-preview__conversation">
         <MpMessage from="user" :text="t({ zh: '总结最近的实验结论', en: 'Summarize recent experiment results' })" />
         <MpMessage from="assistant" label="MANGO AI" :text="t({ zh: '重排提升了证据召回率，但仍需核验原始实验设置。', en: 'Reranking improved evidence recall, but the original setup still needs verification.' })" />

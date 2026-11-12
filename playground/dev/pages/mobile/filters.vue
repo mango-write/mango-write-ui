@@ -16,10 +16,10 @@ const code = computed(() =>
   t({
     zh: `<MpFilterBar v-model="category" :items="categories"${mpSim.filters.disabled ? " disabled" : ""} />
 <MpFilterChip label="实验记录" :selected="tags.includes('experiment')"${mpSim.filters.disabled ? " disabled" : ""} @click="toggle('experiment')" />
-<MpTag label="静态标签" tone="info" />`,
+<MpTag label="静态标签" severity="info" />`,
     en: `<MpFilterBar v-model="category" :items="categories"${mpSim.filters.disabled ? " disabled" : ""} />
 <MpFilterChip label="Experiment" :selected="tags.includes('experiment')"${mpSim.filters.disabled ? " disabled" : ""} @click="toggle('experiment')" />
-<MpTag label="Static tag" tone="info" />`,
+<MpTag label="Static tag" severity="info" />`,
   }),
 );
 </script>

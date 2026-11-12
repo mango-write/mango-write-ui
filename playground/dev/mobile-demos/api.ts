@@ -1,12 +1,14 @@
 import type {
   MpActionSheetProps,
+  MpBackButtonProps,
   MpButtonProps,
+  MpCellGroupProps,
   MpCellProps,
   MpComposerProps,
   MpEmptyProps,
   MpFilterChipProps,
   MpInputProps,
-  MpNavBarProps,
+  MpPageHeaderProps,
   MpSearchBarProps,
   MpSelectSheetProps,
   MpSheetProps,
@@ -23,7 +25,9 @@ function props<Props>(rows: readonly (MpApiRow & { name: MpApiName<Props> })[]):
 const button = props<MpButtonProps>([
   { name: "label", type: "string", description: { zh: "按钮文本，也可使用默认插槽。", en: "Button text, or use the default slot." } },
   { name: "size", type: '"sm" | "md" | "lg"', defaultValue: '"md"', description: { zh: "36 / 44 / 48px 交互尺寸。", en: "36 / 44 / 48px interactive sizes." } },
-  { name: "variant", type: '"solid" | "tinted" | "outlined" | "text"', defaultValue: '"solid"', description: { zh: "动作视觉层级。", en: "Visual action hierarchy." } },
+  { name: "variant", type: '"filled" | "tinted" | "outlined" | "text"', defaultValue: '"filled"', description: { zh: "与桌面端一致的动作视觉变体。", en: "Visual variant aligned with desktop Button." } },
+  { name: "severity", type: '"primary" | "secondary" | "danger" | "contrast" | "info" | "success" | "warn"', defaultValue: '"primary"', description: { zh: "与桌面端一致的动作语义（状态色自动退为 tinted）。", en: "Action severity aligned with desktop Button." } },
+  { name: "fluid", type: "boolean", defaultValue: "false", description: { zh: "撑满父容器宽度（兼容旧名 block）。", en: "Expands to 100% width (compatible with legacy block)." } },
   { name: "loading", type: "boolean", defaultValue: "false", description: { zh: "显示矢量加载图标并阻断重复动作。", en: "Shows a vector spinner and blocks repeat actions." } },
 ]);
 
@@ -33,21 +37,33 @@ export const mobileApi = {
     { name: "MpIcon.name", type: "MpIconName", description: { zh: "统一矢量图标名称，不使用 Unicode 模拟。", en: "Unified vector icon name; never Unicode substitutes." } },
   ],
   navbar: [
-    ...props<MpNavBarProps>([
-      { name: "title", type: "string", description: { zh: "二级页面标题。", en: "Secondary page title." } },
-      { name: "showBack", type: "boolean", defaultValue: "false", description: { zh: "显示返回动作；空间入口使用 leading 插槽。", en: "Shows back; use the leading slot for space context." } },
+    ...props<MpBackButtonProps>([
+      { name: "ariaLabel", type: "string", defaultValue: '"返回"', description: { zh: "沉浸式二级页左上角 44×44px 霜面返回圆钮的无障碍名称。", en: "Accessible label for the top-left 44×44px frost back button on custom-nav pages." } },
+      { name: "contained", type: "boolean", defaultValue: "false", description: { zh: "在预览容器内使用绝对定位。", en: "Uses absolute positioning inside a preview container." } },
+    ]),
+    ...props<MpPageHeaderProps>([
+      { name: "capsuleSafe", type: "boolean", defaultValue: "false", description: { zh: "沉浸式页为左上返回圆钮与右上微信系统胶囊预留顶部净空。", en: "Reserves top clearance for MpBackButton and the native WeChat capsule." } },
+      { name: "#eyebrow", type: "slot", description: { zh: "标题上方的空间切换或上下文胶囊插槽。", en: "Context or space-switcher chip slot above the title." } },
     ]),
     ...props<MpTabBarProps>([
       { name: "items", type: "readonly MpTabBarItem[]", description: { zh: "一级目的地、矢量图标与可选通知计数。", en: "Destinations, vector icons, and optional notification counts." } },
-      { name: "contained", type: "boolean", defaultValue: "false", description: { zh: "在预览容器内使用绝对定位。", en: "Uses absolute positioning inside a preview container." } },
+      { name: "collapsed", type: "boolean", defaultValue: "false", description: { zh: "收折为左侧 56×56px 霜面圆钮，释放同轨空间给 #composer。", en: "Collapses into a 56×56px frost orb on the left, yielding the rail to #composer." } },
+      { name: "#action", type: "slot", description: { zh: "未收折时右侧同轨并排的主操作圆钮或胶囊插槽。", en: "Trailing primary action orb/pill on the same bottom rail when expanded." } },
+      { name: "#composer", type: "slot", description: { zh: "收折态右侧同轨展开的内联输入器插槽。", en: "Inline composer occupying the rail when collapsed." } },
     ]),
   ],
-  cell: props<MpCellProps>([
-    { name: "title", type: "string", description: { zh: "完整内容标题，不与时间争夺横向轨道。", en: "Full content title, not squeezed against timestamps." } },
-    { name: "subtitle", type: "string", description: { zh: "最多两行的摘要，长英文与 DOI 可断行。", en: "Two-line summary with wrapping for English and DOIs." } },
-    { name: "clickable", type: "boolean", defaultValue: "false", description: { zh: "启用按钮角色与键盘操作。", en: "Enables button semantics and keyboard actions." } },
-    { name: "selectable", type: "boolean", defaultValue: "false", description: { zh: "使用 option 与 aria-selected 选择语义。", en: "Uses option and aria-selected semantics." } },
-  ]),
+  cell: [
+    ...props<MpCellGroupProps>([
+      { name: "grouped", type: "boolean", defaultValue: "true", description: { zh: "默认以 20px 圆角纸卡（--bg-raised）承载列表行。", en: "Renders rows inside a 20px rounded paper card (--bg-raised) by default." } },
+      { name: "flush", type: "boolean", defaultValue: "false", description: { zh: "切换为无边框半透明叠层行，专供厚霜抽屉（如 MpSelectSheet）内嵌列表使用。", en: "Switches to borderless translucent rows for thick-frost sheets like MpSelectSheet." } },
+    ]),
+    ...props<MpCellProps>([
+      { name: "title", type: "string", description: { zh: "完整内容标题，不与时间争夺横向轨道。", en: "Full content title, not squeezed against timestamps." } },
+      { name: "subtitle", type: "string", description: { zh: "最多两行的摘要，长英文与 DOI 可断行。", en: "Two-line summary with wrapping for English and DOIs." } },
+      { name: "clickable", type: "boolean", defaultValue: "false", description: { zh: "启用按钮角色与键盘操作。", en: "Enables button semantics and keyboard actions." } },
+      { name: "selectable", type: "boolean", defaultValue: "false", description: { zh: "使用 option 与 aria-selected 选择语义。", en: "Uses option and aria-selected semantics." } },
+    ]),
+  ],
   button,
   input: [
     ...props<MpInputProps>([
@@ -89,7 +105,8 @@ export const mobileApi = {
   ],
   patterns: props<MpComposerProps>([
     { name: "modelValue", type: "string", defaultValue: '""', description: { zh: "输入内容。", en: "Composer value." } },
+    { name: "inline", type: "boolean", defaultValue: "false", description: { zh: "嵌入 MpTabBar #composer 同轨渲染，不外包独立固定底栏。", en: "Renders inline inside MpTabBar #composer without a standalone fixed wrapper." } },
     { name: "submit", type: "(value: string) => void", description: { zh: "非空时通过发送动作或 Enter 提交。", en: "Submits non-empty text via send or Enter." } },
-    { name: "offsetBottom", type: "string", description: { zh: "底部导航或安全区偏移。", en: "Bottom navigation or safe-area offset." } },
+    { name: "offsetBottom", type: "string", description: { zh: "独立挂载时的底部偏移。", en: "Bottom offset when mounted standalone." } },
   ]),
 } as const;
