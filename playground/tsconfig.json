@@ -18,5 +18,8 @@
     "dev/**/*.ts",
     "dev/**/*.vue",
     "mp-main.ts"
+  ],
+  "exclude": [
+    "react-preview"
   ]
 }

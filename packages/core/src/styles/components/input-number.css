@@ -1,0 +1,198 @@
+.mw-input-number {
+  --mw-input-number-step-w: calc(var(--control-icon) + var(--space-1));
+
+  position: relative;
+  display: inline-flex;
+  align-items: stretch;
+  height: var(--control-h);
+  vertical-align: middle;
+}
+
+.mw-input-number--fluid {
+  display: flex;
+  width: 100%;
+}
+
+.mw-input-number--stacked {
+  width: fit-content;
+}
+
+.mw-input-number--vertical {
+  flex-direction: column;
+  width: fit-content;
+  height: auto;
+}
+
+.mw-input-number__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 100%;
+  height: var(--control-h);
+  padding-inline: var(--control-px);
+  font-variant-numeric: tabular-nums;
+}
+
+.mw-input-number--stacked .mw-input-number__input {
+  width: calc(var(--control-h) * 3);
+  padding-inline-end: calc(var(--mw-input-number-step-w) + var(--control-gap));
+}
+
+.mw-input-number--fluid.mw-input-number--stacked .mw-input-number__input {
+  width: 100%;
+}
+
+.mw-input-number__button-group {
+  position: absolute;
+  inset-block: calc(var(--border-width) * 2);
+  inset-inline-end: calc(var(--border-width) * 2);
+  display: flex;
+  flex-direction: column;
+  width: var(--mw-input-number-step-w);
+  border-radius: calc(var(--control-radius) - var(--border-width) * 2);
+  overflow: hidden;
+}
+
+.mw-input-number__button {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+
+.mw-input-number__button:hover:not(:disabled) {
+  background-color: var(--fill-default);
+  color: var(--text-primary);
+}
+
+.mw-input-number__button:active:not(:disabled) {
+  background-color: var(--fill-strong);
+}
+
+.mw-input-number__button:disabled {
+  color: var(--text-disabled);
+  cursor: not-allowed;
+}
+
+.mw-input-number__button svg {
+  flex-shrink: 0;
+  width: calc(var(--control-icon) * 0.75);
+  height: calc(var(--control-icon) * 0.75);
+}
+
+.mw-input-number--horizontal .mw-input-number__button,
+.mw-input-number--vertical .mw-input-number__button {
+  flex: none;
+  border: var(--border-width) solid var(--control-border);
+  background-color: var(--fill-subtle);
+}
+
+.mw-input-number--horizontal .mw-input-number__button {
+  width: var(--control-h);
+}
+
+.mw-input-number--horizontal .mw-input-number__button svg,
+.mw-input-number--vertical .mw-input-number__button svg {
+  width: var(--control-icon);
+  height: var(--control-icon);
+}
+
+.mw-input-number--horizontal .mw-input-number__input {
+  width: calc(var(--control-h) * 2.5);
+  text-align: center;
+}
+
+.mw-input-number--horizontal .mw-input-number__button--down {
+  margin-inline-end: calc(-1 * var(--border-width));
+  border-radius: var(--control-radius) 0 0 var(--control-radius);
+}
+
+.mw-input-number--horizontal .mw-input-number__button--up {
+  margin-inline-start: calc(-1 * var(--border-width));
+  border-radius: 0 var(--control-radius) var(--control-radius) 0;
+}
+
+.mw-input-number--horizontal .mw-input-number__input,
+.mw-input-number--vertical .mw-input-number__input {
+  border-radius: 0;
+}
+
+.mw-input-number--horizontal .mw-input-number__input:focus-visible,
+.mw-input-number--vertical .mw-input-number__input:focus-visible {
+  position: relative;
+  z-index: var(--z-raised);
+}
+
+.mw-input-number--vertical .mw-input-number__button {
+  height: calc(var(--control-h) * 0.75);
+}
+
+.mw-input-number--vertical .mw-input-number__input {
+  width: calc(var(--control-h) * 2.5);
+  text-align: center;
+}
+
+.mw-input-number--vertical .mw-input-number__button--up {
+  margin-block-end: calc(-1 * var(--border-width));
+  border-radius: var(--control-radius) var(--control-radius) 0 0;
+}
+
+.mw-input-number--vertical .mw-input-number__button--down {
+  margin-block-start: calc(-1 * var(--border-width));
+  border-radius: 0 0 var(--control-radius) var(--control-radius);
+}
+
+.mw-input-number__clear {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-end: var(--control-px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-icon);
+  height: var(--control-icon);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+
+.mw-input-number--stacked .mw-input-number__clear {
+  inset-inline-end: calc(var(--mw-input-number-step-w) + var(--control-gap));
+}
+
+.mw-input-number__clear:hover {
+  background-color: var(--fill-default);
+  color: var(--text-primary);
+}
+
+.mw-input-number__clear:focus-visible {
+  outline: var(--focus-width) solid var(--focus-color);
+  outline-offset: var(--focus-offset);
+}
+
+.mw-input-number__clear svg {
+  width: calc(var(--control-icon) * 0.75);
+  height: calc(var(--control-icon) * 0.75);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mw-input-number__button,
+  .mw-input-number__clear {
+    transition: none;
+  }
+}

@@ -8,12 +8,16 @@ import { fileURLToPath } from "node:url";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const coreSrc = join(root, "packages", "core", "src");
 const vueSrc = join(root, "packages", "vue", "src");
+const reactSrc = join(root, "packages", "react", "src");
 const mpSrc = join(root, "packages", "mp", "src");
 
 const FLOATING = new Set([
   "ActionMenu", "AsyncSearchSelect", "ColorPicker", "ConfirmHost", "DatePicker", "Dialog",
   "HoverCard", "Menu", "MultiSelect", "Popover", "SearchableMultiSelect", "SearchableSelect",
-  "Select", "ToastHost", "UserSelect", "popover",
+  "Select", "ToastHost", "UserSelect",
+  "action-menu", "async-search-select", "color-picker", "confirm-host", "date-picker", "dialog",
+  "hover-card", "menu", "multi-select", "popover", "searchable-multi-select", "searchable-select",
+  "select", "toast-host", "user-select",
   "MpBackButton", "MpTabBar", "MpComposer", "MpSheet", "MpActionSheet", "MpSelectSheet",
   "MpConfirmHost", "MpToastHost", "navigation", "overlays", "controls", "patterns",
 ]);
@@ -46,6 +50,10 @@ function walk(dir, out = []) {
 
 function stripComments(css) {
   return css.replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, " "));
+}
+
+function stripTsComments(code) {
+  return stripComments(code).replace(/(^|[^:])\/\/[^\n]*/g, "$1");
 }
 
 function styleBlocks(file) {
@@ -102,6 +110,17 @@ export function checkTokens() {
 
   const coreComponentCssFiles = walk(join(coreSrc, "styles", "components")).filter((f) => f.endsWith(".css"));
   const vueComponentFiles = walk(join(vueSrc, "components")).filter((f) => f.endsWith(".vue"));
+  const reactAllFiles = existsSync(reactSrc) ? walk(reactSrc) : [];
+  const reactVarCssFile = join(reactSrc, "var.css");
+  const reactBaseCssFile = join(reactSrc, "base.css");
+  const reactCssFiles = reactAllFiles.filter(
+    (f) => f.endsWith(".css") && f !== reactVarCssFile && f !== reactBaseCssFile,
+  );
+  const reactTsFiles = reactAllFiles.filter(
+    (f) => /\.(tsx|ts)$/.test(f) && !/\.test\.(tsx|ts)$/.test(f),
+  );
+  const reactScanFiles = reactAllFiles.filter((f) => /\.(css|tsx|ts)$/.test(f));
+
   const mpComponentCssFile = join(mpSrc, "styles", "mp-components.css");
   const mpSubComponentCssFiles = walk(join(mpSrc, "styles", "components")).filter((f) => f.endsWith(".css"));
   const mpBaseCssFile = join(mpSrc, "styles", "mp-base.css");
@@ -111,9 +130,10 @@ export function checkTokens() {
     ...mpSubComponentCssFiles,
     ...walk(join(mpSrc, "components")).filter((f) => f.endsWith(".vue")),
   ];
-  const componentFiles = [...coreComponentCssFiles, ...vueComponentFiles, ...mpComponentFiles];
+  const componentFiles = [...coreComponentCssFiles, ...vueComponentFiles, ...reactCssFiles, ...mpComponentFiles];
   const baseCssFiles = [
     join(coreSrc, "base.css"),
+    ...(existsSync(reactBaseCssFile) ? [reactBaseCssFile] : []),
     ...(existsSync(mpBaseCssFile) ? [mpBaseCssFile] : []),
   ];
   const desktopFiles = new Set([
@@ -122,6 +142,9 @@ export function checkTokens() {
     join(coreSrc, "components.css"),
     ...coreComponentCssFiles,
     ...vueComponentFiles,
+    ...(existsSync(reactVarCssFile) ? [reactVarCssFile] : []),
+    ...(existsSync(reactBaseCssFile) ? [reactBaseCssFile] : []),
+    ...reactCssFiles,
   ]);
   const mobileSourceFiles = [
     ...(existsSync(mobileTokensCssFile) ? [mobileTokensCssFile] : []),
@@ -133,6 +156,10 @@ export function checkTokens() {
     for (const { css } of styleBlocks(file)) {
       for (const m of stripComments(css).matchAll(/(--[a-zA-Z0-9-]+)\s*:/g)) desktopDefined.add(m[1]);
     }
+  }
+  for (const file of reactTsFiles) {
+    const clean = stripTsComments(readFileSync(file, "utf8"));
+    for (const m of clean.matchAll(/["'](--[a-zA-Z0-9-]+)["']\s*:/g)) desktopDefined.add(m[1]);
   }
   const mobileDefined = new Set(desktopDefined);
   for (const file of mobileSourceFiles) {
@@ -172,6 +199,7 @@ export function checkTokens() {
     const isComponentCssOrVue =
       file.endsWith(".vue") ||
       coreComponentCssFiles.includes(file) ||
+      reactCssFiles.includes(file) ||
       file === mpComponentCssFile ||
       mpSubComponentCssFiles.includes(file);
     const name = file.split("/").pop().replace(/\.(vue|css)$/, "");
@@ -217,7 +245,37 @@ export function checkTokens() {
       }
     }
   }
-  for (const file of [join(coreSrc, "components.css"), ...coreComponentCssFiles, ...mpComponentFiles, ...walk(join(vueSrc, "components"))]) {
+
+  for (const file of reactTsFiles) {
+    const clean = stripTsComments(readFileSync(file, "utf8"));
+    const lines = clean.split("\n");
+    for (let i = 0; i < lines.length; i += 1) {
+      for (const m of lines[i].matchAll(/["'](--[a-zA-Z0-9-]+)["']\s*:/g)) {
+        const prop = m[1];
+        if (!prop.startsWith("--mw-") && !prop.startsWith("--control-")) {
+          report(file, i, "local-token-prefix", `${prop}（组件内局部变量必须以 --mw- 开头）`);
+        }
+      }
+      for (const m of lines[i].matchAll(/var\(\s*(--[a-zA-Z0-9-]+)\s*(,?)/g)) {
+        const token = m[1];
+        if (ALLOWED_EXTERNAL.some((re) => re.test(token))) continue;
+        if (token.startsWith("--mw-") && m[2] === ",") continue;
+        if (token.startsWith("--mp-") || token.startsWith("--mw-mp-")) {
+          report(file, i, "mobile-token-in-desktop", token);
+        } else if (!desktopDefined.has(token)) report(file, i, "undefined-token", token);
+        else if (legacy.has(token)) report(file, i, "legacy-token", token);
+        else if (token.startsWith("--palette-")) report(file, i, "palette-in-component", token);
+      }
+    }
+  }
+
+  for (const file of [
+    join(coreSrc, "components.css"),
+    ...coreComponentCssFiles,
+    ...mpComponentFiles,
+    ...walk(join(vueSrc, "components")),
+    ...reactScanFiles,
+  ]) {
     violations.push(...scanPiIcons(relative(root, file), readFileSync(file, "utf8")));
   }
   return violations;

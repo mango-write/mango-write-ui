@@ -1,0 +1,175 @@
+.mw-date-picker {
+  --mw-date-picker-w: calc(var(--size-lg-h) * 4.5);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--control-h);
+  width: var(--mw-date-picker-w);
+  max-width: 100%;
+  justify-self: start;
+  padding-inline-end: var(--space-1);
+}
+
+.mw-date-picker--wide {
+  --mw-date-picker-w: calc(var(--size-lg-h) * 5.5);
+}
+
+.mw-date-picker--time-only {
+  --mw-date-picker-w: calc(var(--size-lg-h) * 3.5);
+}
+
+.mw-date-picker--fluid {
+  width: 100%;
+  justify-self: stretch;
+  display: flex;
+}
+
+.mw-date-picker--sm {
+  --control-h: var(--size-sm-h);
+  --control-font: var(--size-sm-font);
+  --control-px: var(--size-sm-px);
+  --control-radius: var(--size-sm-radius);
+}
+
+.mw-date-picker--lg {
+  --control-h: var(--size-lg-h);
+  --control-font: var(--size-lg-font);
+  --control-px: var(--size-lg-px);
+  --control-radius: var(--size-lg-radius);
+}
+
+.mw-date-picker--disabled {
+  opacity: var(--opacity-disabled);
+  cursor: not-allowed;
+}
+
+.mw-date-picker--invalid {
+  border-color: var(--danger);
+}
+
+.mw-date-picker__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  padding: var(--space-1-5) var(--control-px);
+  outline: none;
+}
+
+.mw-date-picker__clear,
+.mw-date-picker__dropdown {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--size-xs-h);
+  height: var(--size-xs-h);
+  border: 0;
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  flex-shrink: 0;
+  border-radius: var(--radius-xs);
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+
+.mw-date-picker__clear:hover:not(:disabled),
+.mw-date-picker__dropdown:hover:not(:disabled) {
+  background-color: var(--fill-default);
+  color: var(--text-primary);
+}
+
+.mw-date-picker__panel {
+  width: max-content;
+  max-width: calc(100vw - var(--space-4));
+  border-radius: var(--radius-float);
+  box-shadow: var(--shadow-floating);
+  padding: var(--space-2-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  user-select: none;
+}
+
+.mw-date-picker__time-picker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding-top: var(--space-1-5);
+  border-top: var(--border-width) solid var(--border-subtle);
+}
+
+.mw-date-picker__time-picker--standalone {
+  padding-top: var(--space-0);
+  padding-inline: var(--space-2);
+  border-top: 0;
+}
+
+.mw-date-picker__time-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-0-5);
+}
+
+.mw-date-picker__time-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--size-xs-h);
+  height: var(--icon-lg);
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+}
+
+.mw-date-picker__time-btn:hover {
+  background-color: var(--fill-default);
+  color: var(--text-primary);
+}
+
+.mw-date-picker__time-val {
+  font-size: var(--type-body-sm-size);
+  line-height: var(--type-body-sm-line);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--weight-medium);
+  color: var(--text-primary);
+}
+
+.mw-date-picker__buttonbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: var(--space-1-5);
+  border-top: var(--border-width) solid var(--border-subtle);
+}
+
+.mw-date-picker__bar-btn {
+  border: 0;
+  background: transparent;
+  color: var(--text-accent);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  font-weight: var(--weight-medium);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-item);
+  cursor: pointer;
+}
+
+.mw-date-picker__bar-btn:hover {
+  background-color: var(--fill-default);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mw-date-picker__clear,
+  .mw-date-picker__dropdown {
+    transition: none;
+  }
+}

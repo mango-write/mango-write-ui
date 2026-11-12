@@ -60,26 +60,3 @@ function onUpdate(value: unknown[]) {
     </template>
   </SearchableMultiSelect>
 </template>
-
-<style scoped>
-.mw-user-select__chip {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  max-width: 100%;
-}
-.mw-user-select__remove {
-  flex-shrink: 0;
-  width: var(--icon-xs);
-  height: var(--icon-xs);
-  color: var(--text-tertiary);
-  font-size: var(--type-caption-size);
-  cursor: pointer;
-  border-radius: var(--radius-full);
-  transition: color var(--duration-fast) var(--ease-standard);
-}
-.mw-user-select__remove:hover {
-  color: var(--text-primary);
-}
-</style>

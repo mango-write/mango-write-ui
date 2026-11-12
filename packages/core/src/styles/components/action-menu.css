@@ -1,0 +1,165 @@
+.mw-action-menu {
+  position: fixed;
+  z-index: var(--z-dropdown);
+  box-sizing: border-box;
+  min-width: 200px;
+  max-width: 320px;
+  padding: var(--float-padding);
+  border-radius: var(--radius-float);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--type-body-sm-size);
+  line-height: var(--type-body-sm-line);
+  outline: none;
+  user-select: none;
+  transform-origin: top left;
+}
+
+.mw-action-menu__submenu {
+  position: absolute;
+  top: calc((var(--float-padding) + var(--border-width)) * -1);
+  inset-inline-start: calc(100% + var(--space-1));
+}
+
+.mw-action-menu__separator {
+  height: var(--border-width);
+  margin: var(--space-1) 0;
+  background: var(--border-subtle);
+}
+
+.mw-action-menu__row {
+  position: relative;
+}
+
+.mw-action-menu__row + .mw-action-menu__row {
+  margin-top: var(--space-px);
+}
+
+.mw-action-menu__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  box-sizing: border-box;
+  width: 100%;
+  min-height: var(--size-sm-h);
+  padding: var(--space-1) var(--space-2);
+  border: 0;
+  border-radius: var(--radius-item);
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  outline: none;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+
+.mw-action-menu__item:not([data-disabled]):hover,
+.mw-action-menu__item:not([data-disabled])[data-highlighted],
+.mw-action-menu__item:not([data-disabled]):focus-visible,
+.mw-action-menu__row--expanded > .mw-action-menu__item:not([data-disabled]) {
+  background: var(--fill-default);
+}
+
+.mw-action-menu__item:not([data-disabled]):active {
+  background: var(--fill-strong);
+}
+
+.mw-action-menu__item--disabled,
+.mw-action-menu__item[data-disabled] {
+  opacity: var(--opacity-disabled);
+  cursor: not-allowed;
+  pointer-events: auto;
+}
+
+.mw-action-menu__label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mw-action-menu__shortcut {
+  flex: 0 0 auto;
+  margin-inline-start: var(--space-4);
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+}
+
+.mw-action-menu__icon,
+.mw-action-menu__item > svg {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--control-icon);
+  height: var(--control-icon);
+  font-size: var(--control-icon);
+  color: var(--text-secondary);
+}
+
+.mw-action-menu__submenu-caret {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  margin-inline-start: var(--space-2);
+  color: var(--text-tertiary);
+}
+
+.mw-action-menu__submenu-caret svg {
+  width: var(--icon-xs);
+  height: var(--icon-xs);
+}
+
+.mw-action-menu__item--danger,
+.mw-action-menu__item--danger .mw-action-menu__icon,
+.mw-action-menu__item--danger > svg {
+  color: var(--danger-text);
+}
+
+.mw-action-menu__item--danger:not([data-disabled]):hover,
+.mw-action-menu__item--danger:not([data-disabled])[data-highlighted],
+.mw-action-menu__item--danger:not([data-disabled]):focus-visible {
+  background: var(--danger-subtle);
+}
+
+.mw-action-menu-enter-active {
+  transition:
+    opacity var(--duration-base) var(--ease-enter),
+    transform var(--duration-base) var(--ease-enter);
+}
+
+.mw-action-menu-leave-active {
+  transition: opacity var(--duration-instant) var(--ease-exit);
+}
+
+.mw-action-menu-enter-from {
+  opacity: 0;
+  transform: translateY(calc(var(--motion-enter-offset) * -1)) scale(var(--motion-enter-scale));
+}
+
+.mw-action-menu-leave-to {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mw-action-menu__item {
+    transition: none;
+  }
+
+  .mw-action-menu-enter-active {
+    transition: opacity var(--duration-base) var(--ease-enter);
+  }
+
+  .mw-action-menu-enter-from {
+    transform: none;
+  }
+}

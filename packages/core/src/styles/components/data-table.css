@@ -1,0 +1,347 @@
+.mw-datatable {
+  --mw-datatable-row-h: var(--size-lg-h);
+  --mw-datatable-face: var(--mw-datatable-bg, var(--bg-raised));
+  --mw-datatable-head-face: var(--mw-datatable-head-bg, var(--bg-raised));
+  --mw-datatable-row-fill: transparent;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow: hidden;
+  border: var(--border-width) solid var(--mw-datatable-border, var(--border-subtle));
+  border-radius: var(--mw-datatable-radius, var(--radius-card));
+  background: var(--mw-datatable-face);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--control-font);
+}
+
+.mw-datatable--xs {
+  --mw-datatable-row-h: var(--size-sm-h);
+}
+
+.mw-datatable--sm {
+  --mw-datatable-row-h: var(--size-md-h);
+}
+
+.mw-datatable--lg {
+  --mw-datatable-row-h: calc(var(--size-lg-h) + var(--space-2));
+}
+
+.mw-datatable--flex-scrollable {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+}
+
+.mw-datatable__header {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: var(--border-width) solid var(--border-subtle);
+}
+
+.mw-datatable__footer {
+  padding: var(--space-3) var(--space-4);
+  border-top: var(--border-width) solid var(--border-subtle);
+}
+
+.mw-datatable__paginator {
+  border-top: var(--border-width) solid var(--border-subtle);
+}
+
+.mw-datatable__table-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.mw-datatable--flex-scrollable > .mw-datatable__table-container {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+}
+
+.mw-datatable__table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  text-align: start;
+  font-variant-numeric: tabular-nums;
+}
+
+.mw-datatable__header-cell,
+.mw-datatable__body-cell,
+.mw-datatable__footer-cell {
+  height: var(--mw-datatable-row-h);
+  padding: var(--space-1) var(--space-3);
+  border-bottom: var(--border-width) solid var(--border-subtle);
+  line-height: var(--leading-tight);
+  vertical-align: middle;
+}
+
+.mw-datatable__header-cell {
+  position: relative;
+  border-bottom-color: var(--border-default);
+  background: var(--mw-datatable-head-face);
+  color: var(--text-tertiary);
+  font-size: var(--type-caption-size);
+  font-weight: var(--weight-medium);
+  text-align: start;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.mw-datatable--scrollable .mw-datatable__thead .mw-datatable__header-cell {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--mw-datatable-head-face);
+}
+
+.mw-datatable__header-cell--sortable {
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+
+.mw-datatable__header-cell--sortable:hover {
+  background: linear-gradient(var(--fill-subtle), var(--fill-subtle)), var(--mw-datatable-head-face);
+  color: var(--text-secondary);
+}
+
+.mw-datatable__header-cell--sortable:focus-visible {
+  outline: var(--focus-width) solid var(--focus-color);
+  outline-offset: calc(var(--focus-width) * -1);
+}
+
+.mw-datatable__header-cell--sorted {
+  color: var(--text-primary);
+}
+
+.mw-datatable__header-content {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.mw-datatable__sort-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-tertiary);
+}
+
+.mw-datatable__header-cell--sorted .mw-datatable__sort-icon {
+  color: var(--text-accent);
+}
+
+.mw-datatable__sort-svg {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+}
+
+.mw-datatable__sort-svg--unsorted {
+  opacity: 0.5;
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+
+.mw-datatable__header-cell--sortable:hover .mw-datatable__sort-svg--unsorted,
+.mw-datatable__header-cell--sortable:focus-visible .mw-datatable__sort-svg--unsorted {
+  opacity: 1;
+}
+
+.mw-datatable__resizer {
+  position: absolute;
+  top: 0;
+  inset-inline-end: 0;
+  width: var(--space-2);
+  height: 100%;
+  cursor: col-resize;
+  user-select: none;
+  touch-action: none;
+}
+
+.mw-datatable__resizer:hover::after {
+  content: "";
+  position: absolute;
+  top: 20%;
+  bottom: 20%;
+  inset-inline-end: var(--space-0-5);
+  width: var(--space-0-5);
+  border-radius: var(--radius-full);
+  background: var(--accent);
+}
+
+.mw-datatable__body-cell {
+  background-color: var(--mw-datatable-row-fill);
+  color: var(--text-primary);
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+
+.mw-datatable__tbody > .mw-datatable__row:last-child > .mw-datatable__body-cell,
+.mw-datatable__tbody > .mw-datatable__row:last-child > .mw-datatable__expansion-cell,
+.mw-datatable__tbody > .mw-datatable__empty-row > .mw-datatable__empty-cell {
+  border-bottom: 0;
+}
+
+.mw-datatable--striped .mw-datatable__tbody > .mw-datatable__row:nth-child(even) {
+  --mw-datatable-row-fill: var(--fill-subtle);
+}
+
+.mw-datatable--hoverable .mw-datatable__tbody > .mw-datatable__row:hover {
+  --mw-datatable-row-fill: var(--fill-subtle);
+}
+
+.mw-datatable--hoverable.mw-datatable--striped .mw-datatable__tbody > .mw-datatable__row:hover {
+  --mw-datatable-row-fill: var(--fill-default);
+}
+
+.mw-datatable__tbody > .mw-datatable__row--selected,
+.mw-datatable--striped .mw-datatable__tbody > .mw-datatable__row--selected:nth-child(even) {
+  --mw-datatable-row-fill: var(--fill-selected);
+}
+
+.mw-datatable--hoverable .mw-datatable__tbody > .mw-datatable__row--selected:hover {
+  --mw-datatable-row-fill: var(--fill-selected-hover);
+}
+
+.mw-datatable__cell--frozen {
+  position: sticky;
+  z-index: 1;
+}
+
+/* 冻结列压在滚动内容之上，必须是实底：半透明行态叠在表面色上。 */
+.mw-datatable__body-cell.mw-datatable__cell--frozen,
+.mw-datatable__footer-cell.mw-datatable__cell--frozen {
+  background:
+    linear-gradient(var(--mw-datatable-row-fill), var(--mw-datatable-row-fill)),
+    var(--mw-datatable-face);
+}
+
+.mw-datatable__thead .mw-datatable__cell--frozen {
+  z-index: 3;
+  background: var(--mw-datatable-head-face);
+}
+
+.mw-datatable__checkbox,
+.mw-datatable__radio {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--icon-lg);
+  height: var(--icon-lg);
+  padding: 0;
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+.mw-datatable__checkbox {
+  border-radius: var(--radius-xs);
+}
+
+.mw-datatable__radio {
+  border-radius: var(--radius-full);
+}
+
+.mw-datatable__checkbox[data-state="checked"],
+.mw-datatable__checkbox[data-state="indeterminate"],
+.mw-datatable__radio[data-state="checked"] {
+  background-color: var(--accent);
+  background-image: none;
+  border-color: var(--accent);
+  color: var(--text-on-accent);
+}
+
+.mw-datatable__checkbox-icon {
+  width: var(--icon-xs);
+  height: var(--icon-xs);
+}
+
+.mw-datatable__radio-dot {
+  width: var(--space-2);
+  height: var(--space-2);
+  border-radius: var(--radius-full);
+  background: currentColor;
+}
+
+.mw-datatable__expander {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-h);
+  height: var(--control-h);
+  padding: 0;
+  border: none;
+  border-radius: var(--control-radius);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+
+.mw-datatable__expander:hover {
+  background: var(--fill-default);
+  color: var(--text-primary);
+}
+
+.mw-datatable__expander:focus-visible {
+  outline: var(--focus-width) solid var(--focus-color);
+  outline-offset: calc(var(--focus-width) * -1);
+}
+
+.mw-datatable__expander-icon {
+  width: var(--control-icon);
+  height: var(--control-icon);
+}
+
+.mw-datatable__expansion-cell {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: var(--border-width) solid var(--border-subtle);
+  background: var(--fill-subtle);
+}
+
+.mw-datatable__empty-cell {
+  padding: var(--space-12) var(--space-4);
+  color: var(--text-secondary);
+  font-size: var(--type-body-sm-size);
+  line-height: var(--type-body-sm-line);
+  text-align: center;
+}
+
+.mw-datatable__loading-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--mw-datatable-face) 60%, transparent);
+}
+
+.mw-datatable__loading-spinner {
+  width: var(--icon-2xl);
+  height: var(--icon-2xl);
+  border: var(--focus-width) solid var(--accent);
+  border-right-color: transparent;
+  border-radius: var(--radius-full);
+  animation: mw-datatable-spin calc(var(--duration-slower) * 2) linear infinite;
+}
+
+@keyframes mw-datatable-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mw-datatable__header-cell--sortable,
+  .mw-datatable__body-cell,
+  .mw-datatable__sort-svg--unsorted,
+  .mw-datatable__expander {
+    transition: none;
+  }
+  .mw-datatable__loading-spinner {
+    animation: none;
+  }
+}

@@ -6,6 +6,7 @@ import { computed } from "vue";
 import { useRoute } from "vue-router";
 import { Moon, PenLine, Sun, WandSparkles } from "lucide-vue-next";
 import { AppLogo, Button, useThemePreference } from "@mango-write/ui-vue";
+import { FRAMEWORK_OPTIONS, desktopFramework, setDesktopFramework } from "../framework";
 import { locale, setLocale, t } from "../i18n";
 
 const githubUrl = "https://github.com/mango-write/mango-write-ui";
@@ -39,6 +40,7 @@ const s = {
   research: { zh: "科研平台", en: "Research platform" },
   gh: { zh: "GitHub 仓库", en: "GitHub repository" },
   lang: { zh: "切换中英文", en: "Switch language" },
+  frameworkSwitch: { zh: "切换桌面组件框架", en: "Switch desktop framework" },
 } as const;
 
 const { resolved: themeResolved, setTheme } = useThemePreference();
@@ -87,6 +89,22 @@ function toggleLocale() {
       </RouterLink>
     </nav>
     <span class="dev-topbar__spacer" />
+    <div
+      v-if="activeSection === 'desktop'"
+      class="dev-topbar__fw"
+      role="group"
+      :aria-label="t(s.frameworkSwitch)"
+    >
+      <button
+        v-for="opt in FRAMEWORK_OPTIONS"
+        :key="opt.value"
+        type="button"
+        class="dev-topbar__fw-btn"
+        :class="{ 'is-active': desktopFramework === opt.value }"
+        :aria-pressed="desktopFramework === opt.value"
+        @click="setDesktopFramework(opt.value)"
+      >{{ opt.label }}</button>
+    </div>
     <slot name="append" />
     <Button
       class="dev-topbar__llms"
@@ -219,6 +237,50 @@ function toggleLocale() {
 
 .dev-topbar__spacer {
   flex: 1;
+}
+
+.dev-topbar__fw {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-0-5);
+  height: var(--size-sm-h);
+  padding: var(--space-0-5);
+  border: var(--border-width) solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  background: var(--fill-default);
+  flex-shrink: 0;
+}
+
+.dev-topbar__fw-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 0 var(--space-2-5);
+  border: none;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: var(--type-caption-size);
+  font-weight: var(--weight-medium);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    color var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard);
+}
+
+.dev-topbar__fw-btn:hover {
+  color: var(--text-primary);
+}
+
+.dev-topbar__fw-btn.is-active {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  font-weight: var(--weight-semibold);
+  box-shadow: var(--shadow-xs);
 }
 
 .dev-topbar__icon-btn {

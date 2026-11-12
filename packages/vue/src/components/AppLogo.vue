@@ -45,17 +45,3 @@ withDefaults(defineProps<{ markOnly?: boolean }>(), { markOnly: false });
     </g>
   </svg>
 </template>
-
-<style scoped>
-.mw-logo {
-  display: block;
-  height: var(--size-sm-h);
-  width: auto;
-}
-.mw-logo :is(.word, .mark) path {
-  fill: var(--accent);
-}
-.mw-logo .mark .hi {
-  fill: var(--bg-raised);
-}
-</style>

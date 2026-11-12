@@ -1,0 +1,26 @@
+{
+  "extends": "../../packages/react/tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "paths": {
+      "@mango-write/ui-core": ["../../packages/core/src/index.ts"],
+      "@mango-write/ui-core/tokens.css": ["../../packages/core/src/var.css"],
+      "@mango-write/ui-core/*": ["../../packages/core/src/*"],
+      "@mango-write/ui-react": ["../../packages/react/src/index.ts"],
+      "@mango-write/ui-react/tokens.css": ["../../packages/react/src/var.css"],
+      "@mango-write/ui-react/*": ["../../packages/react/src/*"],
+      "react": ["../../packages/react/node_modules/@types/react/index.d.ts"],
+      "react/*": ["../../packages/react/node_modules/@types/react/*"],
+      "react-dom": ["../../packages/react/node_modules/@types/react-dom/index.d.ts"],
+      "react-dom/*": ["../../packages/react/node_modules/@types/react-dom/*"],
+      "lucide-react": ["../../packages/react/node_modules/lucide-react"],
+      "@tanstack/react-table": ["../../packages/react/node_modules/@tanstack/react-table"],
+      "radix-ui": ["../../packages/react/node_modules/radix-ui"]
+    }
+  },
+  "include": [
+    "./**/*.ts",
+    "./**/*.tsx"
+  ]
+}

@@ -1,0 +1,120 @@
+/* 深色下 --control-bg-hover 近乎透明，选中段改用 --fill-strong；按主题作用域取值，支持深浅并排。 */
+:root,
+[data-theme="light"] {
+  --mw-select-button-thumb: var(--control-bg-hover);
+}
+
+[data-theme="dark"] {
+  --mw-select-button-thumb: var(--fill-strong);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --mw-select-button-thumb: var(--fill-strong);
+  }
+}
+
+.mw-select-button {
+  --mw-select-button-inset: var(--space-0-5);
+
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-0-5);
+  min-height: var(--control-h);
+  max-width: 100%;
+  padding: calc(var(--mw-select-button-inset) - var(--border-width));
+  border: var(--border-width) solid transparent;
+  border-radius: var(--control-radius);
+  background-color: var(--fill-default);
+  vertical-align: middle;
+}
+
+.mw-select-button--invalid,
+.mw-select-button[data-invalid] {
+  border-color: var(--danger);
+}
+
+.mw-select-button--disabled,
+.mw-select-button[data-disabled] {
+  opacity: var(--opacity-disabled);
+  cursor: not-allowed;
+}
+
+.mw-select-button__item {
+  position: relative;
+  display: inline-flex;
+  /* 等分充满轨道，放不下时按段换行；段标签 nowrap，min-width:auto 保证标签不被压缩 */
+  flex: 1 1 0%;
+  align-items: center;
+  justify-content: center;
+  gap: var(--control-gap);
+  /* 由 token 直算而非 height:100%——根高度改 min-height 后父高内容驱动，百分比会塌；换行时每段保持额定高度 */
+  height: calc(var(--control-h) - 2 * var(--mw-select-button-inset));
+  padding-block: 0;
+  padding-inline: calc(var(--control-px) - var(--mw-select-button-inset));
+  border: 0;
+  border-radius: calc(var(--control-radius) - var(--mw-select-button-inset));
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: var(--control-font);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-tight);
+  white-space: nowrap;
+  user-select: none;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+
+.mw-select-button__item:hover:not(:disabled) {
+  color: var(--text-primary);
+}
+
+.mw-select-button__item--active,
+.mw-select-button__item[data-state="checked"] {
+  background-color: var(--mw-select-button-thumb);
+  box-shadow: var(--shadow-raised);
+  color: var(--text-primary);
+}
+
+.mw-select-button__item:focus-visible {
+  outline: var(--focus-width) solid var(--focus-color);
+  outline-offset: 0;
+  z-index: var(--z-raised);
+}
+
+.mw-select-button__item:disabled,
+.mw-select-button__item[data-disabled] {
+  color: var(--text-disabled);
+  cursor: not-allowed;
+}
+
+.mw-select-button--disabled .mw-select-button__item {
+  color: var(--text-secondary);
+}
+
+.mw-select-button--readonly .mw-select-button__item {
+  cursor: default;
+}
+
+.mw-select-button__content {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--control-gap);
+}
+
+.mw-select-button__content svg {
+  flex: none;
+  width: var(--control-icon);
+  height: var(--control-icon);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mw-select-button__item {
+    transition: none;
+  }
+}

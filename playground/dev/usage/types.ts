@@ -52,6 +52,8 @@ export interface UsageEntry {
   render?: (v: UsageValues, host: UsageHost) => VNode | VNode[];
   /** 复杂组件自定义代码生成;缺省走声明式统一生成 */
   code?: (v: UsageValues) => string;
+  /** 复杂组件自定义 React TSX 代码生成;缺省走 entryReactCode 统一生成 */
+  reactCode?: (v: UsageValues) => string;
   /** 预览格最小高度(浮层类演示) */
   minHeight?: string;
   /** 全屏模态类(Dialog/Lightbox)无法双格并排:只渲染单格纸面 */

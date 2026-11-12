@@ -300,34 +300,3 @@ function cancelHide() {
     </Transition>
   </Teleport>
 </template>
-
-<style scoped>
-/* 锚点 wrapper：inline-flex 不打断文本流（同 UserChip 根节点的处理），
-   且给定位一个稳定的盒子。 */
-.mw-hovercard {
-  display: inline-flex;
-  vertical-align: baseline;
-}
-
-.mw-hovercard--block {
-  display: block;
-}
-
-.mw-hovercard:focus-visible {
-  border-radius: var(--radius-xs);
-  outline: var(--focus-width) solid var(--focus-color);
-  outline-offset: var(--focus-offset);
-}
-
-/* 面板材质、--static 与出入场在 base.css（v-tooltip 指令的 DOM 也用它）；这里只把富内容卡片放大一档。 */
-.mw-hovercard__panel--card {
-  padding: var(--space-3);
-  border-radius: var(--radius-float);
-  font-size: var(--type-body-sm-size);
-  line-height: var(--type-body-sm-line);
-}
-
-.mw-hovercard__panel--card > :deep(.mw-user-card) {
-  padding: 0;
-}
-</style>

@@ -1,0 +1,177 @@
+.mw-menu {
+  box-sizing: border-box;
+  min-width: 200px;
+  max-width: 320px;
+  padding: var(--float-padding);
+  border: var(--border-width) solid var(--border-subtle);
+  border-radius: var(--radius-float);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--type-body-sm-size);
+  line-height: var(--type-body-sm-line);
+  outline: none;
+}
+
+.mw-menu:not(.mw-menu--popup):focus-visible {
+  outline: var(--focus-width) solid var(--focus-color);
+  outline-offset: var(--focus-offset);
+}
+
+.mw-menu--popup {
+  z-index: var(--z-dropdown);
+  border-color: var(--frost-border);
+  transform-origin: top left;
+}
+
+.mw-menu__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mw-menu__submenu-label {
+  padding: var(--space-1-5) var(--space-2-5) var(--space-1);
+  color: var(--text-tertiary);
+  font-size: var(--type-caption-size);
+  font-weight: var(--weight-semibold);
+  line-height: var(--type-caption-line);
+}
+
+.mw-menu__separator {
+  height: var(--border-width);
+  margin: var(--space-1) 0;
+  background-color: var(--border-subtle);
+  list-style: none;
+}
+
+.mw-menu__item {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mw-menu__item-content {
+  border-radius: var(--radius-item);
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+
+.mw-menu__item:not([data-disabled]) .mw-menu__item-content:hover,
+.mw-menu__item:not([data-disabled])[data-highlighted] .mw-menu__item-content {
+  background-color: var(--fill-default);
+}
+
+.mw-menu__item:not([data-disabled]) .mw-menu__item-content:active {
+  background-color: var(--fill-strong);
+}
+
+.mw-menu__item--disabled,
+.mw-menu__item[data-disabled] {
+  opacity: var(--opacity-disabled);
+  cursor: not-allowed;
+}
+
+.mw-menu :where(.mw-menu__item-link) {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  box-sizing: border-box;
+  width: 100%;
+  min-height: var(--size-md-h);
+  padding: var(--space-1-5) var(--space-2-5);
+  border: 0;
+  border-radius: var(--radius-item);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+}
+
+.mw-menu__item--disabled .mw-menu__item-link,
+.mw-menu__item[data-disabled] .mw-menu__item-link {
+  cursor: not-allowed;
+}
+
+.mw-menu :where(.mw-menu__item-icon) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--control-icon);
+  height: var(--control-icon);
+  font-size: var(--control-icon);
+  color: var(--text-secondary);
+}
+
+.mw-menu :where(.mw-menu__item-icon > svg) {
+  width: 100%;
+  height: 100%;
+}
+
+.mw-menu :where(.mw-menu__item-label) {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mw-menu :where(.mw-menu__item-shortcut) {
+  flex: none;
+  margin-inline-start: var(--space-4);
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+}
+
+.mw-menu__item--danger .mw-menu__item-link,
+.mw-menu__item--danger .mw-menu__item-icon {
+  color: var(--danger-text);
+}
+
+.mw-menu__item--danger:not([data-disabled]) .mw-menu__item-content:hover,
+.mw-menu__item--danger:not([data-disabled])[data-highlighted] .mw-menu__item-content {
+  background-color: var(--danger-subtle);
+}
+
+.mw-menu-enter-active {
+  transition:
+    opacity var(--duration-base) var(--ease-enter),
+    transform var(--duration-base) var(--ease-enter);
+}
+
+.mw-menu-leave-active {
+  transition: opacity var(--duration-instant) var(--ease-exit);
+}
+
+.mw-menu-enter-from {
+  opacity: 0;
+  transform: translateY(calc(var(--motion-enter-offset) * -1)) scale(var(--motion-enter-scale));
+}
+
+.mw-menu-leave-to {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mw-menu__item-content {
+    transition: none;
+  }
+
+  .mw-menu-enter-active {
+    transition: opacity var(--duration-base) var(--ease-enter);
+  }
+
+  .mw-menu-enter-from {
+    transform: none;
+  }
+}

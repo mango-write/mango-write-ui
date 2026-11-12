@@ -1,0 +1,88 @@
+.mw-user-chip {
+  --mw-user-chip-h: calc(var(--control-h) - var(--space-1));
+  --mw-user-chip-avatar: calc(var(--control-h) - var(--space-3));
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  vertical-align: baseline;
+  color: var(--text-accent);
+  text-decoration: none;
+  line-height: inherit;
+}
+
+.mw-user-chip--interactive {
+  cursor: pointer;
+}
+
+.mw-user-chip__text,
+.mw-user-chip__person-name {
+  color: inherit;
+  font-weight: var(--weight-medium);
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+
+.mw-user-chip--interactive:hover :is(.mw-user-chip__text, .mw-user-chip__person-name),
+.mw-user-chip--interactive:focus-visible :is(.mw-user-chip__text, .mw-user-chip__person-name) {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.16em;
+}
+
+.mw-user-chip .mw-user-chip__tag {
+  gap: var(--space-1-5);
+  height: var(--mw-user-chip-h);
+  padding-inline: var(--space-1) calc(var(--control-px) - var(--space-0-5));
+  overflow: hidden;
+  font-size: var(--control-font);
+  font-weight: var(--weight-medium);
+  line-height: 1;
+}
+
+.mw-user-chip--interactive:hover .mw-user-chip__tag {
+  background-color: var(--accent-subtle-hover);
+}
+
+.mw-user-chip--interactive:hover .mw-user-chip__avatar {
+  background-color: var(--accent-border);
+}
+
+.mw-user-chip :is(.mw-user-chip__avatar, .mw-user-chip__person-avatar, .mw-user-chip__avatar-only) {
+  flex: 0 0 auto;
+  --mw-avatar-size: var(--mw-user-chip-avatar);
+  background-color: var(--accent-subtle-hover);
+  color: var(--text-accent);
+  font-size: calc(var(--control-font) * 0.86);
+}
+
+.mw-user-chip .mw-user-chip__avatar-only {
+  --mw-avatar-size: var(--mw-user-chip-h);
+}
+
+.mw-user-chip__person {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  min-width: 0;
+  font-size: var(--control-font);
+}
+
+.mw-user-chip__person-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: var(--type-body-sm-line);
+}
+
+.mw-user-chip:focus-visible {
+  outline: var(--focus-width) solid var(--focus-color);
+  outline-offset: var(--focus-offset);
+  border-radius: var(--radius-xs);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mw-user-chip__text,
+  .mw-user-chip__person-name {
+    transition: none;
+  }
+}

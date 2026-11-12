@@ -1,0 +1,277 @@
+.mw-select {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  /* 宽度必须定死为「最宽候选文本 + 控件铬」：min-width 只兜下限，拦不住清除按钮等
+     内容把 max-content 推高，切换选择仍会漂移。覆盖 --mw-select-fit-text 可整体关闭。 */
+  --mw-select-clear-room: 0px;
+  --mw-select-fit-max: 24rem;
+  min-width: calc(var(--control-h) * 4);
+  width: max(
+    calc(var(--control-h) * 4),
+    min(
+      calc(var(--mw-select-fit-text, 0px) + var(--control-px) * 2 + var(--control-icon) + var(--border-width) * 2 + var(--mw-select-clear-room)),
+      var(--mw-select-fit-max)
+    )
+  );
+  max-width: 100%;
+  height: var(--control-h);
+  padding-inline: var(--control-px) calc(var(--control-px) - var(--space-1));
+  cursor: pointer;
+  user-select: none;
+}
+
+/* 清除按钮按 showClear 恒定预留房间，不随「当前是否有值」出现/消失而改变宽度。 */
+.mw-select--clearable {
+  --mw-select-clear-room: calc(var(--control-icon) + var(--space-1));
+}
+
+.mw-select--fluid {
+  display: flex;
+  width: 100%;
+}
+
+.mw-select--disabled,
+.mw-select[data-disabled="true"] {
+  cursor: not-allowed;
+}
+
+.mw-select--readonly,
+.mw-select[data-readonly="true"] {
+  cursor: default;
+}
+
+.mw-select__label {
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mw-select__label--placeholder {
+  color: var(--text-tertiary);
+}
+
+.mw-select__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+
+.mw-select__input::placeholder {
+  color: var(--text-tertiary);
+  opacity: 1;
+}
+
+.mw-select__clear,
+.mw-select__dropdown {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-icon);
+  height: var(--control-icon);
+  color: var(--text-tertiary);
+}
+
+.mw-select__clear {
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: transparent;
+  cursor: pointer;
+  transition:
+    color var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard);
+}
+
+.mw-select__clear:hover {
+  background-color: var(--fill-default);
+  color: var(--text-secondary);
+}
+
+.mw-select__clear:focus-visible {
+  outline: var(--focus-width) solid var(--focus-color);
+  outline-offset: var(--focus-offset);
+}
+
+.mw-select__clear-icon,
+.mw-select__chevron,
+.mw-select__spinner {
+  width: 100%;
+  height: 100%;
+}
+
+.mw-select__chevron {
+  transition: transform var(--duration-fast) var(--ease-standard);
+}
+
+.mw-select--open .mw-select__chevron {
+  transform: rotate(180deg);
+}
+
+.mw-select__spinner {
+  animation: mw-select-spin calc(var(--duration-slower) * 2) linear infinite;
+}
+
+@keyframes mw-select-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.mw-select__panel {
+  z-index: var(--z-tooltip);
+  display: flex;
+  flex-direction: column;
+  gap: var(--float-padding);
+  min-width: var(--reka-popover-trigger-width, var(--radix-popover-trigger-width));
+  padding: var(--float-padding);
+  border-radius: var(--radius-float);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--type-body-sm-size);
+  line-height: var(--type-body-sm-line);
+  overflow: hidden;
+  transform-origin: var(
+    --reka-popover-content-transform-origin,
+    var(--radix-popover-content-transform-origin, center)
+  );
+}
+
+.mw-select__panel[data-state="open"] {
+  animation: mw-select-enter var(--duration-base) var(--ease-enter);
+}
+
+.mw-select__panel[data-state="closed"] {
+  animation: mw-select-exit var(--duration-instant) var(--ease-exit);
+}
+
+.mw-select__panel[data-side="top"] {
+  --mw-select-enter-y: var(--motion-enter-offset);
+}
+
+@keyframes mw-select-enter {
+  from {
+    opacity: 0;
+    transform: translateY(var(--mw-select-enter-y, calc(var(--motion-enter-offset) * -1))) scale(var(--motion-enter-scale));
+  }
+}
+
+@keyframes mw-select-exit {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes mw-select-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+.mw-select__header {
+  padding: var(--space-1) var(--space-2) 0;
+  color: var(--text-tertiary);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  font-weight: var(--weight-medium);
+}
+
+.mw-select__panel .mw-select__filter-input {
+  --control-bg: var(--fill-subtle);
+  --control-bg-hover: var(--fill-default);
+  width: 100%;
+  height: var(--size-sm-h);
+  padding-inline: var(--space-2);
+  border-radius: var(--radius-item);
+  font-size: var(--type-body-sm-size);
+}
+
+.mw-select__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-y: auto;
+}
+
+.mw-select__option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--size-sm-h);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-item);
+  color: var(--text-primary);
+  cursor: pointer;
+  user-select: none;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+
+.mw-select__option[data-highlighted]:not([data-disabled]) {
+  background-color: var(--fill-default);
+}
+
+.mw-select__option[data-state="checked"] {
+  background-color: var(--fill-selected);
+}
+
+.mw-select__option[data-state="checked"][data-highlighted] {
+  background-color: var(--fill-selected-hover);
+}
+
+.mw-select__option[data-disabled] {
+  color: var(--text-disabled);
+  cursor: not-allowed;
+}
+
+.mw-select__option-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mw-select__check {
+  flex: none;
+  width: var(--icon-md);
+  height: var(--icon-md);
+  color: var(--text-accent);
+}
+
+.mw-select__empty {
+  padding: var(--space-3) var(--space-2);
+  color: var(--text-tertiary);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mw-select__clear,
+  .mw-select__chevron,
+  .mw-select__option {
+    transition: none;
+  }
+
+  .mw-select__panel[data-state="open"] {
+    animation-name: mw-select-fade;
+  }
+
+  .mw-select__spinner {
+    animation: none;
+  }
+}

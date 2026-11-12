@@ -19,6 +19,11 @@ export const libraryIntro: Bi = {
   en: "The Vue 3 component library for the Paper & Frost design language: 50+ components and 10 design notes, with semantic tokens driving light and dark themes. Open source under Apache-2.0.",
 };
 
+export const reactLibraryIntro: Bi = {
+  zh: "「纸与霜」设计语言的 React 组件库:50+ 个桌面组件与 @mango-write/ui-vue 100% 对等,基于 Radix UI 与语义 token 驱动浅色与深色双主题。Apache-2.0 开源。",
+  en: "The React component library for the Paper & Frost design language: 50+ desktop components at 100% parity with @mango-write/ui-vue, powered by Radix UI and semantic light/dark tokens. Open source under Apache-2.0.",
+};
+
 export const installSteps: ContentStep[] = [
   {
     title: { zh: "安装依赖", en: "Install dependencies" },
@@ -99,6 +104,108 @@ const saved = ref(false);
 <template>
   <Button :label="saved ? 'Saved' : 'Save changes'" @click="saved = true" />
 </template>`,
+    },
+  },
+];
+
+export const reactInstallSteps: ContentStep[] = [
+  {
+    title: { zh: "安装依赖", en: "Install dependencies" },
+    desc: {
+      zh: "组件库经 GitHub 子目录分发,安装 @mango-write/ui-core 与 @mango-write/ui-react,并配置 React 运行时与图标依赖。",
+      en: "The library ships from GitHub subdirectories; install @mango-write/ui-core and @mango-write/ui-react alongside React and Lucide icons.",
+    },
+    lang: "sh",
+    code: `pnpm add "@mango-write/ui-core@git+https://github.com/mango-write/mango-write-ui.git#v0.1.0&path:packages/core"
+pnpm add "@mango-write/ui-react@git+https://github.com/mango-write/mango-write-ui.git#v0.1.0&path:packages/react"
+pnpm add react react-dom lucide-react
+pnpm add -D @vitejs/plugin-react`,
+  },
+  {
+    title: { zh: "配置 Vite", en: "Configure Vite" },
+    lang: "ts",
+    code: `import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+
+export default defineConfig({ plugins: [react()] });`,
+  },
+  {
+    title: { zh: "引入样式", en: "Import the styles" },
+    desc: {
+      zh: "组件库自带纯静态语义 token 与组件样式,按顺序引入 tokens.css、base.css 与 components.css(或直接引入 theme.css 聚合入口)。",
+      en: "The library ships static semantic tokens and component styles; import tokens.css, base.css, and components.css in order (or use theme.css as a single entry).",
+    },
+    lang: "css",
+    code: `@import "@mango-write/ui-react/tokens.css";
+@import "@mango-write/ui-react/base.css";
+@import "@mango-write/ui-react/components.css";`,
+  },
+  {
+    title: { zh: "初始化主题与全局宿主", en: "Initialize theme and global hosts" },
+    desc: {
+      zh: "initTheme 按 data-theme 驱动浅/深色,UiLocaleProvider 注入内置双语文案,ConfirmProvider + ConfirmHost 与 NotifyProvider + ToastHost 承载命令式确认框与轻提示。",
+      en: "initTheme drives light/dark via data-theme, UiLocaleProvider supplies built-in bilingual messages, and ConfirmProvider + ConfirmHost plus NotifyProvider + ToastHost host imperative confirms and toasts.",
+    },
+    lang: "tsx",
+    code: `import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import {
+  ConfirmHost,
+  ConfirmProvider,
+  NotifyProvider,
+  ToastHost,
+  UiLocaleProvider,
+  initTheme,
+} from "@mango-write/ui-react";
+import App from "./App";
+import "./style.css";
+
+initTheme();
+
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    <UiLocaleProvider locale="zh-CN">
+      <ConfirmProvider>
+        <NotifyProvider>
+          <App />
+          <ConfirmHost />
+          <ToastHost position="top-right" />
+        </NotifyProvider>
+      </ConfirmProvider>
+    </UiLocaleProvider>
+  </StrictMode>,
+);`,
+  },
+  {
+    title: { zh: "第一个组件", en: "Your first component" },
+    lang: "tsx",
+    code: {
+      zh: `import { useState } from "react";
+import { Button } from "@mango-write/ui-react";
+
+export default function SaveButton() {
+  const [saved, setSaved] = useState(false);
+
+  return (
+    <Button
+      label={saved ? "已保存" : "保存修改"}
+      onClick={() => setSaved(true)}
+    />
+  );
+}`,
+      en: `import { useState } from "react";
+import { Button } from "@mango-write/ui-react";
+
+export default function SaveButton() {
+  const [saved, setSaved] = useState(false);
+
+  return (
+    <Button
+      label={saved ? "Saved" : "Save changes"}
+      onClick={() => setSaved(true)}
+    />
+  );
+}`,
     },
   },
 ];

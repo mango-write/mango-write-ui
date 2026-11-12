@@ -1,0 +1,299 @@
+.mw-multiselect {
+  --_ms-min-w: calc(var(--size-lg-h) * 3);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: var(--_ms-min-w);
+  min-width: var(--_ms-min-w);
+  max-width: 100%;
+  /* 高度用 min-height 不定死：chip 换行时控件随行数生长，内容不溢出边框。 */
+  min-height: var(--control-h);
+  cursor: pointer;
+  user-select: none;
+}
+
+.mw-multiselect--chip {
+  /* 非 fluid 的 chip 控件撑长到恰好单行容纳全部 chip（JS 量算写入该变量）；
+     父容器不够时被 max-width 钳住，超出部分折进 +N，绝不换行竖排。 */
+  width: var(--mw-multiselect-fit, var(--_ms-min-w));
+}
+
+.mw-multiselect--fluid {
+  display: flex;
+  width: 100%;
+}
+
+.mw-multiselect--disabled,
+.mw-multiselect[data-disabled="true"] {
+  cursor: not-allowed;
+}
+
+.mw-multiselect--readonly,
+.mw-multiselect[data-readonly="true"] {
+  cursor: default;
+}
+
+.mw-multiselect__label-container {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.mw-multiselect__label {
+  padding: var(--space-1) var(--space-2) var(--space-1) var(--control-px);
+  font-size: var(--control-font);
+  line-height: var(--type-body-sm-line);
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mw-multiselect__label--placeholder {
+  color: var(--text-tertiary);
+}
+
+.mw-multiselect__label--chip {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-1-5);
+}
+
+.mw-multiselect__chip {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  max-width: 100%;
+  padding: var(--space-0-5) var(--space-2);
+  border-radius: var(--radius-xs);
+  background-color: var(--fill-default);
+  color: var(--text-primary);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  white-space: nowrap;
+}
+
+.mw-multiselect__chip-label {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mw-multiselect__chip--more {
+  color: var(--text-secondary);
+}
+
+.mw-multiselect__chip-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+
+.mw-multiselect__chip-remove:hover {
+  color: var(--text-primary);
+}
+
+.mw-multiselect__chip-remove svg,
+svg.mw-multiselect__chip-remove {
+  width: var(--icon-xs);
+  height: var(--icon-xs);
+}
+
+.mw-multiselect__measure {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-wrap: nowrap;
+  gap: var(--space-1);
+  visibility: hidden;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.mw-multiselect__clear {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--icon-lg);
+  height: var(--icon-lg);
+  padding: 0;
+  margin-inline: var(--space-1) 0;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+
+.mw-multiselect__clear:hover {
+  background-color: var(--fill-default);
+  color: var(--text-primary);
+}
+
+.mw-multiselect__clear svg {
+  width: var(--icon-xs);
+  height: var(--icon-xs);
+}
+
+.mw-multiselect__dropdown {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--size-md-h);
+  color: var(--text-tertiary);
+}
+
+.mw-multiselect__dropdown svg {
+  width: var(--icon-xs);
+  height: var(--icon-xs);
+}
+
+.mw-multiselect--sm {
+  --control-h: var(--size-sm-h);
+  --control-font: var(--size-sm-font);
+  --control-px: var(--size-sm-px);
+  --control-radius: var(--size-sm-radius);
+}
+
+.mw-multiselect--lg {
+  --control-h: var(--size-lg-h);
+  --control-font: var(--size-lg-font);
+  --control-px: var(--size-lg-px);
+  --control-radius: var(--size-lg-radius);
+}
+
+.mw-multiselect__overlay {
+  border-radius: var(--radius-float);
+  box-shadow: var(--shadow-floating);
+  overflow: hidden;
+}
+
+.mw-multiselect__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1-5) var(--space-2);
+  border-bottom: var(--border-width) solid var(--border-subtle);
+}
+
+.mw-multiselect__toggle-all,
+.mw-multiselect__checkbox {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  border: var(--border-width) solid var(--border-strong);
+  border-radius: var(--radius-xs);
+  background-color: var(--control-bg);
+  color: var(--text-on-accent);
+  cursor: pointer;
+}
+
+.mw-multiselect__toggle-all--checked,
+.mw-multiselect__option--selected .mw-multiselect__checkbox {
+  border-color: var(--accent);
+  background-color: var(--accent);
+}
+
+.mw-multiselect__toggle-all svg,
+.mw-multiselect__checkbox svg {
+  width: var(--icon-xs);
+  height: var(--icon-xs);
+}
+
+.mw-multiselect__filter-container {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.mw-multiselect__filter {
+  --control-bg: var(--fill-subtle);
+  --control-bg-hover: var(--fill-default);
+  width: 100%;
+  min-height: var(--size-sm-h);
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--type-body-sm-size);
+  line-height: var(--type-body-sm-line);
+}
+
+.mw-multiselect__list-container {
+  overflow-y: auto;
+}
+
+.mw-multiselect__list {
+  margin: 0;
+  padding: var(--space-1);
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-0-5);
+}
+
+.mw-multiselect__option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--size-sm-h);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-item);
+  color: var(--text-primary);
+  font-size: var(--type-body-sm-size);
+  line-height: var(--type-body-sm-line);
+  cursor: pointer;
+}
+
+.mw-multiselect__option[data-highlighted]:not(.mw-multiselect__option--selected),
+.mw-multiselect__option.mw-multiselect__option--highlighted:not(.mw-multiselect__option--selected) {
+  background-color: var(--fill-default);
+}
+
+.mw-multiselect__option--selected {
+  background-color: var(--fill-selected);
+  color: var(--text-accent);
+  font-weight: var(--weight-medium);
+}
+
+.mw-multiselect__option--selected[data-highlighted] {
+  background-color: var(--fill-selected-hover);
+}
+
+.mw-multiselect__option--disabled {
+  opacity: var(--opacity-disabled);
+  cursor: not-allowed;
+}
+
+.mw-multiselect__option-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mw-multiselect__empty {
+  padding: var(--space-2) var(--space-2-5);
+  color: var(--text-tertiary);
+  font-size: var(--type-body-sm-size);
+  line-height: var(--type-body-sm-line);
+  text-align: center;
+}
+
+.mw-multiselect__footer {
+  padding: var(--space-1-5) var(--space-2);
+  border-top: var(--border-width) solid var(--border-subtle);
+}
