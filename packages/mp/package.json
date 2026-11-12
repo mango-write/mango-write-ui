@@ -1,6 +1,6 @@
 {
   "name": "@mango-write/ui-mp",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "MangoWrite UI Mini Program — Paper & Frost components and WXSS token pipeline for WeChat Mini Program (uni-app Vue 3).",
   "license": "Apache-2.0",
   "author": "MangoWrite Contributors",
@@ -194,62 +194,98 @@
       "default": "./dist/components/MpEmpty.js"
     },
     "./components/MpFilterChip": {
-      "mango-source": { "types": "./src/components/MpFilterChip.vue", "default": "./src/components/MpFilterChip.vue" },
+      "mango-source": {
+        "types": "./src/components/MpFilterChip.vue",
+        "default": "./src/components/MpFilterChip.vue"
+      },
       "types": "./dist/components/MpFilterChip.d.ts",
       "default": "./dist/components/MpFilterChip.js"
     },
     "./components/MpSwitch": {
-      "mango-source": { "types": "./src/components/MpSwitch.vue", "default": "./src/components/MpSwitch.vue" },
+      "mango-source": {
+        "types": "./src/components/MpSwitch.vue",
+        "default": "./src/components/MpSwitch.vue"
+      },
       "types": "./dist/components/MpSwitch.d.ts",
       "default": "./dist/components/MpSwitch.js"
     },
     "./components/MpSelectSheet": {
-      "mango-source": { "types": "./src/components/MpSelectSheet.vue", "default": "./src/components/MpSelectSheet.vue" },
+      "mango-source": {
+        "types": "./src/components/MpSelectSheet.vue",
+        "default": "./src/components/MpSelectSheet.vue"
+      },
       "types": "./dist/components/MpSelectSheet.d.ts",
       "default": "./dist/components/MpSelectSheet.js"
     },
     "./components/MpLoading": {
-      "mango-source": { "types": "./src/components/MpLoading.vue", "default": "./src/components/MpLoading.vue" },
+      "mango-source": {
+        "types": "./src/components/MpLoading.vue",
+        "default": "./src/components/MpLoading.vue"
+      },
       "types": "./dist/components/MpLoading.d.ts",
       "default": "./dist/components/MpLoading.js"
     },
     "./components/MpFormField": {
-      "mango-source": { "types": "./src/components/MpFormField.vue", "default": "./src/components/MpFormField.vue" },
+      "mango-source": {
+        "types": "./src/components/MpFormField.vue",
+        "default": "./src/components/MpFormField.vue"
+      },
       "types": "./dist/components/MpFormField.d.ts",
       "default": "./dist/components/MpFormField.js"
     },
     "./components/MpPageHeader": {
-      "mango-source": { "types": "./src/components/MpPageHeader.vue", "default": "./src/components/MpPageHeader.vue" },
+      "mango-source": {
+        "types": "./src/components/MpPageHeader.vue",
+        "default": "./src/components/MpPageHeader.vue"
+      },
       "types": "./dist/components/MpPageHeader.d.ts",
       "default": "./dist/components/MpPageHeader.js"
     },
     "./components/MpSectionHeader": {
-      "mango-source": { "types": "./src/components/MpSectionHeader.vue", "default": "./src/components/MpSectionHeader.vue" },
+      "mango-source": {
+        "types": "./src/components/MpSectionHeader.vue",
+        "default": "./src/components/MpSectionHeader.vue"
+      },
       "types": "./dist/components/MpSectionHeader.d.ts",
       "default": "./dist/components/MpSectionHeader.js"
     },
     "./components/MpFilterBar": {
-      "mango-source": { "types": "./src/components/MpFilterBar.vue", "default": "./src/components/MpFilterBar.vue" },
+      "mango-source": {
+        "types": "./src/components/MpFilterBar.vue",
+        "default": "./src/components/MpFilterBar.vue"
+      },
       "types": "./dist/components/MpFilterBar.d.ts",
       "default": "./dist/components/MpFilterBar.js"
     },
     "./components/MpBottomActionBar": {
-      "mango-source": { "types": "./src/components/MpBottomActionBar.vue", "default": "./src/components/MpBottomActionBar.vue" },
+      "mango-source": {
+        "types": "./src/components/MpBottomActionBar.vue",
+        "default": "./src/components/MpBottomActionBar.vue"
+      },
       "types": "./dist/components/MpBottomActionBar.d.ts",
       "default": "./dist/components/MpBottomActionBar.js"
     },
     "./components/MpComposer": {
-      "mango-source": { "types": "./src/components/MpComposer.vue", "default": "./src/components/MpComposer.vue" },
+      "mango-source": {
+        "types": "./src/components/MpComposer.vue",
+        "default": "./src/components/MpComposer.vue"
+      },
       "types": "./dist/components/MpComposer.d.ts",
       "default": "./dist/components/MpComposer.js"
     },
     "./components/MpNotice": {
-      "mango-source": { "types": "./src/components/MpNotice.vue", "default": "./src/components/MpNotice.vue" },
+      "mango-source": {
+        "types": "./src/components/MpNotice.vue",
+        "default": "./src/components/MpNotice.vue"
+      },
       "types": "./dist/components/MpNotice.d.ts",
       "default": "./dist/components/MpNotice.js"
     },
     "./components/MpMessage": {
-      "mango-source": { "types": "./src/components/MpMessage.vue", "default": "./src/components/MpMessage.vue" },
+      "mango-source": {
+        "types": "./src/components/MpMessage.vue",
+        "default": "./src/components/MpMessage.vue"
+      },
       "types": "./dist/components/MpMessage.d.ts",
       "default": "./dist/components/MpMessage.js"
     }
@@ -355,18 +391,66 @@
         "import": "./dist/components/MpEmpty.js",
         "default": "./dist/components/MpEmpty.js"
       },
-      "./components/MpFilterChip": { "types": "./dist/components/MpFilterChip.d.ts", "import": "./dist/components/MpFilterChip.js", "default": "./dist/components/MpFilterChip.js" },
-      "./components/MpSwitch": { "types": "./dist/components/MpSwitch.d.ts", "import": "./dist/components/MpSwitch.js", "default": "./dist/components/MpSwitch.js" },
-      "./components/MpSelectSheet": { "types": "./dist/components/MpSelectSheet.d.ts", "import": "./dist/components/MpSelectSheet.js", "default": "./dist/components/MpSelectSheet.js" },
-      "./components/MpLoading": { "types": "./dist/components/MpLoading.d.ts", "import": "./dist/components/MpLoading.js", "default": "./dist/components/MpLoading.js" },
-      "./components/MpFormField": { "types": "./dist/components/MpFormField.d.ts", "import": "./dist/components/MpFormField.js", "default": "./dist/components/MpFormField.js" },
-      "./components/MpPageHeader": { "types": "./dist/components/MpPageHeader.d.ts", "import": "./dist/components/MpPageHeader.js", "default": "./dist/components/MpPageHeader.js" },
-      "./components/MpSectionHeader": { "types": "./dist/components/MpSectionHeader.d.ts", "import": "./dist/components/MpSectionHeader.js", "default": "./dist/components/MpSectionHeader.js" },
-      "./components/MpFilterBar": { "types": "./dist/components/MpFilterBar.d.ts", "import": "./dist/components/MpFilterBar.js", "default": "./dist/components/MpFilterBar.js" },
-      "./components/MpBottomActionBar": { "types": "./dist/components/MpBottomActionBar.d.ts", "import": "./dist/components/MpBottomActionBar.js", "default": "./dist/components/MpBottomActionBar.js" },
-      "./components/MpComposer": { "types": "./dist/components/MpComposer.d.ts", "import": "./dist/components/MpComposer.js", "default": "./dist/components/MpComposer.js" },
-      "./components/MpNotice": { "types": "./dist/components/MpNotice.d.ts", "import": "./dist/components/MpNotice.js", "default": "./dist/components/MpNotice.js" },
-      "./components/MpMessage": { "types": "./dist/components/MpMessage.d.ts", "import": "./dist/components/MpMessage.js", "default": "./dist/components/MpMessage.js" }
+      "./components/MpFilterChip": {
+        "types": "./dist/components/MpFilterChip.d.ts",
+        "import": "./dist/components/MpFilterChip.js",
+        "default": "./dist/components/MpFilterChip.js"
+      },
+      "./components/MpSwitch": {
+        "types": "./dist/components/MpSwitch.d.ts",
+        "import": "./dist/components/MpSwitch.js",
+        "default": "./dist/components/MpSwitch.js"
+      },
+      "./components/MpSelectSheet": {
+        "types": "./dist/components/MpSelectSheet.d.ts",
+        "import": "./dist/components/MpSelectSheet.js",
+        "default": "./dist/components/MpSelectSheet.js"
+      },
+      "./components/MpLoading": {
+        "types": "./dist/components/MpLoading.d.ts",
+        "import": "./dist/components/MpLoading.js",
+        "default": "./dist/components/MpLoading.js"
+      },
+      "./components/MpFormField": {
+        "types": "./dist/components/MpFormField.d.ts",
+        "import": "./dist/components/MpFormField.js",
+        "default": "./dist/components/MpFormField.js"
+      },
+      "./components/MpPageHeader": {
+        "types": "./dist/components/MpPageHeader.d.ts",
+        "import": "./dist/components/MpPageHeader.js",
+        "default": "./dist/components/MpPageHeader.js"
+      },
+      "./components/MpSectionHeader": {
+        "types": "./dist/components/MpSectionHeader.d.ts",
+        "import": "./dist/components/MpSectionHeader.js",
+        "default": "./dist/components/MpSectionHeader.js"
+      },
+      "./components/MpFilterBar": {
+        "types": "./dist/components/MpFilterBar.d.ts",
+        "import": "./dist/components/MpFilterBar.js",
+        "default": "./dist/components/MpFilterBar.js"
+      },
+      "./components/MpBottomActionBar": {
+        "types": "./dist/components/MpBottomActionBar.d.ts",
+        "import": "./dist/components/MpBottomActionBar.js",
+        "default": "./dist/components/MpBottomActionBar.js"
+      },
+      "./components/MpComposer": {
+        "types": "./dist/components/MpComposer.d.ts",
+        "import": "./dist/components/MpComposer.js",
+        "default": "./dist/components/MpComposer.js"
+      },
+      "./components/MpNotice": {
+        "types": "./dist/components/MpNotice.d.ts",
+        "import": "./dist/components/MpNotice.js",
+        "default": "./dist/components/MpNotice.js"
+      },
+      "./components/MpMessage": {
+        "types": "./dist/components/MpMessage.d.ts",
+        "import": "./dist/components/MpMessage.js",
+        "default": "./dist/components/MpMessage.js"
+      }
     }
   },
   "sideEffects": [

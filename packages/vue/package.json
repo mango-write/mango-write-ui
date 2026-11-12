@@ -1,6 +1,6 @@
 {
   "name": "@mango-write/ui-vue",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "MangoWrite UI Vue 3 — Paper & Frost desktop components powered by Reka UI and @mango-write/ui-core.",
   "type": "module",
   "license": "Apache-2.0",

@@ -2,6 +2,21 @@
 
 参照 Keep a Changelog 组织;版本号以 `package.json` 为准。组件库当前处于 0.x,接口在 1.0 前可能有小幅调整。
 
+## 0.2.0
+
+### 新增
+
+- **平级四包 Monorepo 架构**：将组件库重整为 `@mango-write/ui-core`、`@mango-write/ui-vue`、`@mango-write/ui-react` 与 `@mango-write/ui-mp` 四个独立子包，共享统一的「纸与霜（Paper & Frost）」设计 Token、静态 CSS、无头状态机（`headless/*`）与双语国际化词典（`locale`）。
+- **React 桌面组件库（`@mango-write/ui-react`）**：新增与 `@mango-write/ui-vue` 100% 桌面组件及子路径对等的 React 18/19 实现，基于 Radix UI、`@tanstack/react-table` 与 `lucide-react`，覆盖全部 54 个桌面组件入口、命令式反馈宿主（`ConfirmProvider` / `ConfirmHost`、`NotifyProvider` / `ToastHost`）与按需子路径导出。
+- **移动端与微信小程序组件库（`@mango-write/ui-mp`）**：新增面向移动 H5 与微信小程序（`uni-app` Vue 3）的触控组件库及 WXSS Token 编译管线，包含导航、表单、浮层、反馈与工作流领域套件（`MpNavBar`、`MpTabBar`、`MpSheet`、`MpActionSheet`、`MpPicker`、`MpCalendar`、`MpToastHost`、`MpVoicePill`、`MpDiffHunkCard`、`MpMarkdownStream` 等）。
+- **管理后台与领域组件套件**：桌面端新增 `admin/*` 管理后台页面壳（`AdminListPage`、`AdminConfigPage`、`AdminDetailPage`、`AdminBoardPage`、`AdminBoardSection`、`ConfigSection`、`ConfigRow`、`StatBar`、`StatCard`）与扩展的选择器、表格及反馈能力。
+- **双框架与跨端交互展示站**：全部 54 个桌面组件文档页均配备实时可交互的 `UsagePlayground`，支持 `Vue` / `React` 双框架实时渲染预览与 SFC / TSX 代码生成切换，新增移动端独立预览入口（`/mp.html`）与双框架机器可读文档（`llms.txt`、`llms-full.txt`、`api/*.md`）。
+
+### 变更
+
+- **纯静态 CSS 体系**：桌面组件样式收敛为 `@mango-write/ui-core` 提供的纯静态 `tokens.css`、`base.css`、`components.css` 与 `theme.css`，移除宿主对 PrimeVue 与 Tailwind CSS 编译扫描的运行时/构建期强耦合。
+- **按需子路径与导出对称门禁**：`@mango-write/ui-vue`、`@mango-write/ui-react` 与 `@mango-write/ui-mp` 均采用 `preserveModules` 构建，并通过导出表对称性、CSS Token 硬编码扫描与展示站双语棘轮门禁。
+
 ## v0.1.0 - 2026-11-05
 
 ### 新增

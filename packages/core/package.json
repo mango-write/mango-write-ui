@@ -1,6 +1,6 @@
 {
   "name": "@mango-write/ui-core",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "MangoWrite UI Core — framework-agnostic tokens, static CSS, locale, headless state machines, and pure contracts.",
   "license": "Apache-2.0",
   "author": "MangoWrite Contributors",
