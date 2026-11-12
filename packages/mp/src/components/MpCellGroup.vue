@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useAttrs } from "vue";
+import { computed, useAttrs } from "vue";
 
 defineOptions({
   name: "MwMpCellGroup",
@@ -13,23 +13,27 @@ export interface MpCellGroupProps {
   extra?: string;
   footer?: string;
   grouped?: boolean;
+  flush?: boolean;
   role?: string;
 }
 
-withDefaults(defineProps<MpCellGroupProps>(), {
+const props = withDefaults(defineProps<MpCellGroupProps>(), {
   title: undefined,
   extra: undefined,
   footer: undefined,
-  grouped: false,
+  grouped: true,
+  flush: false,
   role: undefined,
 });
+
+const isGrouped = computed(() => (props.flush ? false : props.grouped));
 </script>
 
 <template>
   <section
     :data-testid="attrs['data-testid']"
     class="mw-mp-cell-group"
-    :class="{ 'mw-mp-cell-group--grouped': grouped }"
+    :class="isGrouped ? 'mw-mp-cell-group--grouped' : 'mw-mp-cell-group--flush'"
   >
     <div v-if="title || extra || $slots.header" class="mw-mp-cell-group__header">
       <slot name="header">

@@ -1,8 +1,9 @@
 page,
 .mw-mp-root {
-  --mw-mp-safe-top: var(--mp-safe-top);
-  --mw-mp-safe-bottom: var(--mp-safe-bottom);
-  --mw-mp-keyboard-offset: var(--space-0);
+  --mw-mp-safe-top: var(--mp-safe-top, 0px);
+  --mw-mp-safe-bottom: var(--mp-safe-bottom, 0px);
+  /* 必须带 px 单位，无单位 0 进 calc(<length> + ...) 会触发 IACVT 导致 bottom 整条失效 */
+  --mw-mp-keyboard-offset: var(--mp-keyboard-offset, 0px);
   --mw-mp-capsule-width: var(--mp-capsule-w);
   background-color: var(--bg-canvas);
   color: var(--text-primary);
@@ -43,6 +44,10 @@ page,
 .mw-mp-root cover-view,
 .mw-mp-root cover-image {
   box-sizing: border-box;
+}
+
+.mw-mp-root button {
+  margin: 0;
 }
 
 .mw-mp-root button::after {
@@ -107,7 +112,7 @@ page,
 .mw-mp-field {
   border: var(--border-width) solid var(--border-subtle);
   border-radius: var(--control-radius);
-  background-color: var(--bg-sunken);
+  background-color: var(--fill-subtle);
   color: var(--text-primary);
   font-family: var(--font-sans);
   font-size: var(--control-font);
@@ -119,7 +124,7 @@ page,
 .mw-mp-field:focus-within {
   outline: none;
   border-color: var(--accent-border);
-  background-color: var(--bg-raised);
+  background-color: var(--control-bg-hover);
   box-shadow: var(--focus-shadow);
 }
 

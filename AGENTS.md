@@ -14,20 +14,20 @@
 
 ## 新增/修改组件强制清单（文件四件套）
 
-任何基础组件的创建或重构必须同时完成以下四项，缺一不可：
+任何基础组件的创建或重构必须同时完成以下四项，缺一不可（移动端 `packages/mp` 同等适用，语义命名如 `variant`、`severity`、`fluid` 必须与桌面端对齐）：
 
-1. **组件实现（`packages/vue/src/components/<Name>.vue`）**
-   - 必须声明 `defineOptions({ name: "Mw<Name>" })`；含包裹层或多根节点时必须声明 `inheritAttrs: false`，将 `id`、`name`、`aria-*`、`data-*` 落到真实交互节点，将 `class` / `style` 合并到根容器。
-   - 表单控件必须支持与 `FormField` 联动：`inputId?: string`、`invalid?: boolean`、`disabled?: boolean`、`readonly?: boolean`、`required?: boolean`，并输出 `:aria-invalid="invalid || undefined"` 与 `data-invalid` / `data-disabled`。
-   - 交互底座优先使用原生 HTML（简单控件）或 `reka-ui` / `@tanstack/vue-table`（复杂浮层与表格）；**严禁引入 `reka-ui/internal`**。
-2. **公共类型契约（`packages/vue/src/components/<kebab-name>.ts` 及跨框架 `packages/core/src/defs`）**
+1. **组件实现（`packages/vue/src/components/<Name>.vue` 或 `packages/mp/src/components/Mp<Name>.vue`）**
+   - 必须声明 `defineOptions({ name: "Mw<Name>" })`（移动端为 `MwMp<Name>`）；桌面端含包裹层或多根节点时声明 `inheritAttrs: false`，移动端禁止对象展开式 `v-bind`，输入节点显式绑定 `id`/`name`/`aria-*`/`data-testid`。
+   - 表单控件必须支持与 `FormField` / `MpFormField` 联动：`inputId?: string`、`invalid?: boolean`、`disabled?: boolean`、`readonly?: boolean`、`required?: boolean`。
+   - 桌面交互底座优先使用原生 HTML（简单控件）或 `reka-ui` / `@tanstack/vue-table`（复杂浮层与表格）；**严禁引入 `reka-ui/internal`**。
+2. **公共类型契约（`packages/vue/src/components/<kebab-name>.ts`、`packages/mp/src/components/Mp<Name>.vue` 及跨框架 `packages/core/src/defs`）**
    - 组件公开的 Props、Emits、Option/Item 结构必须为 Mango 自有类型，**严禁直接 re-export 或透传 `reka-ui`、`@tanstack/vue-table`、`primevue` 的上游类型**。
    - `@mango-write/ui-core` 严禁引入 `vue`、`react`、`reka-ui` 等任何视图框架包（由 `packages/core/src/core-purity.test.ts` 门禁钉死）。
-3. **行为与无障碍单测（`packages/vue/src/components/<Name>.component.test.ts`）**
-   - 覆盖受控值读写（`modelValue` / `open`）、禁用/只读/错误态、`aria-*`/`data-*` 落点与核心键盘路径。
+3. **行为与无障碍单测（`*.component.test.ts`）**
+   - 覆盖受控值读写（`modelValue` / `open`）、禁用/只读/错误态、`aria-*`/`data-*` 落点、退场动画延迟卸载时序（如适用）与核心键盘路径。
 4. **导出、子路径与展示登记**
-   - 同步更新 `packages/vue/src/index.ts` 与 `packages/vue/package.json` 的 `exports` + `publishConfig.exports`（两者键集合必须 1:1 对齐，由 `packages/vue/src/package-exports.test.ts` 自动门禁校验）。
-   - 在 `playground/dev/registry-data.ts` 登记（标题与页首 lead 的中英双语单源，`playground/dev/registry.ts` 只补懒加载）并在 `playground/dev/pages/components/<slug>.vue` 提供完整文档页（在线演示、何时使用、纸/霜双底面 Specimen、尺寸与状态矩阵、接口表）。
+   - 同步更新 `src/index.ts` 与 `package.json` 的 `exports` + `publishConfig.exports`（两者键集合必须 1:1 对齐，由 `packages/vue/src/package-exports.test.ts` 与 `packages/mp/src/package-exports.test.ts` 自动门禁校验；改 `packages/mp` 样式或 Token 后必须重跑 `pnpm --dir packages/ui --filter @mango-write/ui-mp build` 刷新 `mp-tokens.wxss` 与 `mp-styles.wxss`）。
+   - 在 `playground/dev/registry-data.ts` 登记（标题与页首 lead 的中英双语单源，`playground/dev/registry.ts` 只补懒加载）并在 `playground/dev/pages/{components,mobile}/<slug>.vue` 提供完整文档页。
    - **展示站文案一律内联双语**：页面/套件/api 数据的每条用户可见文案写成 `{ zh, en }`（`playground/dev/i18n.ts` 的 `Bi`），模板经 `t()` 取词——漏译直接 typecheck 红；没进 Bi 的裸中文由 `node scripts/check-dev-locale.mjs` 棘轮拦截（`i18n-allow` 行内/块级标记可放行，注释不扫）。
 
 ## 静态样式与构建红线
@@ -45,13 +45,16 @@
 - **小程序与 H5 Demo 双环境兼容红线（`packages/mp`）**：
   - 模板禁止使用微信小程序 WXML 不支持的运行时动态标签 `<component :is="...">`；
   - 表单输入（`MpInput` / `MpTextarea` / `MpSearchBar`）统一经 `packages/mp/src/lib/mp-dom.ts` 的 `readMpInputValue(event)` 取值，同时兼容小程序 `event.detail.value` 与 H5 `event.target.value`；
-  - 独立触控目标至少 44px；交互按钮只使用 `sm (44px)` / `md (48px)` / `lg (52px)`，静态标签可用 `xs (28px)`，禁止用 `.mw-mp-hit-target` 透明热区补偿微型交互控件；
+  - 交互按钮使用 `sm (36px)` / `md (44px)` / `lg (48px)` 胶囊几何，静态标签可用 `xs (28px)`，独立触控目标默认不低于 `44px`（筛选胶囊经伪元素补足 `44px` 触控区）；
+  - 顶部不提供自定义导航栏（避免与微信原生导航/胶囊冲突），沉浸式二级页至多使用左上角圆形 `MpBackButton`；底部统一走单轨悬浮排布（`MpTabBar` 支持 `#action` 同轨动作与 `collapsed` + `#composer` 同轨折叠），禁止纵向堆叠双底栏；
   - `MpTag` 只展示静态标签，选择使用 `MpFilterChip` / `MpFilterBar`；单选使用 `MpSelectSheet`，不再与 `MpActionSheet` 混用；
   - 通用页面结构使用 `MpFormField`、`MpPageHeader`、`MpSectionHeader`、`MpBottomActionBar`、`MpComposer` 等公共模式，业务请求与 store 仍归宿主；
-  - 模态浮层统一经 `lib/use-mp-overlay.ts` 管理焦点、Esc、焦点恢复与 H5 滚动锁，不另写平行焦点陷阱；
+  - 模态浮层统一经 `lib/use-mp-overlay.ts` 管理焦点、Esc、焦点恢复、退场过渡时序与 H5 滚动锁，不另写平行焦点陷阱；
   - 微信编译器不支持对象展开式 `v-bind`：单根组件用原生 fallthrough，输入节点显式绑定 `id/name/aria-*`，不得为透传重新引入 `v-bind="$attrs"` 或 `v-bind="attrs"`；
+  - **`wcsc` 与宿主样式红线**：生成的 `.wxss` 严禁出现 `*` 通配符、`:root` 或 `[data-theme]` 属性选择器（由 `packages/mp/src/package-exports.test.ts` 及本机 `wcsc` 门禁钉死）；所有原生 `<button>` 必须显式 `margin: 0` 并清零 `button::after`，防止微信默认 `margin: auto` 在 Grid/Flex 中把按钮挤成窄块，横向滚动容器必须隐藏 `::-webkit-scrollbar`；
+  - **WXML 组件树与插槽编译红线**：① `mp-weixin` 将 `u-s` 插槽列表在编译期静态固化，父模板带 `v-if` 的条件插槽（如 `MpTabBar` `#action`）必须配运行时布尔 prop（如 `hasAction`）覆盖 `$slots` 判空；② 多子节点具名插槽会被包一层 `<view slot="...">`，容器 flex/gap 样式必须同时匹配 `> view`；③ 行内元数据统一用 `<span>`（禁止用 `<time>`，其在 `mp-weixin` 下编译为块级 `<view>` 导致断行）；④ `virtualHost: true` 子组件（如 `MpIcon`）外挂语义色时在外层包实体 `<span>` 承载颜色，自定义组件宿主（`virtualHost: false` 的 `<mp-cell>`、`<mp-button>`）的父级 `:last-child` / `flex: 1` 选择器必须同时覆盖组件宿主标签；
   - 跨 uni-app 页面边界的通知服务必须显式传给 `MpToastHost.service`，不能假设根 provide 或模块级后备服务在所有页面 chunk 中共享；
-  - 微信验收使用主仓 `apps/write-mp` 的真实 uni-app 编译产物；组件库不生成另一套手写 WXML/JS 页面。
+  - **真机模拟器闭环铁律**：H5 展示站与 Vitest 单测只算前置校验；涉及 `packages/mp` 模板、插槽、样式或动效的修改，必须在主仓 `apps/write-mp` 编译 `mp-weixin` 并在微信开发者工具模拟器完成 `compile_wxss`、亮/暗双态视觉与 Console 零报错核验才算闭环（步骤见 [`../../docs/runbooks/mini-program-development.md`](../../docs/runbooks/mini-program-development.md)）。
 
 ## 验证命令
 
@@ -61,4 +64,6 @@ node scripts/check-dev-locale.mjs
 pnpm --dir packages/ui build
 pnpm --dir packages/ui typecheck
 pnpm --dir packages/ui test
+# 涉及 packages/mp 时继续跑主仓小程序闭环：
+pnpm --filter @mango-write/write-mp build && pnpm --filter @mango-write/write-mp typecheck
 ```

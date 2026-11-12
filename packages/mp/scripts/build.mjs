@@ -64,17 +64,21 @@ function readCssWithImports(filePath) {
 }
 
 const componentsCss = readCssWithImports(join(stylesDir, "mp-components.css"));
+const componentsWxss = componentsCss.replace(
+  /\s*\.mw-mp-root \*,\s*\.mw-mp-root \*::before,\s*\.mw-mp-root \*::after\s*\{[\s\S]*?\}\n/g,
+  "",
+);
 
 copyFileSync(join(stylesDir, "mp-base.css"), join(distDir, "mp-base.css"));
 writeFileSync(join(distDir, "mp-base.wxss"), baseWxss, "utf8");
 copyFileSync(join(stylesDir, "mp-components.css"), join(distDir, "mp-components.css"));
-writeFileSync(join(distDir, "mp-components.wxss"), componentsCss, "utf8");
+writeFileSync(join(distDir, "mp-components.wxss"), componentsWxss, "utf8");
 
 writeFileSync(
   join(distDir, "mp-styles.css"),
   [compiled.css.trim(), baseCss.trim(), componentsCss.trim()].join("\n\n") + "\n",
   "utf8",
 );
-const combinedWxss = [compiled.wxss.trim(), baseWxss.trim(), componentsCss.trim()].join("\n\n") + "\n";
+const combinedWxss = [compiled.wxss.trim(), baseWxss.trim(), componentsWxss.trim()].join("\n\n") + "\n";
 writeFileSync(join(stylesDir, "mp-styles.wxss"), combinedWxss, "utf8");
 writeFileSync(join(distDir, "mp-styles.wxss"), combinedWxss, "utf8");

@@ -27,7 +27,7 @@ export {
 
 export { default as MpThemeProvider, type MpThemeProviderProps } from "./components/MpThemeProvider.vue";
 export { default as MpIcon, type MpIconName, type MpIconProps } from "./components/MpIcon.vue";
-export { default as MpNavBar, type MpNavBarProps } from "./components/MpNavBar.vue";
+export { default as MpBackButton, type MpBackButtonProps } from "./components/MpBackButton.vue";
 export {
   default as MpButton,
   type MpButtonProps,
@@ -40,7 +40,7 @@ export { default as MpInput, type MpInputProps } from "./components/MpInput.vue"
 export { default as MpTextarea, type MpTextareaProps } from "./components/MpTextarea.vue";
 export { default as MpCellGroup, type MpCellGroupProps } from "./components/MpCellGroup.vue";
 export { default as MpCell, type MpCellProps } from "./components/MpCell.vue";
-export { default as MpTag, type MpTagProps, type MpTagTone } from "./components/MpTag.vue";
+export { default as MpTag, type MpTagProps, type MpTagSeverity, type MpTagTone } from "./components/MpTag.vue";
 export { default as MpFilterChip, type MpFilterChipProps } from "./components/MpFilterChip.vue";
 export { default as MpSwitch, type MpSwitchProps } from "./components/MpSwitch.vue";
 export { default as MpBadge, type MpBadgeProps } from "./components/MpBadge.vue";
@@ -58,5 +58,5 @@ export { default as MpSectionHeader, type MpSectionHeaderProps } from "./compone
 export { default as MpFilterBar, type MpFilterBarItem, type MpFilterBarProps } from "./components/MpFilterBar.vue";
 export { default as MpBottomActionBar, type MpBottomActionBarProps } from "./components/MpBottomActionBar.vue";
 export { default as MpComposer, type MpComposerProps } from "./components/MpComposer.vue";
-export { default as MpNotice, type MpNoticeProps, type MpNoticeTone } from "./components/MpNotice.vue";
+export { default as MpNotice, type MpNoticeProps, type MpNoticeSeverity, type MpNoticeTone } from "./components/MpNotice.vue";
 export { default as MpMessage, type MpMessageProps } from "./components/MpMessage.vue";

@@ -28,7 +28,7 @@ const emit = defineEmits<{ retry: [] }>();
 
 <template>
   <div class="mw-mp-empty" :data-status="status" data-testid="mp-empty">
-    <MpIcon :name="status === 'error' ? 'error' : 'journal'" :size="24" class="mw-mp-empty__icon" />
+    <span class="mw-mp-empty__icon"><MpIcon :name="status === 'error' ? 'error' : 'journal'" :size="24" /></span>
     <div class="mw-mp-empty__title">{{ title }}</div>
     <div v-if="hint" class="mw-mp-empty__hint">{{ hint }}</div>
     <div v-if="$slots.action || status === 'error'" class="mw-mp-empty__action">

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { useMpConfirm } from "../lib/mp-confirm.js";
 import { useMpOverlay } from "../lib/use-mp-overlay.js";
 
@@ -16,19 +16,33 @@ export interface MpConfirmHostProps {
 const props = withDefaults(defineProps<MpConfirmHostProps>(), { contained: false });
 const confirm = useMpConfirm();
 const panel = ref<HTMLElement | null>(null);
-const { layerZ } = useMpOverlay({
+const displayed = ref(confirm.active.value);
+
+watch(
+  () => confirm.active.value,
+  (active) => {
+    if (active) displayed.value = active;
+  },
+  { immediate: true },
+);
+
+const { layerZ, rendered, closing } = useMpOverlay({
   open: () => Boolean(confirm.active.value),
   close: () => confirm.reject(),
   panel,
   lockScroll: () => !props.contained,
+  exitDurationMs: 110,
 });
 </script>
 
 <template>
   <div
-    v-if="confirm.active.value"
-     class="mw-mp-dialog-backdrop"
-    :class="{ 'mw-mp-dialog-backdrop--contained': contained }"
+    v-if="rendered && displayed"
+    class="mw-mp-dialog-backdrop"
+    :class="{
+      'mw-mp-dialog-backdrop--contained': contained,
+      'mw-mp-dialog-backdrop--closing': closing,
+    }"
     :style="{ zIndex: layerZ }"
     data-testid="mp-confirm-dialog"
     @touchmove.stop.prevent="() => {}"
@@ -37,38 +51,39 @@ const { layerZ } = useMpOverlay({
     <div
       ref="panel"
       class="mw-mp-dialog mw-frost--thick"
+      :class="{ 'mw-mp-dialog--closing': closing }"
       role="alertdialog"
       aria-modal="true"
-      :aria-label="confirm.active.value.title"
+      :aria-label="displayed.title"
       tabindex="-1"
     >
       <div class="mw-mp-dialog__body">
-        <div class="mw-mp-dialog__title">{{ confirm.active.value.title }}</div>
-        <div v-if="confirm.active.value.message" class="mw-mp-dialog__message">
-          {{ confirm.active.value.message }}
+        <div class="mw-mp-dialog__title">{{ displayed.title }}</div>
+        <div v-if="displayed.message" class="mw-mp-dialog__message">
+          {{ displayed.message }}
         </div>
       </div>
       <div class="mw-mp-dialog__actions">
         <button
           type="button"
-          class="mw-mp-dialog__btn"
+          class="mw-mp-dialog__btn mw-mp-dialog__btn--cancel"
           hover-class="is-pressed"
           data-testid="mp-confirm-cancel"
           @click="confirm.reject()"
         >
-          {{ confirm.active.value.rejectLabel || "取消" }}
+          {{ displayed.rejectLabel || "取消" }}
         </button>
         <button
           type="button"
           class="mw-mp-dialog__btn"
-          :class="confirm.active.value.danger || confirm.active.value.acceptSeverity === 'danger'
+          :class="displayed.danger || displayed.acceptSeverity === 'danger'
             ? 'mw-mp-dialog__btn--danger'
             : 'mw-mp-dialog__btn--confirm'"
           hover-class="is-pressed"
           data-testid="mp-confirm-accept"
           @click="confirm.accept()"
         >
-          {{ confirm.active.value.acceptLabel || "确认" }}
+          {{ displayed.acceptLabel || "确认" }}
         </button>
       </div>
     </div>

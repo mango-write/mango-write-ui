@@ -1,77 +1,83 @@
-# Mango 移动端与微信小程序设计规范
+# Mango 移动端与微信小程序设计规范 ·「纸与霜 · 掌上版」
 
-> 适用于 `@mango-write/ui-mp` 与移动 H5。数值唯一真源是 [`packages/core/src/mobile-tokens.css`](packages/core/src/mobile-tokens.css)，颜色与共享语义来自 `var.css`。
+> 适用于 `@mango-write/ui-mp`、`apps/write-mp` 与移动 H5。跨端核心哲学与色彩语义归 [`DESIGN.md`](DESIGN.md)，移动端几何与触控数值唯一真源是 [`packages/core/src/mobile-tokens.css`](packages/core/src/mobile-tokens.css)。
 
-## 产品原则
+## 1. 核心准则：守住「纸与霜」，重塑掌上空间
 
-移动端是研究信息流，不是桌面组件的缩小版。设计围绕快速记录、可靠查阅、带当前空间上下文提问三个任务展开。
+移动端是研究信息流伴侣（快速记录、可靠查阅、带当前空间上下文提问），不是桌面工作台的缩小版，也不照搬传统贴边切割式移动端模板。
 
-1. **内容先于装饰**：标题、正文和来源拥有完整宽度，元信息独立成行，不前导符号、时间和箭头挤压内容。
-2. **任务先于零件**：一个视图只有一个主要动作。日志新建、文库查阅与摘录、助手提问各有明确落点。
-3. **空间始终可见**：顶栏提供空间入口，助手显示当前上下文；列表、搜索与问答不跨空间泄漏。
-4. **来源随内容流动**：文献摘录进入日志时保留标题与 DOI。
-5. **反馈诚实且不阻塞**：演示与真实服务结果可区分，Toast 不堆叠、不遮挡主操作、不复活旧消息。
+1. **单一材质语义（不另立玻璃层）**：跨端严守**「内容是纸，浮层是霜，橙色只给动作」**。阅读与列表内容落在不透明暖纸/画布（`--bg-canvas` / `--bg-surface` / `--bg-raised`）上；脱离内容流的悬浮控制与模态抽屉统一使用 `.mw-frost` / `.mw-frost--thick`，不引入第二套玻璃材质概念。
+2. **全幅纸面通铺，控制层悬浮退后**：正文与列表滚动区全幅通铺直达视口顶底，禁止用贴边实心横条或贯通分割线把屏幕切成三段；导航与输入化作脱离屏幕四边的悬浮霜胶囊，内容从胶囊下方自然滑过。
+3. **霜内「着色不铺色」**：凡可进入霜面胶囊或厚霜抽屉的移动端控件（`MpInput`、`MpSearchBar`、`MpTextarea`、`MpFilterChip`、`MpButton(outlined)`），静息态统一使用半透明墨色叠层（`--fill-subtle` / `--control-bg`），聚焦态升为 `--control-bg-hover` + `--accent-border` + `--focus-shadow`，**严禁出现 `--bg-sunken` / `--bg-surface` 等不透明实心块打穿霜面**（由 `check-tokens.mjs` 的 `FLOATING` 门禁强制）。
+4. **同屏霜层预算**：同一时刻视口内可见霜层严格 **≤ 2**；遮罩（`--scrim`）只压暗、不模糊。
 
-## 信息架构
+## 2. 顶部排布法则：唯一原生导航 + 左上悬浮返回圆钮
 
-- **顶栏**：只承载返回或当前空间入口及编辑页标题。微信端按真实胶囊信息避让，不绘制伪胶囊，空间业务通过 `leading` 插槽接入。
-- **内容区**：`MpPageHeader` 进入内容流，`MpSectionHeader` 组织次级层级。默认使用通栏单列信息流，`MpCellGroup.grouped` 仅用于确需分组的短行。
-- **底部导航**：一级目的地使用 24px 矢量图标与 12px 标签；数量只在确有通知语义时使用 `MpBadge`。
-- **主操作区**：使用 `MpBottomActionBar`，AI 提问使用 `MpComposer`；内容区预留对应高度。
-- **浮层**：轻量详情使用 `MpSheet`，单选使用 `MpSelectSheet`，条目动作使用 `MpActionSheet`；长文编辑使用独立全屏页，居中确认只用于需要明确决定的操作。
+1. **禁止自绘顶部导航栏**：微信小程序自带原生导航栏与右上角系统胶囊，组件库**不提供自定义顶栏组件**，避免出现双导航冲突或「真胶囊底下垫假横条」。
+2. **常规页走宿主原生导航**：一级页面默认启用微信原生导航栏（`navigationStyle: "default"`，深浅色切换时同步原生栏配色）；页面标题、空间上下文入口与描述统一归入内容流首屏的 **`MpPageHeader`**（通过 `#eyebrow` / `#trailing` 插槽承载空间切换胶囊等轻量上下文）。
+3. **沉浸式二级页至多一颗左上返回圆钮**：使用 `navigationStyle: "custom"` 的二级页或全屏详情页，顶部**最多只在左上角悬浮一颗 `44×44px` 圆形霜材质返回按钮（`MpBackButton`）**，与右上角微信原生胶囊同轴呼应；内容流通过 `MpPageHeader.capsuleSafe` 自动预留安全区顶距。
 
-## 排版与内容
+## 3. 底部单轨悬浮法则（严禁双层底栏叠罗汉）
+
+所有常驻导航、主动作与提问输入共享**唯一一条距屏幕边缘与底部安全区悬浮内缩（`--mp-float-inset: 12px`）的水平底轨**。外层轨道容器 `pointer-events: none`，间隙透出底层纸面内容且不阻断滑动：
+
+1. **纯导航态（如文库页）**：底部居中悬浮单一 `.mw-frost` 全胶囊 `MpTabBar`（外高 `56px`，内嵌 `48px` 同心选中胶囊，无顶部分割线）。
+2. **导航 + 主动作同轨分体态（如日志页）**：左侧悬浮 `.mw-frost` 胶囊 `MpTabBar`，右侧同一水平基线并排一颗独立的实心品牌橙主动作圆钮/短胶囊（`MpTabBar` 的 `#action` 插槽，间距 `--mp-rail-gap: 10px`），纵向只占单轨高度。
+3. **同轨折叠输入态（如 AI 助手页）**：进入提问输入上下文时，`MpTabBar` 启用 `collapsed` 折叠态——左侧收敛为一颗 `56×56px` 圆形 `.mw-frost` 导航展开钮，右侧整条同轨让位给悬浮 `.mw-frost` 胶囊输入舱 `MpComposer`（内含无框透明输入区 + 右侧圆形品牌橙发送钮）；点击左侧展开圆钮即可在同轨切回完整导航胶囊。
+4. **二级页独立动作态（如日志编辑页）**：无一级导航时，`MpBottomActionBar` 或独立 `MpComposer` 作为纯透明悬浮底轨承载胶囊主按钮或提问舱，键盘弹起时随 `--mw-mp-keyboard-offset` 上移。
+
+## 4. 同心曲率阶梯与四周内缩厚霜浮层
+
+遵循「内圆角 = 外圆角 − 内边距」同心几何法则，贴合现代手机屏幕大 R 角与拇指触面：
+
+| 层级 | 圆角与内缩 | 适用组件与形态规则 |
+|---|---|---|
+| **独立交互与悬浮胶囊层** | `--radius-full`（外边距 `--mp-float-inset: 12px`） | `MpTabBar`、`MpBackButton`、`MpComposer`、`MpButton`、`MpSearchBar`、`MpFilterChip`、`MpTag`、`MpToast` |
+| **内容分组纸卡与多行输入** | `--mp-card-radius: 20px` | `MpCellGroup`（默认圆角纸卡，`overflow: hidden` 同心裁切行按压态；霜面抽屉内传 `flush` 退为 `12px` 半透明叠层行）、`MpTextarea`、`MpNotice`、用户消息气泡 |
+| **内缩厚霜模态浮层** | `--mp-sheet-radius: 28px`（四周内缩 `--mp-sheet-inset: 12px`） | `MpSheet`、`MpSelectSheet`、`MpActionSheet`、`MpConfirmHost`（统一挂 `.mw-frost--thick`） |
+
+- **`MpSheet` / `MpSelectSheet`**：四周微内缩 `12px` 悬浮厚霜卡（四角同心 `28px` 圆角），最大高度 `88%`（短阔屏 `78%`）；顶部居中抓手条 + 右上角圆形半透明关闭钮（`--fill-default`），底部操作区直接排列胶囊按钮，不画贯通硬分割线。
+- **`MpActionSheet`**：废除旧式贴边直角列表与 `8px` 灰槽，统一为四周内缩 `12px`、四角 `28px` 圆角的 `.mw-frost--thick` 悬浮命令卡，底部内嵌半透明胶囊取消按钮。
+- **`MpConfirmHost`**：废除旧式 T 字分割线网格按钮，统一为 `28px` 圆角 `.mw-frost--thick` 居中面板 + 内嵌并排双胶囊按钮（默认聚焦左侧半透明取消胶囊，右侧为实心品牌橙或危险红确认胶囊）。
+- **`MpToastHost`**：单条最新 `.mw-frost` 悬浮胶囊（`--shadow-floating`），自动避让底部单轨高度，普通消息 `polite`、错误消息 `assertive` 播报，支持手动关闭。
+
+## 5. 排版、触控与状态
 
 | 语义 | 大小 / 行高 | 用途 |
 |---|---|---|
-| micro | 11 / 16px | 底部导航、通知徽标 |
+| micro | 11 / 16px | 底部导航标签、通知徽标 |
 | caption | 12 / 18px | 时间、计数与辅助元信息 |
 | subhead | 13 / 20px | 摘要、作者、筛选胶囊、设置说明 |
 | body | 15 / 22px | 控件、列表标题、问答正文 |
 | reading | 16 / 26px | 日志正文与重点阅读内容 |
-| title-sm | 16 / 22px | 编辑页导航标题 |
+| title-sm | 16 / 22px | 弹窗标题与紧凑小标题 |
 | title | 18 / 24px | Sheet 与详情标题 |
-| title-lg | 22 / 28px | 一级任务标题 |
+| title-lg | 22 / 28px | 一级任务大标题（`MpPageHeader`） |
 
-长英文、DOI 与混合中英文必须允许断行。摘要最多两行，详情进入页面或 Sheet；列表标题与时间不得争夺同一横向轨道。
+- **尺寸轴与触控目标**：交互按钮提供 `sm=36px`（行内紧凑辅助）、`md=44px`（默认标准）、`lg=48px`（底轨与主操作）三档，静态标签 `xs=28px`；筛选胶囊视觉高 `32px` 并经伪元素扩展至 `44px` 触控区；左上悬浮返回圆钮 `44×44px`，悬浮底轨净高 `56px`。
+- **图标与按压反馈**：统一使用 `MpIcon` 线性矢量图标（18/20/22/24px 角色尺寸），图标按钮必须声明可访问名称；按压立即触发轻微弹性缩放（`--mp-press-scale: 0.97`）与叠层加深，不依赖 `:hover`，`prefers-reduced-motion` 与 `prefers-reduced-transparency` 均有降级。
+- **双翼语义一致**：动作与状态命名严格对齐桌面端 `@mango-write/ui-vue`——按钮统一采用 `variant="filled | tinted | outlined | text"`（默认 `filled`，支持 `outlined` / `text` 布尔简写）、`severity="primary | secondary | danger | contrast | info | success | warn"`（`filled + secondary` 为纸面有界次按钮，反色深底使用 `contrast`，状态色自动退为 `tinted`）与 `fluid` 撑满宽度；`MpTag` 与 `MpNotice` 统一采用 `severity`。纸面控件专用的 `--control-inset` 严禁叠在实心有色或反色胶囊上。
+- **语义边界**：`MpTag` 仅作静态展示，选择走 `MpFilterChip` / `MpFilterBar`，布尔开关走 `MpSwitch`（`role="switch"`）；`MpActionSheet` 只发一次性命令，单选值归 `MpSelectSheet`；`MpEmpty` 与 `MpLoading` 分离。
 
-## 触控、图标与色彩
+## 6. 掌上动效编排（对齐 Core M1–M5）
 
-- 交互按钮提供 `sm=36px`（行内/次级紧凑动作）、`md=44px`（默认触控标准）、`lg=48px`（底部主操作）三档，静态标签 `xs=28px`；筛选胶囊视觉高 `32px` 并通过扩展触控区满足 `44px` 点击舒适度。顶栏净高 `44px`，底部导航净高 `52px`。
-- 图标使用 18/20/22/24px 角色尺寸和 `MpIcon` 的统一矢量路径、线宽与旋转动效，不用 Unicode 字符模拟图标。
-- 图标按钮必须有可访问名称，装饰图标对辅助技术隐藏。
-- 浅色使用暖灰画布（`--bg-canvas`）与凹陷输入面（`--bg-sunken` + `--border-subtle`，聚焦时升起为 `--bg-raised` + `--accent-border`），确保输入框在白卡与霜面抽屉内边界清晰。
-- 橙色主动作与用户消息气泡统一使用品牌「橙底白字」（`--mp-accent-ink: var(--text-on-accent)`），画布元信息使用 `--mp-text-meta`。
-- 按压反馈立即出现，只使用轻微缩放或填充变化，不依赖 hover；减少动效与减少透明度均有降级。
+遵循 [`DESIGN.md`](DESIGN.md) §10.3 五级触发矩阵，H5 与微信小程序双端同源 CSS 驱动（不依赖 Web 专属 API）：
 
-## 组件语义与公共模式
+1. **M1 拇指触觉反馈**：按钮、可点列表行、筛选芯片与悬浮圆钮按压即触发 `--duration-fast`（`110ms`）弹性微缩（`--mp-press-scale: 0.97` / `0.985`）与叠层加深，不依赖 `:hover`。
+2. **M2 轨内归属滑移**：`MpTabBar` 内置常驻同心选中胶囊指示器（`.mw-mp-tabbar__indicator`），切换一级页签时按 `290ms` + `--ease-emphasized` 平滑滑移；`MpSwitch` 滑块同步平移归位。
+3. **M3 底部单轨连续形变（严禁 `v-if` 硬切闪跳）**：`MpTabBar` 切换 `collapsed` 时，左侧霜面导航舱与右侧动作/输入槽常驻同轨（隐藏侧自动挂 `aria-hidden="true"`、`tabindex="-1"` 与 `pointer-events: none`），两侧仅由单一 `flex-grow` 按 `290ms` + `--ease-emphasized`（`0.236, 0.618, 0.382, 1`，避免 `x2=0` 长平缓尾在整数像素布局上产生阶梯顿挫）做守恒推拉，展开图标固定锚在左侧 `56×56px` 圆区，内部标签与图标按 `110ms` 先隐 → `180ms` 错峰浮现；`backdrop-filter` 保持恒定不进动画。
+4. **M4 浮层有进必有出**：`MpSheet` / `MpActionSheet` 按 `290ms` + `--ease-apple-sheet` 上浮入场、关闭时按 `180ms` + `--ease-exit` 下滑淡出后再卸载 DOM；`MpConfirmHost` 与 `MpToastHost` 按 `180ms` 入场、`110ms` 微缩/微沉淡出；离场期间统一挂 `pointer-events: none`，绝不阻断底层触控。
+5. **M5 页面转场与无障碍降级**：页面栈进出交由微信宿主原生导航动画；`prefers-reduced-motion: reduce` 下所有形变、滑移与进出场位移全部归零。
 
-- `MpTag` 只展示静态分类，`MpFilterChip` / `MpFilterBar` 才承担选择，`MpSwitch` 承担布尔开关并暴露 `role="switch"` 与 `aria-checked`。
-- `MpCell` 区分 clickable 按钮与 selectable option；`MpActionSheet` 不拥有选择值，`MpSelectSheet` 才拥有单选 `v-model`。
-- `MpEmpty` 负责空数据与错误恢复，加载由 `MpLoading` 独立表达，空态的 `#action` 必须真实渲染。
-- `MpFormField` 关联 label、hint、error 与真实输入节点；placeholder 不替代标签。
-- `MpPageHeader`、`MpSectionHeader`、`MpFilterBar`、`MpBottomActionBar`、`MpComposer`、`MpNotice`、`MpMessage` 是通用交互模式，不持有业务请求或业务 store。
-- 公共组件显式转发容器和交互属性；`class/style` 与 `id/name/aria-*/data-*` 的落点不得依赖 Vue 的偶然透传。
-
-## 浮层与反馈
-
-- Sheet 顶角 22px，最大高度为包含块的 88%；正文可滚动，底部动作保持稳定。
-- 所有模态浮层共享初始焦点、焦点约束、最内层 Esc、关闭后焦点恢复和卸载清理；H5 同时管理背景滚动，小程序无 DOM 时安全降级。
-- Confirm 默认聚焦取消。普通 Toast 使用 polite 播报，错误使用 assertive；只展示最新一条，可手动关闭且不清空输入。
-- 预览容器使用 `contained` 绝对定位，真实页面使用 fixed 定位；预览根节点不得以桌面浏览器的 `100vh` 代替手机视口。
-
-## 设备视口基准与验收边界
+## 7. 设备视口基准与验收边界
 
 | 预设档位 | 逻辑视口（CSS px） | 比例 / 物理分辨率 / DPR | 屏幕形态与适配策略 |
 |---|---|---|---|
-| **iPhone 18 Pro（默认开发基准）** | **402 × 874** | `19.5:9` · `1206 × 2622` · `@3x` | 6.3" 灵动岛 + Home Bar；所有移动端组件与页面的 1:1 标准开发视口（`compact`） |
+| **iPhone 18 Pro（默认开发基准）** | **402 × 874** | `19.5:9` · `1206 × 2622` · `@3x` | 6.3" 灵动岛 + Home Bar；移动端组件与页面的 1:1 标准开发视口（`compact`） |
 | **iPhone 18 Pro Max** | **440 × 956** | `19.5:9` · `1320 × 2868` · `@3x` | 6.9" iOS 大屏；检验宽幅单栏排版与大屏纵向留白（`compact`） |
-| **Android 主流新机（21:9 修长屏）** | **414 × 966** | `21:9` · `1242 × 2898` · `@3x` | 6.7" 居中挖孔 + 手势条；检验主流 414px 宽、21:9 修长信息流与吸底交互（`compact`） |
-| **HUAWEI Pura X（16:10 阔折叠）** | **440 × 706** | `16:10` · `1320 × 2120` · `@3x` | 6.3" 阔折叠内屏；触发 `.mw-mp-root--wide-short`，收敛 Sheet 最大高度（`78%`）、紧凑操作项高度（`44px`）与空态上下间距，防止短高屏溢出 |
-| **iPhone Duo（折叠展开态）** | **688 × 874** | `4:5` · `2064 × 2622` · `@3x` | 7.8" 书本式折叠内屏；触发 `.mw-mp-root--expanded`，`MpSheet` / `MpActionSheet` / `MpToast` 居中限宽（`max-width: 480px`），`MpBottomActionBar` / `MpComposer` 居中限宽（`max-width: 520px`），`.mw-mp-split` 与 `.mw-mp-grid-adaptive` 自动升维为双栏布局 |
+| **Android 主流新机（21:9 修长屏）** | **414 × 966** | `21:9` · `1242 × 2898` · `@3x` | 6.7" 居中挖孔 + 手势条；检验主流 414px 宽、21:9 修长信息流与悬浮底轨（`compact`） |
+| **HUAWEI Pura X（16:10 阔折叠）** | **440 × 706** | `16:10` · `1320 × 2120` · `@3x` | 6.3" 阔折叠内屏；触发 `.mw-mp-root--wide-short`，收敛 Sheet 最大高度（`78%`）、紧凑动作项高度（`44px`）与空态上下间距 |
+| **iPhone Duo（折叠展开态）** | **688 × 874** | `4:5` · `2064 × 2622` · `@3x` | 7.8" 书本式折叠内屏；触发 `.mw-mp-root--expanded`，`MpSheet` / `MpActionSheet` / `MpToast` 居中限宽（`480px`），底轨 `MpTabBar` / `MpBottomActionBar` / `MpComposer` 居中限宽（`520px`），`.mw-mp-split` 与 `.mw-mp-grid-adaptive` 自动升维为双栏布局 |
 
-- 状态使用语义类名，WXSS 不依赖属性选择器；主题与视口形态（`compact` / `wide-short` / `expanded`）由 `MpThemeProvider` 统一挂载，同时兼容小程序 WXSS 与 H5/Playground 1:1 容器预览。
-- 同一 Vue 源码必须构建 H5 与 `mp-weixin`；H5 预览不替代微信验收。
-- 组件库只拥有通用组件与模式，产品页面、演示数据、路由与业务状态归 `apps/write-mp`。
-- playground 按注册表提供真实预览、有效配置和生成代码；预览舞台默认按 **iPhone 18 Pro（402 × 874 px）1:1 真实宽高渲染**（不随桌面窗口拉伸变形），切换到 **iPhone Duo（688 × 874 px）** 时右侧舞台自动拓宽承载 1:1 展开态，并提供 `1:1 原尺寸 / 自适应` 查看模式。
-- 自动化覆盖功能、控制台异常、焦点、触控尺寸与区域重叠；`402×874`（iPhone 18 Pro 基准）、`440×956`（Pro Max）、`414×966`（Android 21:9）、`440×706`（Pura X 16:10 阔折叠）、`688×874`（iPhone Duo 折叠展开态）、深浅色、中英文与长内容是基础矩阵，模拟器与真机结果分别报告。
+- 状态统一使用语义类名，WXSS 不依赖属性选择器；主题与视口形态由 `MpThemeProvider` 统一挂载，预览容器通过 `contained` 在真实手机视口内定位，不使用桌面 `100vh` 冒充手机高度。
+- 同一份 Vue 源码同时构建 H5 与 `mp-weixin`；H5 预览不替代微信模拟器与真机验收。

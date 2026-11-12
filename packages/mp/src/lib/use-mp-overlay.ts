@@ -23,16 +23,41 @@ function focusableElements(root: HTMLElement): HTMLElement[] {
   ).filter((element) => element.getAttribute("aria-hidden") !== "true");
 }
 
+function prefersReducedMotion(): boolean {
+  return (
+    typeof window !== "undefined" &&
+    Boolean(window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches)
+  );
+}
+
 export function useMpOverlay(options: {
   open: () => boolean;
   close: () => void;
   panel: Ref<HTMLElement | null>;
   lockScroll?: () => boolean;
+  exitDurationMs?: number;
 }) {
   const id = Symbol("mp-overlay");
   const slot = ref(0);
+  const rendered = ref(options.open());
+  const closing = ref(false);
   const returnFocus = ref<HTMLElement | null>(null);
+  let exitTimer: ReturnType<typeof setTimeout> | undefined;
   const layerZ = computed(() => formatOverlayLayerZ(slot.value));
+
+  function clearExitTimer(): void {
+    if (exitTimer !== undefined) {
+      clearTimeout(exitTimer);
+      exitTimer = undefined;
+    }
+  }
+
+  function releaseSlot(): void {
+    if (slot.value) {
+      releaseOverlaySlot(slot.value);
+      slot.value = 0;
+    }
+  }
 
   function onKeydown(event: KeyboardEvent): void {
     if (overlayStack.at(-1) !== id) return;
@@ -59,13 +84,9 @@ export function useMpOverlay(options: {
     }
   }
 
-  function cleanup(): void {
+  function cleanupInteraction(): void {
     const index = overlayStack.indexOf(id);
     if (index >= 0) overlayStack.splice(index, 1);
-    if (slot.value) {
-      releaseOverlaySlot(slot.value);
-      slot.value = 0;
-    }
     if (typeof document !== "undefined") {
       document.removeEventListener("keydown", onKeydown, true);
       if (!overlayStack.length && savedOverflow !== undefined) {
@@ -81,11 +102,31 @@ export function useMpOverlay(options: {
     options.open,
     async (open) => {
       if (!open) {
-        cleanup();
+        cleanupInteraction();
+        const duration = prefersReducedMotion() ? 0 : (options.exitDurationMs ?? 180);
+        if (duration <= 0) {
+          clearExitTimer();
+          closing.value = false;
+          rendered.value = false;
+          releaseSlot();
+          return;
+        }
+        clearExitTimer();
+        closing.value = true;
+        exitTimer = setTimeout(() => {
+          exitTimer = undefined;
+          closing.value = false;
+          rendered.value = false;
+          releaseSlot();
+        }, duration);
         return;
       }
-      if (!slot.value) slot.value = acquireOverlaySlot();
-      overlayStack.push(id);
+      clearExitTimer();
+      closing.value = false;
+      rendered.value = true;
+      releaseSlot();
+      slot.value = acquireOverlaySlot();
+      if (!overlayStack.includes(id)) overlayStack.push(id);
       if (typeof document === "undefined") return;
       returnFocus.value = document.activeElement instanceof HTMLElement ? document.activeElement : null;
       if (options.lockScroll?.() ?? true) {
@@ -103,6 +144,10 @@ export function useMpOverlay(options: {
     },
   );
 
-  onBeforeUnmount(cleanup);
-  return { layerZ };
+  onBeforeUnmount(() => {
+    clearExitTimer();
+    cleanupInteraction();
+    releaseSlot();
+  });
+  return { layerZ, rendered, closing };
 }

@@ -21,17 +21,25 @@ describe("@mango-write/ui-mp patterns", () => {
     for (const id of ids) expect(wrapper.find(`#${id}`).exists()).toBe(true);
   });
 
-  it("submits non-empty composer values and blocks empty submissions", async () => {
+  it("submits non-empty composer values in both standalone and inline rail modes", async () => {
     const composer = mount(MpComposer, { props: { modelValue: "", contained: true } });
     expect(composer.find('[data-testid="mp-composer-submit"]').attributes("disabled")).toBeDefined();
     await composer.setProps({ modelValue: "总结实验结论" });
     await composer.find("input").trigger("keydown", { key: "Enter" });
     expect(composer.emitted("submit")?.[0]).toEqual(["总结实验结论"]);
+
+    const inlineComposer = mount(MpComposer, { props: { modelValue: "生成大纲", inline: true } });
+    expect(inlineComposer.classes()).toContain("mw-mp-composer--inline");
+    expect(inlineComposer.classes()).toContain("mw-frost");
+    await inlineComposer.find('[data-testid="mp-composer-submit"]').trigger("click");
+    expect(inlineComposer.emitted("submit")?.[0]).toEqual(["生成大纲"]);
   });
 
   it("distinguishes inline notices and user/assistant message geometry", () => {
-    const notice = mount(MpNotice, { props: { title: "来源已保留", tone: "success" } });
+    const notice = mount(MpNotice, { props: { title: "来源已保留", severity: "success" } });
     expect(notice.classes()).toContain("mw-mp-notice--success");
+    const warnNotice = mount(MpNotice, { props: { title: "注意", severity: "warn" } });
+    expect(warnNotice.classes()).toContain("mw-mp-notice--warning");
     const user = mount(MpMessage, { props: { from: "user", text: "问题" } });
     const assistant = mount(MpMessage, { props: { from: "assistant", text: "回答" } });
     expect(user.classes()).toContain("mw-mp-message--user");

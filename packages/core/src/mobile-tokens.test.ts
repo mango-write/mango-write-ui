@@ -23,16 +23,24 @@ function contrast(foreground: string, background: string): number {
 }
 
 describe("mobile semantic tokens & contrast", () => {
-  it("scopes mobile tokens to page / .mw-mp-root with refined palm-scale geometry and contrast", () => {
+  it("scopes mobile tokens to page / .mw-mp-root with concentric capsule geometry, floating rail, and contrast", () => {
     expect(css).not.toMatch(/:root\b/);
+    expect(css).not.toContain("--mp-navbar-h");
     expect(css).toContain("page,\n.mw-mp-root");
     expect(token(css, "--mp-size-xs-h")).toBe("28px");
     expect(token(css, "--mp-size-sm-h")).toBe("36px");
     expect(token(css, "--mp-size-md-h")).toBe("44px");
     expect(token(css, "--mp-size-lg-h")).toBe("48px");
+    expect(token(css, "--mp-size-md-radius")).toBe("var(--radius-full)");
     expect(token(css, "--mp-chip-h")).toBe("32px");
-    expect(token(css, "--mp-navbar-h")).toBe("44px");
-    expect(token(css, "--mp-tabbar-h")).toBe("52px");
+    expect(token(css, "--mp-back-btn-size")).toBe("44px");
+    expect(token(css, "--mp-tabbar-h")).toBe("56px");
+    expect(token(css, "--mp-float-inset")).toBe("var(--space-3)");
+    expect(token(css, "--mp-card-radius")).toBe("20px");
+    expect(token(css, "--mp-cell-px")).toBe("var(--space-4)");
+    expect(token(css, "--mp-sheet-inset")).toBe("var(--space-3)");
+    expect(token(css, "--mp-sheet-radius")).toBe("28px");
+    expect(token(css, "--mp-dialog-radius")).toBe("28px");
     expect(token(css, "--mp-accent-ink")).toBe("var(--text-on-accent)");
     expect(token(css, "--mp-text-meta")).toBe("var(--text-secondary)");
     expect(contrast(token(varCss, "--text-secondary"), token(varCss, "--bg-canvas"))).toBeGreaterThanOrEqual(4.5);

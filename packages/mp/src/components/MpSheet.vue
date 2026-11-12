@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useMpOverlay } from "../lib/use-mp-overlay.js";
-import MpButton from "./MpButton.vue";
 import MpIcon from "./MpIcon.vue";
 
 defineOptions({
@@ -39,19 +38,23 @@ function closeSheet(): void {
 function onBackdropClick(): void {
   if (props.dismissableMask) closeSheet();
 }
-const { layerZ } = useMpOverlay({
+const { layerZ, rendered, closing } = useMpOverlay({
   open: () => props.open,
   close: closeSheet,
   panel,
   lockScroll: () => !props.contained,
+  exitDurationMs: 180,
 });
 </script>
 
 <template>
   <div
-    v-if="open"
-     class="mw-mp-sheet-backdrop"
-    :class="{ 'mw-mp-sheet-backdrop--contained': contained }"
+    v-if="rendered"
+    class="mw-mp-sheet-backdrop"
+    :class="{
+      'mw-mp-sheet-backdrop--contained': contained,
+      'mw-mp-sheet-backdrop--closing': closing,
+    }"
     :style="{ zIndex: layerZ }"
     data-testid="mp-sheet-backdrop"
     @touchmove.stop.prevent="() => {}"
@@ -60,6 +63,7 @@ const { layerZ } = useMpOverlay({
     <div
       ref="panel"
       class="mw-mp-sheet mw-frost--thick"
+      :class="{ 'mw-mp-sheet--closing': closing }"
       role="dialog"
       aria-modal="true"
       :aria-label="title || closeLabel"
@@ -74,17 +78,17 @@ const { layerZ } = useMpOverlay({
             <span v-if="subtitle" class="mw-mp-sheet__subtitle">{{ subtitle }}</span>
           </div>
         </slot>
-        <MpButton
+        <button
           v-if="closable"
-          variant="text"
-          severity="secondary"
-          icon-only
+          type="button"
+          class="mw-mp-sheet__close"
+          hover-class="is-pressed"
           :aria-label="closeLabel"
           data-testid="mp-sheet-close"
           @click="closeSheet"
         >
-          <MpIcon name="close" :size="22" />
-        </MpButton>
+          <MpIcon name="close" :size="18" />
+        </button>
       </div>
       <div class="mw-mp-sheet__body"><slot /></div>
       <div v-if="$slots.footer" class="mw-mp-sheet__footer"><slot name="footer" /></div>

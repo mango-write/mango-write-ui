@@ -16,7 +16,7 @@
 |---|---|---|---|
 | **Core 核心设计语言** | 跨端不变量：色彩哲学、纸与霜材质、半透明叠层、黄金分割动效、4px 网格、字重阶梯与状态语义 | 本文（`DESIGN.md`）+ [`packages/core/src/var.css`](packages/core/src/var.css) | `@mango-write/ui-core` |
 | **Desktop 桌面设计语言** | 精细工作台：`24/28/32/40px` 指针尺寸轴、`13px` 紧凑排版、描边控件、Hover/Focus Ring、画布多浮岛、锚定弹出层与后台四壳模板 | [`DESIGN-DESKTOP.md`](DESIGN-DESKTOP.md) + `var.css` 默认几何 | `@mango-write/ui-vue` / `@mango-write/ui-react` |
-| **Mobile 移动设计语言** | 内容优先的掌上信息流：`44/48/52px` 交互尺寸、`16px/17px` 正文、通栏列表、填充控件、统一矢量图标、可访问底部抽屉与真实胶囊避让 | [`DESIGN-MOBILE.md`](DESIGN-MOBILE.md) + [`packages/core/src/mobile-tokens.css`](packages/core/src/mobile-tokens.css) | `@mango-write/ui-mp` |
+| **Mobile 移动设计语言** | 内容优先的掌上信息流：`36/44/48px` 胶囊交互尺寸、`15px/16px` 正文、全幅纸面通铺、单轨悬浮霜胶囊、左上返回圆钮与四周内缩厚霜抽屉 | [`DESIGN-MOBILE.md`](DESIGN-MOBILE.md) + [`packages/core/src/mobile-tokens.css`](packages/core/src/mobile-tokens.css) | `@mango-write/ui-mp` |
 
 ## 2. 六条原则（冲突时按序取舍）
 
@@ -100,10 +100,10 @@ primary / secondary / tertiary / accent 在纸面上均 ≥ 4.5:1，由 `var-css
 
 | 档位 | Desktop 桌面端（键鼠指针 · 1px 精度） | Mobile 掌上端（拇指触控 · `.mw-mp-root` 作用域） |
 |---|---|---|
-| `xs` | 高 `24px` · 字 `12px` · 圆角 `6px`（行内微控件） | 高 `28px` · 字 `12px` · 圆角 `8px`（静态标签，不承担独立动作） |
-| `sm` | 高 `28px` · 字 `12px` · 圆角 `6px`（紧凑行、表格行内） | 高 `44px` · 字 `14px` · 圆角 `10px`（次要按钮与紧凑控件） |
-| `md`（**默认**） | 高 `32px` · 字 `13px` · 圆角 `8px`（表单、对话框、页头） | 高 `48px` · 字 `16px` · 圆角 `12px`（默认按钮与输入） |
-| `lg` | 高 `40px` · 字 `14px` · 圆角 `10px`（营销与空态主 CTA） | 高 `52px` · 字 `16px` · 圆角 `14px`（底部通栏主动作） |
+| `xs` | 高 `24px` · 字 `12px` · 圆角 `6px`（行内微控件） | 高 `28px` · 字 `12px` · 圆角 `9999px`（静态标签，不承担独立动作） |
+| `sm` | 高 `28px` · 字 `12px` · 圆角 `6px`（紧凑行、表格行内） | 高 `36px` · 字 `13px` · 圆角 `9999px`（行内次级与紧凑胶囊按钮） |
+| `md`（**默认**） | 高 `32px` · 字 `13px` · 圆角 `8px`（表单、对话框、页头） | 高 `44px` · 字 `15px` · 圆角 `9999px`（默认胶囊按钮与单行输入） |
+| `lg` | 高 `40px` · 字 `14px` · 圆角 `10px`（营销与空态主 CTA） | 高 `48px` · 字 `16px` · 圆角 `9999px`（底部主动作胶囊） |
 
 ### 6.2 密度上下文
 
@@ -188,6 +188,23 @@ primary / secondary / tertiary / accent 在纸面上均 ≥ 4.5:1，由 `var-css
 - 主题切换：基于 View Transitions API，以触发点为圆心，按 `--speed-slow`（`760ms`）+ `--ease-apple-out`（`cubic-bezier(0.16, 1, 0.3, 1)`）向外径向揭幕。
 - `filter` / `backdrop-filter` 永不进 transition 与 keyframes。
 - `prefers-reduced-motion` 下只保留透明度变化。
+
+### 10.3 动效触发与编排矩阵（M1–M5 · When & How）
+
+动效只解释空间因果（从哪来、到哪去、谁把空间让给了谁），绝不表演。所有交互状态变化统一按物理尺度归入 M1–M5 五级判据：
+
+| 等级 | 触发时机（何时必须上动画） | 时长 × 曲线配方 | 允许动的属性与编排铁律 | 双端典型落点（Desktop ↔ Mobile） |
+|---|---|---|---|---|
+| **M1 · 触觉微反馈** | 手指按压/抬起、指针悬停、输入框获焦 | `--duration-fast` (`110ms`) × `--ease-standard` | 桌面端只动色彩/边框/阴影；移动端触控物叠加 `scale(0.97 / 0.985)` 按压缩放 | `Button` / `MpButton`、`MpCell`、`MpFilterChip`、`MpBackButton` |
+| **M2 · 轨内归属游走** | 同一轨道内激活胶囊或滑块从 A 移向 B | `--speed-fast / medium` (`180–290ms`) × `--ease-emphasized` 或 `--ease-spring-snap` | **指示物常驻 DOM**，只动 `transform: translateX(...)`；严禁旧项淡出、新项淡入的闪烁切法 | `ToggleSwitch` / `MpSwitch`、`SelectButton`、`MpTabBar` 选中胶囊滑移 |
+| **M3 · 同轨容器形变** | 同一常驻栏内两个控件互换空间主导权（收折 ↔ 展开） | 外壳几何 `--speed-medium` (`290ms`) × `--ease-emphasized`；内部内容 `110ms` 先隐 → `180ms` 错峰后显 | **严禁 `v-if` 拆建外骨骼与双约束互搏**：双端舱体常驻同轨由单一 `flex-grow` 驱动守恒交接（禁用 `x2=0` 的 `--ease-apple-sheet` 跑布局宽度，防尾段 1px 阶梯卡顿），内部子层固定锚点并保持合成层；`backdrop-filter` 恒定不进动画 | `MpTabBar` 同轨折叠/展开（左导航舱 + 右动作圆钮 ↔ 左展开圆钮 + 右 `MpComposer`） |
+| **M4 · 浮层进出场** | 模态抽屉、对话框、菜单、确认框、Toast 唤起与关闭 | **入场** `180–290ms` × `--ease-apple-sheet` / `--ease-enter`；**离场** $\approx 0.618$ 倍（`110–180ms`）× `--ease-exit` | **有进必有出**：关闭时先播收拢/下滑淡出动画并挂 `pointer-events: none`，播完再卸载 DOM，严禁 `v-if` 秒切；遮罩只动 `opacity` | `Popover` / `Dialog` / `MpSheet` / `MpActionSheet` / `MpConfirmHost` / `MpToastHost` |
+| **M5 · 区域与视口换装** | 页签内容切换、异步四态切换、跨页转场、全屏主题切换 | 区域交叉淡入 `--speed-fast` (`180ms`) × `--ease-standard`；主题径向揭幕 `--speed-slow` (`760ms`) × `--ease-apple-out` | 区域切换走交叉淡入（禁用 `out-in` 防连点空白）；小程序一级页走宿主原生导航栈 | `AsyncSlot`、`Tabs`、主题切换 |
+
+**三条「禁止加动画」的红线**：
+1. 高频实时输入（打字回显、检索词过滤列表）不加逐项位移动画，保证零输入粘滞；
+2. 跨尺度异构元素（如 `60px` 列表行 ↔ 全屏详情页）不做共享元素拉伸变形；
+3. `prefers-reduced-motion: reduce` 下所有位移、缩放与容器形变时长归零，仅保留透明度切换或直达终态。
 
 ## 11. 图标
 

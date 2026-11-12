@@ -18,6 +18,7 @@ export interface MpComposerProps {
   sendLabel?: string;
   disabled?: boolean;
   loading?: boolean;
+  inline?: boolean;
   offsetBottom?: string;
   contained?: boolean;
   inputTestid?: string;
@@ -30,6 +31,7 @@ const props = withDefaults(defineProps<MpComposerProps>(), {
   sendLabel: "发送",
   disabled: false,
   loading: false,
+  inline: false,
   offsetBottom: undefined,
   contained: false,
   inputTestid: "mp-composer-input",
@@ -48,11 +50,10 @@ function submit(): void {
 </script>
 
 <template>
-  <MpBottomActionBar
+  <div
+    v-if="inline"
     :data-testid="attrs['data-testid']"
-    :offset-bottom="offsetBottom"
-    :contained="contained"
-    class="mw-mp-composer"
+    class="mw-mp-composer mw-mp-composer--inline mw-frost"
   >
     <MpInput
       :model-value="modelValue"
@@ -65,13 +66,45 @@ function submit(): void {
     />
     <MpButton
       icon-only
+      size="md"
+      class="mw-mp-composer__send"
       :disabled="disabled || !modelValue.trim()"
       :loading="loading"
       :aria-label="sendLabel"
       :data-testid="submitTestid"
       @click="submit"
     >
-      <MpIcon v-if="!loading" name="send" :size="22" />
+      <MpIcon v-if="!loading" name="send" :size="20" />
     </MpButton>
+  </div>
+  <MpBottomActionBar
+    v-else
+    :data-testid="attrs['data-testid']"
+    :offset-bottom="offsetBottom"
+    :contained="contained"
+  >
+    <div class="mw-mp-composer mw-frost">
+      <MpInput
+        :model-value="modelValue"
+        :placeholder="placeholder"
+        :disabled="disabled"
+        aria-label="消息内容"
+        :data-testid="inputTestid"
+        @update:model-value="emit('update:modelValue', $event)"
+        @enter="submit"
+      />
+      <MpButton
+        icon-only
+        size="md"
+        class="mw-mp-composer__send"
+        :disabled="disabled || !modelValue.trim()"
+        :loading="loading"
+        :aria-label="sendLabel"
+        :data-testid="submitTestid"
+        @click="submit"
+      >
+        <MpIcon v-if="!loading" name="send" :size="20" />
+      </MpButton>
+    </div>
   </MpBottomActionBar>
 </template>

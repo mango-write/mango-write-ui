@@ -141,12 +141,18 @@ const rootClasses = computed(() => [
   },
 ]);
 
+function normalizeCssLength(value: string): string {
+  return value.trim() === "0" ? "0px" : value;
+}
+
 const rootStyle = computed(() => {
   const styles: Record<string, string> = {};
-  if (props.safeTop !== undefined) styles["--mw-mp-safe-top"] = props.safeTop;
-  if (props.safeBottom !== undefined) styles["--mw-mp-safe-bottom"] = props.safeBottom;
+  if (props.safeTop !== undefined) styles["--mw-mp-safe-top"] = normalizeCssLength(props.safeTop);
+  if (props.safeBottom !== undefined) {
+    styles["--mw-mp-safe-bottom"] = normalizeCssLength(props.safeBottom);
+  }
   if (props.keyboardOffset !== undefined) {
-    styles["--mw-mp-keyboard-offset"] = props.keyboardOffset;
+    styles["--mw-mp-keyboard-offset"] = normalizeCssLength(props.keyboardOffset);
   }
   return styles;
 });

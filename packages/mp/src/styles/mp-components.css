@@ -19,4 +19,14 @@
     animation: none;
     transition: none;
   }
+
+  .mw-mp-root view,
+  .mw-mp-root button,
+  .mw-mp-root input,
+  .mw-mp-root textarea,
+  .mw-mp-root scroll-view {
+    scroll-behavior: auto;
+    animation: none;
+    transition: none;
+  }
 }

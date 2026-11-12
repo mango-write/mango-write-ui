@@ -8,8 +8,16 @@ defineOptions({
   options: { styleIsolation: "shared", virtualHost: false },
 } as any);
 
-export type MpButtonVariant = "solid" | "tinted" | "outlined" | "text";
-export type MpButtonSeverity = "primary" | "secondary" | "danger";
+export type MpButtonVariant = "filled" | "tinted" | "outlined" | "text";
+export type MpButtonSeverity =
+  | "primary"
+  | "secondary"
+  | "success"
+  | "info"
+  | "warn"
+  | "warning"
+  | "danger"
+  | "contrast";
 export type MpButtonSize = "sm" | "md" | "lg";
 
 export interface MpButtonProps {
@@ -17,6 +25,11 @@ export interface MpButtonProps {
   size?: MpButtonSize;
   variant?: MpButtonVariant;
   severity?: MpButtonSeverity;
+  outlined?: boolean;
+  text?: boolean;
+  raised?: boolean;
+  fluid?: boolean;
+  /** @deprecated 使用与桌面端对齐的 `fluid` */
   block?: boolean;
   iconOnly?: boolean;
   disabled?: boolean;
@@ -29,8 +42,12 @@ export interface MpButtonProps {
 const props = withDefaults(defineProps<MpButtonProps>(), {
   label: undefined,
   size: "md",
-  variant: "solid",
+  variant: undefined,
   severity: "primary",
+  outlined: false,
+  text: false,
+  raised: false,
+  fluid: false,
   block: false,
   iconOnly: false,
   disabled: false,
@@ -42,13 +59,24 @@ const props = withDefaults(defineProps<MpButtonProps>(), {
 
 const emit = defineEmits<{ click: [event: MouseEvent] }>();
 const isDisabled = computed(() => props.disabled || props.loading);
+const resolvedVariant = computed<MpButtonVariant>(() => {
+  if (props.variant) return props.variant;
+  if (props.text) return "text";
+  if (props.outlined) return "outlined";
+  return "filled";
+});
+const resolvedSeverity = computed(() => (props.severity === "warn" ? "warning" : props.severity));
+const isFluid = computed(() => Boolean(props.fluid || props.block));
+
 const rootClasses = computed(() => [
   "mw-mp-btn",
   `mw-size-${props.size}`,
-  `mw-mp-btn--${props.variant}`,
-  `mw-mp-btn--${props.severity}`,
+  `mw-mp-btn--${resolvedVariant.value}`,
+  `mw-mp-btn--${resolvedSeverity.value}`,
   {
-    "mw-mp-btn--block": props.block,
+    "mw-mp-btn--fluid": isFluid.value,
+    "mw-mp-btn--block": isFluid.value,
+    "mw-mp-btn--raised": props.raised,
     "mw-mp-btn--icon-only": props.iconOnly,
     "is-disabled": isDisabled.value,
     "is-loading": props.loading,

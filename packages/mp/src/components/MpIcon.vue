@@ -11,10 +11,12 @@ const paths = {
   library: '<path d="m4 19 1-14a2 2 0 0 1 2-2h3v18H7a3 3 0 0 0-3 3Z"/><path d="M10 3h8a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-8Z"/><path d="M13 8h4M13 12h4"/>',
   assistant: '<path d="m12 3 1.7 4.3L18 9l-4.3 1.7L12 15l-1.7-4.3L6 9l4.3-1.7Z"/><path d="m19 15 .9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9Z"/><path d="m5 14 .8 1.7L7.5 16l-1.7.8L5 18.5l-.8-1.7L2.5 16l1.7-.3Z"/>',
   context: '<path d="M4 5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z"/><path d="M8 7h8M8 11h8M8 15h5"/>',
+  grid: '<rect width="7" height="7" x="3" y="3" rx="1.5"/><rect width="7" height="7" x="14" y="3" rx="1.5"/><rect width="7" height="7" x="14" y="14" rx="1.5"/><rect width="7" height="7" x="3" y="14" rx="1.5"/>',
   search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>',
   plus: '<path d="M12 5v14M5 12h14"/>',
   close: '<path d="m6 6 12 12M18 6 6 18"/>',
   "chevron-down": '<path d="m6 9 6 6 6-6"/>',
+  "chevron-left": '<path d="m15 18-6-6 6-6"/>',
   "chevron-right": '<path d="m9 18 6-6-6-6"/>',
   "arrow-left": '<path d="m15 18-6-6 6-6M9 12h11"/>',
   check: '<path d="m5 12 4 4L19 6"/>',
@@ -53,8 +55,9 @@ const iconStyle = computed(() => {
 
 <template>
   <span
+    :data-testid="($attrs['data-testid'] as string | undefined)"
     class="mw-mp-icon"
-    :class="{ 'mw-mp-icon--spin': spin || name === 'loading' }"
+    :class="[{ 'mw-mp-icon--spin': spin || name === 'loading' }, $attrs.class]"
     :style="iconStyle"
     aria-hidden="true"
   />

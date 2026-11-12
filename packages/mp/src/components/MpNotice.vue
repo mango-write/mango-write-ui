@@ -9,30 +9,58 @@ defineOptions({
 } as any);
 const attrs = useAttrs();
 
-export type MpNoticeTone = "neutral" | "primary" | "info" | "success" | "warning" | "danger";
+export type MpNoticeSeverity =
+  | "secondary"
+  | "primary"
+  | "info"
+  | "success"
+  | "warn"
+  | "warning"
+  | "error"
+  | "danger"
+  | "contrast";
+/** @deprecated 使用与桌面端对齐的 `MpNoticeSeverity`（`severity` 属性） */
+export type MpNoticeTone = MpNoticeSeverity | "neutral";
 
 export interface MpNoticeProps {
   title?: string;
+  severity?: MpNoticeSeverity;
+  /** @deprecated 使用与桌面端对齐的 `severity` */
   tone?: MpNoticeTone;
   icon?: MpIconName;
 }
 
 const props = withDefaults(defineProps<MpNoticeProps>(), {
   title: undefined,
-  tone: "neutral",
+  severity: undefined,
+  tone: undefined,
   icon: undefined,
 });
+
+const resolvedSeverity = computed(() => {
+  const raw = props.severity ?? props.tone ?? "secondary";
+  if (raw === "warn") return "warning";
+  if (raw === "error") return "danger";
+  if (raw === "neutral") return "secondary";
+  return raw;
+});
+
 const resolvedIcon = computed<MpIconName>(() => {
   if (props.icon) return props.icon;
-  if (props.tone === "success") return "success";
-  if (props.tone === "warning") return "warning";
-  if (props.tone === "danger") return "error";
+  if (resolvedSeverity.value === "success") return "success";
+  if (resolvedSeverity.value === "warning") return "warning";
+  if (resolvedSeverity.value === "danger") return "error";
   return "info";
 });
 </script>
 
 <template>
-  <div :data-testid="attrs['data-testid']" class="mw-mp-notice" :class="`mw-mp-notice--${tone}`">
+  <div
+    :data-testid="attrs['data-testid']"
+    :data-severity="resolvedSeverity"
+    class="mw-mp-notice"
+    :class="`mw-mp-notice--${resolvedSeverity}`"
+  >
     <MpIcon :name="resolvedIcon" :size="22" />
     <div class="mw-mp-notice__body">
       <strong v-if="title" class="mw-mp-notice__title">{{ title }}</strong>

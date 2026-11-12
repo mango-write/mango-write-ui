@@ -31,7 +31,10 @@ export interface MpNotifyService {
 
 const MP_NOTIFY_KEY: InjectionKey<MpNotifyService> = Symbol("MwMpNotify");
 
-export function createMpNotifyService(core: NotifyCoreStore = createNotifyCoreStore()): MpNotifyService {
+export function createMpNotifyService(
+  core: NotifyCoreStore = createNotifyCoreStore(),
+  options?: { scoped?: boolean },
+): MpNotifyService {
   const items = shallowRef<readonly ToastMessage[]>(core.getSnapshot());
   const timers = new Map<string, ReturnType<typeof setTimeout>>();
 
@@ -72,7 +75,7 @@ export function createMpNotifyService(core: NotifyCoreStore = createNotifyCoreSt
     core.removeAllGroups();
   }
 
-  if (getCurrentInstance()) {
+  if (options?.scoped && getCurrentInstance()) {
     onUnmounted(() => {
       unsubscribe();
       for (const handle of timers.values()) clearTimeout(handle);
@@ -106,11 +109,13 @@ function fallbackNotifyService(): MpNotifyService {
 }
 
 export function provideMpNotify(): MpNotifyService {
-  const service = createMpNotifyService();
+  const service = createMpNotifyService(undefined, { scoped: true });
   provide(MP_NOTIFY_KEY, service);
   return service;
 }
 
 export function useMpNotify(): MpNotifyService {
-  return inject(MP_NOTIFY_KEY, fallbackNotifyService());
+  return getCurrentInstance()
+    ? inject(MP_NOTIFY_KEY, fallbackNotifyService())
+    : fallbackNotifyService();
 }

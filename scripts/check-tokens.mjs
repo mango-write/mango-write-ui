@@ -14,6 +14,8 @@ const FLOATING = new Set([
   "ActionMenu", "AsyncSearchSelect", "ColorPicker", "ConfirmHost", "DatePicker", "Dialog",
   "HoverCard", "Menu", "MultiSelect", "Popover", "SearchableMultiSelect", "SearchableSelect",
   "Select", "ToastHost", "UserSelect", "popover",
+  "MpBackButton", "MpTabBar", "MpComposer", "MpSheet", "MpActionSheet", "MpSelectSheet",
+  "MpConfirmHost", "MpToastHost", "navigation", "overlays", "controls", "patterns",
 ]);
 const OPAQUE_BG = /var\(--bg-(surface|raised|sunken|canvas)\)/;
 const RAW_CHECKED_PROPS =

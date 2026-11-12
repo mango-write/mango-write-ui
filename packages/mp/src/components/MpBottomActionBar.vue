@@ -15,20 +15,27 @@ export interface MpBottomActionBarProps {
 }
 
 const props = withDefaults(defineProps<MpBottomActionBarProps>(), {
-  offsetBottom: "calc(var(--mp-tabbar-h) + var(--mw-mp-safe-bottom))",
+  offsetBottom: undefined,
   contained: false,
-  safeArea: false,
+  safeArea: true,
 });
-const actionStyle = computed(() => ({ bottom: props.offsetBottom }));
+const actionStyle = computed(() =>
+  props.offsetBottom !== undefined ? { bottom: props.offsetBottom } : undefined,
+);
 </script>
 
 <template>
   <div
     :data-testid="attrs['data-testid']"
     class="mw-mp-bottom-action"
-    :class="{ 'mw-mp-bottom-action--contained': contained, 'mw-mp-bottom-action--safe': safeArea }"
+    :class="{
+      'mw-mp-bottom-action--contained': contained,
+      'mw-mp-bottom-action--safe': safeArea,
+    }"
     :style="actionStyle"
   >
-    <slot />
+    <div class="mw-mp-bottom-action__inner">
+      <slot />
+    </div>
   </div>
 </template>

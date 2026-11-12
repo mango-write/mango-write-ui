@@ -3,7 +3,7 @@
  *
  * 五项核心契约（DESIGN.md & DESIGN-MOBILE.md）：
  * 1. 一核双翼合并：读取 Core `var.css`（色板 ①、基础刻度 ②、语义色 ③、派生色 ④、业务域 ⑤）与
- *    Mobile `mobile-tokens.css`（移动端触控尺寸轴 28/36/44/50px、掌上排版阶梯、内缩纸卡与抽屉几何），
+ *    Mobile `mobile-tokens.css`（移动端触控尺寸轴 28/36/44/48px、掌上排版阶梯、悬浮胶囊与内缩抽屉几何），
  *    在 `.mw-mp-root` / `page` 作用域下将 `--size-xs/sm/md/lg-*` 与 `--control-*` 映射至移动端触控尺寸轴。
  * 2. WXSS 与 CSS 严禁污染桌面端全局 `:root`：WXSS 仅输出 `page`、`.mw-mp-root`、`.mw-theme-light`、`.mw-theme-dark`；
  *    CSS 作用域同样锁定在 `page` 与 `.mw-mp-root`（含 `.mw-mp-root[data-theme="light|dark"]`）内，供 H5 与展示站双端同屏对照使用而不污染 PC 组件。
@@ -294,7 +294,7 @@ export function compileWxssTokens(
     " * Target: WeChat Mini Program (WebView + Skyline compatible subset, base library >= 2.25.0) & uni-app H5.",
     " * Contracts:",
     " *   1. Theme scopes: page, .mw-mp-root, .mw-theme-light, .mw-theme-dark.",
-    " *   2. Touch Size Axis: .mw-mp-root maps xs/sm/md/lg to 28/36/44/50px and 15px default body typography.",
+    " *   2. Touch Size Axis: .mw-mp-root maps xs/sm/md/lg to 28/36/44/48px and 15px default body typography.",
     " *   3. Static baking: color-mix & rgb-triplet expressions are statically baked per theme (light/dark).",
     " */",
   ].join("\n");

@@ -56,11 +56,18 @@ describe("compileWxssTokens (var.css + mobile-tokens.css -> mp-tokens.wxss)", ()
     expect(result.wxss).toContain("--mp-size-sm-h: 36px;");
     expect(result.wxss).toContain("--mp-size-md-h: 44px;");
     expect(result.wxss).toContain("--mp-size-lg-h: 48px;");
-    expect(result.wxss).toContain("--mp-size-md-radius: 12px;");
-    expect(result.wxss).toContain("--mp-size-lg-radius: 14px;");
+    expect(result.wxss).toContain("--mp-size-md-radius: var(--radius-full);");
+    expect(result.wxss).toContain("--mp-size-lg-radius: var(--radius-full);");
     expect(result.wxss).toContain("--mp-type-body-size: 0.9375rem;");
-    expect(result.wxss).toContain("--mp-sheet-radius: 20px;");
-    expect(result.wxss).toContain("--mp-dialog-w: 312px;");
+    expect(result.wxss).toContain("--mp-sheet-radius: 28px;");
+    expect(result.wxss).toContain("--mp-dialog-w: 320px;");
+    expect(result.wxss).toContain("--mp-keyboard-offset: 0px;");
     expect(result.wxss).toContain("--size-md-h: var(--mp-size-md-h);");
+  });
+
+  it("keeps length offsets unit-qualified so CSS calc() never drops bottom positioning via IACVT", () => {
+    const mpBaseCss = readFileSync(join(here, "../styles/mp-base.css"), "utf8");
+    expect(mpBaseCss).not.toMatch(/--mw-mp-(?:safe-top|safe-bottom|keyboard-offset)\s*:\s*(?:0\s*;|var\(--space-0\))/);
+    expect(mpBaseCss).toContain("--mw-mp-keyboard-offset: var(--mp-keyboard-offset, 0px);");
   });
 });

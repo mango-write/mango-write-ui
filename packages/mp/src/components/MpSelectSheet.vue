@@ -72,14 +72,14 @@ function pickItem(item: (typeof normalizedItems.value)[number]): void {
 
 <template>
   <MpSheet
-    :data-testid="attrs['data-testid']"
+    :data-testid="(attrs['data-testid'] as string | undefined) || 'mp-select-sheet-inner'"
     :open="open"
     :title="title"
     :subtitle="subtitle"
     :contained="contained"
     @update:open="emit('update:open', $event)"
   >
-    <MpCellGroup role="listbox" :aria-label="title">
+    <MpCellGroup flush role="listbox" :aria-label="title">
       <MpCell
         v-for="item in normalizedItems"
         :key="item.key"

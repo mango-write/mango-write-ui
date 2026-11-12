@@ -71,13 +71,13 @@
       "types": "./dist/components/MpIcon.d.ts",
       "default": "./dist/components/MpIcon.js"
     },
-    "./components/MpNavBar": {
+    "./components/MpBackButton": {
       "mango-source": {
-        "types": "./src/components/MpNavBar.vue",
-        "default": "./src/components/MpNavBar.vue"
+        "types": "./src/components/MpBackButton.vue",
+        "default": "./src/components/MpBackButton.vue"
       },
-      "types": "./dist/components/MpNavBar.d.ts",
-      "default": "./dist/components/MpNavBar.js"
+      "types": "./dist/components/MpBackButton.d.ts",
+      "default": "./dist/components/MpBackButton.js"
     },
     "./components/MpButton": {
       "mango-source": {
@@ -278,10 +278,10 @@
         "import": "./dist/components/MpIcon.js",
         "default": "./dist/components/MpIcon.js"
       },
-      "./components/MpNavBar": {
-        "types": "./dist/components/MpNavBar.d.ts",
-        "import": "./dist/components/MpNavBar.js",
-        "default": "./dist/components/MpNavBar.js"
+      "./components/MpBackButton": {
+        "types": "./dist/components/MpBackButton.d.ts",
+        "import": "./dist/components/MpBackButton.js",
+        "default": "./dist/components/MpBackButton.js"
       },
       "./components/MpButton": {
         "types": "./dist/components/MpButton.d.ts",
