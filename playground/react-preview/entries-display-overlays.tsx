@@ -756,18 +756,35 @@ export const DISPLAY_OVERLAY_REACT_ENTRIES: Record<string, ReactEntryRenderer> =
   "config-section": (ctx) => <ConfigSectionDemo ctx={ctx} />,
   "admin-shell": (ctx) => <AdminShellDemo ctx={ctx} />,
 
-  "app-logo": () => <AppLogo style={{ height: 32 }} />,
-  "not-found-page": () => (
+  "app-logo": ({ values: v }) => <AppLogo markOnly={Boolean(v.markOnly)} style={{ height: 32 }} />,
+  "not-found-page": ({ values: v, notify }) => (
     <NotFoundPage
-      title="页面不存在"
-      lead="您访问的文档地址可能已迁移。"
-      primaryLabel="返回首页"
+      title={String(v.title ?? "页面走丢了")}
+      lead={String(v.lead ?? "草稿可能已移入回收站或没有访问权限。")}
+      path={v.path ? String(v.path) : undefined}
+      primaryLabel={String(v.primaryLabel ?? "返回工作台")}
+      secondaryLabel={v.secondaryLabel ? String(v.secondaryLabel) : undefined}
+      onPrimary={() => notify.info(String(v.primaryLabel ?? "返回工作台"))}
+      onSecondary={() => notify.info(String(v.secondaryLabel ?? "回退上一页"))}
     />
   ),
-  site: ({ locale }) => (
+  site: ({ values: v, locale, notify }) => (
     <div style={{ width: "100%", display: "grid", gap: "var(--space-4)" }}>
-      <SiteHeader items={[{ label: "功能", href: "#" }, { label: "定价", href: "#" }]} />
-      <SiteFooter locale={locale} />
+      <SiteHeader
+        items={[
+          { label: "功能", href: "#features", active: true },
+          { label: "价格", href: "#pricing" },
+          { label: "文档", href: "#docs" },
+        ]}
+        showLang={v.showLang !== undefined ? Boolean(v.showLang) : true}
+        langLabel={String(v.langLabel ?? "EN")}
+        onToggleLang={() => notify.info("切换语言")}
+        actions={<Button size="sm" label="进入工作台" />}
+      />
+      <SiteFooter locale={((v.locale as "zh-CN" | "en" | undefined) ?? locale)}>
+        <a href="#terms">服务条款</a>
+        <a href="#privacy">隐私政策</a>
+      </SiteFooter>
     </div>
   ),
 };

@@ -2,9 +2,11 @@
 import { computed } from "vue";
 import { Button, SiteFooter, SiteHeader } from "@mango-write/ui-vue";
 import { api } from "../../api/entries/site";
+import { usage } from "../../usage/entries/site";
 import ApiTable from "../../kit/ApiTable.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
+import UsagePlayground from "../../kit/UsagePlayground.vue";
 import { locale, t } from "../../i18n";
 
 const s = {
@@ -60,6 +62,8 @@ const footerLocale = computed(() => (locale.value === "zh-CN" ? "zh-CN" : "en"))
 
 <template>
   <DocPage>
+    <UsagePlayground :entry="usage" />
+
     <DocSection :title="s.whenToUse">
       <ul class="doc-rules">
         <li data-kind="do" v-html="t(s.do1)" />

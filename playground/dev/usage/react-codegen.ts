@@ -900,6 +900,48 @@ export function customReactEntryCode(slug: string, v: UsageValues): string | nul
       });
     }
 
+    case "app-logo": {
+      return buildTsx({
+        ui: ["AppLogo"],
+        jsx: `<AppLogo${v.markOnly ? " markOnly" : ""} style={{ height: 32 }} />`,
+      });
+    }
+
+    case "not-found-page": {
+      const attrs = [
+        jsxStringProp("title", v.title ?? "页面走丢了"),
+        jsxStringProp("lead", v.lead ?? "草稿可能已移入回收站或没有访问权限。"),
+        jsxStringProp("path", v.path),
+        jsxStringProp("primaryLabel", v.primaryLabel ?? "返回工作台"),
+        jsxStringProp("secondaryLabel", v.secondaryLabel),
+      ].filter(Boolean);
+      return buildTsx({
+        ui: ["NotFoundPage"],
+        jsx: `<NotFoundPage\n  ${attrs.join("\n  ")}\n/>`,
+      });
+    }
+
+    case "site": {
+      const headerAttrs = [
+        "items={items}",
+        v.showLang === false ? "showLang={false}" : "showLang",
+        v.langLabel && v.langLabel !== "EN" ? jsxStringProp("langLabel", v.langLabel) : "",
+        'actions={<Button size="sm" label="进入工作台" />}',
+      ].filter(Boolean);
+      const footerAttr = v.locale && v.locale !== "zh-CN" ? ` locale=${JSON.stringify(v.locale)}` : "";
+      return buildTsx({
+        ui: ["Button", "SiteFooter", "SiteHeader"],
+        moduleSetup: [
+          "const items = [",
+          '  { label: "功能", href: "#features", active: true },',
+          '  { label: "价格", href: "#pricing" },',
+          '  { label: "文档", href: "#docs" },',
+          "];",
+        ],
+        jsx: `<>\n  <SiteHeader\n    ${headerAttrs.join("\n    ")}\n  />\n  <SiteFooter${footerAttr}>\n    <a href="#terms">服务条款</a>\n    <a href="#privacy">隐私政策</a>\n  </SiteFooter>\n</>`,
+      });
+    }
+
     default:
       return null;
   }

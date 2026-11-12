@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { AppLogo } from "@mango-write/ui-vue";
 import { api } from "../../api/entries/app-logo";
+import { usage } from "../../usage/entries/app-logo";
 import ApiTable from "../../kit/ApiTable.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
 import Specimen from "../../kit/Specimen.vue";
 import StateGrid from "../../kit/StateGrid.vue";
 import StateRow from "../../kit/StateRow.vue";
+import UsagePlayground from "../../kit/UsagePlayground.vue";
 import { t } from "../../i18n";
 
 const s = {
@@ -42,6 +44,8 @@ const s = {
 
 <template>
   <DocPage>
+    <UsagePlayground :entry="usage" />
+
     <DocSection :title="s.whenToUse">
       <ul class="doc-rules">
         <li data-kind="do" v-html="t(s.rule1)" />

@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { NotFoundPage } from "@mango-write/ui-vue";
 import { api } from "../../api/entries/not-found-page";
+import { usage } from "../../usage/entries/not-found-page";
 import ApiTable from "../../kit/ApiTable.vue";
 import DocPage from "../../kit/DocPage.vue";
 import DocSection from "../../kit/DocSection.vue";
+import UsagePlayground from "../../kit/UsagePlayground.vue";
 import { t } from "../../i18n";
 
 const s = {
@@ -42,6 +44,8 @@ const s = {
 
 <template>
   <DocPage>
+    <UsagePlayground :entry="usage" />
+
     <DocSection :title="s.whenToUse">
       <ul class="doc-rules">
         <li data-kind="do" v-html="t(s.do1)" />

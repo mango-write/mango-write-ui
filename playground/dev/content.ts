@@ -28,34 +28,33 @@ export const installSteps: ContentStep[] = [
   {
     title: { zh: "安装依赖", en: "Install dependencies" },
     desc: {
-      zh: "组件库经 GitHub 分发,同时安装运行时依赖(Vue、PrimeVue、i18n、图标)与构建期依赖(Tailwind)。",
-      en: "The library ships from GitHub; install runtime dependencies (Vue, PrimeVue, i18n, icons) and build-time dependencies (Tailwind) alongside it.",
+      zh: "组件库经 GitHub 子目录分发,安装 @mango-write/ui-core 与 @mango-write/ui-vue,并配置 Vue 3 运行时、i18n 与图标依赖。",
+      en: "The library ships from GitHub subdirectories; install @mango-write/ui-core and @mango-write/ui-vue alongside Vue 3, vue-i18n, and Lucide icons.",
     },
     lang: "sh",
-    code: `pnpm add @mango-write/ui-vue@github:mango-write/mango-write-ui#v0.1.0
-pnpm add vue primevue @primeuix/themes vue-i18n lucide-vue-next
-pnpm add -D tailwindcss @tailwindcss/vite tailwindcss-primeui`,
+    code: `pnpm add "@mango-write/ui-core@git+https://github.com/mango-write/mango-write-ui.git#v0.2.0&path:packages/core"
+pnpm add "@mango-write/ui-vue@git+https://github.com/mango-write/mango-write-ui.git#v0.2.0&path:packages/vue"
+pnpm add vue vue-i18n lucide-vue-next
+pnpm add -D @vitejs/plugin-vue`,
   },
   {
     title: { zh: "配置 Vite", en: "Configure Vite" },
     lang: "ts",
     code: `import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
-import tailwindcss from "@tailwindcss/vite";
 
-export default defineConfig({ plugins: [vue(), tailwindcss()] });`,
+export default defineConfig({ plugins: [vue()] });`,
   },
   {
     title: { zh: "引入样式", en: "Import the styles" },
     desc: {
-      zh: "在应用样式入口引入主题聚合入口,并让 Tailwind 扫描组件库源码。",
-      en: "Import the theme aggregation entry in your app's style entry, and point Tailwind at the library source.",
+      zh: "组件库自带纯静态语义 token 与组件样式,按顺序引入 tokens.css、base.css 与 components.css(或直接引入 theme.css 聚合入口)。",
+      en: "The library ships static semantic tokens and component styles; import tokens.css, base.css, and components.css in order (or use theme.css as a single entry).",
     },
     lang: "css",
-    code: `@import "tailwindcss" prefix(tw);
-@import "@mango-write/ui-vue/theme.css";
-@import "@mango-write/ui-vue/components.css";
-@source "../node_modules/@mango-write/ui-vue/src";`,
+    code: `@import "@mango-write/ui-vue/tokens.css";
+@import "@mango-write/ui-vue/base.css";
+@import "@mango-write/ui-vue/components.css";`,
   },
   {
     title: { zh: "初始化主题与文案", en: "Initialize theme and messages" },
@@ -116,8 +115,8 @@ export const reactInstallSteps: ContentStep[] = [
       en: "The library ships from GitHub subdirectories; install @mango-write/ui-core and @mango-write/ui-react alongside React and Lucide icons.",
     },
     lang: "sh",
-    code: `pnpm add "@mango-write/ui-core@git+https://github.com/mango-write/mango-write-ui.git#v0.1.0&path:packages/core"
-pnpm add "@mango-write/ui-react@git+https://github.com/mango-write/mango-write-ui.git#v0.1.0&path:packages/react"
+    code: `pnpm add "@mango-write/ui-core@git+https://github.com/mango-write/mango-write-ui.git#v0.2.0&path:packages/core"
+pnpm add "@mango-write/ui-react@git+https://github.com/mango-write/mango-write-ui.git#v0.2.0&path:packages/react"
 pnpm add react react-dom lucide-react
 pnpm add -D @vitejs/plugin-react`,
   },

@@ -38,6 +38,7 @@ import TopBar from "../kit/TopBar.vue";
 import { docGroups } from "../registry";
 import { apiEntries } from "../api";
 import { alt, locale, t, type Bi } from "../i18n";
+import { version as uiVersion } from "../../../package.json";
 
 const githubUrl = "https://github.com/mango-write/mango-write-ui";
 const changelogUrl = `${githubUrl}/blob/main/CHANGELOG.md`;
@@ -55,7 +56,7 @@ const foundationCount = docGroups
   .reduce((sum, group) => sum + group.entries.length, 0);
 
 const s = {
-  changelogChip: { zh: "v0.1.0 · 更新日志", en: "v0.1.0 · Changelog" },
+  changelogChip: { zh: `v${uiVersion} · 更新日志`, en: `v${uiVersion} · Changelog` },
   brand: { zh: "纸与霜", en: "Paper & Frost" },
   titleSuffix: { zh: "设计语言", en: " Design Language" },
   lede1: {
@@ -63,8 +64,8 @@ const s = {
     en: "The “One Core, Two Wings” design language and cross-platform UI ecosystem for MangoWrite:",
   },
   lede2: {
-    zh: "共享纸与霜核心视觉基因，分别打造桌面精细工作台（@mango-write/ui-vue）与掌上触控组件库（@mango-write/ui-mp）。",
-    en: "one shared Paper & Frost core, tailored into the Desktop precision workbench (@mango-write/ui-vue) and Mobile touch library (@mango-write/ui-mp).",
+    zh: "共享纸与霜核心视觉基因（@mango-write/ui-core），分别打造桌面精细工作台（@mango-write/ui-vue · @mango-write/ui-react）与掌上触控组件库（@mango-write/ui-mp）。",
+    en: "one shared Paper & Frost core (@mango-write/ui-core), tailored into the Desktop precision workbench (@mango-write/ui-vue · @mango-write/ui-react) and Mobile touch library (@mango-write/ui-mp).",
   },
   quickStart: { zh: "桌面端组件", en: "Desktop Components" },
   mobileStart: { zh: "移动端组件", en: "Mobile Components" },
@@ -311,8 +312,8 @@ const notify = useNotify();
 const llmsFullUrl = "https://ui.mangowrite.com/llms-full.txt";
 const llmPrompt = computed(() =>
   t({
-    zh: `请先阅读 ${llmsFullUrl} —— 这是 MangoWrite UI(「纸与霜」设计语言的 Vue 3 组件库)的全量文档。读完后,用它的组件与设计 token 实现我接下来的界面需求。`,
-    en: `Start by reading ${llmsFullUrl} — the complete docs for MangoWrite UI, the Vue 3 component library of the Paper & Frost design language. Then build my next UI request with its components and design tokens.`,
+    zh: `请先阅读 ${llmsFullUrl} —— 这是 MangoWrite UI(「纸与霜」设计语言的 Vue 3 / React / 移动跨端组件库)的全量文档。读完后,用它的组件与设计 token 实现我接下来的界面需求。`,
+    en: `Start by reading ${llmsFullUrl} — the complete docs for MangoWrite UI, the Vue 3, React, and Mobile component library of the Paper & Frost design language. Then build my next UI request with its components and design tokens.`,
   }),
 );
 async function copyLlmPrompt() {
@@ -375,7 +376,7 @@ const quickstartCode = computed(() =>
                 {{ t(s.changelogChip) }}
               </a>
               <span class="hero__chip">Apache-2.0</span>
-              <span class="hero__chip">Vue 3 · TypeScript</span>
+              <span class="hero__chip">Vue 3 · React · TypeScript</span>
             </div>
             <h1 class="hero__title anim-rise" style="--rise-delay: 120ms">
               <span class="hero__title-ink">{{ t(s.brand) }}</span>{{ t(s.titleSuffix) }}
@@ -779,8 +780,8 @@ const quickstartCode = computed(() =>
 api/            llms.txt
 CHANGELOG.md    llms-full.txt
 <span>$ head -6 llms-full.txt</span>
-# @mango-write/ui-vue · 纸与霜设计语言
-Vue 3 组件库 · {{ componentCount }} 组件 · Apache-2.0
+# MangoWrite UI · 纸与霜设计语言
+Vue 3 · React · 移动端 · {{ componentCount }} 组件 · Apache-2.0
 ## 按钮 Button
 | 名称 | 取值 | 说明 |
 | --- | --- | --- |

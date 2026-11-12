@@ -35,7 +35,9 @@ async function importTs(file) {
   return import(pathToFileURL(f).href);
 }
 
-const { libraryIntro, installSteps } = await importTs(join(ROOT, "playground/dev/content.ts"));
+const { libraryIntro, reactLibraryIntro, installSteps, reactInstallSteps } = await importTs(
+  join(ROOT, "playground/dev/content.ts"),
+);
 
 const entries = {};
 for (const f of readdirSync(join(ROOT, "playground/dev/api/entries")).filter((n) => n.endsWith(".ts"))) {
@@ -79,11 +81,13 @@ const pageUrl = (entry) => `${SITE}/components/${entry.slug}`;
 function componentSection(e, { heading }) {
   const lead = e.lead ?? "";
   const names = e.exports ? e.exports.join(", ") : e.component;
+  const reactImportPath = e.importPath.replace("@mango-write/ui-vue", "@mango-write/ui-react");
   const sub = heading + "#";
   const out = [];
   out.push(`${heading} ${e.component} ${zh(e.title)}`);
   out.push("");
-  out.push(`导入:\`import { ${names} } from "${e.importPath}"\``);
+  out.push(`导入 (Vue 3):\`import { ${names} } from "${e.importPath}"\``);
+  out.push(`导入 (React):\`import { ${names} } from "${reactImportPath}"\``);
   out.push(`文档页:${pageUrl(e)}`);
   if (lead) out.push("", lead);
   out.push("", `${sub} 接口`, "", "| 名称 | 取值 | 说明 |", "|---|---|---|");
@@ -98,13 +102,14 @@ function componentSection(e, { heading }) {
 const llms = [];
 llms.push(`# MangoWrite UI`, "");
 llms.push(`> ${zh(libraryIntro)}`, "");
+llms.push(`> ${zh(reactLibraryIntro)}`, "");
 llms.push(
-  `纸与霜设计语言官方文档站。整库文档(安装、全部 ${entrySlugs.length} 个组件的 API)在单文件 [llms-full.txt](${SITE}/llms-full.txt),可直接投喂上下文;单个组件也可按 [api/<slug>.md](${SITE}/api/button.md) 精取。`,
+  `纸与霜设计语言官方文档站。整库文档(Vue 3 / React 安装、全部 ${entrySlugs.length} 个桌面组件的 API 及移动端组件)在单文件 [llms-full.txt](${SITE}/llms-full.txt),可直接投喂上下文;单个组件也可按 [api/<slug>.md](${SITE}/api/button.md) 精取。`,
   "",
 );
 llms.push(`# 上手`, "");
 llms.push(
-  `- [安装与上手](${SITE}/getting-started/installation):依赖安装、样式引入、主题初始化与第一个组件`,
+  `- [安装与上手 (Vue 3 / React)](${SITE}/getting-started/installation):依赖安装、样式引入、主题初始化与第一个组件`,
   "",
 );
 llms.push(`# 设计规范`, "");
@@ -113,7 +118,7 @@ for (const g of foundationGroups) {
     llms.push(`- [${f.title} ${f.en}](${SITE}/${g.base}/${f.slug}):${f.lead}`);
   }
 }
-llms.push("", `# 桌面端组件 (@mango-write/ui-vue · ${entrySlugs.length} 个)`, "");
+llms.push("", `# 桌面端组件 (@mango-write/ui-vue · @mango-write/ui-react · ${entrySlugs.length} 个)`, "");
 for (const g of componentGroups) {
   for (const e of g.entries) {
     const api = entries[e.slug];
@@ -140,15 +145,22 @@ writeFileSync(join(DIST, "llms.txt"), llms.join("\n"));
 const full = [];
 full.push(`# MangoWrite UI 完整文档`, "");
 full.push(`> ${zh(libraryIntro)}`, "");
+full.push(`> ${zh(reactLibraryIntro)}`, "");
 full.push(`- 站点:${SITE}(设计规范与逐组件页面见 llms.txt 索引)`);
 full.push(`- GitHub:${REPO}(Apache-2.0)`);
 full.push(`- 版本:${pkg.version}`);
 full.push(
-  `- 覆盖:${entrySlugs.length} 个组件、${Object.values(entries).reduce((n, e) => n + e.rows.length, 0)} 行接口元数据;接口以包内 TypeScript 类型为准,本文件由构建生成,勿手改。`,
+  `- 覆盖:${entrySlugs.length} 个桌面组件(@mango-write/ui-vue 与 @mango-write/ui-react 100% 对等)、${Object.values(entries).reduce((n, e) => n + e.rows.length, 0)} 行接口元数据;接口以包内 TypeScript 类型为准,本文件由构建生成,勿手改。`,
   "",
 );
-full.push(`## 安装与上手`, "");
+full.push(`## 安装与上手 (Vue 3 · @mango-write/ui-vue)`, "");
 for (const step of installSteps) {
+  full.push(`### ${zh(step.title)}`, "");
+  if (step.desc) full.push(zh(step.desc), "");
+  full.push("```" + step.lang, zh(step.code), "```", "");
+}
+full.push(`## 安装与上手 (React · @mango-write/ui-react)`, "");
+for (const step of reactInstallSteps) {
   full.push(`### ${zh(step.title)}`, "");
   if (step.desc) full.push(zh(step.desc), "");
   full.push("```" + step.lang, zh(step.code), "```", "");
