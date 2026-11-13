@@ -10,17 +10,19 @@ const coreRoot = join(pkgRoot, "..", "core");
 const stylesDir = join(pkgRoot, "src", "styles");
 const pkgJson = JSON.parse(readFileSync(join(pkgRoot, "package.json"), "utf8"));
 
+const readUtf8Lf = (filePath: string): string => readFileSync(filePath, "utf8").replace(/\r\n/g, "\n");
+
 function readCssWithImports(filePath: string): string {
-  return readFileSync(filePath, "utf8").replace(/^@import\s+["'](.+?)["'];?\s*$/gm, (_match, request: string) =>
+  return readUtf8Lf(filePath).replace(/^@import\s+["'](.+?)["'];?\s*$/gm, (_match, request: string) =>
     readCssWithImports(join(dirname(filePath), request)),
   );
 }
 
 function buildExpectedStylesWxss(): { tokensWxss: string; stylesWxss: string } {
-  const varCss = readFileSync(join(coreRoot, "src", "var.css"), "utf8");
-  const mobileTokensCss = readFileSync(join(coreRoot, "src", "mobile-tokens.css"), "utf8");
+  const varCss = readUtf8Lf(join(coreRoot, "src", "var.css"));
+  const mobileTokensCss = readUtf8Lf(join(coreRoot, "src", "mobile-tokens.css"));
   const compiled = compileWxssTokens(varCss, mobileTokensCss);
-  const baseWxss = readFileSync(join(stylesDir, "mp-base.css"), "utf8").replace(
+  const baseWxss = readUtf8Lf(join(stylesDir, "mp-base.css")).replace(
     /\.mw-mp-root\s*,[\s\S]*?\.mw-mp-root \*::after\s*\{([\s\S]*?)\}\n\n/,
     ".mw-mp-root {$1}\n\n",
   );
@@ -43,9 +45,9 @@ describe("@mango-write/ui-mp package exports & built styles", () => {
 
   it("keeps source WXSS artifacts fresh, free of illegal wcsc selectors, and compilable by wcsc", () => {
     const expected = buildExpectedStylesWxss();
-    const srcTokensWxss = readFileSync(join(stylesDir, "mp-tokens.wxss"), "utf8");
+    const srcTokensWxss = readUtf8Lf(join(stylesDir, "mp-tokens.wxss"));
     const srcStylesWxssPath = join(stylesDir, "mp-styles.wxss");
-    const srcStylesWxss = readFileSync(srcStylesWxssPath, "utf8");
+    const srcStylesWxss = readUtf8Lf(srcStylesWxssPath);
 
     expect(srcTokensWxss).toBe(expected.tokensWxss);
     expect(srcStylesWxss).toBe(expected.stylesWxss);

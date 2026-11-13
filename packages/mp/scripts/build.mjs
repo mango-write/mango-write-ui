@@ -42,8 +42,9 @@ execFileSync(
 // 3. Compile var.css + mobile-tokens.css -> mp-tokens.wxss / mp-tokens.css
 const compilerUrl = pathToFileURL(join(distDir, "compiler", "wxss-tokens.js")).href;
 const { compileWxssTokens } = await import(compilerUrl);
-const varCss = readFileSync(join(coreRoot, "src", "var.css"), "utf8");
-const mobileTokensCss = readFileSync(join(coreRoot, "src", "mobile-tokens.css"), "utf8");
+const readUtf8Lf = (filePath) => readFileSync(filePath, "utf8").replace(/\r\n/g, "\n");
+const varCss = readUtf8Lf(join(coreRoot, "src", "var.css"));
+const mobileTokensCss = readUtf8Lf(join(coreRoot, "src", "mobile-tokens.css"));
 const compiled = compileWxssTokens(varCss, mobileTokensCss);
 
 writeFileSync(join(stylesDir, "mp-tokens.wxss"), compiled.wxss, "utf8");
@@ -52,13 +53,13 @@ writeFileSync(join(distDir, "mp-tokens.wxss"), compiled.wxss, "utf8");
 writeFileSync(join(distDir, "mp-tokens.css"), compiled.css, "utf8");
 
 // 4. Emit mp-base.{css,wxss}, mp-components.{css,wxss}, and combined mp-styles.{css,wxss}
-const baseCss = readFileSync(join(stylesDir, "mp-base.css"), "utf8");
+const baseCss = readUtf8Lf(join(stylesDir, "mp-base.css"));
 const baseWxss = baseCss.replace(
   /\.mw-mp-root\s*,[\s\S]*?\.mw-mp-root \*::after\s*\{([\s\S]*?)\}\n\n/,
   ".mw-mp-root {$1}\n\n",
 );
 function readCssWithImports(filePath) {
-  return readFileSync(filePath, "utf8").replace(/^@import\s+["'](.+?)["'];?\s*$/gm, (_match, request) =>
+  return readUtf8Lf(filePath).replace(/^@import\s+["'](.+?)["'];?\s*$/gm, (_match, request) =>
     readCssWithImports(join(dirname(filePath), request)),
   );
 }
