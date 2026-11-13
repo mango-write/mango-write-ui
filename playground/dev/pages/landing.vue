@@ -447,7 +447,7 @@ const quickstartCode = computed(() =>
             >
               <span class="collage-card__label">{{ t(s.liveSlider) }}</span>
               <Slider v-model="demoProgress" :max="100" :aria-label="t(s.demoProgress)" />
-              <ProgressBar :value="demoProgress" />
+              <ProgressBar class="live-progress" :value="demoProgress" />
               <div class="collage-card__row">
                 <label class="collage-card__check">
                   <Checkbox v-model="demoShare" binary :aria-label="t(s.shareTeam)" />
@@ -620,7 +620,7 @@ const quickstartCode = computed(() =>
                   </div>
                   <div class="pg-cell">
                     <h3 class="pg-cell__label">{{ t(s.cellProgress) }}</h3>
-                    <ProgressBar :value="demoProgress" />
+                    <ProgressBar class="live-progress" :value="demoProgress" />
                     <div class="pg-skeleton">
                       <Skeleton shape="circle" size="40px" aria-hidden="true" />
                       <div class="pg-skeleton__lines">
@@ -913,6 +913,10 @@ Vue 3 · React · 移动端 · {{ componentCount }} 组件 · Apache-2.0
 </template>
 
 <style scoped>
+.live-progress :deep(.mw-progress-bar__indicator) {
+  transition: none;
+}
+
 .landing {
   min-height: 100dvh;
   display: flex;
