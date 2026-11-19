@@ -444,18 +444,20 @@
   --frost-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.14), inset 0 -1px 0 rgba(0, 0, 0, 0.35);
   --scrim: rgb(0 0 0 / 0.55);
 
-  --shell-canvas-base: #15171c;
+  --shell-canvas-base: #0f0e0d;
   --shell-canvas-backdrop:
     radial-gradient(1600px 850px at 78% -18%, rgb(var(--color-brand-500-rgb) / 0.085), transparent 62%),
     radial-gradient(1250px 850px at -8% 106%, rgb(var(--color-brand-600-rgb) / 0.05), transparent 58%),
     var(--shell-canvas-base);
-  --shell-sheet-bg: rgba(30, 32, 36, 0.88);
+  --shell-sheet-bg: rgba(30, 28, 26, 0.9);
   --shell-sheet-specular:
     linear-gradient(158deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.025) 24%, rgba(255, 255, 255, 0) 52%);
   --shell-sheet-lens:
-    inset 0 1px 0 rgba(255, 255, 255, 0.13),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.06);
-  --shell-paper-lens: inset 0 0 0 1px rgba(255, 255, 255, 0.055);
+    inset 0 1px 0 rgba(255, 250, 244, 0.13),
+    inset 0 0 0 1px rgba(255, 250, 244, 0.06);
+  --shell-paper-lens:
+    inset 0 1px 0 rgba(255, 250, 244, 0.05),
+    inset 0 0 0 1px rgba(255, 250, 244, 0.065);
   --shell-sheet-shadow:
     0 0 0 0.5px rgba(255, 255, 255, 0.06),
     0 1px 3px rgba(0, 0, 0, 0.45),
@@ -552,18 +554,20 @@
     --frost-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.14), inset 0 -1px 0 rgba(0, 0, 0, 0.35);
     --scrim: rgb(0 0 0 / 0.55);
 
-    --shell-canvas-base: #15171c;
+    --shell-canvas-base: #0f0e0d;
     --shell-canvas-backdrop:
       radial-gradient(1600px 850px at 78% -18%, rgb(var(--color-brand-500-rgb) / 0.085), transparent 62%),
       radial-gradient(1250px 850px at -8% 106%, rgb(var(--color-brand-600-rgb) / 0.05), transparent 58%),
       var(--shell-canvas-base);
-    --shell-sheet-bg: rgba(30, 32, 36, 0.88);
+    --shell-sheet-bg: rgba(30, 28, 26, 0.9);
     --shell-sheet-specular:
       linear-gradient(158deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.025) 24%, rgba(255, 255, 255, 0) 52%);
     --shell-sheet-lens:
-      inset 0 1px 0 rgba(255, 255, 255, 0.13),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.06);
-    --shell-paper-lens: inset 0 0 0 1px rgba(255, 255, 255, 0.055);
+      inset 0 1px 0 rgba(255, 250, 244, 0.13),
+      inset 0 0 0 1px rgba(255, 250, 244, 0.06);
+    --shell-paper-lens:
+      inset 0 1px 0 rgba(255, 250, 244, 0.05),
+      inset 0 0 0 1px rgba(255, 250, 244, 0.065);
     --shell-sheet-shadow:
       0 0 0 0.5px rgba(255, 255, 255, 0.06),
       0 1px 3px rgba(0, 0, 0, 0.45),

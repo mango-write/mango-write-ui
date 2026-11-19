@@ -172,6 +172,7 @@ export const Menu = forwardRef<MenuHandle, MenuProps>(function MwMenu(
   {
     model = [],
     popup = false,
+    placement = "auto",
     open: openProp,
     defaultOpen = false,
     onOpenChange,
@@ -300,13 +301,55 @@ export const Menu = forwardRef<MenuHandle, MenuProps>(function MwMenu(
             : menuRect && menuRect.width > 0
               ? menuRect.width
               : 200;
+        const height =
+          el && el.offsetHeight > 0
+            ? el.offsetHeight
+            : menuRect && menuRect.height > 0
+              ? menuRect.height
+              : 0;
         const vw =
           typeof window !== "undefined" && window.innerWidth > 0
             ? window.innerWidth
             : 1024;
-        const preferredX =
-          rect.left + width > vw - VIEWPORT_PADDING ? rect.right - width : rect.left;
-        return clampToViewport(preferredX, rect.bottom + 6, el);
+        const vh =
+          typeof window !== "undefined" && window.innerHeight > 0
+            ? window.innerHeight
+            : 768;
+        const gap = 6;
+
+        let preferredX: number;
+        let preferredY: number;
+
+        if (placement === "right-start" || placement === "right-end") {
+          preferredX =
+            rect.right + gap + width > vw - VIEWPORT_PADDING
+              ? rect.left - width - gap
+              : rect.right + gap;
+          preferredY =
+            placement === "right-end" && height > 0
+              ? rect.bottom - height
+              : rect.top;
+        } else if (placement === "top-start" || placement === "top-end") {
+          preferredX = placement === "top-end" ? rect.right - width : rect.left;
+          preferredY = height > 0 ? rect.top - height - gap : rect.top - gap;
+        } else if (placement === "bottom-start" || placement === "bottom-end") {
+          preferredX = placement === "bottom-end" ? rect.right - width : rect.left;
+          preferredY = rect.bottom + gap;
+        } else {
+          preferredX =
+            rect.left + width > vw - VIEWPORT_PADDING ? rect.right - width : rect.left;
+          const overflowsBottom =
+            height > 0 && rect.bottom + gap + height > vh - VIEWPORT_PADDING;
+          const fitsAbove =
+            rect.top - gap - height >= VIEWPORT_PADDING ||
+            rect.top > vh - rect.bottom;
+          preferredY =
+            overflowsBottom && fitsAbove
+              ? rect.top - height - gap
+              : rect.bottom + gap;
+        }
+
+        return clampToViewport(preferredX, preferredY, el);
       }
       const cx = event && "clientX" in event ? event.clientX : undefined;
       const cy = event && "clientY" in event ? event.clientY : undefined;
@@ -315,7 +358,7 @@ export const Menu = forwardRef<MenuHandle, MenuProps>(function MwMenu(
       }
       return clampToViewport(VIEWPORT_PADDING, VIEWPORT_PADDING, menuRef.current);
     },
-    [],
+    [placement],
   );
 
   const setPopupOpen = useCallback((next: boolean) => {

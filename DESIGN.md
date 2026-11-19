@@ -149,7 +149,7 @@ primary / secondary / tertiary / accent 在纸面上均 ≥ 4.5:1，由 `var-css
   这类半透明叠层；分隔线用 `--border-subtle`。由门禁 `opaque-in-frost` 检查浮层组件。
 - 遮罩（`--scrim`）只压暗，不模糊——模糊遮罩会让面板底下变成一片灰，霜就失去了意义。
 - 降级：不支持 backdrop-filter、`prefers-reduced-transparency`、`html.mw-lowfx` 时退为不透明 `--frost-fallback` 并移除微光渐变，读感不变。
-- 工作台浮岛（Sheet）：以 `--bg-surface` 纸面为基底，叠加环境柔光渐变（`--gradient-surface`）、镜片边缘内高光（`--effect-lens-edge`）与浮岛阴影（`--shadow-sheet`），浮在带极淡暖芒的画布（`--bg-canvas` + `--gradient-canvas`）之上。
+- 工作台：桌面 + 纸（Desk + Paper）：导航轨直接铺在暖底桌面（`--bg-canvas` + `--gradient-canvas`）之上，无描边无阴影；小芒与文档作为两张纸面（`--bg-surface` 基底 + 环境柔光渐变 `--gradient-surface` + 镜片边缘内高光 `--effect-lens-edge` + 纸面阴影 `--shadow-sheet`）并排放在桌面上。深色下桌面、纸、霜保持同一暖色相且亮度严格单调递增。
 
 ## 10. 动效
 

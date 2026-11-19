@@ -28,9 +28,19 @@ export interface MenuItem {
   [key: string]: any;
 }
 
+export type MenuPlacement =
+  | "auto"
+  | "top-start"
+  | "top-end"
+  | "bottom-start"
+  | "bottom-end"
+  | "right-start"
+  | "right-end";
+
 export interface MenuProps {
   model?: MenuItem[];
   popup?: boolean;
+  placement?: MenuPlacement;
   appendTo?: string | HTMLElement;
   ariaLabel?: string;
   ariaLabelledby?: string;

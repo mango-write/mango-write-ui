@@ -87,9 +87,19 @@ export interface MenuTriggerRenderProps {
   hide: () => void;
 }
 
+export type MenuPlacement =
+  | "auto"
+  | "top-start"
+  | "top-end"
+  | "bottom-start"
+  | "bottom-end"
+  | "right-start"
+  | "right-end";
+
 export interface MenuProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
   model?: MenuItem[];
   popup?: boolean;
+  placement?: MenuPlacement;
   open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;

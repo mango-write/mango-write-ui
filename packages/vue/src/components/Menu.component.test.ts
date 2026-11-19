@@ -144,4 +144,61 @@ describe("Menu", () => {
     anchor.remove();
     wrapper.unmount();
   });
+
+  it("flips popup above bottom-edge anchor in auto mode and supports right-end placement", async () => {
+    const model: MenuItem[] = [{ label: "Settings" }, { label: "Logout" }];
+
+    const anchor = document.createElement("button");
+    anchor.getBoundingClientRect = () => ({
+      x: 13,
+      y: 720,
+      left: 13,
+      top: 720,
+      right: 45,
+      bottom: 752,
+      width: 32,
+      height: 32,
+      toJSON: () => ({}),
+    });
+    document.body.appendChild(anchor);
+
+    const autoWrapper = mountUiComponent(Menu, {
+      props: { model, popup: true, appendTo: "self" },
+      attachTo: document.body,
+    });
+
+    const autoVm = autoWrapper.vm as unknown as { show: (event?: Event, target?: HTMLElement) => void };
+    autoVm.show(undefined, anchor);
+    await nextTick();
+
+    const autoMenu = autoWrapper.find(".mw-menu--popup").element as HTMLElement;
+    Object.defineProperty(autoMenu, "offsetWidth", { value: 180, configurable: true });
+    Object.defineProperty(autoMenu, "offsetHeight", { value: 120, configurable: true });
+    autoVm.show(undefined, anchor);
+    await nextTick();
+
+    expect(autoMenu.style.left).toBe("13px");
+    expect(autoMenu.style.top).toBe("594px"); // 720 - 120 - 6
+
+    const rightWrapper = mountUiComponent(Menu, {
+      props: { model, popup: true, placement: "right-end", appendTo: "self" },
+      attachTo: document.body,
+    });
+    const rightVm = rightWrapper.vm as unknown as { show: (event?: Event, target?: HTMLElement) => void };
+    rightVm.show(undefined, anchor);
+    await nextTick();
+
+    const rightMenu = rightWrapper.find(".mw-menu--popup").element as HTMLElement;
+    Object.defineProperty(rightMenu, "offsetWidth", { value: 180, configurable: true });
+    Object.defineProperty(rightMenu, "offsetHeight", { value: 120, configurable: true });
+    rightVm.show(undefined, anchor);
+    await nextTick();
+
+    expect(rightMenu.style.left).toBe("51px"); // 45 + 6
+    expect(rightMenu.style.top).toBe("632px"); // 752 - 120
+
+    autoWrapper.unmount();
+    rightWrapper.unmount();
+    anchor.remove();
+  });
 });
