@@ -1,3 +1,5 @@
+import type { CalendarCell } from "../headless/calendar-grid.js";
+
 export type AccordionPanelValue = string | number;
 export type AccordionValue =
   | AccordionPanelValue
@@ -75,7 +77,35 @@ export interface CalendarViewRange {
   month: number;
 }
 
-export interface CalendarProps {
+export interface CalendarTitleContext {
+  date: Date;
+  label: string;
+}
+
+export interface CalendarNavigationContext extends CalendarTitleContext {
+  disabled: boolean;
+  showToday: boolean;
+  previous: () => void;
+  next: () => void;
+  today: () => void;
+}
+
+export interface CalendarMonthContext {
+  year: number;
+  month: number;
+  label: string;
+  selected: boolean;
+}
+
+export interface CalendarCustomizationProps {
+  viewDate?: Date | string | null;
+  hideOutsideDays?: boolean;
+  dayLabel?: (cell: CalendarCell) => string;
+  showTodayShortcut?: boolean | "always";
+  pickerAppendTo?: "self" | "body";
+}
+
+export interface CalendarProps extends CalendarCustomizationProps {
   modelValue?: CalendarModelValue;
   selected?: string | null;
   selectionMode?: CalendarSelectionMode;
@@ -84,7 +114,6 @@ export interface CalendarProps {
   firstDayOfWeek?: CalendarFirstDayOfWeek;
   days?: Record<string, number>;
   onlySelectableWithDays?: boolean;
-  showTodayShortcut?: boolean;
   variant?: CalendarVariant;
   fluid?: boolean;
   disabled?: boolean;
@@ -204,3 +233,10 @@ export interface UserSelectOption extends Record<string, unknown> {
   avatar?: string | null;
   email?: string | null;
 }
+
+export type {
+  VirtualListAlignment,
+  VirtualListHandle,
+  VirtualListKey,
+  VirtualListProps,
+} from "./virtual-list.js";

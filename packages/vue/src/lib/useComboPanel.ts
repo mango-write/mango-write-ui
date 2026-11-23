@@ -128,7 +128,9 @@ export function useComboPanel(
     closePanel();
   }
   function onDocKeydown(e: KeyboardEvent) {
-    if (e.key === "Escape") closePanel();
+    if (e.key !== "Escape" || e.defaultPrevented) return;
+    // Let an open nested popover handle Escape itself.
+    if (!panel.value?.querySelector('[role="dialog"][data-state="open"]')) closePanel();
   }
   function onScroll() {
     if (open.value) reposition();

@@ -12,6 +12,34 @@ describe("Calendar", () => {
     expect(Calendar.displayName).toBe("MwCalendar");
   });
 
+  it("customizes the visible month and day content independently of selection", () => {
+    const onToday = vi.fn();
+    const onSelect = vi.fn();
+    const { container, getByRole, getByText } = render(
+      <Calendar
+        selected="2026-05-01"
+        viewDate="2026-06-01"
+        hideOutsideDays
+        dayLabel={(cell) => `Entry date ${cell.isoDate}`}
+        renderDay={({ cell }) => `Day ${cell.day}`}
+        renderFooter={({ date }) => `Month ${date.getMonth() + 1}`}
+        showTodayShortcut="always"
+        onToday={onToday}
+        onSelect={onSelect}
+      />,
+    );
+
+    expect(container.querySelector('[data-date="2026-05-01"]')).toBeNull();
+    expect(container.querySelector(".mw-calendar__day--other-month")).toBeNull();
+    expect(getByRole("button", { name: "Entry date 2026-06-01" }).textContent).toBe("Day 1");
+    expect(getByText("Month 6")).toBeTruthy();
+
+    fireEvent.click(getByRole("button", { name: "回到今天" }));
+    expect(toIsoKey(onToday.mock.calls[0]![0])).toBe(toIsoKey(new Date()));
+    expect(onSelect).not.toHaveBeenCalled();
+    expect(getByRole("button", { name: "回到今天" })).toBeTruthy();
+  });
+
   it("renders month days and updates value / selected on day click, including plain variant", () => {
     const initial = new Date(2026, 4, 10);
     const onValueChange = vi.fn();
@@ -155,11 +183,13 @@ describe("Calendar", () => {
       ".mw-calendar__month-option",
     );
     expect(monthOptions).toHaveLength(12);
+    const year = container.querySelector<HTMLInputElement>('input[aria-label="年份"]')!;
+    fireEvent.change(year, { target: { value: "2021" } });
     fireEvent.click(monthOptions[2]!);
 
     expect(container.querySelector(".mw-calendar__switcher")).toBeNull();
     const lastView = onView.mock.calls.at(-1)?.[0];
-    expect(lastView?.month).toBe(3);
+    expect(lastView).toMatchObject({ year: 2021, month: 3 });
   });
 
   it("supports firstDayOfWeek and range / multiple selection modes", () => {

@@ -96,6 +96,8 @@ export { default as UserChip } from "./components/UserChip.vue";
 export { default as UserCard } from "./components/UserCard.vue";
 export { type UserProfile } from "./components/UserCard.vue";
 export { default as UserSelect } from "./components/UserSelect.vue";
+export { default as VirtualList } from "./components/VirtualList.vue";
+export type { VirtualListAlignment, VirtualListHandle, VirtualListKey, VirtualListProps } from "./components/virtual-list-defs";
 export { type UserSelectOption } from "./components/user-select";
 export { useComboPanel, type ComboPanelAnchor, type ComboPanelOptions, type ComboPanelPlacement } from "./lib/useComboPanel";
 export { vTooltip } from "./lib/tooltip";
@@ -171,10 +173,14 @@ export { default as ColorPicker } from "./components/ColorPicker.vue";
 export { default as Column } from "./components/Column.vue";
 export { default as Calendar } from "./components/Calendar.vue";
 export {
+  type CalendarCell,
   type CalendarFirstDayOfWeek,
   type CalendarModelValue,
+  type CalendarMonthContext,
+  type CalendarNavigationContext,
   type CalendarProps,
   type CalendarSelectionMode,
+  type CalendarTitleContext,
   type CalendarVariant,
   type CalendarViewRange,
 } from "./components/calendar-defs";

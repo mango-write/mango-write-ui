@@ -1,8 +1,12 @@
-import type { HTMLAttributes, Ref } from "react";
+import type { HTMLAttributes, ReactNode, Ref } from "react";
 import type {
+  CalendarCustomizationProps,
   CalendarFirstDayOfWeek,
   CalendarModelValue,
+  CalendarMonthContext,
+  CalendarNavigationContext,
   CalendarSelectionMode,
+  CalendarTitleContext,
   CalendarVariant,
   CalendarViewRange,
 } from "@mango-write/ui-core/defs";
@@ -12,7 +16,10 @@ export type {
   CalendarCell,
   CalendarFirstDayOfWeek,
   CalendarModelValue,
+  CalendarMonthContext,
+  CalendarNavigationContext,
   CalendarSelectionMode,
+  CalendarTitleContext,
   CalendarVariant,
   CalendarViewRange,
 };
@@ -25,7 +32,7 @@ export interface CalendarHandle {
 }
 
 export interface CalendarProps
-  extends Omit<
+  extends CalendarCustomizationProps, Omit<
     HTMLAttributes<HTMLDivElement>,
     "defaultValue" | "onChange" | "onSelect"
   > {
@@ -40,6 +47,7 @@ export interface CalendarProps
   onSelect?: (isoDate: string) => void;
   onDateSelect?: (date: Date) => void;
   onView?: (range: CalendarViewRange) => void;
+  onToday?: (date: Date) => void;
   selectionMode?: CalendarSelectionMode;
   minDate?: Date | null;
   maxDate?: Date | null;
@@ -47,7 +55,6 @@ export interface CalendarProps
   days?: Record<string, number>;
   counts?: Record<string, number>;
   onlySelectableWithDays?: boolean;
-  showTodayShortcut?: boolean;
   variant?: CalendarVariant;
   fluid?: boolean;
   disabled?: boolean;
@@ -59,4 +66,10 @@ export interface CalendarProps
   id?: string;
   ariaLabel?: string;
   calendarRef?: Ref<CalendarHandle>;
+  renderTitle?: (context: CalendarTitleContext) => ReactNode;
+  renderNavigation?: (context: CalendarNavigationContext) => ReactNode;
+  renderWeekday?: (context: { label: string; index: number }) => ReactNode;
+  renderDay?: (context: { cell: CalendarCell }) => ReactNode;
+  renderMonth?: (context: CalendarMonthContext) => ReactNode;
+  renderFooter?: (context: CalendarTitleContext) => ReactNode;
 }

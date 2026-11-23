@@ -222,6 +222,8 @@ export {
 } from "./components/UserCard";
 export { default as UserSelect } from "./components/UserSelect";
 export { type UserSelectOption, type UserSelectProps } from "./components/user-select";
+export { default as VirtualList, type VirtualListReactProps } from "./components/VirtualList";
+export type { VirtualListAlignment, VirtualListHandle, VirtualListKey, VirtualListProps } from "./components/virtual-list-defs";
 
 export {
   useComboPanel,
@@ -391,9 +393,12 @@ export {
   type CalendarFirstDayOfWeek,
   type CalendarHandle,
   type CalendarModelValue,
+  type CalendarMonthContext,
+  type CalendarNavigationContext,
   type CalendarOutputValue,
   type CalendarProps,
   type CalendarSelectionMode,
+  type CalendarTitleContext,
   type CalendarVariant,
   type CalendarViewRange,
 } from "./components/calendar-defs";

@@ -54,6 +54,7 @@
 @import "./styles/components/user-card.css";
 @import "./styles/components/user-chip.css";
 @import "./styles/components/user-select.css";
+@import "./styles/components/virtual-list.css";
 @import "./styles/components/admin-board-page.css";
 @import "./styles/components/admin-board-section.css";
 @import "./styles/components/admin-config-page.css";

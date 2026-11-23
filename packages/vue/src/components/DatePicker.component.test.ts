@@ -71,6 +71,26 @@ describe("DatePicker", () => {
     wrapper.unmount();
   });
 
+  it("closes the nested month picker first on Escape", async () => {
+    const wrapper = mount(DatePicker, { attachTo: document.body, props: { showIcon: true } });
+    await wrapper.get(".mw-date-picker__dropdown").trigger("click");
+    const panel = document.body.querySelector<HTMLElement>(".mw-date-picker__panel")!;
+    const trigger = panel.querySelector<HTMLButtonElement>(".mw-calendar__switcher-btn")!;
+    trigger.click();
+    await nextTick();
+
+    const year = panel.querySelector<HTMLInputElement>(".mw-calendar__switcher-year input")!;
+    year.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true }));
+    await nextTick();
+
+    expect(trigger.getAttribute("aria-expanded")).toBe("false");
+    expect(document.body.contains(panel)).toBe(true);
+    trigger.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true }));
+    await nextTick();
+    expect(document.body.contains(panel)).toBe(false);
+    wrapper.unmount();
+  });
+
   it("enforces minDate and maxDate constraints on calendar days", async () => {
     const minDate = new Date(2026, 4, 10);
     const maxDate = new Date(2026, 4, 20);

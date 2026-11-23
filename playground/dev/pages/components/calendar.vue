@@ -33,8 +33,8 @@ const journalDays: Record<string, number> = {
 const s = {
   demo: { zh: "在线演示", en: "Live demo" },
   demoDesc: {
-    zh: "调整配置即时预览；点击左上角年月标题可展开霜面 12 月快选面板，切换到其他月份会出现「回到今天」。",
-    en: "Tweak options for a live preview; click the year-month title to open the frost 12-month quick switcher, and navigate to another month to reveal “Back to today”.",
+    zh: "点击年月标题打开快选面板，可直接输入年份并点选月份。切换到其他月份后，「回到今天」会出现在月份切换箭头旁。",
+    en: "Click the month title to open the picker, enter a year, and choose a month. “Back to today” appears beside the month arrows when viewing another month.",
   },
   whenToUse: { zh: "何时使用", en: "When to use" },
   rule1: {
@@ -51,9 +51,10 @@ const s = {
   },
   baseTitle: { zh: "底面与手记热力模式", en: "Surfaces and activity heat" },
   baseDesc: {
-    zh: "左侧为标准单日选择面板，右侧为手记（Research Log）热力筛选面板（1 条记录浅橙着色、≥2 条实心品牌色、选中日加深强调）。",
-    en: "Standard single-date panel on the left, and the Research Log activity heat panel on the right (1 entry in subtle tint, ≥2 entries in solid brand fill, selected day in pressed accent).",
+    zh: "左侧为标准单日选择面板，右侧用活动热力区分记录数量，并通过底部插槽添加图例。",
+    en: "A standard single-date panel on the left, and an activity calendar with a legend in its footer slot on the right.",
   },
+  heatLegend: { zh: "颜色深浅表示记录数量", en: "Darker dates have more entries" },
   stdAria: { zh: "标准日期面板", en: "Standard calendar panel" },
   heatAria: { zh: "手记热力日期面板", en: "Activity heat calendar panel" },
   pairTitle: { zh: "与 DatePicker 联动", en: "Paired with DatePicker" },
@@ -90,7 +91,11 @@ const s = {
           :days="journalDays"
           only-selectable-with-days
           :aria-label="t(s.heatAria)"
-        />
+        >
+          <template #footer>
+            {{ t(s.heatLegend) }}
+          </template>
+        </Calendar>
       </Specimen>
     </DocSection>
 

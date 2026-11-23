@@ -8,6 +8,7 @@ const peers = [
   "react-dom",
   "lucide-react",
   "@tanstack/react-table",
+  "@tanstack/react-virtual",
   "radix-ui",
   "@mango-write/ui-core",
 ];

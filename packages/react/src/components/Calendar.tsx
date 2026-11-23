@@ -17,13 +17,18 @@ import {
   type CalendarCell,
 } from "@mango-write/ui-core/headless/calendar-grid";
 import { uiMessages, useUiLocale, type UiLocaleSource } from "../locale";
+import InputNumber from "./InputNumber";
+import Popover from "./Popover";
 import type {
   CalendarFirstDayOfWeek,
   CalendarHandle,
   CalendarModelValue,
+  CalendarMonthContext,
+  CalendarNavigationContext,
   CalendarOutputValue,
   CalendarProps,
   CalendarSelectionMode,
+  CalendarTitleContext,
   CalendarVariant,
   CalendarViewRange,
 } from "./calendar-defs";
@@ -33,9 +38,12 @@ export type {
   CalendarFirstDayOfWeek,
   CalendarHandle,
   CalendarModelValue,
+  CalendarMonthContext,
+  CalendarNavigationContext,
   CalendarOutputValue,
   CalendarProps,
   CalendarSelectionMode,
+  CalendarTitleContext,
   CalendarVariant,
   CalendarViewRange,
 };
@@ -86,6 +94,17 @@ export const Calendar = forwardRef<HTMLDivElement, CalendarProps>(
       onSelect,
       onDateSelect,
       onView,
+      onToday,
+      viewDate,
+      hideOutsideDays,
+      dayLabel,
+      pickerAppendTo = "self",
+      renderTitle,
+      renderNavigation,
+      renderWeekday,
+      renderDay,
+      renderMonth,
+      renderFooter,
       selectionMode = "single",
       minDate = null,
       maxDate = null,
@@ -152,7 +171,7 @@ export const Calendar = forwardRef<HTMLDivElement, CalendarProps>(
     const todayMonth = nowRef.current.getMonth();
     const todayDate = nowRef.current.getDate();
 
-    const initialPrimary = resolvePrimaryDate(
+    const initialPrimary = parseCoreDateValue(viewDate) ?? resolvePrimaryDate(
       currentModelValue,
       currentSelected,
       hours,
@@ -165,13 +184,14 @@ export const Calendar = forwardRef<HTMLDivElement, CalendarProps>(
     const [viewMonth, setViewMonth] = useState<number>(
       () => initialPrimary?.getMonth() ?? todayMonth,
     );
-    const [pickerYear, setPickerYear] = useState<number>(
+    const [pickerYear, setPickerYear] = useState<number | null>(
       () => initialPrimary?.getFullYear() ?? todayYear,
     );
     const [switcherOpen, setSwitcherOpen] = useState<boolean>(false);
+    const effectivePickerYear = Math.max(100, Math.min(9999, pickerYear ?? viewYear));
 
     useEffect(() => {
-      const primary = resolvePrimaryDate(
+      const primary = parseCoreDateValue(viewDate) ?? resolvePrimaryDate(
         currentModelValue,
         currentSelected,
         hours,
@@ -182,26 +202,21 @@ export const Calendar = forwardRef<HTMLDivElement, CalendarProps>(
         setViewMonth(primary.getMonth());
         setPickerYear(primary.getFullYear());
       }
-    }, [currentModelValue, currentSelected, hours, minutes]);
+    }, [viewDate, currentModelValue, currentSelected, hours, minutes]);
 
     const effectiveAriaLabel = ariaLabel ?? restAttrs["aria-label"];
 
     const isCurrentMonth = viewYear === todayYear && viewMonth === todayMonth;
 
+    const calendarDate = useMemo(() => new Date(viewYear, viewMonth, 1), [viewYear, viewMonth]);
     const monthLabel = useMemo(() => {
-      const date = new Date(viewYear, viewMonth, 1);
       return new Intl.DateTimeFormat(resolvedLocale, {
         year: "numeric",
         month: "long",
-      }).format(date);
-    }, [viewYear, viewMonth, resolvedLocale]);
-
-    const yearLabel = useMemo(() => {
-      const date = new Date(pickerYear, 0, 1);
-      return new Intl.DateTimeFormat(resolvedLocale, {
-        year: "numeric",
-      }).format(date);
-    }, [pickerYear, resolvedLocale]);
+      }).format(calendarDate);
+    }, [calendarDate, resolvedLocale]);
+    const titleContext = { date: calendarDate, label: monthLabel };
+    const showToday = showTodayShortcut === "always" || (showTodayShortcut && !isCurrentMonth);
 
     const monthNames = useMemo(
       () =>
@@ -299,7 +314,8 @@ export const Calendar = forwardRef<HTMLDivElement, CalendarProps>(
       setPickerYear(todayYear);
       setSwitcherOpen(false);
       emitViewRange(todayYear, todayMonth);
-    }, [disabled, todayYear, todayMonth, emitViewRange]);
+      onToday?.(new Date());
+    }, [disabled, todayYear, todayMonth, emitViewRange, onToday]);
 
     const setView = useCallback((year: number, monthZeroBased: number) => {
       setViewYear(year);
@@ -316,18 +332,17 @@ export const Calendar = forwardRef<HTMLDivElement, CalendarProps>(
       [setView, backToToday],
     );
 
-    const toggleSwitcher = () => {
-      if (disabled) return;
-      setPickerYear(viewYear);
-      setSwitcherOpen((prev) => !prev);
+    const changeSwitcherOpen = (open: boolean) => {
+      if (open) setPickerYear(viewYear);
+      setSwitcherOpen(open);
     };
 
     const pickMonth = (monthIndexZeroBased: number) => {
       if (disabled) return;
-      setViewYear(pickerYear);
+      setViewYear(effectivePickerYear);
       setViewMonth(monthIndexZeroBased);
       setSwitcherOpen(false);
-      emitViewRange(pickerYear, monthIndexZeroBased);
+      emitViewRange(effectivePickerYear, monthIndexZeroBased);
     };
 
     const commitModelOutput = (nextVal: CalendarOutputValue) => {
@@ -426,116 +441,62 @@ export const Calendar = forwardRef<HTMLDivElement, CalendarProps>(
       >
         <div className="mw-calendar__header">
           <div className="mw-calendar__header-start">
-            <button
-              type="button"
-              className="mw-calendar__switcher-btn"
-              disabled={disabled}
-              aria-expanded={switcherOpen}
-              onClick={toggleSwitcher}
+            <Popover
+              open={switcherOpen}
+              onOpenChange={changeSwitcherOpen}
+              appendTo={pickerAppendTo}
+              className="mw-calendar__switcher"
+              ariaLabel={copy.chooseMonth}
+              trigger={
+                <button type="button" className="mw-calendar__switcher-btn" disabled={disabled}>
+                  <span className="mw-calendar__month-label">{renderTitle ? renderTitle(titleContext) : monthLabel}</span>
+                  <ChevronDown size={12} className={cx("mw-calendar__switcher-chevron", switcherOpen && "mw-calendar__switcher-chevron--open")} aria-hidden="true" />
+                </button>
+              }
             >
-              <span className="mw-calendar__month-label">{monthLabel}</span>
-              <ChevronDown
-                size={12}
-                className={cx(
-                  "mw-calendar__switcher-chevron",
-                  switcherOpen && "mw-calendar__switcher-chevron--open",
-                )}
-                aria-hidden="true"
-              />
-            </button>
-
-            {showTodayShortcut && !isCurrentMonth && (
-              <button
-                type="button"
-                className="mw-calendar__today-shortcut"
-                disabled={disabled}
-                onClick={backToToday}
-              >
-                {copy.backToToday}
-              </button>
-            )}
+              <div className="mw-calendar__switcher-head">
+                <button type="button" className="mw-calendar__nav-btn" aria-label={copy.prevYear} disabled={disabled || effectivePickerYear <= 100}
+                  onClick={() => setPickerYear(effectivePickerYear - 1)}><ChevronLeft size={14} aria-hidden="true" /></button>
+                <InputNumber value={pickerYear} onValueChange={setPickerYear} className="mw-calendar__switcher-year"
+                  min={100} max={9999} useGrouping={false} maxFractionDigits={0} disabled={disabled} ariaLabel={copy.year} />
+                <button type="button" className="mw-calendar__nav-btn" aria-label={copy.nextYear} disabled={disabled || effectivePickerYear >= 9999}
+                  onClick={() => setPickerYear(effectivePickerYear + 1)}><ChevronRight size={14} aria-hidden="true" /></button>
+              </div>
+              <div className="mw-calendar__month-grid">
+                {monthNames.map((label, idx) => {
+                  const selected = idx === viewMonth && effectivePickerYear === viewYear;
+                  return (
+                    <button key={idx} type="button" className="mw-calendar__month-option" aria-pressed={selected} disabled={disabled} onClick={() => pickMonth(idx)}>
+                      {renderMonth ? renderMonth({ label, month: idx + 1, year: effectivePickerYear, selected }) : label}
+                    </button>
+                  );
+                })}
+              </div>
+            </Popover>
           </div>
-
           <div className="mw-calendar__nav">
-            <button
-              type="button"
-              className="mw-calendar__nav-btn"
-              disabled={disabled}
-              aria-label={copy.prevMonth}
-              onClick={prevMonth}
-            >
-              <ChevronLeft size={14} aria-hidden="true" />
-            </button>
-            <button
-              type="button"
-              className="mw-calendar__nav-btn"
-              disabled={disabled}
-              aria-label={copy.nextMonth}
-              onClick={nextMonth}
-            >
-              <ChevronRight size={14} aria-hidden="true" />
-            </button>
+            {renderNavigation ? renderNavigation({ ...titleContext, disabled, showToday, previous: prevMonth, next: nextMonth, today: backToToday }) : (
+              <>
+                {showToday && <button type="button" className="mw-calendar__today-shortcut" disabled={disabled} onClick={backToToday}>{copy.backToToday}</button>}
+                <button type="button" className="mw-calendar__nav-btn" disabled={disabled} aria-label={copy.prevMonth} onClick={prevMonth}>
+                  <ChevronLeft size={14} aria-hidden="true" />
+                </button>
+                <button type="button" className="mw-calendar__nav-btn" disabled={disabled} aria-label={copy.nextMonth} onClick={nextMonth}>
+                  <ChevronRight size={14} aria-hidden="true" />
+                </button>
+              </>
+            )}
           </div>
         </div>
 
-        {switcherOpen && (
-          <div
-            className="mw-calendar__switcher mw-frost"
-            role="region"
-            aria-label={yearLabel}
-          >
-            <div className="mw-calendar__switcher-head">
-              <button
-                type="button"
-                className="mw-calendar__nav-btn"
-                aria-label={copy.prevYear}
-                onClick={() => setPickerYear((y) => y - 1)}
-              >
-                <ChevronLeft size={14} aria-hidden="true" />
-              </button>
-              <span className="mw-calendar__switcher-year mw-tabular">
-                {yearLabel}
-              </span>
-              <button
-                type="button"
-                className="mw-calendar__nav-btn"
-                aria-label={copy.nextYear}
-                onClick={() => setPickerYear((y) => y + 1)}
-              >
-                <ChevronRight size={14} aria-hidden="true" />
-              </button>
-            </div>
-
-            <div className="mw-calendar__month-grid">
-              {monthNames.map((monthName, idx) => {
-                const active = idx === viewMonth && pickerYear === viewYear;
-                return (
-                  <button
-                    key={idx}
-                    type="button"
-                    className={cx(
-                      "mw-calendar__month-option",
-                      active && "mw-calendar__month-option--active",
-                    )}
-                    aria-pressed={active}
-                    onClick={() => pickMonth(idx)}
-                  >
-                    {monthName}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
         <div className="mw-calendar__weekdays" role="row">
-          {weekdayLabels.map((weekday) => (
+          {weekdayLabels.map((weekday, index) => (
             <span
               key={weekday}
               role="columnheader"
               className="mw-calendar__weekday"
             >
-              {weekday}
+              {renderWeekday ? renderWeekday({ label: weekday, index }) : weekday}
             </span>
           ))}
         </div>
@@ -548,7 +509,9 @@ export const Calendar = forwardRef<HTMLDivElement, CalendarProps>(
             aria-label={monthLabel}
           >
             {calendarWeeks.flatMap((week) =>
-              week.map((cell) => (
+              week.map((cell) => hideOutsideDays && cell.otherMonth ? (
+                <span key={cell.isoDate} aria-hidden="true" />
+              ) : (
                 <button
                   key={cell.isoDate}
                   type="button"
@@ -584,16 +547,19 @@ export const Calendar = forwardRef<HTMLDivElement, CalendarProps>(
                   data-state={cell.selected ? "checked" : "unchecked"}
                   data-disabled={cell.disabled ? "" : undefined}
                   disabled={cell.disabled}
+                  aria-label={dayLabel?.(cell)}
+                  aria-current={cell.today ? "date" : undefined}
                   aria-selected={cell.selected}
                   aria-disabled={cell.disabled || undefined}
                   onClick={() => handleSelectDay(cell)}
                 >
-                  {cell.day}
+                  {renderDay ? renderDay({ cell }) : cell.day}
                 </button>
               )),
             )}
           </div>
         </div>
+        {renderFooter?.(titleContext)}
       </div>
     );
   },

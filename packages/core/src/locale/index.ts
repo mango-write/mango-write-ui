@@ -31,6 +31,8 @@ export interface UiMessages {
       prevMonth: string;
       nextMonth: string;
       prevYear: string;
+      chooseMonth: string;
+      year: string;
       nextYear: string;
       today: string;
       backToToday: string;
@@ -78,6 +80,8 @@ export const uiMessages: Record<UiLocaleSource, UiMessages> = {
         prevMonth: "上个月",
         nextMonth: "下个月",
         prevYear: "上一年",
+        chooseMonth: "切换月份",
+        year: "年份",
         nextYear: "下一年",
         today: "今天",
         backToToday: "回到今天",
@@ -121,6 +125,8 @@ export const uiMessages: Record<UiLocaleSource, UiMessages> = {
         prevMonth: "Previous month",
         nextMonth: "Next month",
         prevYear: "Previous year",
+        chooseMonth: "Choose month",
+        year: "Year",
         nextYear: "Next year",
         today: "Today",
         backToToday: "Back to today",

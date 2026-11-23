@@ -502,6 +502,14 @@
       "types": "./dist/components/UserSelect.d.ts",
       "default": "./dist/components/UserSelect.js"
     },
+    "./components/VirtualList": {
+      "mango-source": {
+        "types": "./src/components/VirtualList.tsx",
+        "default": "./src/components/VirtualList.tsx"
+      },
+      "types": "./dist/components/VirtualList.d.ts",
+      "default": "./dist/components/VirtualList.js"
+    },
     "./components/accordion": {
       "mango-source": {
         "types": "./src/components/accordion-defs.ts",
@@ -789,6 +797,14 @@
       },
       "types": "./dist/components/user-select.d.ts",
       "default": "./dist/components/user-select.js"
+    },
+    "./components/virtual-list": {
+      "mango-source": {
+        "types": "./src/components/virtual-list-defs.ts",
+        "default": "./src/components/virtual-list-defs.ts"
+      },
+      "types": "./dist/components/virtual-list-defs.d.ts",
+      "default": "./dist/components/virtual-list-defs.js"
     },
     "./lib/area-transition": {
       "mango-source": {
@@ -1196,6 +1212,11 @@
         "import": "./dist/components/UserSelect.js",
         "default": "./dist/components/UserSelect.js"
       },
+      "./components/VirtualList": {
+        "types": "./dist/components/VirtualList.d.ts",
+        "import": "./dist/components/VirtualList.js",
+        "default": "./dist/components/VirtualList.js"
+      },
       "./components/accordion": {
         "types": "./dist/components/accordion-defs.d.ts",
         "import": "./dist/components/accordion-defs.js",
@@ -1376,6 +1397,11 @@
         "import": "./dist/components/user-select.js",
         "default": "./dist/components/user-select.js"
       },
+      "./components/virtual-list": {
+        "types": "./dist/components/virtual-list-defs.d.ts",
+        "import": "./dist/components/virtual-list-defs.js",
+        "default": "./dist/components/virtual-list-defs.js"
+      },
       "./lib/area-transition": {
         "types": "./dist/lib/area-transition.d.ts",
         "import": "./dist/lib/area-transition.js",
@@ -1460,6 +1486,7 @@
     "@radix-ui/react-tooltip": "^1.4.1",
     "@radix-ui/react-visually-hidden": "^1.2.13",
     "@tanstack/react-table": "^8.21.3",
+    "@tanstack/react-virtual": "3.14.26",
     "radix-ui": "^1.8.1"
   },
   "peerDependencies": {

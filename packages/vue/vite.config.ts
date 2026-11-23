@@ -10,6 +10,7 @@ const peers = [
   "lucide-vue-next",
   "reka-ui",
   "@tanstack/vue-table",
+  "@tanstack/vue-virtual",
   "@mango-write/ui-core",
 ];
 
