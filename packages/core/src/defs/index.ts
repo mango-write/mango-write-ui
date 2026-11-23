@@ -233,3 +233,10 @@ export interface UserSelectOption extends Record<string, unknown> {
   avatar?: string | null;
   email?: string | null;
 }
+
+export type {
+  VirtualListAlignment,
+  VirtualListHandle,
+  VirtualListKey,
+  VirtualListProps,
+} from "./virtual-list.js";

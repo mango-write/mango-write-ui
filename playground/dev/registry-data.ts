@@ -577,6 +577,14 @@ export const docGroups: DocGroup[] = [
         },
       ),
       component(
+        "virtual-list",
+        { zh: "虚拟列表", en: "VirtualList" },
+        {
+          zh: "连续浏览长列表，按可见范围渲染可变高度的条目，支持按条目定位。",
+          en: "Browse long, continuous lists with variable-height rows and jump to a specific entry.",
+        },
+      ),
+      component(
         "paginator",
         { zh: "分页", en: "Paginator" },
         {

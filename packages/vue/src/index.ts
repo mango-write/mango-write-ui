@@ -96,6 +96,8 @@ export { default as UserChip } from "./components/UserChip.vue";
 export { default as UserCard } from "./components/UserCard.vue";
 export { type UserProfile } from "./components/UserCard.vue";
 export { default as UserSelect } from "./components/UserSelect.vue";
+export { default as VirtualList } from "./components/VirtualList.vue";
+export type { VirtualListAlignment, VirtualListHandle, VirtualListKey, VirtualListProps } from "./components/virtual-list-defs";
 export { type UserSelectOption } from "./components/user-select";
 export { useComboPanel, type ComboPanelAnchor, type ComboPanelOptions, type ComboPanelPlacement } from "./lib/useComboPanel";
 export { vTooltip } from "./lib/tooltip";

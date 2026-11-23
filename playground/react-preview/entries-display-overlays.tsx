@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   Bookmark,
   Check,
@@ -63,6 +63,7 @@ import {
   Tooltip,
   UserCard,
   UserChip,
+  VirtualList,
   type AsyncSlotSkeleton,
   type AsyncSlotStatus,
   type AvatarShape,
@@ -86,6 +87,7 @@ import {
   type UserChipSize,
   type UserChipVariant,
   type UserProfile,
+  type VirtualListHandle,
 } from "@mango-write/ui-react";
 import type { ReactEntryRenderer, ReactPreviewContext } from "./types";
 
@@ -358,7 +360,31 @@ function AdminShellDemo({ ctx }: { ctx: ReactPreviewContext }) {
   );
 }
 
+const recordIds = Array.from({ length: 1000 }, (_, i) => i + 1);
+const recordKey = (item: number) => item;
+
+function VirtualListDemo({ locale }: { locale: ReactPreviewContext["locale"] }) {
+  const list = useRef<VirtualListHandle>(null);
+  const zh = locale === "zh-CN";
+  return (
+    <div style={{ width: "100%" }}>
+      <Button severity="secondary" onClick={() => list.current?.scrollToKey(500)} label={zh ? "跳到第 500 条" : "Jump to record 500"} />
+      <VirtualList ref={list} items={recordIds} itemKey={recordKey} estimateSize={40}
+        aria-label={zh ? "记录列表" : "Records"} style={{ height: "16rem" }}>
+        {(item) => (
+          <div style={{ padding: "var(--space-2)", borderBottom: "1px solid var(--border-subtle)" }}>
+            {item % 5 === 0
+              ? <details><summary>{item}</summary><p>{zh ? "展开后仍会自动测量行高。" : "The row is measured again after expansion."}</p></details>
+              : item}
+          </div>
+        )}
+      </VirtualList>
+    </div>
+  );
+}
+
 export const DISPLAY_OVERLAY_REACT_ENTRIES: Record<string, ReactEntryRenderer> = {
+  "virtual-list": ({ locale }) => <VirtualListDemo locale={locale} />,
   avatar: ({ values: v }) => (
     <Avatar
       label={typeof v.label === "string" && v.label ? v.label : undefined}

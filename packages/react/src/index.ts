@@ -222,6 +222,8 @@ export {
 } from "./components/UserCard";
 export { default as UserSelect } from "./components/UserSelect";
 export { type UserSelectOption, type UserSelectProps } from "./components/user-select";
+export { default as VirtualList, type VirtualListReactProps } from "./components/VirtualList";
+export type { VirtualListAlignment, VirtualListHandle, VirtualListKey, VirtualListProps } from "./components/virtual-list-defs";
 
 export {
   useComboPanel,
