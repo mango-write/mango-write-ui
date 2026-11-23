@@ -1486,7 +1486,7 @@
     "@radix-ui/react-tooltip": "^1.4.1",
     "@radix-ui/react-visually-hidden": "^1.2.13",
     "@tanstack/react-table": "^8.21.3",
-    "@tanstack/react-virtual": "3.14.26",
+    "@tanstack/react-virtual": "^3.14.28",
     "radix-ui": "^1.8.1"
   },
   "peerDependencies": {
@@ -1497,17 +1497,17 @@
   "devDependencies": {
     "@testing-library/dom": "^10.4.2",
     "@testing-library/react": "^16.3.3",
-    "@testing-library/user-event": "^14.6.10",
-    "@types/node": "^24.13.3",
+    "@testing-library/user-event": "^14.6.13",
+    "@types/node": "^24.19.2",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.3.0",
     "happy-dom": "^21.0.4",
-    "lucide-react": "^1.72.0",
+    "lucide-react": "^1.78.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "typescript": "npm:@typescript/typescript6@^6.0.2",
-    "vite": "^8.3.5",
+    "vite": "^8.3.8",
     "vitest": "^4.1.12"
   },
   "sideEffects": [
