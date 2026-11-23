@@ -168,9 +168,8 @@ export function useComboPanel(
     };
 
     const onDocKeydown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        closePanel();
-      }
+      if (e.key !== "Escape" || e.defaultPrevented) return;
+      if (!panelRefHolder.current.current?.querySelector('[role="dialog"][data-state="open"]')) closePanel();
     };
 
     const onScrollOrResize = () => {

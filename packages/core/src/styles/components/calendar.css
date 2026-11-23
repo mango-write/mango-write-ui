@@ -59,6 +59,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
+  min-width: 0;
   padding: var(--space-0-5) var(--space-1-5);
   margin-inline-start: calc(var(--space-1-5) * -1);
   border: 0;
@@ -75,12 +76,20 @@
     color var(--duration-fast) var(--ease-standard);
 }
 
+.mw-calendar__month-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .mw-calendar__switcher-btn:hover:not(:disabled) {
   background-color: var(--fill-default);
   color: var(--text-accent);
 }
 
 .mw-calendar__switcher-chevron {
+  flex-shrink: 0;
   color: var(--text-tertiary);
   transition: transform var(--duration-fast) var(--ease-standard);
 }
@@ -138,21 +147,12 @@
   color: var(--text-primary);
 }
 
-.mw-calendar__switcher {
-  position: absolute;
-  inset-inline: var(--space-2);
-  top: calc(var(--size-sm-h) + var(--space-3));
-  z-index: 5;
+.mw-calendar__switcher.mw-popover {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+  width: calc(var(--size-xs-h) * 9);
   padding: var(--space-2-5);
-  border-radius: var(--radius-float);
-}
-
-.mw-calendar--plain .mw-calendar__switcher {
-  inset-inline: var(--space-0);
-  top: calc(var(--size-sm-h) + var(--space-1));
 }
 
 .mw-calendar__switcher-head {
@@ -163,10 +163,12 @@
 }
 
 .mw-calendar__switcher-year {
-  font-size: var(--type-body-sm-size);
-  line-height: var(--type-body-sm-line);
-  font-weight: var(--weight-semibold);
-  color: var(--text-primary);
+  width: calc(var(--size-xs-h) * 3);
+}
+
+.mw-calendar__switcher-year input {
+  text-align: center;
+  font-variant-numeric: tabular-nums;
 }
 
 .mw-calendar__month-grid {
@@ -191,15 +193,27 @@
     color var(--duration-fast) var(--ease-standard);
 }
 
-.mw-calendar__month-option:hover:not(.mw-calendar__month-option--active) {
+.mw-calendar__month-option:hover:not([aria-pressed="true"]) {
   background-color: var(--fill-default);
   color: var(--text-primary);
 }
 
-.mw-calendar__month-option--active {
+.mw-calendar__month-option[aria-pressed="true"] {
   background-color: var(--accent);
   color: var(--text-on-accent);
   font-weight: var(--weight-semibold);
+}
+
+@media (pointer: coarse) {
+  .mw-calendar__switcher-head .mw-calendar__nav-btn {
+    width: var(--hit-min);
+    height: var(--hit-min);
+  }
+
+  .mw-calendar__switcher-year input,
+  .mw-calendar__month-option {
+    min-height: var(--hit-min);
+  }
 }
 
 .mw-calendar__weekdays {

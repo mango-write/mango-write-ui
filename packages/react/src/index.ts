@@ -391,9 +391,12 @@ export {
   type CalendarFirstDayOfWeek,
   type CalendarHandle,
   type CalendarModelValue,
+  type CalendarMonthContext,
+  type CalendarNavigationContext,
   type CalendarOutputValue,
   type CalendarProps,
   type CalendarSelectionMode,
+  type CalendarTitleContext,
   type CalendarVariant,
   type CalendarViewRange,
 } from "./components/calendar-defs";

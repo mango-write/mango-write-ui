@@ -85,6 +85,21 @@ describe("DatePicker", () => {
     expect(parsedTime.getMinutes()).toBe(45);
   });
 
+  it("closes the nested month picker first on Escape", () => {
+    const { container } = render(<DatePicker showIcon />);
+    fireEvent.click(container.querySelector(".mw-date-picker__dropdown")!);
+    const panel = document.body.querySelector(".mw-date-picker__panel")!;
+    const trigger = panel.querySelector(".mw-calendar__switcher-btn")!;
+    fireEvent.click(trigger);
+
+    fireEvent.keyDown(panel.querySelector(".mw-calendar__switcher-year input")!, { key: "Escape" });
+
+    expect(trigger.getAttribute("aria-expanded")).toBe("false");
+    expect(document.body.contains(panel)).toBe(true);
+    fireEvent.keyDown(trigger, { key: "Escape" });
+    expect(document.body.contains(panel)).toBe(false);
+  });
+
   it("enforces minDate and maxDate constraints on calendar days", () => {
     const minDate = new Date(2026, 4, 10);
     const maxDate = new Date(2026, 4, 20);

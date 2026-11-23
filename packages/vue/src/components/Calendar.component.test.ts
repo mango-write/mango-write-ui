@@ -131,7 +131,9 @@ describe("Calendar", () => {
     const monthOptions = wrapper.findAll(".mw-calendar__month-option");
     expect(monthOptions).toHaveLength(12);
 
-    // Pick March (index 2) of 2025
+    const year = wrapper.get<HTMLInputElement>('input[aria-label="年份"]');
+    expect(year.element.value).toBe("2025");
+    await year.setValue("2021");
     await monthOptions[2]!.trigger("click");
     await nextTick();
 
@@ -140,9 +142,37 @@ describe("Calendar", () => {
       year: number;
       month: number;
     };
-    expect(viewPayload.year).toBe(2025);
+    expect(viewPayload.year).toBe(2021);
     expect(viewPayload.month).toBe(3);
-    expect(wrapper.find('[data-date="2025-03-15"]').exists()).toBe(true);
+    expect(wrapper.find('[data-date="2021-03-15"]').exists()).toBe(true);
+  });
+
+  it("customizes the visible month and day content independently of selection", async () => {
+    const wrapper = mount(Calendar, {
+      props: {
+        selected: "2026-05-01",
+        viewDate: "2026-06-01",
+        hideOutsideDays: true,
+        dayLabel: (cell) => `Entry date ${cell.isoDate}`,
+        showTodayShortcut: "always",
+      },
+      slots: {
+        day: ({ cell }) => `Day ${cell.day}`,
+        footer: ({ date }) => `Month ${date.getMonth() + 1}`,
+      },
+    });
+
+    expect(wrapper.find('[data-date="2026-05-01"]').exists()).toBe(false);
+    expect(wrapper.find(".mw-calendar__day--other-month").exists()).toBe(false);
+    const day = wrapper.get('[data-date="2026-06-01"]');
+    expect(day.text()).toBe("Day 1");
+    expect(day.attributes("aria-label")).toBe("Entry date 2026-06-01");
+    expect(wrapper.text()).toContain("Month 6");
+
+    await wrapper.get(".mw-calendar__nav .mw-calendar__today-shortcut").trigger("click");
+    expect(toIsoKey(wrapper.emitted("today")?.[0]?.[0] as Date)).toBe(toIsoKey(new Date()));
+    expect(wrapper.emitted("select")).toBeUndefined();
+    expect(wrapper.find(".mw-calendar__today-shortcut").exists()).toBe(true);
   });
 
   it("supports firstDayOfWeek configuration and range/multiple selection modes", async () => {

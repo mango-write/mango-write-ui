@@ -10,11 +10,16 @@ import {
 } from "@mango-write/ui-core/headless/calendar-grid";
 import { areaDurationMs } from "../lib/area-transition";
 import { uiMessages, type UiLocaleSource } from "../locale/index.js";
+import InputNumber from "./InputNumber.vue";
+import Popover from "./Popover.vue";
 import type {
   CalendarFirstDayOfWeek,
   CalendarModelValue,
+  CalendarMonthContext,
+  CalendarNavigationContext,
   CalendarProps,
   CalendarSelectionMode,
+  CalendarTitleContext,
   CalendarVariant,
   CalendarViewRange,
 } from "./calendar-defs";
@@ -23,8 +28,11 @@ export type {
   CalendarCell,
   CalendarFirstDayOfWeek,
   CalendarModelValue,
+  CalendarMonthContext,
+  CalendarNavigationContext,
   CalendarProps,
   CalendarSelectionMode,
+  CalendarTitleContext,
   CalendarVariant,
   CalendarViewRange,
 };
@@ -44,6 +52,7 @@ const props = withDefaults(defineProps<CalendarProps>(), {
   days: undefined,
   onlySelectableWithDays: false,
   showTodayShortcut: true,
+  pickerAppendTo: "self",
   variant: "card",
   fluid: false,
   disabled: false,
@@ -61,6 +70,16 @@ const emit = defineEmits<{
   "date-select": [value: Date];
   select: [isoDate: string];
   view: [range: CalendarViewRange];
+  today: [date: Date];
+}>();
+
+defineSlots<{
+  title?: (context: CalendarTitleContext) => unknown;
+  navigation?: (context: CalendarNavigationContext) => unknown;
+  weekday?: (props: { label: string; index: number }) => unknown;
+  day?: (props: { cell: CalendarCell }) => unknown;
+  month?: (context: CalendarMonthContext) => unknown;
+  footer?: (context: CalendarTitleContext) => unknown;
 }>();
 
 const attrs = useAttrs();
@@ -93,7 +112,8 @@ const todayDate = now.getDate();
 
 const viewYear = ref<number>(todayYear);
 const viewMonth = ref<number>(todayMonth);
-const pickerYear = ref<number>(todayYear);
+const pickerYear = ref<number | null>(todayYear);
+const effectivePickerYear = computed(() => Math.max(100, Math.min(9999, pickerYear.value ?? viewYear.value)));
 const switcherOpen = ref<boolean>(false);
 
 function resolvePrimarySelectedDate(): Date | null {
@@ -108,7 +128,7 @@ function resolvePrimarySelectedDate(): Date | null {
 }
 
 function syncViewFromProps(): void {
-  const primary = resolvePrimarySelectedDate();
+  const primary = parseDateValue(props.viewDate) ?? resolvePrimarySelectedDate();
   if (primary) {
     viewYear.value = primary.getFullYear();
     viewMonth.value = primary.getMonth();
@@ -119,7 +139,7 @@ function syncViewFromProps(): void {
 syncViewFromProps();
 
 watch(
-  () => [props.modelValue, props.selected],
+  () => [props.viewDate, props.modelValue, props.selected],
   () => {
     syncViewFromProps();
   },
@@ -130,20 +150,24 @@ const isCurrentMonth = computed<boolean>(
   () => viewYear.value === todayYear && viewMonth.value === todayMonth,
 );
 
+const calendarDate = computed(() => new Date(viewYear.value, viewMonth.value, 1));
 const monthLabel = computed<string>(() => {
-  const date = new Date(viewYear.value, viewMonth.value, 1);
   return new Intl.DateTimeFormat(resolvedLocale.value, {
     year: "numeric",
     month: "long",
-  }).format(date);
+  }).format(calendarDate.value);
 });
 
-const yearLabel = computed<string>(() => {
-  const date = new Date(pickerYear.value, 0, 1);
-  return new Intl.DateTimeFormat(resolvedLocale.value, {
-    year: "numeric",
-  }).format(date);
-});
+const titleContext = computed(() => ({ date: calendarDate.value, label: monthLabel.value }));
+const showToday = computed(() => props.showTodayShortcut === "always" || (props.showTodayShortcut && !isCurrentMonth.value));
+const navigationContext = computed<CalendarNavigationContext>(() => ({
+  ...titleContext.value,
+  disabled: props.disabled,
+  showToday: showToday.value,
+  previous: prevMonth,
+  next: nextMonth,
+  today: backToToday,
+}));
 
 const monthNames = computed<string[]>(() =>
   Array.from({ length: 12 }, (_, i) =>
@@ -219,17 +243,17 @@ function backToToday(): void {
   pickerYear.value = todayYear;
   switcherOpen.value = false;
   emitViewRange();
+  emit("today", new Date());
 }
 
-function toggleSwitcher(): void {
-  if (props.disabled) return;
-  pickerYear.value = viewYear.value;
-  switcherOpen.value = !switcherOpen.value;
+function setSwitcherOpen(open: boolean): void {
+  if (open) pickerYear.value = viewYear.value;
+  switcherOpen.value = open;
 }
 
 function pickMonth(monthIndexZeroBased: number): void {
   if (props.disabled) return;
-  viewYear.value = pickerYear.value;
+  viewYear.value = effectivePickerYear.value;
   viewMonth.value = monthIndexZeroBased;
   switcherOpen.value = false;
   emitViewRange();
@@ -334,109 +358,59 @@ defineExpose({
   >
     <div class="mw-calendar__header">
       <div class="mw-calendar__header-start">
-        <button
-          type="button"
-          class="mw-calendar__switcher-btn"
-          :disabled="disabled"
-          :aria-expanded="switcherOpen ? 'true' : 'false'"
-          @click="toggleSwitcher"
-        >
-          <span class="mw-calendar__month-label">{{ monthLabel }}</span>
-          <ChevronDown
-            :size="12"
-            class="mw-calendar__switcher-chevron"
-            :class="{ 'mw-calendar__switcher-chevron--open': switcherOpen }"
-            aria-hidden="true"
-          />
-        </button>
-
-        <button
-          v-if="showTodayShortcut && !isCurrentMonth"
-          type="button"
-          class="mw-calendar__today-shortcut"
-          :disabled="disabled"
-          @click="backToToday"
-        >
-          {{ copy.backToToday }}
-        </button>
+        <Popover :open="switcherOpen" :append-to="pickerAppendTo" class="mw-calendar__switcher"
+          :aria-label="copy.chooseMonth" @update:open="setSwitcherOpen">
+          <template #trigger>
+            <button type="button" class="mw-calendar__switcher-btn" :disabled="disabled">
+              <span class="mw-calendar__month-label"><slot name="title" v-bind="titleContext">{{ monthLabel }}</slot></span>
+              <ChevronDown :size="12" class="mw-calendar__switcher-chevron"
+                :class="{ 'mw-calendar__switcher-chevron--open': switcherOpen }" aria-hidden="true" />
+            </button>
+          </template>
+          <div class="mw-calendar__switcher-head">
+            <button type="button" class="mw-calendar__nav-btn" :aria-label="copy.prevYear"
+              :disabled="disabled || effectivePickerYear <= 100" @click="pickerYear = effectivePickerYear - 1">
+              <ChevronLeft :size="14" aria-hidden="true" />
+            </button>
+            <InputNumber v-model="pickerYear" class="mw-calendar__switcher-year" :min="100" :max="9999" :use-grouping="false"
+              :max-fraction-digits="0" :disabled="disabled" :aria-label="copy.year" />
+            <button type="button" class="mw-calendar__nav-btn" :aria-label="copy.nextYear"
+              :disabled="disabled || effectivePickerYear >= 9999" @click="pickerYear = effectivePickerYear + 1">
+              <ChevronRight :size="14" aria-hidden="true" />
+            </button>
+          </div>
+          <div class="mw-calendar__month-grid">
+            <button v-for="(label, idx) in monthNames" :key="idx" type="button" class="mw-calendar__month-option"
+              :aria-pressed="idx === viewMonth && effectivePickerYear === viewYear" :disabled="disabled" @click="pickMonth(idx)">
+              <slot name="month" :label="label" :year="effectivePickerYear" :month="idx + 1"
+                :selected="idx === viewMonth && effectivePickerYear === viewYear">{{ label }}</slot>
+            </button>
+          </div>
+        </Popover>
       </div>
-
       <div class="mw-calendar__nav">
-        <button
-          type="button"
-          class="mw-calendar__nav-btn"
-          :disabled="disabled"
-          :aria-label="copy.prevMonth"
-          @click="prevMonth"
-        >
-          <ChevronLeft :size="14" aria-hidden="true" />
-        </button>
-        <button
-          type="button"
-          class="mw-calendar__nav-btn"
-          :disabled="disabled"
-          :aria-label="copy.nextMonth"
-          @click="nextMonth"
-        >
-          <ChevronRight :size="14" aria-hidden="true" />
-        </button>
+        <slot name="navigation" v-bind="navigationContext">
+          <button v-if="showToday" type="button" class="mw-calendar__today-shortcut" :disabled="disabled" @click="backToToday">
+            {{ copy.backToToday }}
+          </button>
+          <button type="button" class="mw-calendar__nav-btn" :disabled="disabled" :aria-label="copy.prevMonth" @click="prevMonth">
+            <ChevronLeft :size="14" aria-hidden="true" />
+          </button>
+          <button type="button" class="mw-calendar__nav-btn" :disabled="disabled" :aria-label="copy.nextMonth" @click="nextMonth">
+            <ChevronRight :size="14" aria-hidden="true" />
+          </button>
+        </slot>
       </div>
     </div>
 
-    <Transition name="mw-calendar-fade" :duration="areaDurationMs()">
-      <div
-        v-if="switcherOpen"
-        class="mw-calendar__switcher mw-frost"
-        role="region"
-        :aria-label="yearLabel"
-      >
-        <div class="mw-calendar__switcher-head">
-          <button
-            type="button"
-            class="mw-calendar__nav-btn"
-            :aria-label="copy.prevYear"
-            @click="pickerYear -= 1"
-          >
-            <ChevronLeft :size="14" aria-hidden="true" />
-          </button>
-          <span class="mw-calendar__switcher-year mw-tabular">{{ yearLabel }}</span>
-          <button
-            type="button"
-            class="mw-calendar__nav-btn"
-            :aria-label="copy.nextYear"
-            @click="pickerYear += 1"
-          >
-            <ChevronRight :size="14" aria-hidden="true" />
-          </button>
-        </div>
-
-        <div class="mw-calendar__month-grid">
-          <button
-            v-for="(name, idx) in monthNames"
-            :key="idx"
-            type="button"
-            class="mw-calendar__month-option"
-            :class="{
-              'mw-calendar__month-option--active':
-                idx === viewMonth && pickerYear === viewYear,
-            }"
-            :aria-pressed="idx === viewMonth && pickerYear === viewYear ? 'true' : 'false'"
-            @click="pickMonth(idx)"
-          >
-            {{ name }}
-          </button>
-        </div>
-      </div>
-    </Transition>
-
     <div class="mw-calendar__weekdays" role="row">
       <span
-        v-for="weekday in weekdayLabels"
+        v-for="(weekday, index) in weekdayLabels"
         :key="weekday"
         role="columnheader"
         class="mw-calendar__weekday"
       >
-        {{ weekday }}
+        <slot name="weekday" :label="weekday" :index="index">{{ weekday }}</slot>
       </span>
     </div>
 
@@ -448,10 +422,10 @@ defineExpose({
           role="grid"
           :aria-label="monthLabel"
         >
-          <template v-for="(week, wIdx) in calendarWeeks" :key="wIdx">
+          <template v-for="cell in calendarWeeks.flat()" :key="cell.isoDate">
+            <span v-if="hideOutsideDays && cell.otherMonth" aria-hidden="true" />
             <button
-              v-for="cell in week"
-              :key="cell.isoDate"
+              v-else
               type="button"
               class="mw-calendar__day mw-date-picker__day mw-tabular"
               :class="{
@@ -470,15 +444,18 @@ defineExpose({
               :data-selected="cell.selected ? '' : undefined"
               :data-today="cell.today ? '' : undefined"
               :disabled="cell.disabled"
+              :aria-label="dayLabel?.(cell)"
+              :aria-current="cell.today ? 'date' : undefined"
               :aria-selected="cell.selected ? 'true' : 'false'"
               :aria-disabled="cell.disabled ? 'true' : undefined"
               @click="onSelectDay(cell)"
             >
-              {{ cell.day }}
+              <slot name="day" :cell="cell">{{ cell.day }}</slot>
             </button>
           </template>
         </div>
       </Transition>
     </div>
+    <slot name="footer" v-bind="titleContext" />
   </div>
 </template>

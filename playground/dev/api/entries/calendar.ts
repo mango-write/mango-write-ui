@@ -36,10 +36,28 @@ export const api: ApiEntry = {
     {
       name: "firstDayOfWeek / showTodayShortcut",
       kind: "prop",
-      type: "1 · 0 / boolean",
+      type: "1 · 0 / boolean | 'always'",
       desc: {
-        zh: "周首日（默认 <code>1</code> 周一，<code>0</code> 周日）；跨月浏览时头部自动浮现「回到今天」快捷按钮",
-        en: "First day of week (default <code>1</code> Monday, <code>0</code> Sunday); shows a “Back to today” shortcut in the header when viewing other months",
+        zh: "周首日（默认 <code>1</code> 周一，<code>0</code> 周日）。「回到今天」与月份箭头同组，默认跨月时显示，<code>always</code> 时始终显示，<code>false</code> 时隐藏。",
+        en: "First day of the week (<code>1</code> Monday by default, <code>0</code> Sunday). The month navigation shows “Back to today” when viewing other months by default, in every month with <code>always</code>, and hides it with <code>false</code>.",
+      },
+    },
+    {
+      name: "viewDate / hideOutsideDays / dayLabel",
+      kind: "prop",
+      type: "Date | string | null / boolean / (cell: CalendarCell) => string",
+      desc: {
+        zh: "独立设置可见月份，保留已选日期。<code>hideOutsideDays</code> 隐藏相邻月份的日期内容，<code>dayLabel</code> 可为日期补充无障碍说明。",
+        en: "Set the visible month independently of the selected date. <code>hideOutsideDays</code> hides dates from neighboring months, and <code>dayLabel</code> provides accessible labels for dates.",
+      },
+    },
+    {
+      name: "pickerAppendTo",
+      kind: "prop",
+      type: "'self' | 'body'",
+      desc: {
+        zh: "年月浮层默认在日历内渲染。滚动侧栏等可能裁剪浮层的容器可设为 <code>body</code>。",
+        en: "The year and month picker renders inside the calendar by default. Use <code>body</code> in containers such as scrolling sidebars that can clip popovers.",
       },
     },
     {
@@ -52,12 +70,30 @@ export const api: ApiEntry = {
       },
     },
     {
-      name: "@select / @date-select / @view",
+      name: "@select / @date-select / @view / @today",
       kind: "event",
-      type: "(isoDate: string) / (date: Date) / (range: CalendarViewRange)",
+      type: "(isoDate: string) / (date: Date) / (range: CalendarViewRange) / (date: Date)",
       desc: {
-        zh: "点选日期时同步发出 ISO 日期键与 <code>Date</code> 对象；翻月、快选年月或回到今天时发出当前月起止范围 <code>{ from, until, year, month }</code>",
-        en: "Emits both the ISO date key and <code>Date</code> on selection; emits the visible month range <code>{ from, until, year, month }</code> on month navigation or quick jump",
+        zh: "点选日期时发出 ISO 日期键与 <code>Date</code>。月份导航发出 <code>{ from, until, year, month }</code>。回到今天时也发出当天日期，由调用方决定是否选中今天。",
+        en: "Day selection emits the ISO date key and <code>Date</code>. Month navigation emits <code>{ from, until, year, month }</code>. The Today action also emits today’s date for consumers that want to select it.",
+      },
+    },
+    {
+      name: "title / navigation / footer",
+      kind: "slot",
+      type: "CalendarTitleContext / CalendarNavigationContext / CalendarTitleContext",
+      desc: {
+        zh: "自定义年月标题内容、导航按钮和底部内容。导航提供 <code>previous</code>、<code>next</code> 和 <code>today</code> 动作。React 对应 <code>renderTitle</code>、<code>renderNavigation</code> 和 <code>renderFooter</code>。",
+        en: "Customize the title content, navigation controls, and footer. Navigation provides <code>previous</code>, <code>next</code>, and <code>today</code> actions. In React, use <code>renderTitle</code>, <code>renderNavigation</code>, and <code>renderFooter</code>.",
+      },
+    },
+    {
+      name: "weekday / day / month",
+      kind: "slot",
+      type: "{ label, index } / { cell: CalendarCell } / CalendarMonthContext",
+      desc: {
+        zh: "自定义星期、日期及快选月份的内容，沿用组件的网格、选中态和点击行为。React 对应 <code>renderWeekday</code>、<code>renderDay</code> 和 <code>renderMonth</code>。",
+        en: "Customize the weekday, date, and quick-picker month content while retaining the grid, selection state, and click behavior. In React, use <code>renderWeekday</code>, <code>renderDay</code>, and <code>renderMonth</code>.",
       },
     },
   ],

@@ -171,10 +171,14 @@ export { default as ColorPicker } from "./components/ColorPicker.vue";
 export { default as Column } from "./components/Column.vue";
 export { default as Calendar } from "./components/Calendar.vue";
 export {
+  type CalendarCell,
   type CalendarFirstDayOfWeek,
   type CalendarModelValue,
+  type CalendarMonthContext,
+  type CalendarNavigationContext,
   type CalendarProps,
   type CalendarSelectionMode,
+  type CalendarTitleContext,
   type CalendarVariant,
   type CalendarViewRange,
 } from "./components/calendar-defs";
