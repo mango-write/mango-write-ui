@@ -1425,7 +1425,7 @@
   },
   "dependencies": {
     "@mango-write/ui-core": "workspace:*",
-    "@tanstack/vue-virtual": "3.13.52",
+    "@tanstack/vue-virtual": "^3.13.54",
     "reka-ui": "^2.11.0"
   },
   "peerDependencies": {
@@ -1434,21 +1434,21 @@
     "vue-i18n": "^11.4.18"
   },
   "devDependencies": {
-    "@tailwindcss/vite": "^4.3.3",
-    "@types/node": "^24.13.3",
-    "@vitejs/plugin-vue": "^6.0.8",
-    "@vue/test-utils": "^2.4.11",
+    "@tailwindcss/vite": "^4.3.5",
+    "@types/node": "^24.19.2",
+    "@vitejs/plugin-vue": "^6.0.11",
+    "@vue/test-utils": "^2.6.0",
     "happy-dom": "^21.0.4",
-    "jsdom": "^30.0.1",
+    "jsdom": "^31.0.1",
     "lucide-vue-next": "^1.0.0",
-    "tailwindcss": "^4.0.0",
+    "tailwindcss": "^4.3.5",
     "typescript": "npm:@typescript/typescript6@^6.0.2",
-    "vite": "^8.3.5",
+    "vite": "^8.3.8",
     "vitest": "^4.1.12",
-    "vue": "^3.5.34",
-    "vue-i18n": "^11.4.18",
-    "vue-router": "^4.4.5",
-    "vue-tsc": "^3.3.11"
+    "vue": "^3.5.46",
+    "vue-i18n": "^11.4.23",
+    "vue-router": "^4.6.5",
+    "vue-tsc": "3.3.13"
   },
   "sideEffects": [
     "**/*.css"
