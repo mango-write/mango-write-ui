@@ -3,15 +3,31 @@ import {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
   type ChangeEvent,
+  type CompositionEvent as ReactCompositionEvent,
   type FocusEvent,
   type KeyboardEvent as ReactKeyboardEvent,
   type MouseEvent,
   type Ref,
 } from "react";
 import { ChevronDown, ChevronUp, Minus, Plus, X } from "lucide-react";
+import {
+  clampNumberValue,
+  countNumberDecimals,
+  countSemanticTokensBeforeCaret,
+  formatCommittedNumber,
+  isAllowedNumberInputText,
+  mapSemanticCaretToFormattedText,
+  normalizeNegativeZero,
+  parseNumberRaw,
+  reconcileNumberEdit,
+  resolveEffectiveMaxFractionDigits,
+  roundNumberToPrecision,
+  type NumberFormatOptions,
+} from "@mango-write/ui-core/headless/number-edit";
 import { mergeDescribedBy, useFormFieldContext } from "./form-field-context";
 import type { InputNumberProps } from "./input-number";
 
@@ -35,22 +51,23 @@ function assignRef<T>(ref: Ref<T> | undefined, value: T | null) {
   }
 }
 
-function countDecimals(num: number): number {
-  if (!Number.isFinite(num)) return 0;
-  const str = String(num);
-  const expIdx = str.indexOf("e-");
-  if (expIdx !== -1) {
-    return parseInt(str.slice(expIdx + 2), 10) || 0;
+function setSelectionSafely(el: HTMLInputElement | null, caret: number) {
+  if (!el) return;
+  try {
+    if (el.selectionStart !== caret || el.selectionEnd !== caret) {
+      el.setSelectionRange(caret, caret);
+    }
+  } catch {
+    // 忽略不支持选区 API 的退化环境。
   }
-  const dotIdx = str.indexOf(".");
-  return dotIdx === -1 ? 0 : str.length - dotIdx - 1;
 }
 
-type ParseResult =
-  | { kind: "empty"; value: null }
-  | { kind: "incomplete"; value: null }
-  | { kind: "invalid"; value: null }
-  | { kind: "number"; value: number };
+function isSameNumericModel(a: number | null | undefined, b: number | null | undefined): boolean {
+  if (a === null || a === undefined || b === null || b === undefined) {
+    return (a ?? null) === (b ?? null);
+  }
+  return normalizeNegativeZero(a) === normalizeNegativeZero(b);
+}
 
 export const InputNumber = forwardRef<HTMLInputElement, InputNumberProps>(function MwInputNumber(
   props,
@@ -102,6 +119,8 @@ export const InputNumber = forwardRef<HTMLInputElement, InputNumberProps>(functi
     onBlur,
     onKeyDown,
     onChange,
+    onCompositionStart,
+    onCompositionEnd,
     ...restAttrs
   } = props;
 
@@ -130,143 +149,65 @@ export const InputNumber = forwardRef<HTMLInputElement, InputNumberProps>(functi
           ? size
           : undefined;
 
-  const roundToPrecision = useCallback(
-    (val: number): number => {
-      if (maxFractionDigits !== undefined && maxFractionDigits >= 0) {
-        const factor = 10 ** maxFractionDigits;
-        return Math.round((val + Number.EPSILON) * factor) / factor;
-      }
-      return val;
-    },
-    [maxFractionDigits],
+  const formatOptions = useMemo<NumberFormatOptions>(
+    () => ({
+      useGrouping,
+      minFractionDigits,
+      maxFractionDigits,
+      prefix,
+      suffix,
+      mode,
+      currency,
+      locale,
+    }),
+    [currency, locale, maxFractionDigits, minFractionDigits, mode, prefix, suffix, useGrouping],
+  );
+
+  const effectiveMaxFrac = useMemo(
+    () => resolveEffectiveMaxFractionDigits(formatOptions),
+    [formatOptions],
+  );
+
+  const formatSignature = useMemo(
+    () =>
+      [
+        useGrouping,
+        minFractionDigits,
+        maxFractionDigits,
+        prefix ?? "",
+        suffix ?? "",
+        mode,
+        currency ?? "",
+        locale ?? "",
+      ].join("\u0001"),
+    [currency, locale, maxFractionDigits, minFractionDigits, mode, prefix, suffix, useGrouping],
   );
 
   const clampValue = useCallback(
-    (val: number): number => {
-      let next = roundToPrecision(val);
-      if (min !== undefined && next < min) {
-        next = min;
-      }
-      if (max !== undefined && next > max) {
-        next = max;
-      }
-      return next;
-    },
-    [min, max, roundToPrecision],
+    (val: number): number => clampNumberValue(val, min, max, effectiveMaxFrac),
+    [min, max, effectiveMaxFrac],
   );
 
   const formatValue = useCallback(
-    (val: number | null | undefined): string => {
-      if (val === null || val === undefined || !Number.isFinite(val)) {
-        return "";
-      }
-      const rounded = roundToPrecision(val);
-      let core: string;
-
-      if (mode === "currency" && currency) {
-        try {
-          core = new Intl.NumberFormat(locale, {
-            style: "currency",
-            currency,
-            useGrouping: useGrouping !== false,
-            minimumFractionDigits: minFractionDigits,
-            maximumFractionDigits: maxFractionDigits,
-          }).format(rounded);
-        } catch {
-          core = String(rounded);
-        }
-      } else if (
-        useGrouping === false &&
-        minFractionDigits === undefined &&
-        maxFractionDigits === undefined
-      ) {
-        core = String(rounded);
-      } else if (useGrouping === false && minFractionDigits !== undefined) {
-        const maxFrac =
-          maxFractionDigits !== undefined
-            ? Math.max(minFractionDigits, maxFractionDigits)
-            : Math.max(minFractionDigits, countDecimals(rounded));
-        core = rounded.toFixed(
-          Math.min(20, Math.max(minFractionDigits, Math.min(maxFrac, countDecimals(rounded)))),
-        );
-      } else if (useGrouping === false) {
-        core = String(rounded);
-      } else {
-        try {
-          const minFrac = minFractionDigits;
-          const maxFrac =
-            maxFractionDigits ??
-            (minFrac !== undefined ? Math.max(minFrac, 3) : Math.max(3, countDecimals(rounded)));
-          core = new Intl.NumberFormat(locale, {
-            style: "decimal",
-            useGrouping: true,
-            minimumFractionDigits: minFrac,
-            maximumFractionDigits: Math.min(20, maxFrac),
-          }).format(rounded);
-        } catch {
-          core = String(rounded);
-        }
-      }
-
-      return `${prefix ?? ""}${core}${suffix ?? ""}`;
-    },
-    [
-      currency,
-      locale,
-      maxFractionDigits,
-      minFractionDigits,
-      mode,
-      prefix,
-      roundToPrecision,
-      suffix,
-      useGrouping,
-    ],
-  );
-
-  const parseRaw = useCallback(
-    (raw: string): ParseResult => {
-      let str = raw;
-      if (prefix && str.startsWith(prefix)) {
-        str = str.slice(prefix.length);
-      }
-      if (suffix && str.endsWith(suffix)) {
-        str = str.slice(0, str.length - suffix.length);
-      }
-      str = str.trim();
-      if (str === "") {
-        return { kind: "empty", value: null };
-      }
-
-      let cleaned = str.replace(/[\s,_]/g, "");
-      if (mode === "currency") {
-        cleaned = cleaned.replace(/^[^\d+-]+|[^\d.]+$/g, "");
-      }
-      if (cleaned === "") {
-        return { kind: "empty", value: null };
-      }
-      if (
-        cleaned === "-" ||
-        cleaned === "+" ||
-        cleaned === "." ||
-        cleaned === "-." ||
-        cleaned === "+."
-      ) {
-        return { kind: "incomplete", value: null };
-      }
-      if (!/^[+-]?(?:\d+\.?\d*|\.\d+)$/.test(cleaned)) {
-        return { kind: "invalid", value: null };
-      }
-      const num = Number(cleaned);
-      if (!Number.isFinite(num)) {
-        return { kind: "invalid", value: null };
-      }
-      return { kind: "number", value: num };
-    },
-    [mode, prefix, suffix],
+    (val: number | null | undefined): string => formatCommittedNumber(val, formatOptions),
+    [formatOptions],
   );
 
   const inputElRef = useRef<HTMLInputElement | null>(null);
   const isFocusedRef = useRef(false);
+  const isComposingRef = useRef(false);
+  const draftVersionRef = useRef(0);
+  const lastEchoRef = useRef<{ version: number; value: number | null | undefined }>({
+    version: 0,
+    value: currentValue,
+  });
+  const capturedSelectionRef = useRef<{ start: number; end: number } | null>(null);
+  const compositionStartTextRef = useRef<string | null>(null);
+  const skipPostCompositionInputRef = useRef(false);
+  const prevFormatSigRef = useRef<string>(formatSignature);
+  const pendingCaretRef = useRef<number | null>(null);
+  const [, bumpRender] = useState(0);
+
   const [displayText, setDisplayTextState] = useState<string>(() => formatValue(currentValue));
   const displayTextRef = useRef<string>(displayText);
 
@@ -277,24 +218,69 @@ export const InputNumber = forwardRef<HTMLInputElement, InputNumberProps>(functi
 
   useEffect(() => {
     const val = currentValue;
+    const optionsChanged = prevFormatSigRef.current !== formatSignature;
+    prevFormatSigRef.current = formatSignature;
+
     if (val === null || val === undefined || !Number.isFinite(val)) {
-      if (!isFocusedRef.current || parseRaw(displayTextRef.current).kind === "number") {
-        setDisplayText("");
+      const isCurrentDraftEcho =
+        !optionsChanged &&
+        lastEchoRef.current.version === draftVersionRef.current &&
+        isSameNumericModel(val, lastEchoRef.current.value);
+      if (!isFocusedRef.current || optionsChanged || !isCurrentDraftEcho) {
+        if (
+          !isFocusedRef.current ||
+          parseNumberRaw(displayTextRef.current, formatOptions).kind === "number" ||
+          !isCurrentDraftEcho
+        ) {
+          setDisplayText("");
+        }
+        draftVersionRef.current += 1;
+        lastEchoRef.current = { version: draftVersionRef.current, value: val ?? null };
       }
       return;
     }
-    if (!isFocusedRef.current) {
+
+    if (!isFocusedRef.current || optionsChanged) {
+      draftVersionRef.current += 1;
+      lastEchoRef.current = { version: draftVersionRef.current, value: val };
       setDisplayText(formatValue(val));
       return;
     }
-    const currentParsed = parseRaw(displayTextRef.current);
-    if (currentParsed.kind !== "number" || currentParsed.value !== val) {
-      setDisplayText(formatValue(val));
+
+    if (
+      lastEchoRef.current.version === draftVersionRef.current &&
+      isSameNumericModel(val, lastEchoRef.current.value)
+    ) {
+      return;
     }
-  }, [currentValue, formatValue, parseRaw, setDisplayText]);
+
+    const el = inputElRef.current;
+    const prevTokens = el
+      ? countSemanticTokensBeforeCaret(
+          displayTextRef.current,
+          el.selectionEnd ?? el.selectionStart ?? displayTextRef.current.length,
+          formatOptions,
+        )
+      : null;
+    const formatted = formatValue(val);
+    draftVersionRef.current += 1;
+    lastEchoRef.current = { version: draftVersionRef.current, value: val };
+    if (prevTokens !== null) {
+      pendingCaretRef.current = mapSemanticCaretToFormattedText(formatted, prevTokens, formatOptions);
+    }
+    setDisplayText(formatted);
+  }, [currentValue, formatOptions, formatSignature, formatValue, setDisplayText]);
+
+  useIsomorphicLayoutEffect(() => {
+    const caret = pendingCaretRef.current;
+    if (caret === null) return;
+    pendingCaretRef.current = null;
+    setSelectionSafely(inputElRef.current, caret);
+  });
 
   const emitValue = useCallback(
-    (nextVal: number | null) => {
+    (nextVal: number | null, version: number) => {
+      lastEchoRef.current = { version, value: nextVal };
       if (!isControlled) {
         setUncontrolledValue(nextVal);
       }
@@ -303,25 +289,97 @@ export const InputNumber = forwardRef<HTMLInputElement, InputNumberProps>(functi
     [isControlled, onValueChange],
   );
 
-  const handleRawChange = useCallback(
-    (raw: string, originalEvent: Event) => {
-      setDisplayText(raw);
-      const parsed = parseRaw(raw);
-      if (parsed.kind === "empty") {
+  const applyRawEdit = useCallback(
+    (
+      rawText: string,
+      rawCaret: number,
+      inputType: string | undefined,
+      originalEvent: Event,
+      prevSel?: { start: number; end: number } | null,
+    ) => {
+      const prev = displayTextRef.current;
+      const reconciled = reconcileNumberEdit({
+        rawText,
+        rawCaret,
+        prevText: prev,
+        prevSelectionStart: prevSel?.start,
+        prevSelectionEnd: prevSel?.end,
+        inputType,
+        options: formatOptions,
+      });
+
+      pendingCaretRef.current = reconciled.caret;
+      if (reconciled.rejected) {
+        if (rawText !== reconciled.text) {
+          bumpRender((n) => n + 1);
+        }
+        if (inputElRef.current && inputElRef.current.value !== reconciled.text) {
+          inputElRef.current.value = reconciled.text;
+        }
+        setSelectionSafely(inputElRef.current, reconciled.caret);
+        return;
+      }
+
+      draftVersionRef.current += 1;
+      const nextVersion = draftVersionRef.current;
+
+      if (reconciled.text === prev) {
+        if (rawText !== reconciled.text) {
+          bumpRender((n) => n + 1);
+        }
+        if (inputElRef.current && inputElRef.current.value !== reconciled.text) {
+          inputElRef.current.value = reconciled.text;
+        }
+        setSelectionSafely(inputElRef.current, reconciled.caret);
+      } else {
+        setDisplayText(reconciled.text);
+        if (inputElRef.current && inputElRef.current.value !== reconciled.text) {
+          inputElRef.current.value = reconciled.text;
+        }
+        setSelectionSafely(inputElRef.current, reconciled.caret);
+      }
+
+      if (reconciled.parsed.kind === "empty") {
         if (allowEmpty !== false) {
           onInput?.({ originalEvent, value: null, formattedValue: "" });
-          emitValue(null);
+          emitValue(null, nextVersion);
         }
         return;
       }
-      if (parsed.kind === "number") {
-        const val = roundToPrecision(parsed.value);
-        onInput?.({ originalEvent, value: val, formattedValue: raw });
-        emitValue(val);
+      if (reconciled.parsed.kind === "number") {
+        const val = roundNumberToPrecision(reconciled.parsed.value, effectiveMaxFrac);
+        onInput?.({ originalEvent, value: val, formattedValue: reconciled.text });
+        emitValue(val, nextVersion);
       }
     },
-    [allowEmpty, emitValue, onInput, parseRaw, roundToPrecision, setDisplayText],
+    [allowEmpty, effectiveMaxFrac, emitValue, formatOptions, onInput, setDisplayText],
   );
+
+  const beforeInputHandlerRef = useRef<(event: globalThis.InputEvent) => void>(() => {});
+  beforeInputHandlerRef.current = (event: globalThis.InputEvent) => {
+    if (resolvedDisabled || resolvedReadOnly) {
+      event.preventDefault();
+      return;
+    }
+    if (isComposingRef.current || event.isComposing) return;
+    skipPostCompositionInputRef.current = false;
+    const el = inputElRef.current;
+    if (el) {
+      const start = el.selectionStart ?? el.value.length;
+      const end = el.selectionEnd ?? start;
+      capturedSelectionRef.current = { start, end };
+    } else {
+      capturedSelectionRef.current = null;
+    }
+    if (
+      event.inputType === "insertText" &&
+      event.data &&
+      !isAllowedNumberInputText(event.data, formatOptions)
+    ) {
+      capturedSelectionRef.current = null;
+      event.preventDefault();
+    }
+  };
 
   const keypressHandlerRef = useRef<(event: globalThis.KeyboardEvent) => void>(() => {});
   keypressHandlerRef.current = (event: globalThis.KeyboardEvent) => {
@@ -329,6 +387,7 @@ export const InputNumber = forwardRef<HTMLInputElement, InputNumberProps>(functi
       event.preventDefault();
       return;
     }
+    if (isComposingRef.current || event.isComposing) return;
     if (event.ctrlKey || event.metaKey || event.altKey) return;
     const ch =
       event.key && event.key.length === 1
@@ -338,30 +397,36 @@ export const InputNumber = forwardRef<HTMLInputElement, InputNumberProps>(functi
           : "";
     if (!ch) return;
 
-    if (!/^[0-9.,+-]$/.test(ch)) {
+    if (!isAllowedNumberInputText(ch, formatOptions)) {
       event.preventDefault();
       return;
     }
 
-    // 合成 DOM 测试（fireEvent.keyPress）不会自动写入字符并派发 input，在此统一承接。
+    // 真实浏览器走原生输入链；合成 DOM 测试（fireEvent.keyPress）不会自动派发 input，在此承接。
+    if (event.isTrusted) return;
+
     event.preventDefault();
     const el = inputElRef.current;
     const current = el ? el.value : displayTextRef.current;
     const start = el?.selectionStart ?? current.length;
     const end = el?.selectionEnd ?? current.length;
     const nextRaw = `${current.slice(0, start)}${ch}${current.slice(end)}`;
-    if (el) {
-      el.value = nextRaw;
-    }
-    handleRawChange(nextRaw, event);
+    applyRawEdit(nextRaw, start + ch.length, "insertText", event, { start, end });
   };
 
   useIsomorphicLayoutEffect(() => {
     const el = inputElRef.current;
     if (!el) return;
-    const listener = (event: globalThis.KeyboardEvent) => keypressHandlerRef.current(event);
-    el.addEventListener("keypress", listener);
-    return () => el.removeEventListener("keypress", listener);
+    const onNativeBeforeInput = (event: Event) =>
+      beforeInputHandlerRef.current(event as globalThis.InputEvent);
+    const onNativeKeypress = (event: globalThis.KeyboardEvent) =>
+      keypressHandlerRef.current(event);
+    el.addEventListener("beforeinput", onNativeBeforeInput);
+    el.addEventListener("keypress", onNativeKeypress);
+    return () => {
+      el.removeEventListener("beforeinput", onNativeBeforeInput);
+      el.removeEventListener("keypress", onNativeKeypress);
+    };
   }, []);
 
   const setRefs = useCallback(
@@ -375,7 +440,7 @@ export const InputNumber = forwardRef<HTMLInputElement, InputNumberProps>(functi
   function stepBy(direction: 1 | -1, originalEvent: Event) {
     if (resolvedDisabled || resolvedReadOnly) return;
     const stepAmount = step && step > 0 ? step : 1;
-    const currentParsed = parseRaw(displayTextRef.current);
+    const currentParsed = parseNumberRaw(displayTextRef.current, formatOptions);
     const baseVal =
       currentParsed.kind === "number"
         ? currentParsed.value
@@ -384,31 +449,35 @@ export const InputNumber = forwardRef<HTMLInputElement, InputNumberProps>(functi
           : 0;
 
     const precision = Math.max(
-      countDecimals(baseVal),
-      countDecimals(stepAmount),
-      maxFractionDigits ?? 0,
+      countNumberDecimals(baseVal),
+      countNumberDecimals(stepAmount),
+      effectiveMaxFrac ?? 0,
     );
     const rawNext = Number((baseVal + direction * stepAmount).toFixed(Math.min(20, precision)));
     const clamped = clampValue(rawNext);
     const formatted = formatValue(clamped);
+    draftVersionRef.current += 1;
+    const nextVersion = draftVersionRef.current;
     setDisplayText(formatted);
     if (inputElRef.current) {
       inputElRef.current.value = formatted;
     }
     onInput?.({ originalEvent, value: clamped, formattedValue: formatted });
-    emitValue(clamped);
+    emitValue(clamped, nextVersion);
   }
 
   function commitDisplayValue() {
     const raw = inputElRef.current ? inputElRef.current.value : displayTextRef.current;
-    const parsed = parseRaw(raw);
+    const parsed = parseNumberRaw(raw, formatOptions);
     if (parsed.kind === "empty" || parsed.kind === "incomplete") {
+      draftVersionRef.current += 1;
+      const nextVersion = draftVersionRef.current;
       if (allowEmpty !== false) {
         setDisplayText("");
         if (inputElRef.current) {
           inputElRef.current.value = "";
         }
-        emitValue(null);
+        emitValue(null, nextVersion);
       } else {
         const fallback = clampValue(min ?? 0);
         const formatted = formatValue(fallback);
@@ -416,38 +485,98 @@ export const InputNumber = forwardRef<HTMLInputElement, InputNumberProps>(functi
         if (inputElRef.current) {
           inputElRef.current.value = formatted;
         }
-        emitValue(fallback);
+        emitValue(fallback, nextVersion);
       }
       return;
     }
     if (parsed.kind === "number") {
       const clamped = clampValue(parsed.value);
       const formatted = formatValue(clamped);
+      draftVersionRef.current += 1;
+      const nextVersion = draftVersionRef.current;
       setDisplayText(formatted);
       if (inputElRef.current) {
         inputElRef.current.value = formatted;
       }
-      if (clamped !== currentValue) {
-        emitValue(clamped);
+      if (!isSameNumericModel(clamped, currentValue)) {
+        emitValue(clamped, nextVersion);
+      } else {
+        lastEchoRef.current = { version: nextVersion, value: clamped };
       }
       return;
     }
     const restored = formatValue(currentValue);
+    draftVersionRef.current += 1;
+    lastEchoRef.current = { version: draftVersionRef.current, value: currentValue };
     setDisplayText(restored);
     if (inputElRef.current) {
       inputElRef.current.value = restored;
     }
   }
 
+  function handleCompositionStart(event: ReactCompositionEvent<HTMLInputElement>) {
+    isComposingRef.current = true;
+    skipPostCompositionInputRef.current = false;
+    compositionStartTextRef.current = displayTextRef.current;
+    const target = event.currentTarget;
+    const start = target.selectionStart ?? target.value.length;
+    const end = target.selectionEnd ?? start;
+    capturedSelectionRef.current = { start, end };
+    onCompositionStart?.(event);
+  }
+
+  function handleCompositionEnd(event: ReactCompositionEvent<HTMLInputElement>) {
+    onCompositionEnd?.(event);
+    if (!isComposingRef.current) return;
+    isComposingRef.current = false;
+    const startSnapshot = compositionStartTextRef.current;
+    const selSnapshot = capturedSelectionRef.current;
+    compositionStartTextRef.current = null;
+    capturedSelectionRef.current = null;
+    if (resolvedDisabled || resolvedReadOnly) return;
+    const target = event.currentTarget;
+    if (startSnapshot !== null && target.value === startSnapshot) {
+      setDisplayText(startSnapshot);
+      skipPostCompositionInputRef.current = true;
+      return;
+    }
+    displayTextRef.current = startSnapshot ?? displayTextRef.current;
+    const rawCaret = target.selectionEnd ?? target.selectionStart ?? target.value.length;
+    applyRawEdit(target.value, rawCaret, "insertCompositionText", event.nativeEvent, selSnapshot);
+    skipPostCompositionInputRef.current = true;
+  }
+
   function handleChange(event: ChangeEvent<HTMLInputElement>) {
     onChange?.(event);
     if (resolvedDisabled || resolvedReadOnly) return;
-    handleRawChange(event.currentTarget.value, event.nativeEvent);
+    const nativeInputEvent = event.nativeEvent as InputEvent;
+    if (isComposingRef.current || nativeInputEvent.isComposing) {
+      setDisplayTextState(event.currentTarget.value);
+      return;
+    }
+    const target = event.currentTarget;
+    if (skipPostCompositionInputRef.current) {
+      skipPostCompositionInputRef.current = false;
+      if (target.value === displayTextRef.current) {
+        return;
+      }
+    }
+    const prevSel = capturedSelectionRef.current;
+    capturedSelectionRef.current = null;
+    const rawCaret = target.selectionEnd ?? target.selectionStart ?? target.value.length;
+    applyRawEdit(target.value, rawCaret, nativeInputEvent.inputType, event.nativeEvent, prevSel);
   }
 
   function handleKeyDown(event: ReactKeyboardEvent<HTMLInputElement>) {
     onKeyDown?.(event);
     if (resolvedDisabled || resolvedReadOnly) return;
+    if (
+      isComposingRef.current ||
+      event.nativeEvent.isComposing ||
+      event.keyCode === 229
+    ) {
+      return;
+    }
     if (event.key === "ArrowUp") {
       event.preventDefault();
       stepBy(1, event.nativeEvent);
@@ -466,18 +595,24 @@ export const InputNumber = forwardRef<HTMLInputElement, InputNumberProps>(functi
 
   function handleBlur(event: FocusEvent<HTMLInputElement>) {
     isFocusedRef.current = false;
+    isComposingRef.current = false;
+    capturedSelectionRef.current = null;
+    compositionStartTextRef.current = null;
+    skipPostCompositionInputRef.current = false;
     commitDisplayValue();
     onBlur?.(event);
   }
 
   function handleClear(event: MouseEvent<HTMLButtonElement>) {
     if (resolvedDisabled || resolvedReadOnly || allowEmpty === false) return;
+    draftVersionRef.current += 1;
+    const nextVersion = draftVersionRef.current;
     setDisplayText("");
     if (inputElRef.current) {
       inputElRef.current.value = "";
     }
     onInput?.({ originalEvent: event.nativeEvent, value: null, formattedValue: "" });
-    emitValue(null);
+    emitValue(null, nextVersion);
   }
 
   const isAtMin =
@@ -569,7 +704,7 @@ export const InputNumber = forwardRef<HTMLInputElement, InputNumberProps>(functi
         disabled={resolvedDisabled}
         readOnly={resolvedReadOnly}
         required={resolvedRequired}
-        inputMode={maxFractionDigits === 0 ? "numeric" : "decimal"}
+        inputMode={effectiveMaxFrac === 0 ? "numeric" : "decimal"}
         aria-valuemin={min}
         aria-valuemax={max}
         aria-valuenow={currentValue ?? undefined}
@@ -584,6 +719,8 @@ export const InputNumber = forwardRef<HTMLInputElement, InputNumberProps>(functi
         data-readonly={resolvedReadOnly ? "" : undefined}
         data-size={resolvedSize}
         autoComplete="off"
+        onCompositionStart={handleCompositionStart}
+        onCompositionEnd={handleCompositionEnd}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
         onFocus={handleFocus}
