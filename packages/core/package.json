@@ -87,6 +87,11 @@
       "types": "./dist/headless/notify-core.d.ts",
       "default": "./dist/headless/notify-core.js"
     },
+    "./headless/number-edit": {
+      "mango-source": "./src/headless/number-edit.ts",
+      "types": "./dist/headless/number-edit.d.ts",
+      "default": "./dist/headless/number-edit.js"
+    },
     "./headless/option-accessor": {
       "mango-source": "./src/headless/option-accessor.ts",
       "types": "./dist/headless/option-accessor.d.ts",
@@ -145,6 +150,10 @@
       "./headless/notify-core": {
         "types": "./dist/headless/notify-core.d.ts",
         "default": "./dist/headless/notify-core.js"
+      },
+      "./headless/number-edit": {
+        "types": "./dist/headless/number-edit.d.ts",
+        "default": "./dist/headless/number-edit.js"
       },
       "./headless/option-accessor": {
         "types": "./dist/headless/option-accessor.d.ts",

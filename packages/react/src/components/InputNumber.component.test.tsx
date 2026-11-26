@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { fireEvent, render } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import FormField from "./FormField";
@@ -181,5 +182,117 @@ describe("InputNumber", () => {
 
     fireEvent.click(container.querySelector(".mw-input-number__button--up")!);
     expect(onValueChange).not.toHaveBeenCalled();
+  });
+
+  it("在受控千分位数值前部连续输入、替换首位与跨逗号删除时光标不跳到末尾", () => {
+    let latest: number | null = 2_000_000;
+    function Host() {
+      const [val, setVal] = useState<number | null>(2_000_000);
+      return (
+        <InputNumber
+          value={val}
+          onValueChange={(next) => {
+            latest = next;
+            setVal(next);
+          }}
+          locale="en-US"
+          maxFractionDigits={0}
+          inputId="tokens-limit"
+        />
+      );
+    }
+
+    const { container } = render(<Host />);
+    const input = container.querySelector<HTMLInputElement>("input#tokens-limit")!;
+    expect(input.value).toBe("2,000,000");
+
+    fireEvent.focus(input);
+
+    const nativeValueSetter = Object.getOwnPropertyDescriptor(
+      window.HTMLInputElement.prototype,
+      "value",
+    )!.set!;
+    const dispatchInputAt = (raw: string, caret: number, init: InputEventInit) => {
+      nativeValueSetter.call(input, raw);
+      input.setSelectionRange(caret, caret);
+      input.dispatchEvent(new InputEvent("input", { bubbles: true, ...init }));
+    };
+
+    // 在 2 后依次输入 5、0、0：2,000,000 -> 2,500,000,000
+    dispatchInputAt("25,000,000", 2, { inputType: "insertText", data: "5" });
+    expect(input.value).toBe("25,000,000");
+    expect(input.selectionStart).toBe(2);
+    expect(latest).toBe(25_000_000);
+
+    dispatchInputAt("2500,000,000", 4, { inputType: "insertText", data: "0" });
+    expect(input.value).toBe("2,500,000,000");
+    expect(input.selectionStart).toBe(5);
+    expect(latest).toBe(2_500_000_000);
+
+    // 合成 keyPress 在首位插入数字同样保持光标在插入位之后
+    input.setSelectionRange(0, 0);
+    fireEvent.keyPress(input, { key: "1", charCode: 49 });
+    expect(input.value).toBe("12,500,000,000");
+    expect(input.selectionStart).toBe(1);
+    expect(latest).toBe(12_500_000_000);
+
+    // 贴逗号按 Backspace（12,|500,000,000 -> 删掉逗号后 12500,000,000，caret=2）跨过逗号删掉 2
+    dispatchInputAt("12500,000,000", 2, { inputType: "deleteContentBackward" });
+    expect(input.value).toBe("1,500,000,000");
+    expect(input.selectionStart).toBe(1);
+    expect(latest).toBe(1_500_000_000);
+
+    // 删除前部数字留下前导逗号 ,000,000 时，消去悬空逗号并保留前导零 000,000，失焦再规整为 0
+    dispatchInputAt(",000,000", 0, { inputType: "deleteContentBackward" });
+    expect(input.value).toBe("000,000");
+    expect(input.selectionStart).toBe(0);
+    expect(latest).toBe(0);
+
+    fireEvent.blur(input);
+    expect(input.value).toBe("0");
+  });
+
+  it("覆盖 de-DE 整数失焦往返、USD 默认精度同步与 IME 组合态键盘隔离", () => {
+    const onValueChange = vi.fn();
+    const { container, rerender } = render(
+      <InputNumber
+        value={2000}
+        locale="de-DE"
+        maxFractionDigits={0}
+        inputId="de-int"
+        onValueChange={onValueChange}
+      />,
+    );
+    const input = container.querySelector<HTMLInputElement>("input#de-int")!;
+    expect(input.value).toBe("2.000");
+
+    fireEvent.focus(input);
+    fireEvent.blur(input);
+    expect(input.value).toBe("2.000");
+    expect(onValueChange).not.toHaveBeenCalledWith(2);
+
+    // USD 默认两位小数：输入 $1.234 首次提交即发出 1.23 并显示 $1.23
+    rerender(
+      <InputNumber
+        value={1}
+        mode="currency"
+        currency="USD"
+        locale="en-US"
+        inputId="de-int"
+        onValueChange={onValueChange}
+      />,
+    );
+    fireEvent.focus(input);
+    fireEvent.change(input, { target: { value: "$1.234" } });
+    expect(onValueChange).toHaveBeenLastCalledWith(1.23);
+    fireEvent.blur(input);
+    expect(input.value).toBe("$1.23");
+
+    // IME 组合期 ArrowUp 不触发步进
+    onValueChange.mockClear();
+    fireEvent.compositionStart(input);
+    fireEvent.keyDown(input, { key: "ArrowUp", keyCode: 229 });
+    expect(onValueChange).not.toHaveBeenCalled();
+    fireEvent.compositionEnd(input);
   });
 });

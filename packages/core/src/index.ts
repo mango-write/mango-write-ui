@@ -7,4 +7,5 @@ export * from "./headless/option-accessor.js";
 export * from "./headless/theme-core.js";
 export * from "./headless/confirm-core.js";
 export * from "./headless/notify-core.js";
+export * from "./headless/number-edit.js";
 export * from "./defs/index.js";
